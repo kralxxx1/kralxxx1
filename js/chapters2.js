@@ -277,7 +277,7 @@
       else g.setObj('workshop_key');
     },
     correct(g) { const want = g.levelDef.dials; return g.items.filter(i => i.type === 'dial').filter((o, k) => o.value === want[k]).length; },
-    picked(g, k) { if (k === 'waltKey') { g.setObj('workshop_kernel'); g.mono('workshop_key', 4); g.completeStep(); } },
+    picked(g, k) { if (k === 'waltKey') { g.setObj('workshop_kernel'); g.mono('workshop_key', 4); g.flags.chompyAwake = true; g.completeStep(); } },
     unlockPrompt(g, door) { return door.id === 'kernelDoor' && has(g, 'waltKey') ? ST.line('workshop_unlock') : null; },
     unlockDoor(g, door) {
       if (door.id === 'kernelDoor' && has(g, 'waltKey')) { g.flags.kernelOpen = true; unlock(g, 'kernelDoor'); g.setObj('workshop_dials', { n: this.correct(g) }); g.mono('workshop_kernel', 4); g.radio('workshop_kernel', { delay: 4 }); g.completeStep(); return true; }
@@ -305,6 +305,6 @@
       }
       return true;
     },
-    update(g) { if (!g.flags.chompySeen && g.entities.some(e => e.kind === 'chompy' && e.distToPlayer() < 14 && e.losToPlayer())) { g.flags.chompySeen = true; g.mono('workshop_chompy', 4); g.radio('workshop_chompy', { delay: 4 }); } },
+    update(g) { if (!g.flags.chompySeen && g.entities.some(e => e.kind === 'chompy' && e.state !== 'display' && e.distToPlayer() < 14 && e.losToPlayer())) { g.flags.chompySeen = true; g.mono('workshop_chompy', 4); g.radio('workshop_chompy', { delay: 4 }); } },
   };
 })(typeof window !== 'undefined' ? window : globalThis);

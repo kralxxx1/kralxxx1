@@ -321,7 +321,7 @@
       this.audio.ambience(L.theme);
       this.audio.music.flavor = L.def.music || 'default';
       this.audio.warmMusic();
-      if (this.world.street) { const zF = L.h * L.cell; this.audio.streetSounds({ x: 6, y: 1.6, z: zF - 0.2 }, { x: this.world.street.spout.x, y: 0.3, z: zF + 0.4 }); }
+      if (this.world.street && this.world.street.spout) { const zF = L.h * L.cell; this.audio.streetSounds({ x: 6, y: 1.6, z: zF - 0.2 }, { x: this.world.street.spout.x, y: 0.3, z: zF + 0.4 }); }
       this.audio.setMusic('explore');
       this.ui.buildTouch();
       this.updateInventoryUI();
@@ -672,7 +672,14 @@
             }
             if (['exit', 'elevator', 'stair', 'house'].includes(door.kind)) return;
             if (door.open) { this.world.closeDoor(door.id); this.audio.door(door.kind, pos, false); }
-            else { this.world.openDoor(door.id, this.player.pos.x, this.player.pos.z); this.audio.door(door.kind, pos, true); this.noise(pos.x, pos.z, 8); }
+            else {
+              // Crouching eases a door open: slower, and far quieter
+              const soft = this.player.crouching;
+              this.world.openDoor(door.id, this.player.pos.x, this.player.pos.z);
+              if (soft) { const ob = this.world.doorObjs.get(door.id); if (ob) ob.slow = true; }
+              this.audio.door(door.kind, pos, true, soft ? 0.35 : 1);
+              this.noise(pos.x, pos.z, soft ? 2.5 : 8);
+            }
             this.nav.dirty = true;
           },
         });
@@ -703,6 +710,9 @@
       const spawnFar = (minD) => {
         const dist = L.bfs(L.spawn.x, L.spawn.y, 'nav');
         const cands = [];
+        let far = 0; for (let i = 0; i < dist.length; i++) if (L.floorType[i] === 0) far = Math.max(far, dist[i]);
+        // Small levels: never closer than most of the way across
+        minD = Math.min(minD, Math.max(3, Math.floor(far * 0.7)));
         for (let i = 0; i < dist.length; i++) if (dist[i] >= minD && L.floorType[i] === 0) cands.push(i);
         const i = cands.length ? cands[Math.floor(Math.random() * cands.length)] : L.i(L.spawn.x, L.spawn.y);
         return { x: i % L.w, y: (i / L.w) | 0 };
@@ -730,7 +740,12 @@
             else { const c = spawnFar(e.ghost === 'clyde' ? 14 : 18); ent.placeCell(c.x, c.y); }
           } else if (e.type === 'grinner') { ent = new E.Grinner(this, e); const c = spawnFar(12); ent.placeCell(c.x, c.y); }
           else if (e.type === 'watcher') { ent = new E.Watcher(this, e); ent.placeCell(L.spawn.x, L.spawn.y); }
-          else if (E.extra && E.extra[e.type]) { ent = new E.extra[e.type](this, e); const c = spawnFar(e.near || (e.type === 'mannequin' ? 10 : 16)); ent.placeCell(c.x, c.y); }
+          else if (E.extra && E.extra[e.type]) {
+            ent = new E.extra[e.type](this, e);
+            const sp = e.spot && L.spots[e.spot] && L.spots[e.spot][0];
+            if (sp) { ent.placeCell(sp.x, sp.y); if (sp.wx != null) { ent.pos.set(sp.wx, 0, sp.wz); ent.mesh.position.copy(ent.pos); } ent.heading = e.heading || 0; }
+            else { const c = spawnFar(e.near || (e.type === 'mannequin' ? 10 : 16)); ent.placeCell(c.x, c.y); }
+          }
           if (ent) this.entities.push(ent);
         }
       }
@@ -814,6 +829,53 @@
     }
     canHold(it) { return !this.script.canHold || this.script.canHold(this, it.ref); }
     noise(x, z, radius) { for (const e of this.entities) e.hear(x, z, radius); }
+    // Unscripted scares: every minute or two something happens nearby that is not an attack.
+    // A tube bursts, a door slams behind you, someone runs past out of sight, a whisper.
+    updateScares(dt) {
+      const def = this.levelDef, pl = this.player, t_ = PB.t;
+      if (!def || ['prolog', 'maze', 'killscreen'].includes(def.id) || S.data.jumpscare === 'off') return;
+      if (this.scareT == null) this.scareT = 50 + Math.random() * 40;
+      this.scareT -= dt;
+      if (this.scareT > 0 || pl.hidden || this.talking()) return;
+      // Not while something is actually hunting you
+      if (this.entities.some(e => e.hostile && !e.friendly && e.mesh && e.distToPlayer && e.distToPlayer() < 14 && e.state === 'chase')) { this.scareT = 12; return; }
+      this.scareT = 60 + Math.random() * 70;
+      const cam = this.camera, fwd = pl.forward(), W = this.world, t = this.time;
+      const behind = (x, z) => ((x - pl.pos.x) * fwd.x + (z - pl.pos.z) * fwd.z) < 0;
+      const opts = [];
+      // 1. A fluorescent tube bursts right ahead
+      const fix = W.fixtures.filter(f => f.mesh && f.powered && !f.light.broken && Math.hypot(f.light.x - pl.pos.x, f.light.z - pl.pos.z) < 10 && !behind(f.light.x, f.light.z));
+      if (fix.length) opts.push(() => {
+        const f = fix[Math.floor(Math.random() * fix.length)];
+        f.light.popT = t + 2.2; W.fixDirty = true;
+        const pos = { x: f.light.x, y: f.light.y || 2.8, z: f.light.z }, o = this.audio.out('sfx', pos, { rev: 0.5 });
+        if (this.audio.ctx) { const a = this.audio, at = a.t; a.burst(o.input, 'highpass', 2500, 0.7, at, 0.12, 0.9, 0.001); for (let k = 0; k < 7; k++) a.tone(o.input, 'sine', 3000 + Math.random() * 3000, 2500, at + 0.05 + Math.random() * 0.4, 0.05, 0.12, 0.001); }
+        this.audio.caption('buzz', t_('cap.pop'), pos, 10);
+        pl.addTrauma(0.25); pl.fear = Math.min(100, pl.fear + 12);
+      });
+      // 2. A door you left open slams behind you
+      const doors = [...W.doorObjs.values()].filter(o => o.door.open && !['exit', 'elevator', 'house', 'stair'].includes(o.door.kind) && o.door.id !== this.exitDoorId && Math.hypot(o.g.cx - pl.pos.x, o.g.cz - pl.pos.z) < 13 && Math.hypot(o.g.cx - pl.pos.x, o.g.cz - pl.pos.z) > 3 && behind(o.g.cx, o.g.cz));
+      if (doors.length) opts.push(() => {
+        const o = doors[Math.floor(Math.random() * doors.length)];
+        W.closeDoor(o.door.id); this.nav.dirty = true;
+        const pos = new THREE.Vector3(o.g.cx, 1.2, o.g.cz);
+        this.audio.door(o.door.kind, pos, false, 1.8);
+        this.audio.caption('door', t_('cap.slam'), pos, 10);
+        pl.addTrauma(0.3); pl.fear = Math.min(100, pl.fear + 15);
+      });
+      // 3. Somebody runs past, out of sight
+      opts.push(() => {
+        const a = Math.atan2(-fwd.x, -fwd.z) + (Math.random() - 0.5) * 1.2, d = 9 + Math.random() * 5;
+        const sx = pl.pos.x + Math.sin(a) * d, sz = pl.pos.z + Math.cos(a) * d, dir = a + Math.PI / 2;
+        const surf = pl.surface ? pl.surface() : 'carpet';
+        for (let k = 0; k < 9; k++) this.later(k * 260, () => this.audio.footstep(surf, 1.2, { x: sx + Math.sin(dir) * k * 0.9, y: 0, z: sz + Math.cos(dir) * k * 0.9 }));
+        this.audio.caption('run', t_('cap.run'), { x: sx, y: 1, z: sz }, 10);
+        pl.fear = Math.min(100, pl.fear + 8);
+      });
+      // 4. A whisper right at your ear
+      opts.push(() => { this.audio.echoVoice(1.4, 'voice'); this.audio.caption('whisper', t_('cap.whisper'), null, 10); pl.fear = Math.min(100, pl.fear + 10); });
+      opts[Math.floor(Math.random() * opts.length)]();
+    }
     openDoorBy(door, ent) {
       this.world.openDoor(door.id, ent.pos.x, ent.pos.z);
       const obj = this.world.doorObjs.get(door.id);
@@ -1040,19 +1102,28 @@
       if (this.inv.glow <= 0) { this.ui.hint(t('n.noGlow')); return; }
       this.inv.glow--;
       const pl = this.player;
-      const f = pl.forward();
-      const pos = new THREE.Vector3(pl.pos.x + f.x * 1.6, 0.05, pl.pos.z + f.z * 1.6);
-      const cand = { x: pos.x, z: pos.z };
-      this.world.collide(cand, 0.1);
-      pos.x = cand.x; pos.z = cand.z;
+      const f = pl.forward(), L = this.level;
+      // Thrown, not dropped: it flies up to ~9 m (further when looking up) and lands where a wall stops it
+      const reach = U.clamp(6 + pl.pitch * 8, 2, 9.5);
+      let land = { x: pl.pos.x + f.x * 0.8, z: pl.pos.z + f.z * 0.8 };
+      for (let s = 0.8; s <= reach; s += 0.25) {
+        const x = pl.pos.x + f.x * s, z = pl.pos.z + f.z * s;
+        if (!L.los(pl.pos.x, pl.pos.z, x, z)) break;
+        const q = { x, z }; this.world.collide(q, 0.12);
+        if (Math.hypot(q.x - x, q.z - z) > 0.05) { land = q; break; }
+        land = { x, z };
+      }
+      const pos = new THREE.Vector3(land.x, 0.05, land.z);
+      const cam = this.camera.position;
       const mesh = this.meshFromDef('glowstick');
-      mesh.position.copy(pos);
+      mesh.position.set(cam.x + f.x * 0.4, cam.y - 0.25, cam.z + f.z * 0.4);
       mesh.rotation.y = Math.random() * 6;
       this.scene.add(mesh);
       const light = this.glowPool.find(l => l.intensity === 0) || this.glowPool[0];
       light.position.set(pos.x, 0.4, pos.z);
       light.intensity = 5;
-      const gs = { pos, mesh, light, t: 75 };
+      const from = mesh.position.clone(), dist = Math.hypot(pos.x - from.x, pos.z - from.z);
+      const gs = { pos, mesh, light, t: 75, fly: { from, t: 0, dur: 0.18 + dist / 11, h: 0.6 + dist * 0.12 } };
       const old = this.glowsticks.find(g => g.light === light);
       if (old) { this.scene.remove(old.mesh); this.glowsticks.splice(this.glowsticks.indexOf(old), 1); }
       this.glowsticks.push(gs);
@@ -1258,6 +1329,7 @@
       this.ui.powerTimer(this.powerT);
       this.updateEntities(dt);
       if (this.state !== 'play') return;
+      this.updateScares(dt);
       this.updateItems(dt);
       this.updateInteraction(dt);
       this.updatePortals();
@@ -1333,6 +1405,20 @@
     }
     updateGlowsticks(dt) {
       for (const gs of this.glowsticks.slice()) {
+        if (gs.fly) {
+          // In the air: a tumbling arc, the light travels with it; on landing it clatters and draws attention
+          const fl = gs.fly; fl.t += dt;
+          const k = Math.min(1, fl.t / fl.dur);
+          gs.mesh.position.set(U.lerp(fl.from.x, gs.pos.x, k), U.lerp(fl.from.y, gs.pos.y, k) + Math.sin(k * Math.PI) * fl.h, U.lerp(fl.from.z, gs.pos.z, k));
+          gs.mesh.rotation.x += dt * 14; gs.mesh.rotation.z += dt * 9;
+          gs.light.position.set(gs.mesh.position.x, gs.mesh.position.y + 0.3, gs.mesh.position.z);
+          if (k >= 1) {
+            gs.fly = null; gs.mesh.position.copy(gs.pos); gs.mesh.rotation.set(0, Math.random() * 6, 0); gs.light.position.set(gs.pos.x, 0.4, gs.pos.z);
+            this.audio.play('plasticTap', 3, 'sfx', { x: gs.pos.x, y: 0.1, z: gs.pos.z }, { rev: 0.35, gain: 0.9 });
+            this.later(140, () => this.audio.play('plasticTap', 3, 'sfx', { x: gs.pos.x, y: 0.1, z: gs.pos.z }, { rev: 0.35, gain: 0.45, rate: 1.2 }));
+            this.noise(gs.pos.x, gs.pos.z, 11);
+          }
+        }
         gs.t -= dt;
         gs.light.intensity = gs.t > 5 ? 5 : Math.max(0, gs.t);
         if (gs.t <= 0) { this.scene.remove(gs.mesh); this.glowsticks.splice(this.glowsticks.indexOf(gs), 1); gs.light.intensity = 0; continue; }

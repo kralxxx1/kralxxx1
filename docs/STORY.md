@@ -42,7 +42,7 @@ Something that used to be a man is still hungry.
 | **Sam** | 13 | Protagonist. Clyde's best friend, the fifth regular. Left the arcade at 9:40 PM on April 16 after a fight with Clyde. Last words to him: "Fine. Disappear then." Now 20, works nights for Tri-County Movers and volunteered for this job. |
 | **Walt** | 56 | Owner of Starlight Arcade (opened May 1981). Former Air Force radar technician, then TV repairman. Kind to the kids: free tokens, fixed their bikes. His daughter Lily died in October 1983. Built the Kernel with Eddie to push the game past level 255. Went into cabinet #7 in March 1992. Now the Eater. |
 | **Lily** | died 1983, age 9 | Walt's daughter. Sam's and Clyde's classmate in fourth grade. Her initials LIL are still on the high score table (3,190 points). Drew pictures of the arcade. Her eight drawings are hidden through the game. |
-| **Billy** | 16 | Red ghost. Loud, fearless, holds the #1 score (BLY). His dad was laid off from the Harlow Mill warehouse in 1986. Copied Walt's key and dared everyone to come back after closing. Memento: his dad's wristwatch, stopped at 3:17. Haunts the Mill Warehouse. |
+| **Billy** | 16 | Red ghost. Loud, fearless, holds the #1 score (BLY). His dad was laid off from the Harlow Mill warehouse in 1986. Walt trusted him with a spare front key for Saturday set-up; Billy used it to dare everyone back after closing. Memento: his dad's wristwatch, stopped at 3:17. Haunts the Mill Warehouse. |
 | **Penny** | 15 | Pink ghost. The planner, always one step ahead. Makes mixtapes, wants to be a radio DJ. Did homework at her mom's insurance office every evening. Memento: mixtape "SIDE B: FOR AFTER". Haunts the Insurance Office. |
 | **Ivy** | 15 | Blue ghost. Quiet, draws comics, thick glasses, never sure of herself. In July 1985 her little brother Theo (6) nearly drowned at the town pool while she was supposed to be watching him. Memento: her glasses. Haunts the Pool. |
 | **Clyde** | 13 | Orange ghost. Youngest, funny, scared of the dark. Carries his grandpa's engraved lighter. Begged Sam to stay that night. Memento: the lighter. Haunts Lights Out. |
@@ -63,7 +63,7 @@ Something that used to be a man is still hungry.
 - Jul 1985: Theo nearly drowns at Harlow Municipal Pool. Ivy stops swimming. Billy, Clyde and Sam explore the storm tunnels ("B+C+S WERE HERE").
 - 1986: Billy's dad is laid off. Harlow Mall opens. Dec 1986: the five spend their best Saturday at the mall (photo booth strip).
 - Nov 1986: Walt and Eddie start building the Kernel.
-- Apr 16, 1987 (Thursday): After school the kids plan "Operation 256". At 9:40 PM Sam and Clyde fight and Sam walks home. Billy lets the four back in with his copied key after Walt goes upstairs. At 3:17 AM they reach level 256, press CONTINUE and vanish. Walt finds the cabinet running at 3:20 AM with four new ghosts on screen.
+- Apr 16, 1987 (Thursday): After school the kids plan "Operation 256". At 9:40 PM Sam and Clyde fight and Sam walks home. Billy lets the four back in with the spare key after Walt goes upstairs (Eddie also left the back door unlocked). At 3:17 AM they reach level 256, press CONTINUE and vanish. Walt finds the cabinet running at 3:20 AM with four new ghosts on screen.
 - 1987: Detective Frank investigates. Walt tells police the kids left at midnight, to hide that Billy had his key. The lie makes him the prime suspect. No charges. The arcade closes to the public in December.
 - 1988: Eddie quits after the fight about unplugging the cabinet.
 - 1988–1992: Walt lives in the back of the arcade, studies the ghosts' patterns, keeps paying the huge electric bills.
@@ -86,7 +86,7 @@ Each chapter is a memory. Emotional beat in brackets.
 | 4 | Insurance Office | Penny | Penny (pink), Clerks | Security code, keycard, fire stairs. Penny's mixtape [loneliness] |
 | 5 | Harlow Middle School | all five, Apr 16 1987 | Hall Monitor | Operation 256 plans, the kids' lockers, the gym [nostalgia, dread] |
 | 6 | Lights Out | Clyde | Clyde (orange), Grinners | Three generators. Clyde's lighter [fear, courage] |
-| 7 | Harlow Mall | all five, Dec 1986 | Mannequins | Power the atrium, the photo booth strip [the happiest day] |
+| 7 | Harlow Mall | all five, Dec 1986 | Mannequins | Find the four photo booth frames, rebuild the strip [the happiest day] |
 | 8 | Starlite Motor Inn | Eddie | the Neighbor | Find Room 12. Eddie's notebook: ONE IN, ONE OUT [suspicion] |
 | 9 | St. Agnes Hospital | Walt | the Counter | Lily's room, Walt's diary, the Chompy photo [sorrow] |
 | 10 | Maple Street | Sam | the Neighbor (uses Clyde's voice) | Sam's house, Clyde's house, the fight [guilt, reconciliation] |

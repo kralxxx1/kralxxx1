@@ -426,7 +426,7 @@
       for (let x = 6; x < L.w - 4; x += 10) {
         const k = Math.floor(x / 10) % 4;
         if (k === 0) prop(L, 'fountain', x * C, zc, 0, { collider: { hw: 2.0, hd: 2.0 } });
-        else if (k === 1) prop(L, 'xmasTree', x * C, zc, 0, { collider: { hw: 1.2, hd: 1.2 } });
+        else if (k === 1) prop(L, 'xmasTree', x * C, zc, 0, { collider: { hw: 1.45, hd: 1.45 } });
         else if (k === 2) prop(L, 'kiosk', x * C, zc, 0, { collider: { hw: 1.1, hd: 0.7 }, hide: true });
         else prop(L, 'planter', x * C, zc, 0, { collider: { hw: 0.55, hd: 0.55 } });
         for (const s of [-1, 1]) prop(L, 'mallBench', x * C + 3.5, zc + s * 1.6, s > 0 ? PI : 0, { collider: { hw: 0.9, hd: 0.3 } });
@@ -473,7 +473,8 @@
       for (let y = fy0; y <= fy1; y++) { if (hs.x0 - 1 >= 0 && outdoor[L.i(hs.x0 - 1, y)] && y !== (hs.north ? 3 : 10)) L.setEdge(hs.x0 - 1, y, 3, EDGE.FENCE, true); }
     }
     // Doors: front doors facing the street; Sam's (house 1) and Clyde's (house 4) open, others locked
-    const tags = ['house0', 'samHouse', 'house2', 'house3', 'clydeHouse', 'house5'];
+    // Your house, and Clyde's two doors down on the same side
+    const tags = ['house0', 'samHouse', 'house2', 'clydeHouse', 'house4', 'house5', 'house6', 'house7', 'house8', 'house9'];
     houses.forEach((hs, k) => {
       const tag = tags[k] || 'house' + k;
       const dx = Math.floor((hs.x0 + hs.x1) / 2) - 1, dy = hs.north ? hs.y1 : hs.y0;
@@ -558,7 +559,7 @@
     L.addSpot('kernel', { x: 10, y: 1, wx: L.cx(10), wz: L.cz(0) + 0.9 + 0.8, h: 1.0 });
     L.addSpot('kernelRoom', { x: 9, y: 2 });
     L.addSpot('storage', { x: 9, y: 7 });
-    L.addSpot('chompy', { x: 6, y: 5 });
+    L.addSpot('chompy', { x: 6, y: 5, wx: L.cx(6) + 0.5, wz: L.cz(5) });
     for (const [x, z] of [[L.cx(9) - 0.8, L.cz(0) + 0.3], [L.cx(10) + 0.2, L.cz(0) + 0.3], [L.cx(11) + 0.6, L.cz(0) + 0.3]]) L.addSpot('dial', { x: Math.floor(x / C), y: 0, wx: x, wz: z + 0.5, h: 1.1 });
     // Lights: bench lamps and bare bulbs
     for (let x = 1; x < 7; x += 2) L.addLight({ x: L.cx(x), z: L.cz(1), y: 3.1, kind: 'hanging', color: [1, 0.85, 0.6], intensity: 0.8, range: 8 });

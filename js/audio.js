@@ -352,9 +352,9 @@
       else if (ok === false) this.tone(o.input, 'sawtooth', 180, 160, t, 0.35, 0.18);
       else this.tone(o.input, 'square', 1000, 1000, t, 0.05, 0.09);
     }
-    door(kind, pos, open = true) {
+    door(kind, pos, open = true, loud = 1) {
       if (!this.ctx) return;
-      const t = this.t, o0 = { rev: 0.4, gain: 0.8 };
+      const t = this.t, o0 = { rev: 0.4, gain: 0.8 * loud, rate: loud < 1 ? 0.8 : 1 };
       if (kind === 'elevator') {
         const o = this.out('sfx', pos, { rev: 0.4 });
         this.tone(o.input, 'sine', 1318, 1318, t, 1.2, 0.25); this.tone(o.input, 'sine', 1046, 1046, t + 0.25, 1.4, 0.2);

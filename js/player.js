@@ -351,12 +351,44 @@
       document.body.classList.remove('in-locker');
     }
     updateHidden(dt) {
-      const h = this.hidden;
+      const h = this.hidden, g = this.game, inp = g.input;
       h.t += dt;
       this.pitch = U.clamp(this.pitch, -0.35, 0.3);
       if (h.spot.yaw != null) this.yaw = h.spot.yaw + U.clamp(U.angleWrap(this.yaw - h.spot.yaw), -0.9, 0.9);
-      this.stamina = Math.min(100, this.stamina + 12 * dt);
+      // Hold your breath (Shift) when something comes close. Run out and you gasp; breathe hard and it hears you.
+      const near = (g.entities || []).filter(e => e.hostile && !e.friendly && e.mesh && e.distToPlayer && e.distToPlayer() < 4.2);
+      if (near.length && !this.breathHinted) { this.breathHinted = true; g.ui.hint(PB.t('n.holdBreath')); }
+      this.holdingBreath = inp.down('sprint') && this.stamina > 0 && !this.gaspLock;
+      if (this.holdingBreath) {
+        this.stamina = Math.max(0, this.stamina - 12.5 * dt);
+        this.fear = Math.min(100, this.fear + 3 * dt);
+        if (this.stamina <= 0) {
+          // Gasp: loud, and anything close enough knows exactly where you are
+          this.gaspLock = true;
+          if (g.audio) { g.audio.breath(1.3); g.audio.breath(1.3); }
+          g.noise(this.pos.x, this.pos.z, 9, 'gasp');
+          if (near.some(e => e.distToPlayer() < 3.5)) { this.discovered(); return; }
+        }
+      } else {
+        this.stamina = Math.min(100, this.stamina + 12 * dt);
+        if (this.stamina > 45) this.gaspLock = false;
+        const close = near.filter(e => e.distToPlayer() < 2.8);
+        if (close.length && this.fear > 50) {
+          this.heardT = (this.heardT || 0) + dt * (this.fear / 100) * (this.gaspLock ? 1.8 : 1);
+          if (this.heardT > 1.8) { this.heardT = 0; this.discovered(); return; }
+        } else this.heardT = Math.max(0, (this.heardT || 0) - dt * 0.6);
+      }
       this.updateCamera(dt, 0);
+    }
+    // Something heard you breathing and pulls you out of the hiding place
+    discovered() {
+      const g = this.game;
+      g.ui.hint(PB.t('n.heardBreath'), true);
+      this.unhide();
+      this.addTrauma(0.7);
+      this.fear = Math.min(100, this.fear + 30);
+      if (g.audio) g.audio.stinger('jump');
+      for (const e of g.entities || []) if (e.hostile && e.distToPlayer && e.distToPlayer() < 6) e.sawHide = true;
     }
   }
   PB.Input = Input;

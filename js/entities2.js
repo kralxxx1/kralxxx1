@@ -234,11 +234,13 @@
       this.nextCall -= dt;
       if (this.nextCall <= 0 && g.audio && g.audio.sfx && d < 30) {
         this.nextCall = 20 + Math.random() * 25;
-        const buf = g.audio.sfx.voice(1.1, { pitch: 245, tape: true, seed: 256 + Math.floor(Math.random() * 3) });
+        // On Maple Street it borrows Clyde's voice; in Eddie's motel it calls for him in June's
+        const june = g.levelDef && g.levelDef.id === 'motel';
+        const buf = g.audio.sfx.voice(1.1, { pitch: june ? 205 : 262, echo: true, breathy: true, fscale: june ? 1.12 : 1.2, seed: 256 + Math.floor(Math.random() * 3) });
         const src = g.audio.ctx.createBufferSource(); src.buffer = buf;
         const o = g.audio.out('ent', { x: this.pos.x, y: 1.8, z: this.pos.z }, { rev: 0.6, gain: 0.55, occl: true, occluded: !this.losToPlayer(), ref: 3 });
         src.connect(o.input); src.start();
-        g.audio.caption('neighbor', PB.t('cap.callName'), this.pos, 10);
+        g.audio.caption('neighbor', PB.t(june ? 'cap.callJune' : 'cap.callName'), this.pos, 10);
       }
     }
     relocate() {
@@ -274,11 +276,23 @@
       }
       this.vis = { group: g, mats: [fur, dark, white, red], head, arms };
       this.mesh.add(g);
-      this.catchR = 1.3; this.state = 'hunt'; this.walk = 0; this.litT = 0; this.coverT = 0;
+      this.catchR = 1.3; this.state = o.dormant ? 'display' : 'hunt'; this.walk = 0; this.litT = 0; this.coverT = 0;
     }
     update(dt) {
       const g = this.g, d = this.distToPlayer();
       this.stateT += dt;
+      // On its stand it is just a costume. Until it isn't.
+      if (this.state === 'display') {
+        this.mesh.position.set(this.pos.x, 0.05, this.pos.z);
+        this.mesh.rotation.y = this.heading;
+        for (const a of this.vis.arms) a.rotation.x = 0;
+        if (g.flags.chompyAwake || d < 3.2 || this.stateT > 150) {
+          this.setState('hunt'); g.flags.chompyAwake = true;
+          if (g.audio) g.audio.play('stingSpot', 3, 'ent', { x: this.pos.x, y: 1.8, z: this.pos.z }, { rev: 0.6, gain: 0.55, rate: 0.8 });
+          if (d < 12 && this.losToPlayer()) g.player.addTrauma(0.35);
+        }
+        return;
+      }
       if (this.inFlashBeam(14)) this.litT += dt; else this.litT = Math.max(0, this.litT - dt * 0.5);
       if (this.coverT > 0) {
         // Covers its eyes from the light

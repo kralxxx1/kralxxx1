@@ -800,6 +800,8 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
     fixtureBrightness(f, t, pac) {
       if (f.light.broken) return 0.05;
       if (!f.powered) return 0.02;
+      // A tube bursting: a white flash, then sputtering, then it settles back
+      if (f.light.popT && t < f.light.popT) { const left = f.light.popT - t; if (left > 2.05) return 4; return U.hash2(Math.floor(t * 18), Math.floor(f.light.x), 3) < 0.22 ? 0.55 : 0.03; }
       let b = this.flick(f.light, t);
       if (pac && pac.w > 0) {
         const d = Math.hypot(f.light.x - pac.x, f.light.z - pac.z);
@@ -821,7 +823,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         if (!force && !this.fixDirty && cam) {
           const dx = l.x - cam.x, dz = l.z - cam.z;
           if (dx * dx + dz * dz > range2) continue;
-          if (!l.flicker && !(pac && pac.w > 0 && Math.abs(l.x - pac.x) < 18 && Math.abs(l.z - pac.z) < 18) && f.cur >= 0) continue;
+          if (!l.flicker && !(l.popT && t < l.popT + 0.3) && !(pac && pac.w > 0 && Math.abs(l.x - pac.x) < 18 && Math.abs(l.z - pac.z) < 18) && f.cur >= 0) continue;
         }
         const b = this.fixtureBrightness(f, t, pac) * f.base;
         f.bright = b / f.base;
@@ -1344,9 +1346,9 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       this.updateLightPool(cam, t, dt);
       for (const obj of this.doorObjs.values()) {
         if (obj.target == null) continue;
-        const sp = obj.door.kind === 'elevator' ? 0.6 : obj.door.kind === 'house' ? 0.8 : 1.6;
+        const sp = (obj.door.kind === 'elevator' ? 0.6 : obj.door.kind === 'house' ? 0.8 : 1.6) * (obj.slow ? 0.35 : 1);
         const na = U.clamp(obj.amt + Math.sign(obj.target - obj.amt) * dt * sp, 0, 1);
-        if (na !== obj.amt) { obj.amt = na; this.applyDoor(obj); }
+        if (na !== obj.amt) { obj.amt = na; this.applyDoor(obj); if (na === obj.target) obj.slow = false; }
       }
       // Kabin ekranları (yakındakiler, 12 fps)
       if (this.screens.length && t - (this.lastScr || 0) > 1 / 12) {

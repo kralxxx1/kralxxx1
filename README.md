@@ -1,72 +1,111 @@
-# Pacman: Arka Odalar
+# Pacman: The Back Rooms
 
-Pacman'in efsanevi 256. seviye hatasının arkasında geçen, birinci şahıs bir **kaçış ve korku oyunu**. Tarayıcıda çalışır, kurulum gerektirmez.
+A first-person horror escape game set behind the infamous level 256 of Pacman. It runs in the
+browser with no install. English is the main language; Turkish is included (Settings → Language).
 
-> 30 Kasım 1994, gece 02:11. Kadıköy'deki kapanmış Yıldız Atari Salonu'ndan otomatları toplamaya geldin. 7 numaralı kabinin üstünde bir not var: **FİŞİNİ ÇEKME.** Jetonu attığında ekranın sağ yarısı harflerle doluyor, sonra sen sonsuz sarı odalara düşüyorsun. Bir yerlerde tanıdık bir ses var: *vaka, vaka.*
+> Harlow, November 30, 1994, 2:11 AM, rain. You are Sam, twenty years old, sent to clear out the
+> foreclosed Starlight Arcade. Seven years ago four kids vanished here. You were supposed to be
+> with them. Cabinet #7 is still running with no plug in the wall, and there is a note taped to it:
+> **DON'T PULL THE PLUG.**
 
-## Nasıl çalıştırılır
+## How to run
 
-- **En kolayı:** `index.html` dosyasını tarayıcıda aç. 3D motoru (three.js) ve yazı tipleri internetten yüklendiği için bağlantı gerekir.
-- **Yerel sunucu ile:** depo klasöründe `python3 -m http.server` çalıştır, sonra `http://localhost:8000` adresine git.
-- **Tek dosya:** `python3 tools/build_single.py` komutu her şeyi `dist/pacman-arka-odalar.html` içine toplar.
-- Eski 2D Pacman `classic/index.html` içinde duruyor. Oyunun içinde, atari salonundaki bedava kabinde de oynanabiliyor.
+- **Easiest:** open `index.html` in a browser. three.js and the fonts come from a CDN, so an
+  internet connection is needed.
+- **Local server:** run `python3 -m http.server` in the repository folder and open
+  `http://localhost:8000`.
+- **Single file:** `python3 tools/build_single.py` bundles everything into
+  `dist/pacman-arka-odalar.html`.
+- The original 2D Pacman lives in `classic/index.html`, and is also playable on the free cabinet
+  inside the arcade.
 
-## Kontroller
+## Controls
 
-| Tuş | İşlev |
+| Key | Action |
 | --- | --- |
-| `W` `A` `S` `D` | Yürü |
-| Fare | Bak (oyuna tıklayınca kilitlenir; kilitlenemezse basılı tutup sürükle) |
-| `Shift` | Koş (gürültü yapar, nefes tüketir) |
-| `C` | Eğil (neredeyse sessiz) |
-| `E` | Etkileşim: oku, al, aç, saklan |
-| `F` | Fener |
-| `Q` | Badem suyu iç (korkuyu yatıştırır) |
-| `G` | Işık çubuğu at |
-| `M` / `Tab` | Harita |
-| `Esc` / `P` | Duraklat |
+| `W` `A` `S` `D` | Walk |
+| Mouse | Look (click the game to lock the pointer) |
+| `Shift` | Sprint (loud, uses breath). While hidden: **hold your breath** |
+| `C` | Crouch (almost silent; opens doors slowly and quietly) |
+| `E` | Interact: read, take, open, hide |
+| `F` | Flashlight |
+| `Z` / `X` | Lean left / right to peek around corners |
+| `I` | Items, with a 3D inspect view |
+| `J` | Journal: objective, the story so far, papers found, people |
+| `Q` | Drink almond water (calms fear) |
+| `G` | Throw a glow stick |
+| `M` / `Tab` | Map |
+| `Esc` / `P` | Pause |
 
-Dokunmatik ekranda sol altta yürüme çubuğu, sağ tarafta sürükleyerek bakış ve eylem düğmeleri var.
+On touch screens: a move stick bottom left, drag on the right to look, and action buttons.
 
-## Bölümler
+## Chapters
 
-| Bölüm | Yer | Düşman | Hedef |
-| --- | --- | --- | --- |
-| Prolog | Yıldız Atari Salonu, 1994 | — | Feneri bul, elektriği ver, özel jetonu kabine at |
-| Seviye 0 | Sarı Odalar | Yutucu | Dört güç hapını ÇIKIŞ kapısına yerleştir |
-| Seviye 1 | Beton Depo | Kırmızı (Bülent) | Üç sigortayla asansörü çalıştır |
-| Seviye 2 | Havuz Odaları | Mavi (İnci) | Dört vanayı çevir, havuzu boşalt |
-| Seviye 3 | Ofis Katı | Pembe (Pınar) | Güvenlik şifresini bul, kartla merdivene kaç |
-| Seviye 4 | Karanlık | Turuncu (Cemil), Sırıtkanlar | Üç jeneratörü mazotla çalıştır |
-| Seviye 5 | Labirent | Yutucu, dört hayalet, Sayaç | Dört köşedeki güç hapını ye, hayalet evine gir |
-| Seviye 256 | Bölünmüş Ekran | Yutucu, Sayaç | Seçimini yap: ÇIKIŞ kapısı ya da fiş |
+Every chapter is somebody's memory, rebuilt wrong.
 
-Her bölümde bir hayaletin kaybolmuş eşyası ve bir türbesi var. Dördünü de kurtarırsan son değişir. İki son var.
+| # | Chapter | Whose memory | Threat | Goal |
+| --- | --- | --- | --- | --- |
+| P | Starlight Arcade, 1994 | Sam, now | the storm | Flashlight, power, Walt's office, the special token |
+| 0 | The Lobby | the game | the Eater | Four power pellets for the EXIT panel; meet Eddie on the radio |
+| 1 | Mill Warehouse | Billy | Billy (red), the Eater | Three fuses for the freight elevator; Billy's watch |
+| 2 | Pipe Dreams | Billy, Clyde, Sam | Crawlers | Bleed three steam valves; the kids' fort |
+| 3 | The Pool | Ivy | Ivy (blue) | Drain the pool; Ivy's glasses; Theo's letters |
+| 4 | Harlow Mutual | Penny | Penny (pink) | Security code, keycard, fire stairs; Penny's mixtape |
+| 5 | Harlow Middle School | all five, April 16, 1987 | the Hall Monitor | Closet code, janitor's keys, the chained fire exit; hide in lockers |
+| 6 | Lights Out | Clyde | Clyde (orange), Grinners | Three generators; Clyde's lighter |
+| 7 | Harlow Mall | all five, December 1986 | Mannequins | Four photo-booth frames |
+| 8 | Starlite Motor Inn | Eddie | the Neighbor | Room 12 and Eddie's notebook; trust him or not |
+| 9 | St. Agnes Hospital | Walt | the Counter | Five diary pages, Room 207 |
+| 10 | Maple Street | Sam | the Neighbor | Clyde's house, your house, the corner |
+| 11 | The Workshop | Walt, April 1987 | Chompy | Walt's key, the Kernel's dials |
+| 12 | The Maze | level 255 | the Eater, the ghosts | Four corner pellets, the ghost house |
+| 13 | Kill Screen | level 256 | the Eater, the Counter | The choice |
 
-## Neler var
+Four ghosts can be freed by returning their mementos to their shrines. There are four endings:
+walk out alone, hold the door for Eddie, pull the plug with all four ghosts, or the true ending,
+which needs all four ghosts, all eight of Lily's drawings and Walt's memory of Room 207.
 
-- **Hikâye:** 56 belge. Not, mektup, defter sayfası, kaset kaydı, bilgisayar ekranı, telefon mesajı, fotoğraf ve duvar yazıları arşivde toplanıyor. Yedi yıl önce kaybolan dört genç ile salonun sahibi Mahir Usta'nın hikâyesi bunlarla anlatılıyor.
-- **Yaratıklar:** Yutucu düz koridorda senden hızlı ama dönüşlerde yavaş. Yaklaşınca floresanlar titriyor. Kırmızı hiç durmadan kovalar, Pembe önünü keser, Mavi ışınlanır ve sudaki adımları duyar, Turuncu sen bakarken donar. Karanlıkta fenerden kaçan Sırıtkanlar ve sırtını dönünce yaklaşan Sayaç da var.
-- **Hayatta kalma:** koşma, eğilme, masa altına saklanma, güç hapıyla düşmanları kaçırma, fener pili, korku göstergesi, kaset çalarlarla kayıt.
-- **Grafik:** Tek bir resim dosyası yok, bütün dokular kodla üretiliyor (2048 piksele kadar renk, normal ve pürüzlülük haritaları). Duvar bilen gölgeler ve sekme ışığıyla pişmiş aydınlatma, fener gölgeleri, HDR bloom, ACES ton eşleme, film greni, renk sapması, isteğe bağlı VHS kamera görünümü ve %200'e kadar süper örnekleme.
-- **Ses:** Hepsi anlık olarak üretiliyor. 3D (HRTF) konumlandırma, duvar arkasında boğuklaşan sesler, bölüme göre değişen yankı, ortam katmanları ve kovalamaca müziği var.
-- **Ayarlar:** Grafik (ön ayarlar, çözünürlük ölçeği, doku, gölge, kenar yumuşatma, ışık haritası, dinamik ışık, bloom, parçacık, görüş mesafesi), görüntü (parlaklık, kontrast, FOV, kafa sallanması, gren, VHS, titreşimi azaltma, altyazılar), ses (5 ayrı kanal, HRTF), kontroller ve oynanış (3 zorluk, ani korkutma şiddeti, ipuçları).
+## What's in it
 
-Tüm belgeleri okuyan ve dört hayaleti kurtaran biri için tahmini oynanış süresi 2-3 saat.
+- **Story:** about 150 documents: notes, letters, diaries, tapes, phone messages, screens, photos,
+  wall writing and Lily's crayon drawings, plus radio conversations and echoes of the past. The
+  journal (`J`) keeps the story so far. See `docs/STORY.md` for the story bible.
+- **Creatures:** the Eater (fast in straight corridors, slow in turns, the lights flicker when it
+  is near), four ghosts that move like the kids they were, Crawlers and Grinners that hate light,
+  the Counter that comes closer while you look away, the Hall Monitor that only sees what its
+  flashlight touches, Mannequins, the Neighbor who uses voices you know, and Chompy.
+- **Survival:** sprinting and breath, crouching, leaning, hiding under desks and in lockers (and
+  holding your breath when something comes close), quiet doors, power pellets, flashlight battery,
+  fear, glow sticks, almond water, tape-player saves.
+- **Graphics:** no image files; every texture is generated in code. GPU light baking with bounce
+  light, screen-space ambient occlusion and reflections, volumetric light, motion blur, bloom with
+  lens dirt, ACES tone mapping, a rainy street outside, detailed models, first-person hands.
+  Presets up to Ultra, which is meant to push a strong PC.
+- **Sound:** every sound is synthesized at load time (footsteps per surface, doors, rain, room
+  tones, breathing, creatures, radio and tape voices), with 3D positioning, occlusion, per-room
+  reverb and a score that changes with each chapter.
+- **Settings:** graphics, display, audio (separate channels, HRTF), controls, gameplay (three
+  difficulties, jump-scare intensity, hints), subtitles and sound captions, language.
 
-## Geliştirme
+## Development
 
 ```
-index.html        oyunun kabuğu (menüler, HUD, katmanlar)
-css/game.css      arayüz
-js/levelgen.js    bölüm üreticisi (DOM'suz, Node ile test edilir)
-js/story.js       hikâye, notlar, bölüm tanımları
-js/textures.js    prosedürel dokular
-js/world.js       geometri, pişmiş ışık, armatürler, kapılar
-js/post.js        son işleme
-js/entities.js    yaratıklar ve yapay zekâ
-js/game.js        oyun döngüsü, bölüm senaryoları, kayıt
-tests/            bölüm üreticisi testleri
+index.html           the shell (menus, HUD, overlays)
+css/game.css         interface
+js/i18n.js           language packs; js/text/en and js/text/tr hold every string
+js/levels.js         chapter definitions
+js/levelgen*.js      level generators (DOM-free, tested in Node)
+js/story.js          localized access to the story
+js/textures.js       procedural textures; js/art.js drawings and photos
+js/models*.js        prop models and materials
+js/world.js          geometry, baked light, fixtures, doors; js/exterior.js outside
+js/post.js           post-processing
+js/sfx.js, audio.js  sound synthesis and the audio engine
+js/entities*.js      creatures and AI
+js/bag.js            items and journal
+js/chapters*.js      chapter scripts
+js/game.js           game loop, saving
+tests/               level and text tests
 ```
 
-Bölüm testleri için: `node tests/levelgen.test.js`
+Tests: `node tests/levelgen.test.js` and `node tests/text.test.js`.

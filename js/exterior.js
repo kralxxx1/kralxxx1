@@ -122,7 +122,9 @@
     if (!puddleTex) { puddleTex = TX.puddles(); puddleTex.wrapS = puddleTex.wrapT = THREE.RepeatWrapping; }
     sh.uniforms.uTime = uTime; sh.uniforms.uPud = { value: puddleTex }; sh.uniforms.uPudScale = { value: o.pudScale || 0.08 }; sh.uniforms.uWet = { value: o.wet != null ? o.wet : 1 };
     sh.vertexShader = 'varying vec3 vExW;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\nvExW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
-    sh.fragmentShader = `varying vec3 vExW; uniform float uTime; uniform sampler2D uPud; uniform float uPudScale; uniform float uWet;
+    // The baked-light patch may already declare uTime
+    const tDecl = /uniform\s+float\s+uTime\s*;/.test(sh.fragmentShader) ? '' : 'uniform float uTime; ';
+    sh.fragmentShader = `varying vec3 vExW; ${tDecl}uniform sampler2D uPud; uniform float uPudScale; uniform float uWet;
 float exH(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 vec2 exRipple(vec2 p, float t){
   vec2 n = vec2(0.0);
@@ -381,7 +383,8 @@ diffuseColor.rgb *= mix(mix(1.0, 0.72, uWet), 0.35, pud0);`)
       // Skyline and sky
       const sky = new THREE.ShaderMaterial({ vertexShader: 'varying vec3 vDir; void main(){ vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }', fragmentShader: SKY_FS, uniforms: { uTime: this.uTime, uFlash: { value: 0 }, uSkyline: { value: null } }, side: THREE.BackSide, depthWrite: false, fog: false });
       this.skyMat = sky;
-      const dome = add(new THREE.Mesh(new THREE.SphereGeometry(58, 32, 16), sky)); dome.position.set(L.w * C / 2, 0, zF); dome.renderOrder = -1;
+      const dome = add(new THREE.Mesh(new THREE.SphereGeometry(40, 32, 16), sky)); dome.position.set(L.w * C / 2, 0, zF); dome.renderOrder = -1; dome.frustumCulled = false;
+      this.dome = dome;
       const skl = new THREE.MeshBasicMaterial({ map: TX.skyline(), transparent: true, depthWrite: false, fog: false, color: new THREE.Color(1.2, 1.2, 1.2) });
       const sk = plane(130, 32, skl, L.w * C / 2, 14, zF + 42, 0, PI); sk.renderOrder = 0;
       this.bolt = new THREE.MeshBasicMaterial({ map: TX.bolt(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, color: new THREE.Color(3, 3, 3.4), opacity: 0 });
@@ -523,6 +526,7 @@ diffuseColor.rgb *= mix(mix(1.0, 0.72, uWet), 0.35, pud0);`)
       }
     }
     update(dt, t, cam) {
+      if (this.dome) this.dome.position.set(cam.x, 0, cam.z);
       this.uTime.value = t;
       // Lightning: double/triple flicker, bolt visible in the sky, thunder later
       if (t > this.nextFlash) { this.nextFlash = t + U.lerp(9, 24, Math.random()); this.flashT = t; this.boltMesh.position.x = U.lerp(-10, 40, Math.random()); this.boltMesh.scale.x = Math.random() < 0.5 ? -1 : 1; this.thunderAt = t + U.lerp(0.8, 3.5, Math.random()); }
@@ -569,7 +573,9 @@ diffuseColor.rgb *= mix(mix(1.0, 0.72, uWet), 0.35, pud0);`)
       // Sky and distant houses
       const sky = new THREE.ShaderMaterial({ vertexShader: 'varying vec3 vDir; void main(){ vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }', fragmentShader: SKY_FS, uniforms: { uTime: this.uTime, uFlash: { value: 0 }, uSkyline: { value: null } }, side: THREE.BackSide, depthWrite: false, fog: false });
       this.skyMat = sky;
-      const dome = add(new THREE.Mesh(new THREE.SphereGeometry(Math.min(58, W * 0.6), 32, 16), sky)); dome.position.set(W / 2, 0, D / 2); dome.renderOrder = -1;
+      // The sky rides along with the camera: it never ends, and it is never cut by the far plane
+      const dome = add(new THREE.Mesh(new THREE.SphereGeometry(40, 32, 16), sky)); dome.position.set(W / 2, 0, D / 2); dome.renderOrder = -1; dome.frustumCulled = false;
+      this.dome = dome;
       this.bolt = new THREE.MeshBasicMaterial({ map: TX.bolt(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, color: new THREE.Color(3, 3, 3.4), opacity: 0 });
       this.boltMesh = add(new THREE.Mesh(new THREE.PlaneGeometry(8, 30), this.bolt)); this.boltMesh.position.set(W / 2, 26, -40);
       // Street lamps (cobra heads) at the lamp lights
@@ -619,6 +625,7 @@ diffuseColor.rgb *= mix(mix(1.0, 0.72, uWet), 0.35, pud0);`)
     }
     update(dt, t, cam) {
       this.uTime.value = t;
+      if (this.dome) this.dome.position.set(cam.x, 0, cam.z);
       // Nearest lamp lights the rain around the player
       let best = null, bd = Infinity;
       for (const l of this.lamps) { const d = Math.hypot(l.x - cam.x, l.z - cam.z); if (d < bd) { bd = d; best = l; } }

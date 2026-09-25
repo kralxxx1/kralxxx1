@@ -565,17 +565,18 @@
       // Dost hayalet: oyuncuyu uzaktan izler, Yutucu yakınsa titreşir
       if (this.friendly) {
         this.hostile = false;
-        u.uFriendly.value = 1; u.uAlpha.value = 0.55;
         const pc = g.nav.playerCell;
         const d = this.distToPlayer();
-        if (d > 9 || this.stateT > 12) {
+        u.uFriendly.value = 1; u.uAlpha.value = 0.55 * U.smoothstep(0.4, 1.8, d);
+        if (d > 9 || this.stateT > 12 || (d < 1.5 && !this.goalField)) {
           const c = this.randomCellNear(pc.x, pc.y, 2, 5) || pc;
           this.setGoal(c.x, c.y); this.stateT = 0;
         }
         if (this.goalField) this.advance(dt, d > 14 ? 5 : 2.6, this.goalField);
         const pac = g.pacman && g.pacman.info();
         const warn = pac ? U.clamp(1 - Math.hypot(pac.x - this.pos.x, pac.z - this.pos.z) / 18, 0, 1) : 0;
-        this.vis.light.intensity = 4 + warn * 14 * (0.5 + 0.5 * Math.sin(g.time * 12));
+        // Its glow must never flood the camera when it drifts right next to you
+        this.vis.light.intensity = (4 + warn * 14 * (0.5 + 0.5 * Math.sin(g.time * 12))) * U.smoothstep(0.6, 2.8, d);
         // Labirentte dost hayaletler Yutucu’yu kısa süre iter
         if (pac && g.pacman.state !== 'stunned' && Math.hypot(pac.x - this.pos.x, pac.z - this.pos.z) < 2.5 && (this.pushT || 0) <= 0) {
           g.pacman.frozenT = 2.5; g.pacman.setState('stunned'); this.pushT = 20;

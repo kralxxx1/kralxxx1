@@ -150,7 +150,7 @@
       for (let k = 0; k <= cur; k++) {
         const lid = order[k], LL = ST.level(lid);
         const txt = k < cur ? ST.recap(lid) : LL.intro;
-        h.push(`<li class="${k === cur ? 'now' : ''}"><b>${esc(LL.title)}</b> <span>${esc(txt)}</span></li>`);
+        h.push(`<li class="${k === cur ? 'now' : ''}"><i>${esc(LL.name)}</i><b>${esc(LL.title)}</b> — <span>${esc(txt)}</span></li>`);
       }
       h.push('</ol>');
       // Papers found in this chapter

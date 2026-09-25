@@ -310,7 +310,7 @@
     {
       id: 'maple',
       layout: 'street', seed: 4171987, theme: 'street', music: 'maple', fog: [0x0a0c12, 0.028], grade: { tint: [0.96, 0.98, 1.06], sat: 0.85 },
-      gen: { w: 40, h: 14, houses: 6 },
+      gen: { w: 40, h: 14, houses: 10 },
       items: [
         { type: 'phone', id: 'machine', data: 'maple_machine', place: 'spot', spot: 'samHouseLiving', fallback: 'mid' },
         { type: 'note', id: 'n_maple_intro', data: 'maple_intro', place: 'near' },
@@ -342,7 +342,7 @@
         { type: 'tape', id: 'tape_317', data: 'workshop_317', place: 'spot', spot: 'kernel', fallback: 'far' },
         { type: 'drawing', id: 'd_lily8', data: 'workshop_lily8', place: 'spot', spot: 'storage', fallback: 'far' },
       ].concat(supplies(3, 2)),
-      entities: [{ type: 'chompy' }],
+      entities: [{ type: 'chompy', spot: 'chompy', dormant: true, heading: -Math.PI / 2 }],
       objectives: ['workshop_key', 'workshop_kernel', 'workshop_dials', 'workshop_leave'],
     },
     {
