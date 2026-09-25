@@ -1146,7 +1146,7 @@
       const def = this.levelDef || { grade: { tint: [1, 1, 1], sat: 1 } };
       p.bloomStrength.value = d.bloom ? d.bloomStrength * 0.55 : 0;
       this.post.enabled.bloom = d.bloom;
-      p.exposure.value = def.exposure || ({ dark: 1.2, maze: 1.1, glitch: 1.1, yellow: 0.78, pool: 0.5, office: 0.8, concrete: 0.95, arcade: 1.05 }[def.theme] || 1);
+      p.exposure.value = def.exposure || ({ dark: 1.2, maze: 1.1, glitch: 1.1, yellow: 0.6, pool: 0.24, office: 0.52, concrete: 0.95, arcade: 1.05 }[def.theme] || 1);
       p.grain.value = d.grain; p.chroma.value = d.chromatic; p.vignette.value = d.vignette;
       p.brightness.value = d.brightness; p.contrast.value = d.contrast; p.saturation.value = d.saturation * (def.grade ? def.grade.sat : 1);
       const tint = def.grade ? def.grade.tint : [1, 1, 1];

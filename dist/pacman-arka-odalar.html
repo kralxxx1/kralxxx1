@@ -184,11 +184,13 @@ body.no-crosshair #crosshair { display: none; }
 #inv { position: absolute; right: 20px; bottom: calc(20px + var(--safe-b)); display: flex; flex-wrap: wrap-reverse; justify-content: flex-end; gap: 6px; max-width: 50vw; }
 .chip { background: rgba(8, 7, 5, 0.72); border: 1px solid var(--line); padding: 2px 9px 3px; font-size: 18px; }
 .chip kbd { font-size: 14px; }
-#subtitle { position: absolute; left: 50%; bottom: calc(92px + var(--safe-b)); transform: translateX(-50%); width: min(820px, 88vw); text-align: center; font-size: 26px; line-height: 1.3; color: #fff8e6; text-shadow: 0 2px 4px #000, 0 0 20px #000; opacity: 0; transition: opacity 0.5s; text-wrap: balance; }
+/* Ses açıklamaları altyazının üstünde yığılır, üst üste binmez */
+#talk { position: absolute; left: 50%; bottom: calc(92px + var(--safe-b)); transform: translateX(-50%); width: min(820px, 88vw); display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
+#subtitle { width: 100%; text-align: center; font-size: 26px; line-height: 1.3; color: #fff8e6; text-shadow: 0 2px 4px #000, 0 0 20px #000; opacity: 0; transition: opacity 0.5s; text-wrap: balance; }
 #subtitle.on { opacity: 1; }
 body[data-sub="kucuk"] #subtitle { font-size: 21px; }
 body[data-sub="buyuk"] #subtitle { font-size: 33px; }
-#caption { position: absolute; left: 50%; bottom: calc(150px + var(--safe-b)); transform: translateX(-50%); text-align: center; color: #cfc8b4; font-size: 20px; text-shadow: 0 1px 3px #000; }
+#caption { text-align: center; color: #cfc8b4; font-size: 20px; text-shadow: 0 1px 3px #000; }
 #fps { position: absolute; right: 8px; top: 4px; font-size: 16px; color: #7f7; }
 #rec { position: absolute; left: 20px; top: calc(96px + var(--safe-t)); font: 11px/1 var(--pix); color: #fff; letter-spacing: 0.08em; text-shadow: 0 0 6px #000; display: flex; gap: 12px; align-items: center; }
 #rec .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--red); animation: blink 1s infinite steps(1); }
@@ -299,7 +301,7 @@ body.vhs #objective { top: calc(18px + var(--safe-t)); }
 .tb.on { background: rgba(232, 197, 71, 0.4); color: var(--ink); }
 body.touch #status { bottom: calc(190px + var(--safe-b)); }
 body.touch #inv { bottom: calc(190px + var(--safe-b)); }
-body.touch #subtitle { bottom: calc(200px + var(--safe-b)); }
+body.touch #talk { bottom: calc(200px + var(--safe-b)); }
 body.touch #prompt { top: 46%; }
 body.touch #inv kbd { display: none; }
 /* Dar dikey telefonlar: düğmeler sağda iki sütun, yürüme çubuğuyla çakışmasın */
@@ -308,7 +310,7 @@ body.touch #inv kbd { display: none; }
   #touch-stick { width: 124px; height: 124px; left: calc(18px + env(safe-area-inset-left, 0px)); }
   body.touch #status { bottom: calc(170px + var(--safe-b)); }
   body.touch #inv { bottom: calc(282px + var(--safe-b)); }
-  body.touch #subtitle { bottom: calc(400px + var(--safe-b)); }
+  body.touch #talk { bottom: calc(400px + var(--safe-b)); }
   body.touch #prompt { top: 29%; flex-direction: column; gap: 6px; white-space: normal; width: max-content; max-width: 88vw; text-align: center; font-size: 21px; }
 }
 
@@ -352,8 +354,10 @@ body.touch #inv kbd { display: none; }
       <div class="meter" id="m-battery"><span>FENER</span><i></i></div>
     </div>
     <div id="inv"></div>
-    <div id="caption" aria-live="polite"></div>
-    <div id="subtitle" aria-live="polite"></div>
+    <div id="talk">
+      <div id="caption" aria-live="polite"></div>
+      <div id="subtitle" aria-live="polite"></div>
+    </div>
     <div id="fps" hidden></div>
   </div>
 
@@ -4281,7 +4285,7 @@ Eğer getiremediysen kapıdan çık ve bir daha asla, asla bir Pacman kabinine j
     yellow: { wall: 'wallpaper', floor: 'carpet', ceil: 'ceiling', trim: 'trimPaint', pillar: 'wallpaper', ambient: [0.05, 0.045, 0.028], bounce: 0.45, ceilFactor: 0.8, env: [0.5, 0.42, 0.2], envPanel: [4, 3.8, 3.2], trimH: 0.1 },
     dark: { wall: 'wallpaper', wallTint: 0x6a6258, floor: 'carpet', floorTint: 0x5a5448, ceil: 'ceiling', ceilTint: 0x707070, trim: 'trimPaint', pillar: 'wallpaper', ambient: [0.004, 0.004, 0.005], bounce: 0.35, ceilFactor: 0.7, env: [0.05, 0.05, 0.05], envPanel: [1.5, 1.4, 1.2], trimH: 0.1 },
     concrete: { wall: 'concreteWall', floor: 'concreteFloor', ceil: 'concreteWall', ceilTint: 0x55585c, trim: null, pillar: 'concreteWall', ambient: [0.012, 0.013, 0.016], bounce: 0.35, ceilFactor: 0.45, env: [0.08, 0.09, 0.1], envPanel: [3, 2.6, 2], trimH: 0 },
-    pool: { wall: 'tile', floor: 'tile', ceil: 'tile', trim: null, pillar: 'tile', ambient: [0.1, 0.12, 0.13], bounce: 0.6, ceilFactor: 0.85, env: [0.6, 0.7, 0.75], envPanel: [4, 4.3, 4.6], trimH: 0 },
+    pool: { wall: 'tile', floor: 'tile', ceil: 'tile', trim: null, pillar: 'tile', ambient: [0.1, 0.12, 0.13], bounce: 0.6, ceilFactor: 0.85, env: [0.4, 0.46, 0.5], envPanel: [2.6, 2.8, 3], trimH: 0 },
     office: { wall: 'drywall', floor: 'officeCarpet', ceil: 'ceiling', trim: 'rubber', pillar: 'drywall', low: 'fabric', ambient: [0.03, 0.033, 0.036], bounce: 0.4, ceilFactor: 0.8, env: [0.25, 0.28, 0.3], envPanel: [3.5, 3.7, 4], trimH: 0.1 },
     maze: { wall: 'mazeWall', floor: 'mazeFloor', ceil: null, trim: null, pillar: 'mazeWall', block: 'mazeWall', ambient: [0.01, 0.01, 0.04], bounce: 0.3, ceilFactor: 1, env: [0.02, 0.02, 0.1], envPanel: [0.6, 0.6, 3], trimH: 0 },
     glitch: { wall: 'mazeWall', floor: 'mazeFloor', ceil: null, trim: null, pillar: 'mazeWall', block: 'mazeWall', ambient: [0.02, 0.01, 0.03], bounce: 0.3, ceilFactor: 1, env: [0.08, 0.02, 0.1], envPanel: [3, 0.6, 2], trimH: 0 },
@@ -9819,7 +9823,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       const def = this.levelDef || { grade: { tint: [1, 1, 1], sat: 1 } };
       p.bloomStrength.value = d.bloom ? d.bloomStrength * 0.55 : 0;
       this.post.enabled.bloom = d.bloom;
-      p.exposure.value = def.exposure || ({ dark: 1.2, maze: 1.1, glitch: 1.1, yellow: 0.78, pool: 0.5, office: 0.8, concrete: 0.95, arcade: 1.05 }[def.theme] || 1);
+      p.exposure.value = def.exposure || ({ dark: 1.2, maze: 1.1, glitch: 1.1, yellow: 0.6, pool: 0.24, office: 0.52, concrete: 0.95, arcade: 1.05 }[def.theme] || 1);
       p.grain.value = d.grain; p.chroma.value = d.chromatic; p.vignette.value = d.vignette;
       p.brightness.value = d.brightness; p.contrast.value = d.contrast; p.saturation.value = d.saturation * (def.grade ? def.grade.sat : 1);
       const tint = def.grade ? def.grade.tint : [1, 1, 1];

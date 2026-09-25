@@ -173,11 +173,13 @@ body.no-crosshair #crosshair { display: none; }
 #inv { position: absolute; right: 20px; bottom: calc(20px + var(--safe-b)); display: flex; flex-wrap: wrap-reverse; justify-content: flex-end; gap: 6px; max-width: 50vw; }
 .chip { background: rgba(8, 7, 5, 0.72); border: 1px solid var(--line); padding: 2px 9px 3px; font-size: 18px; }
 .chip kbd { font-size: 14px; }
-#subtitle { position: absolute; left: 50%; bottom: calc(92px + var(--safe-b)); transform: translateX(-50%); width: min(820px, 88vw); text-align: center; font-size: 26px; line-height: 1.3; color: #fff8e6; text-shadow: 0 2px 4px #000, 0 0 20px #000; opacity: 0; transition: opacity 0.5s; text-wrap: balance; }
+/* Ses açıklamaları altyazının üstünde yığılır, üst üste binmez */
+#talk { position: absolute; left: 50%; bottom: calc(92px + var(--safe-b)); transform: translateX(-50%); width: min(820px, 88vw); display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
+#subtitle { width: 100%; text-align: center; font-size: 26px; line-height: 1.3; color: #fff8e6; text-shadow: 0 2px 4px #000, 0 0 20px #000; opacity: 0; transition: opacity 0.5s; text-wrap: balance; }
 #subtitle.on { opacity: 1; }
 body[data-sub="kucuk"] #subtitle { font-size: 21px; }
 body[data-sub="buyuk"] #subtitle { font-size: 33px; }
-#caption { position: absolute; left: 50%; bottom: calc(150px + var(--safe-b)); transform: translateX(-50%); text-align: center; color: #cfc8b4; font-size: 20px; text-shadow: 0 1px 3px #000; }
+#caption { text-align: center; color: #cfc8b4; font-size: 20px; text-shadow: 0 1px 3px #000; }
 #fps { position: absolute; right: 8px; top: 4px; font-size: 16px; color: #7f7; }
 #rec { position: absolute; left: 20px; top: calc(96px + var(--safe-t)); font: 11px/1 var(--pix); color: #fff; letter-spacing: 0.08em; text-shadow: 0 0 6px #000; display: flex; gap: 12px; align-items: center; }
 #rec .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--red); animation: blink 1s infinite steps(1); }
@@ -288,7 +290,7 @@ body.vhs #objective { top: calc(18px + var(--safe-t)); }
 .tb.on { background: rgba(232, 197, 71, 0.4); color: var(--ink); }
 body.touch #status { bottom: calc(190px + var(--safe-b)); }
 body.touch #inv { bottom: calc(190px + var(--safe-b)); }
-body.touch #subtitle { bottom: calc(200px + var(--safe-b)); }
+body.touch #talk { bottom: calc(200px + var(--safe-b)); }
 body.touch #prompt { top: 46%; }
 body.touch #inv kbd { display: none; }
 /* Dar dikey telefonlar: düğmeler sağda iki sütun, yürüme çubuğuyla çakışmasın */
@@ -297,7 +299,7 @@ body.touch #inv kbd { display: none; }
   #touch-stick { width: 124px; height: 124px; left: calc(18px + env(safe-area-inset-left, 0px)); }
   body.touch #status { bottom: calc(170px + var(--safe-b)); }
   body.touch #inv { bottom: calc(282px + var(--safe-b)); }
-  body.touch #subtitle { bottom: calc(400px + var(--safe-b)); }
+  body.touch #talk { bottom: calc(400px + var(--safe-b)); }
   body.touch #prompt { top: 29%; flex-direction: column; gap: 6px; white-space: normal; width: max-content; max-width: 88vw; text-align: center; font-size: 21px; }
 }
 
