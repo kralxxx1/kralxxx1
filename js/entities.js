@@ -15,50 +15,92 @@
   };
 
   // ------------------------------------------------------------ görseller
+  // The Eater: breathing, lumpy skin; wet gums, tongue, uneven yellowed teeth and saliva strands
   function pacmanMesh(game) {
     const g = new THREE.Group();
     const R = 1.15;
-    const skin = PB.Tex.canvas('pacSkin', 512, 256, (c, w, h) => {
-      c.fillStyle = '#ffcf1a'; c.fillRect(0, 0, w, h);
+    const skin = PB.Tex.canvas('pacSkin', 1024, 512, (c, w, h) => {
+      c.fillStyle = '#f2c21a'; c.fillRect(0, 0, w, h);
       const r = U.rng(5);
-      for (let k = 0; k < 2200; k++) { c.fillStyle = `rgba(${150 + r() * 80},${80 + r() * 60},0,${r() * 0.12})`; c.fillRect(r() * w, r() * h, r.range(2, 9), r.range(2, 9)); }
-      c.strokeStyle = 'rgba(160,60,10,0.35)'; c.lineWidth = 2;
-      for (let v = 0; v < 26; v++) {
-        let x = r() * w, y = r() * h; c.beginPath(); c.moveTo(x, y);
-        for (let s = 0; s < 18; s++) { x += r.range(-14, 14); y += r.range(-8, 8); c.lineTo(x, y); }
+      for (let k = 0; k < 5000; k++) { c.fillStyle = `rgba(${150 + r() * 80},${70 + r() * 60},0,${r() * 0.14})`; c.beginPath(); c.arc(r() * w, r() * h, r.range(1, 8), 0, 6.28); c.fill(); }
+      for (let k = 0; k < 60; k++) { const grd = c.createRadialGradient(0, 0, 0, 0, 0, 40); c.save(); c.translate(r() * w, r() * h); grd.addColorStop(0, 'rgba(200,90,20,0.25)'); grd.addColorStop(1, 'rgba(200,90,20,0)'); c.fillStyle = grd; c.fillRect(-40, -40, 80, 80); c.restore(); }
+      c.strokeStyle = 'rgba(150,40,20,0.45)';
+      for (let v = 0; v < 40; v++) {
+        let x = r() * w, y = r() * h; c.lineWidth = r.range(1, 3); c.beginPath(); c.moveTo(x, y);
+        for (let s2 = 0; s2 < 24; s2++) { x += r.range(-16, 16); y += r.range(-9, 9); c.lineTo(x, y); if (r() < 0.1) { c.stroke(); c.lineWidth *= 0.6; c.beginPath(); c.moveTo(x, y); } }
         c.stroke();
       }
     });
-    const mat = new THREE.MeshStandardMaterial({ map: skin, color: 0xffffff, roughness: 0.32, metalness: 0, emissive: 0xffa800, emissiveIntensity: 0.55, side: THREE.DoubleSide });
-    const upper = new THREE.Mesh(new THREE.SphereGeometry(R, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2), mat);
-    const lower = new THREE.Mesh(new THREE.SphereGeometry(R, 48, 24, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), mat);
+    const bump = PB.Tex.canvas('pacBump', 512, 256, (c, w, h) => {
+      c.fillStyle = '#808080'; c.fillRect(0, 0, w, h);
+      const r = U.rng(9);
+      for (let k = 0; k < 900; k++) { const v = 110 + r() * 60 | 0; c.fillStyle = `rgba(${v},${v},${v},0.35)`; c.beginPath(); c.arc(r() * w, r() * h, r.range(1, 6), 0, 6.28); c.fill(); }
+    });
+    const uT = { value: 0 }, uBreath = { value: 0 };
+    const mat = new THREE.MeshStandardMaterial({ map: skin, bumpMap: bump, bumpScale: 2.5, color: 0xffffff, roughness: 0.28, metalness: 0, emissive: 0xffa800, emissiveIntensity: 0.4, side: THREE.DoubleSide });
+    mat.onBeforeCompile = sh => {
+      sh.uniforms.uT = uT; sh.uniforms.uBreath = uBreath;
+      sh.vertexShader = 'uniform float uT; uniform float uBreath;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+        float lump = sin(position.x * 7.0 + uT * 1.3) * sin(position.y * 6.0 - uT * 0.9) * sin(position.z * 8.0 + uT * 1.1);
+        transformed += normal * (lump * 0.035 + uBreath * 0.045);`);
+    };
+    mat.customProgramCacheKey = () => 'pac-skin';
+    const upper = new THREE.Mesh(new THREE.SphereGeometry(R, 64, 32, 0, Math.PI * 2, 0, Math.PI / 2), mat);
+    const lower = new THREE.Mesh(new THREE.SphereGeometry(R, 64, 32, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), mat);
     upper.castShadow = lower.castShadow = true;
-    const inner = new THREE.Mesh(new THREE.SphereGeometry(R * 0.965, 32, 20), new THREE.MeshBasicMaterial({ color: 0x050000 }));
-    const teethMat = new THREE.MeshStandardMaterial({ color: 0xf2ead2, roughness: 0.3, emissive: 0x302818, emissiveIntensity: 0.4 });
+    // Mouth interior: wet gums, a dark throat and a tongue
+    const gum = new THREE.MeshStandardMaterial({ color: 0x6a0c14, roughness: 0.18, metalness: 0, emissive: 0x250004, emissiveIntensity: 0.6 });
+    gum.userData.refl = 0.3;
+    const innerU = new THREE.Mesh(new THREE.SphereGeometry(R * 0.955, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), gum);
+    const innerL = new THREE.Mesh(new THREE.SphereGeometry(R * 0.955, 40, 20, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), gum);
+    innerU.material.side = THREE.BackSide;
+    const throat = new THREE.Mesh(new THREE.CircleGeometry(R * 0.55, 24), new THREE.MeshBasicMaterial({ color: 0x020000 }));
+    throat.position.set(0, 0, -R * 0.2);
+    const tongueMat = new THREE.MeshStandardMaterial({ color: 0x9a2030, roughness: 0.2, emissive: 0x300008, emissiveIntensity: 0.5 });
+    const tongue = new THREE.Mesh(new THREE.SphereGeometry(0.45, 24, 12), tongueMat);
+    tongue.scale.set(1.1, 0.28, 1.5); tongue.position.set(0, -0.12, 0.25);
+    const teethMat = new THREE.MeshStandardMaterial({ color: 0xe6d8a8, roughness: 0.35, emissive: 0x2a2010, emissiveIntensity: 0.35 });
+    const tr = U.rng(17);
     const addTeeth = (jaw, down) => {
-      for (let k = -5; k <= 5; k++) {
-        const a = k / 5 * 1.25;
-        const tooth = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.28, 6), teethMat);
-        tooth.position.set(Math.sin(a) * R * 0.92, down ? -0.02 : 0.02, Math.cos(a) * R * 0.92);
-        tooth.rotation.x = down ? 0 : Math.PI;
-        tooth.position.y += down ? 0.13 : -0.13;
+      for (const row of [0, 1]) for (let k = -7; k <= 7; k++) {
+        if (tr() < 0.08) continue;
+        const a = (k + (row ? 0.5 : 0)) / 7 * 1.35, rr = R * (0.93 - row * 0.1);
+        const len = tr.range(0.12, 0.34) * (row ? 0.7 : 1), wdt = tr.range(0.04, 0.085);
+        const tooth = new THREE.Mesh(new THREE.ConeGeometry(wdt, len, 5), teethMat);
+        tooth.position.set(Math.sin(a) * rr, (down ? 1 : -1) * (len / 2 - 0.02), Math.cos(a) * rr);
+        tooth.rotation.set(down ? 0 : Math.PI, 0, (tr() - 0.5) * 0.35);
+        tooth.rotation.x += (down ? -1 : 1) * (tr() - 0.5) * 0.3;
         jaw.add(tooth);
       }
     };
     const up = new THREE.Group(), lo = new THREE.Group();
-    up.add(upper); lo.add(lower);
+    up.add(upper, innerU); lo.add(lower, innerL, tongue);
     addTeeth(up, false); addTeeth(lo, true);
-    g.add(up, lo, inner);
+    // Saliva strands stretched between the jaws
+    const spit = new THREE.MeshStandardMaterial({ color: 0xd8e0d0, roughness: 0.05, transparent: true, opacity: 0.55, depthWrite: false });
+    const strands = [];
+    for (let k = 0; k < 5; k++) {
+      const a = (k - 2) * 0.32 + tr.range(-0.1, 0.1);
+      const sgeo = new THREE.CylinderGeometry(0.008 + tr() * 0.01, 0.006, 1, 5, 4);
+      const pa = sgeo.attributes.position; for (let i = 0; i < pa.count; i++) { const y = pa.getY(i); pa.setX(i, pa.getX(i) * (1 - Math.abs(y) * 0.7)); pa.setZ(i, pa.getZ(i) + (0.25 - y * y) * 0.2); }
+      sgeo.computeVertexNormals();
+      const m = new THREE.Mesh(sgeo, spit);
+      m.position.set(Math.sin(a) * R * 0.78, 0, Math.cos(a) * R * 0.78);
+      m.userData.a = a;
+      g.add(m); strands.push(m);
+    }
+    g.add(up, lo, throat);
     const light = new THREE.PointLight(0xffc830, 30, 20, 1.6);
     light.position.set(0, 0.2, 0.6);
     g.add(light);
-    return { group: g, up, lo, light, mat, R };
+    return { group: g, up, lo, light, mat, R, uT, uBreath, strands, tongue };
   }
 
   const GHOST_VERT = `
-    uniform float uTime; varying vec3 vN; varying vec3 vV; varying float vY;
+    uniform float uTime; varying vec3 vN; varying vec3 vV; varying float vY; varying vec3 vP;
     void main(){
       vec3 p = position;
+      vP = position;
       float skirt = smoothstep(0.35, -0.95, p.y);
       float a = atan(p.z, p.x);
       p.y += sin(a * 6.0 + uTime * 5.0) * 0.12 * skirt;
@@ -70,16 +112,22 @@
     }`;
   const GHOST_FRAG = `
     uniform vec3 uColor; uniform float uAlpha; uniform float uTime; uniform float uFlee; uniform float uFriendly;
-    varying vec3 vN; varying vec3 vV; varying float vY;
+    varying vec3 vN; varying vec3 vV; varying float vY; varying vec3 vP;
     float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453); }
+    float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
+    float n3(vec3 p){ vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+      return mix(mix(mix(h3(i), h3(i + vec3(1,0,0)), f.x), mix(h3(i + vec3(0,1,0)), h3(i + vec3(1,1,0)), f.x), f.y),
+                 mix(mix(h3(i + vec3(0,0,1)), h3(i + vec3(1,0,1)), f.x), mix(h3(i + vec3(0,1,1)), h3(i + vec3(1,1,1)), f.x), f.y), f.z); }
     void main(){
       float fres = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.2);
+      float wisp = n3(vP * 3.0 + vec3(0.0, -uTime * 0.9, uTime * 0.3)) * 0.6 + n3(vP * 7.0 + vec3(uTime * 0.5, -uTime * 1.6, 0.0)) * 0.4;
       vec3 flee = mix(vec3(0.08, 0.12, 1.3), vec3(1.4), step(0.5, fract(uTime * 3.5)) * step(1.5, uFlee));
       vec3 base = mix(uColor, flee, step(0.5, uFlee));
       vec3 col = base * (0.55 + fres * 2.4);
       col = mix(col, base * 0.8 + vec3(0.3), uFriendly * 0.3);
       float n = hash(floor(gl_FragCoord.xy * 0.5) + floor(uTime * 20.0));
-      float a = uAlpha * (0.55 + fres * 0.45) * smoothstep(-1.1, -0.6, vY) * (0.85 + n * 0.15);
+      col *= 0.75 + wisp * 0.5;
+      float a = uAlpha * (0.45 + fres * 0.55) * smoothstep(-1.1, -0.45 - wisp * 0.4, vY) * (0.6 + wisp * 0.55) * (0.88 + n * 0.12);
       gl_FragColor = vec4(col, a);
     }`;
   function ghostMesh(color) {
@@ -93,15 +141,16 @@
     const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: GHOST_VERT, fragmentShader: GHOST_FRAG, transparent: true, depthWrite: false, side: THREE.DoubleSide });
     const body = new THREE.Mesh(geo, mat);
     g.add(body);
-    const eyeW = new THREE.MeshBasicMaterial({ color: new THREE.Color(2, 2, 2) });
-    const eyeP = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.05, 0.1, 1.2) });
+    const eyeW = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.01, 0.01, 0.015), transparent: true, opacity: 0.92 });
+    const eyeP = new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(2.6).add(new THREE.Color(0.6, 0.6, 0.6)) });
     const eyes = [];
     for (const sx of [-0.26, 0.26]) {
       const e = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 12), eyeW);
-      e.scale.set(0.85, 1.15, 0.6);
-      e.position.set(sx, 0.62, 0.6);
-      const p = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 8), eyeP);
-      p.position.set(0, 0, 0.12);
+      e.scale.set(0.8, 1.3, 0.45);
+      e.position.set(sx, 0.6, 0.6);
+      e.rotation.z = sx * 0.5;
+      const p = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 8), eyeP);
+      p.position.set(0, -0.02, 0.1);
       e.add(p);
       g.add(e);
       eyes.push({ e, p });
@@ -127,17 +176,34 @@
     for (const sx of [-0.22, 0.22]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), eyeM); e.position.set(sx, 0.42, 0); g.add(e); }
     return { group: g, mats: [m, eyeM] };
   }
+  // The Counter: too tall, too thin, long hanging fingers, head tilted; skin like wet tar
   function watcherMesh() {
     const g = new THREE.Group();
-    const m = new THREE.MeshStandardMaterial({ color: 0x010101, roughness: 1, metalness: 0 });
-    const part = (geo, x, y, z, rx = 0, rz = 0) => { const p = new THREE.Mesh(geo, m); p.position.set(x, y, z); p.rotation.set(rx, 0, rz); p.castShadow = true; g.add(p); return p; };
-    part(new THREE.CapsuleGeometry(0.22, 1.1, 4, 10), 0, 2.05, 0);
-    part(new THREE.SphereGeometry(0.19, 14, 10), 0.05, 2.95, 0.02).scale.set(0.9, 1.25, 1);
-    part(new THREE.CapsuleGeometry(0.06, 1.35, 4, 8), -0.33, 1.65, 0, 0, 0.07);
-    part(new THREE.CapsuleGeometry(0.06, 1.35, 4, 8), 0.33, 1.65, 0, 0, -0.07);
-    part(new THREE.CapsuleGeometry(0.08, 1.3, 4, 8), -0.12, 0.72, 0);
-    part(new THREE.CapsuleGeometry(0.08, 1.3, 4, 8), 0.12, 0.72, 0);
-    return { group: g, mat: m };
+    const m = new THREE.MeshStandardMaterial({ color: 0x040404, roughness: 0.38, metalness: 0.1 });
+    m.userData.refl = 0.1;
+    const part = (geo, x, y, z, rx = 0, rz = 0, ry = 0) => { const p = new THREE.Mesh(geo, m); p.position.set(x, y, z); p.rotation.set(rx, ry, rz); p.castShadow = true; g.add(p); return p; };
+    part(new THREE.CapsuleGeometry(0.17, 1.2, 6, 12), 0, 2.15, 0).scale.set(1, 1, 0.7);
+    const ribs = new THREE.CapsuleGeometry(0.2, 0.35, 4, 12); part(ribs, 0, 2.45, 0.02).scale.set(1.05, 1, 0.75);
+    part(new THREE.CapsuleGeometry(0.05, 0.12, 4, 8), 0, 2.98, 0.02);
+    const head = part(new THREE.SphereGeometry(0.17, 20, 14), 0.06, 3.18, 0.04, 0.1, 0.35);
+    head.scale.set(0.85, 1.35, 0.95);
+    const jaw = part(new THREE.SphereGeometry(0.1, 12, 8), 0.1, 3.02, 0.1, 0.4, 0.35); jaw.scale.set(0.9, 0.7, 1);
+    const arms = [];
+    for (const sx of [-1, 1]) {
+      const sh = sx * 0.27;
+      part(new THREE.SphereGeometry(0.07, 10, 8), sh, 2.72, 0);
+      const up = part(new THREE.CapsuleGeometry(0.045, 0.8, 4, 8), sh + sx * 0.03, 2.25, 0.02, 0, -sx * 0.05);
+      const lo = part(new THREE.CapsuleGeometry(0.038, 0.85, 4, 8), sh + sx * 0.07, 1.4, 0.06, 0.08, -sx * 0.04);
+      const hand = new THREE.Group(); hand.position.set(sh + sx * 0.09, 0.9, 0.09); g.add(hand);
+      for (let f = 0; f < 4; f++) { const fg = new THREE.Mesh(new THREE.CapsuleGeometry(0.011, 0.28 + f % 2 * 0.06, 3, 6), m); fg.position.set((f - 1.5) * 0.022, -0.18, (f % 2) * 0.01); fg.rotation.z = (f - 1.5) * 0.06; hand.add(fg); }
+      arms.push({ up, lo, hand });
+    }
+    for (const sx of [-1, 1]) {
+      part(new THREE.CapsuleGeometry(0.065, 0.9, 4, 8), sx * 0.11, 1.05, 0);
+      part(new THREE.CapsuleGeometry(0.05, 0.9, 4, 8), sx * 0.12, 0.45, -0.02);
+      part(new THREE.SphereGeometry(0.06, 8, 6), sx * 0.12, 0.03, 0.06).scale.set(0.8, 0.4, 1.8);
+    }
+    return { group: g, mat: m, head, arms };
   }
 
   // ------------------------------------------------------------ temel sınıf
@@ -402,8 +468,19 @@
       const moving = this.state !== 'stunned';
       this.chompRate = this.state === 'chase' ? 4.2 : 2.3;
       if (moving) this.chomp += dt * this.chompRate;
-      const open = Math.abs(Math.sin(this.chomp * Math.PI)) * (this.state === 'chase' ? 0.62 : 0.4);
+      const sniff = this.state === 'investigate' || this.state === 'search';
+      let open = Math.abs(Math.sin(this.chomp * Math.PI)) * (this.state === 'chase' ? 0.68 : 0.4);
+      if (sniff) open = 0.12 + Math.abs(Math.sin(g.time * 7)) * 0.05;
       this.vis.up.rotation.x = -open; this.vis.lo.rotation.x = open * 0.35;
+      // Breathing skin, drooling strands that stretch with the jaw, tongue working
+      this.vis.uT.value = g.time; this.vis.uBreath.value = Math.sin(g.time * (this.state === 'chase' ? 5 : 1.6)) * (this.state === 'chase' ? 1.2 : 0.6);
+      const gap = Math.sin(open) * this.vis.R * 0.95 + 0.02;
+      for (const st of this.vis.strands) { const vis = open > 0.08 && open < 0.62; st.visible = vis; if (vis) { st.scale.y = gap; st.position.y = gap * 0.5 - Math.sin(open * 0.35) * 0.2; } }
+      this.vis.tongue.position.y = -0.12 + Math.sin(g.time * 3.1) * 0.03; this.vis.tongue.rotation.y = Math.sin(g.time * 1.7) * 0.2;
+      // Lean into the chase, weave while sniffing
+      this.lean = U.damp(this.lean || 0, this.state === 'chase' ? 0.22 : 0, 3, dt);
+      this.vis.group.rotation.x = this.lean;
+      this.vis.group.rotation.y = sniff ? Math.sin(g.time * 1.3) * 0.5 : U.damp(this.vis.group.rotation.y, 0, 3, dt);
       const side = Math.floor(this.chomp * 2);
       if (side !== this.lastChompSide && moving) {
         this.lastChompSide = side;
@@ -704,6 +781,13 @@
       this.faceToward(g.player.pos.x, g.player.pos.z, dt, 20);
       this.mesh.position.set(this.pos.x, 0, this.pos.z);
       this.mesh.rotation.y = this.heading;
+      // While watched it twitches: sudden head jerks and finger flexes
+      if (this.vis.head) {
+        this.twT = (this.twT || 0) - dt;
+        if (obs && this.twT <= 0) { this.twT = 0.4 + Math.random() * 1.6; this.twHead = (Math.random() - 0.5) * 0.9; this.twF = Math.random(); }
+        this.vis.head.rotation.z = U.damp(this.vis.head.rotation.z, 0.35 + (this.twHead || 0), 30, dt);
+        for (const a of this.vis.arms) a.hand.rotation.x = U.damp(a.hand.rotation.x, (this.twF || 0) * 0.5, 20, dt);
+      }
       if (d < this.catchR && this.losToPlayer() && !g.player.hidden) g.killPlayer(this);
       if (g.audio) {
         const k = this.loopKeys[0];

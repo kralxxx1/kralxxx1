@@ -275,6 +275,7 @@
       }
       this.scene.add(this.world.group);
       this.scene.environment = this.world.envMap;
+      if (this.player.vm) this.player.vm.onWorld(this.world);
       this.applyFog();
       this.syncPostWorld();
       this.nav = new PB.Entities.Nav(this);
@@ -536,6 +537,7 @@
     }
     useItem(o) {
       if (o.taken) return;
+      if (this.player.vm) this.player.vm.doReach();
       if (this.script.use && this.script.use(this, o)) return;
       const ty = o.type, it = o.item;
       switch (ty) {

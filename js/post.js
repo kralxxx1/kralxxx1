@@ -215,9 +215,10 @@
       gl_FragColor = vec4(col, 1.0);
     }`;
   const MBLUR = `
-    uniform sampler2D tIn; uniform sampler2D tDepth; uniform mat4 uInvViewProj; uniform mat4 uPrevViewProj; uniform float uAmount; varying vec2 vUv;
+    uniform sampler2D tIn; uniform sampler2D tDepth; uniform mat4 uInvViewProj; uniform mat4 uPrevViewProj; uniform float uAmount; uniform float uNearMask; varying vec2 vUv;
     void main(){
       float d = texture2D(tDepth, vUv).x;
+      if (d < uNearMask) { gl_FragColor = vec4(texture2D(tIn, vUv).rgb, 1.0); return; }
       vec4 w = uInvViewProj * vec4(vUv * 2.0 - 1.0, d * 2.0 - 1.0, 1.0); w /= w.w;
       vec4 pc = uPrevViewProj * w;
       vec2 prev = pc.xy / pc.w * 0.5 + 0.5;
@@ -352,7 +353,7 @@
         uPL: { value: pl }, uPC: { value: pc }, uNPL: { value: 0 },
       });
       this.mCombine = mk(COMBINE, { tScene: { value: null }, tAO: { value: null }, tSSR: { value: null }, tVol: { value: null }, uAoStr: { value: 0.85 }, uHasAO: { value: 0 }, uHasSSR: { value: 0 }, uHasVol: { value: 0 } });
-      this.mMBlur = mk(MBLUR, { tIn: { value: null }, tDepth: { value: null }, uInvViewProj: M4(), uPrevViewProj: M4(), uAmount: { value: 0.5 } });
+      this.mMBlur = mk(MBLUR, { tIn: { value: null }, tDepth: { value: null }, uInvViewProj: M4(), uPrevViewProj: M4(), uAmount: { value: 0.5 }, uNearMask: { value: 0 } });
       this.mComp = mk(COMPOSITE, {
         tScene: { value: null }, tBloom: { value: null }, tDirt: { value: this.dirtTexture() }, res: V2(), srcTexel: V2(), ss: { value: 1 },
         time: { value: 0 }, bloomStrength: { value: 0.6 }, exposure: { value: 1 }, grain: { value: 0.5 }, chroma: { value: 0.5 }, vignette: { value: 0.6 }, dirt: { value: 0.6 },
@@ -602,6 +603,8 @@
         const m = this.mMBlur.uniforms;
         m.tIn.value = hdr; m.tDepth.value = this.gRT.depthTexture;
         m.uInvViewProj.value.copy(viewProj).invert(); m.uPrevViewProj.value.copy(this.prevViewProj); m.uAmount.value = q.mblur;
+        // Depth-buffer value at 0.8 m: anything closer (the hands) is not blurred
+        { const n = camera.near, f = camera.far, z = 0.8; m.uNearMask.value = ((f + n) / (f - n) - 2 * f * n / ((f - n) * z)) * 0.5 + 0.5; }
         this.pass(this.mMBlur, this.hdr2RT);
         hdr = this.hdr2RT.texture;
       }

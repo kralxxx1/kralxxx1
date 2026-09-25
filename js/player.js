@@ -150,6 +150,8 @@
       // Yakın dolgu ışığı: tamamen zifiri karanlıkta bile fener halkasının etrafı okunabilsin
       this.fill = new THREE.PointLight(0xffe8c8, 0, 6, 2);
       game.scene.add(this.fill);
+      // First-person hands
+      this.vm = new PB.ViewModel(game, this.cam);
     }
     applyShadowSetting() {
       const q = PB.Settings.data.shadows;
@@ -279,7 +281,11 @@
       const want = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
       this.flashDir.lerp(want, 1 - Math.exp(-14 * dt)).normalize();
       const right = new THREE.Vector3(1, 0, 0).applyQuaternion(cam.quaternion);
-      this.flash.position.copy(cam.position).addScaledVector(right, 0.16).add(new THREE.Vector3(0, -0.14, 0));
+      if (this.vm && this.vm.show > 0.5 && !this.hidden) {
+        // The beam leaves the flashlight in the hand and follows its sway
+        this.flash.position.copy(this.vm.tipWorld);
+        this.flashDir.lerp(this.vm.dirWorld, 1 - Math.exp(-20 * dt)).normalize();
+      } else this.flash.position.copy(cam.position).addScaledVector(right, 0.16).add(new THREE.Vector3(0, -0.14, 0));
       this.flashTarget.position.copy(this.flash.position).addScaledVector(this.flashDir, 10);
       this.fill.position.copy(cam.position).addScaledVector(this.flashDir, 1.2);
     }
@@ -301,6 +307,7 @@
       // Koşarken hafif FOV artışı
       const fovT = S.fov + (this.sprinting ? 6 : 0) - (this.fear > 70 ? (this.fear - 70) * 0.15 : 0);
       if (Math.abs(cam.fov - fovT) > 0.05) { cam.fov = U.damp(cam.fov, fovT, 6, dt || 1); cam.updateProjectionMatrix(); }
+      if (this.vm) this.vm.update(dt || 0, this);
     }
     addTrauma(k) { this.trauma = Math.min(1, this.trauma + k); }
     // ---------------------------------------------------------- saklanma
