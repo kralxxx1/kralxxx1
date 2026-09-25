@@ -8,6 +8,13 @@
 
   // ------------------------------------------------------------ textures
   Object.assign(M.tex, {
+    // Fir needles: dense dark strokes over a deep green
+    pine: () => T.canvas('m2:pine', 256, 256, (g, w, h) => {
+      const r = U.rng(1225);
+      g.fillStyle = '#123a1c'; g.fillRect(0, 0, w, h);
+      for (let k = 0; k < 2600; k++) { const x = r() * w, y = r() * h, l = r.range(6, 16), a = r.range(-0.9, 0.9) + (k % 2 ? Math.PI : 0); g.strokeStyle = `rgba(${20 + r() * 40},${70 + r() * 70},${30 + r() * 30},0.8)`; g.lineWidth = r.range(1, 2); g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.sin(a) * l, y + Math.cos(a) * l); g.stroke(); }
+      for (let k = 0; k < 500; k++) { g.fillStyle = `rgba(0,0,0,${r() * 0.35})`; g.fillRect(r() * w, r() * h, 3, 3); }
+    }, { repeat: true }),
     // A window at night in the rain: dark sky, a few far lights smeared by water, streaks and beads on the glass
     nightWindow: () => T.canvas('m2:nightWindow', 256, 384, (g, w, h) => {
       const r = U.rng(207);
@@ -97,7 +104,7 @@
     boothBody: { color: 0x1a4a8a, rough: 0.35, metal: 0.3, refl: 0.2 }, boothCurtain: { tex: 'boothCurtain', rough: 0.95, double: true },
     mailboxBlack: { color: 0x151515, rough: 0.4, metal: 0.6 }, pegboard: { tex: 'pegboard', rough: 0.8 }, tools: { color: 0x707378, rough: 0.35, metal: 0.9 },
     toolRed: { color: 0xa01818, rough: 0.4 }, kernel: { tex: 'kernel', rough: 0.4, refl: 0.1 }, chompyFur: { color: 0xf0c020, rough: 1 }, chompyDark: { color: 0x151010, rough: 0.9 },
-    fountainStone: { color: 0xb0aaa0, rough: 0.6, refl: 0.1 }, xmasGreen: { color: 0x1a4a22, rough: 0.9 }, ornRed: { color: 0xa01010, rough: 0.12, metal: 0.7, refl: 0.3 }, ornGold: { color: 0xd0a030, rough: 0.15, metal: 0.9, refl: 0.35 }, ornBlue: { color: 0x1a3aa0, rough: 0.12, metal: 0.7, refl: 0.3 }, xmasBulb: { glow: 2.6, color: 0xffd890 }, xmasStar: { glow: 3.2, color: 0xffe070 }, giftRed: { color: 0x9a1a1a, rough: 0.5 }, giftGreen: { color: 0x1a6a2a, rough: 0.5 }, giftRibbon: { color: 0xe8d070, rough: 0.35, metal: 0.4 },
+    fountainStone: { color: 0xb0aaa0, rough: 0.6, refl: 0.1 }, xmasGreen: { tex: 'pine', color: 0xffffff, rough: 0.95, rep: 5 }, ornRed: { color: 0xa01010, rough: 0.12, metal: 0.7, refl: 0.3 }, ornGold: { color: 0xd0a030, rough: 0.15, metal: 0.9, refl: 0.35 }, ornBlue: { color: 0x1a3aa0, rough: 0.12, metal: 0.7, refl: 0.3 }, xmasBulb: { glow: 2.6, color: 0xffd890 }, xmasStar: { glow: 3.2, color: 0xffe070 }, giftRed: { color: 0x9a1a1a, rough: 0.5 }, giftGreen: { color: 0x1a6a2a, rough: 0.5 }, giftRibbon: { color: 0xe8d070, rough: 0.35, metal: 0.4 },
     planterWood: { color: 0x6a4a30, rough: 0.7 }, plant: { color: 0x2a5a2a, rough: 0.8, double: true }, pewWood: { color: 0x5a3a24, rough: 0.45, refl: 0.1 },
     pipeRust: { color: 0x6a4a38, rough: 0.7, metal: 0.6 }, pipeGrey: { color: 0x5a6068, rough: 0.5, metal: 0.8 }, boilerRed: { color: 0x7a2418, rough: 0.6, metal: 0.4 },
     gauge: { color: 0xe8e4d8, rough: 0.3 }, keyTag: { color: 0xd8c070, rough: 0.5 }, keyBoardWood: { color: 0x4a3020, rough: 0.6 },

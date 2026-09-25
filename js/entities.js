@@ -567,8 +567,12 @@
         this.hostile = false;
         const pc = g.nav.playerCell;
         const d = this.distToPlayer();
-        u.uFriendly.value = 1; u.uAlpha.value = 0.55 * U.smoothstep(0.4, 1.8, d);
-        if (d > 9 || this.stateT > 12 || (d < 1.5 && !this.goalField)) {
+        u.uFriendly.value = 1; u.uAlpha.value = 0.55 * U.smoothstep(0.9, 2.2, d);
+        this.mesh.visible = d > 0.9;
+        // Keeps its distance: close enough to be company, never in your face
+        const tooClose = d < 1.8 && g.time - (this.awayT || -9) > 2;
+        if (tooClose) this.awayT = g.time;
+        if (d > 9 || this.stateT > 12 || tooClose) {
           const c = this.randomCellNear(pc.x, pc.y, 2, 5) || pc;
           this.setGoal(c.x, c.y); this.stateT = 0;
         }

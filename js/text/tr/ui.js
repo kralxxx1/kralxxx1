@@ -278,6 +278,7 @@
     'hud.fps': '{n} FPS',
 
     'touch.pause': 'Duraklat',
+    'touch.bag': 'ÇANTA',
     'touch.map': 'HARİTA',
     'touch.drink': 'İÇ',
     'touch.throw': 'AT',

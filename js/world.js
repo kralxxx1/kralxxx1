@@ -300,7 +300,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         default: {
           // Simple colored materials and textured ones from the model library
           const spec = PB.Models.MATS[key];
-          if (spec && spec.tex) { m = new THREE.MeshStandardMaterial({ map: PB.Models.tex[spec.tex](), color: spec.color != null ? spec.color : 0xffffff, roughness: spec.rough != null ? spec.rough : 0.7, metalness: spec.metal || 0, transparent: !!spec.transparent, opacity: spec.opacity != null ? spec.opacity : 1, depthWrite: !spec.transparent, side: spec.double ? THREE.DoubleSide : THREE.FrontSide, emissive: spec.emissive != null ? new THREE.Color(spec.emissive) : new THREE.Color(0), emissiveMap: spec.emissive != null ? PB.Models.tex[spec.tex]() : null, emissiveIntensity: spec.ei != null ? spec.ei : 1 }); this.patch(m); m.userData.refl = spec.refl || 0; }
+          if (spec && spec.tex) { m = new THREE.MeshStandardMaterial({ map: PB.Models.tex[spec.tex](), color: spec.color != null ? spec.color : 0xffffff, roughness: spec.rough != null ? spec.rough : 0.7, metalness: spec.metal || 0, transparent: !!spec.transparent, opacity: spec.opacity != null ? spec.opacity : 1, depthWrite: !spec.transparent, side: spec.double ? THREE.DoubleSide : THREE.FrontSide, emissive: spec.emissive != null ? new THREE.Color(spec.emissive) : new THREE.Color(0), emissiveMap: spec.emissive != null ? PB.Models.tex[spec.tex]() : null, emissiveIntensity: spec.ei != null ? spec.ei : 1 }); this.patch(m); m.userData.refl = spec.refl || 0; if (spec.rep) { m.map = m.map.clone(); m.map.repeat.set(spec.rep, spec.rep); m.map.needsUpdate = true; } }
           else if (spec && spec.glow) m = E(spec.color, spec.glow);
           else if (spec) m = S(spec.color, spec.rough != null ? spec.rough : 0.6, spec.metal || 0, Object.assign({}, spec.transparent ? { transparent: true, opacity: spec.opacity, depthWrite: false } : {}, spec.double ? { side: THREE.DoubleSide } : {}, spec.refl != null ? { refl: spec.refl } : {}));
           else m = S(0x888888, 0.6);
@@ -629,11 +629,17 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       const half = C / 2, ow = g.width / 2;
       const pieces = [[-half - t / 2, -ow, 0, H], [ow, half + t / 2, 0, H], [-ow, ow, g.height, H]];
       const ao = this.wallAO(H);
+      // A front door of a house: the street side of the wall around it is clapboard, not wallpaper
+      const outd = L.meta.outdoor, nxA0 = g.az ? -1 : 0, nzA0 = g.ax ? -1 : 0;
+      const outAt = (sx, sz) => { if (!outd) return false; const c = L.cellOf(g.cx + sx * 0.6, g.cz + sz * 0.6); return L.inb(c.x, c.y) && !!outd[L.i(c.x, c.y)]; };
+      const oA = outAt(nxA0, nzA0), oB = outAt(-nxA0, -nzA0);
+      const sid = this.mat('siding').userData.scale || 2;
+      const bufA = oA ? this.chunkBuf(bufs, 'siding', g.cx, g.cz) : buf, bufB = oB ? this.chunkBuf(bufs, 'siding', g.cx, g.cz) : buf;
       for (const [a0, a1, y0, y1] of pieces) {
         const p0x = g.cx + g.ax * a0, p0z = g.cz + g.az * a0, p1x = g.cx + g.ax * a1, p1z = g.cz + g.az * a1;
-        const nxA = g.az ? -1 : 0, nzA = g.ax ? -1 : 0;
-        this.vface(buf, p0x + nxA * t / 2, p0z + nzA * t / 2, p1x + nxA * t / 2, p1z + nzA * t / 2, y0, y1, nxA, nzA, s, y0 > 0 ? null : ao);
-        this.vface(buf, p0x - nxA * t / 2, p0z - nzA * t / 2, p1x - nxA * t / 2, p1z - nzA * t / 2, y0, y1, -nxA, -nzA, s, y0 > 0 ? null : ao);
+        const nxA = nxA0, nzA = nzA0;
+        this.vface(bufA, p0x + nxA * t / 2, p0z + nzA * t / 2, p1x + nxA * t / 2, p1z + nzA * t / 2, y0, y1, nxA, nzA, oA ? sid : s, y0 > 0 || oA ? null : ao);
+        this.vface(bufB, p0x - nxA * t / 2, p0z - nzA * t / 2, p1x - nxA * t / 2, p1z - nzA * t / 2, y0, y1, -nxA, -nzA, oB ? sid : s, y0 > 0 || oB ? null : ao);
         if (y0 > 0) this.hface(buf, Math.min(p0x, p1x) - (g.az ? t / 2 : 0), Math.min(p0z, p1z) - (g.ax ? t / 2 : 0), Math.max(p0x, p1x) + (g.az ? t / 2 : 0), Math.max(p0z, p1z) + (g.ax ? t / 2 : 0), y0, false, s, 0.7);
       }
       // Kasa kenarları (açıklığın iç yüzleri)

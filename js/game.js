@@ -848,8 +848,8 @@
       if (fix.length) opts.push(() => {
         const f = fix[Math.floor(Math.random() * fix.length)];
         f.light.popT = t + 2.2; W.fixDirty = true;
-        const pos = { x: f.light.x, y: f.light.y || 2.8, z: f.light.z }, o = this.audio.out('sfx', pos, { rev: 0.5 });
-        if (this.audio.ctx) { const a = this.audio, at = a.t; a.burst(o.input, 'highpass', 2500, 0.7, at, 0.12, 0.9, 0.001); for (let k = 0; k < 7; k++) a.tone(o.input, 'sine', 3000 + Math.random() * 3000, 2500, at + 0.05 + Math.random() * 0.4, 0.05, 0.12, 0.001); }
+        const pos = { x: f.light.x, y: f.light.y || 2.8, z: f.light.z };
+        if (this.audio.ctx) { const a = this.audio, at = a.t, o = a.out('sfx', pos, { rev: 0.5 }); a.burst(o.input, 'highpass', 2500, 0.7, at, 0.12, 0.9, 0.001); for (let k = 0; k < 7; k++) a.tone(o.input, 'sine', 3000 + Math.random() * 3000, 2500, at + 0.05 + Math.random() * 0.4, 0.05, 0.12, 0.001); }
         this.audio.caption('buzz', t_('cap.pop'), pos, 10);
         pl.addTrauma(0.25); pl.fear = Math.min(100, pl.fear + 12);
       });

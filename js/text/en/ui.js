@@ -278,6 +278,7 @@
     'hud.fps': '{n} FPS',
 
     'touch.pause': 'Pause',
+    'touch.bag': 'BAG',
     'touch.map': 'MAP',
     'touch.drink': 'DRINK',
     'touch.throw': 'THROW',

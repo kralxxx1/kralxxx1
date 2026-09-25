@@ -70,7 +70,7 @@
       if (!list.length) { grid.innerHTML = `<p class="help">${esc(t('bag.empty'))}</p>`; this.select(null); return; }
       grid.innerHTML = list.map((it, k) => `<button type="button" class="bag-cell${it.story ? ' story' : ''}" data-k="${k}"><span class="bn">${esc(it.name)}</span>${it.count > 1 ? `<span class="bc">×${it.count}</span>` : ''}</button>`).join('');
       grid.querySelectorAll('.bag-cell').forEach(b => { b.onclick = () => this.select(list[+b.dataset.k], b); b.onfocus = () => this.select(list[+b.dataset.k], b); });
-      const keep = this.sel && list.findIndex(i => i.id === this.sel.id);
+      const keep = this.sel ? list.findIndex(i => i.id === this.sel.id) : -1;
       const k = keep >= 0 ? keep : 0;
       this.select(list[k], grid.querySelectorAll('.bag-cell')[k]);
     }

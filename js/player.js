@@ -95,6 +95,7 @@
       btn('tb-interact', () => this.tap('interact'));
       btn('tb-flash', () => this.tap('flash'));
       btn('tb-map', () => this.tap('map'));
+      btn('tb-bag', () => this.tap('inventory'));
       btn('tb-pause', () => this.tap('pause'));
       btn('tb-throw', () => this.tap('throw'));
       btn('tb-drink', () => this.tap('drink'));
@@ -358,7 +359,7 @@
       // Hold your breath (Shift) when something comes close. Run out and you gasp; breathe hard and it hears you.
       const near = (g.entities || []).filter(e => e.hostile && !e.friendly && e.mesh && e.distToPlayer && e.distToPlayer() < 4.2);
       if (near.length && !this.breathHinted) { this.breathHinted = true; g.ui.hint(PB.t('n.holdBreath')); }
-      this.holdingBreath = inp.down('sprint') && this.stamina > 0 && !this.gaspLock;
+      this.holdingBreath = (inp.down('sprint') || inp.touchSprint) && this.stamina > 0 && !this.gaspLock;
       if (this.holdingBreath) {
         this.stamina = Math.max(0, this.stamina - 12.5 * dt);
         this.fear = Math.min(100, this.fear + 3 * dt);
