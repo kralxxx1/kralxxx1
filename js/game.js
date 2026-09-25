@@ -384,11 +384,8 @@
       }
       return grp;
     }
-    glowSprite(color, size = 0.6) {
-      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: T.softDot(), color: new THREE.Color(color).multiplyScalar(1.6), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.5 }));
-      s.scale.setScalar(size);
-      return s;
-    }
+    // Items no longer glow: the on-screen ring (updateMarks) shows what can be used.
+    glowSprite() { return new THREE.Object3D(); }
     createItems() {
       const L = this.level;
       for (const it of L.items) {
@@ -396,7 +393,7 @@
         this.buildItem(o);
         if (o.mesh) { o.mesh.position.copy(o.pos); if (o.baseY == null) o.baseY = o.pos.y; this.scene.add(o.mesh); }
         this.items.push(o);
-        this.interactables.push({ kind: 'item', ref: o, pos: o.interactPos || o.pos, reach: o.reach || 2.3, prompt: () => (o.taken ? null : this.itemPrompt(o)), act: () => this.useItem(o), hold: () => o.hold });
+        this.interactables.push({ kind: 'item', ref: o, pos: o.interactPos || o.pos, reach: o.reach || 2.5, prompt: () => (o.taken ? null : this.itemPrompt(o)), act: () => this.useItem(o), hold: () => o.hold });
       }
     }
     buildItem(o) {
@@ -450,14 +447,14 @@
         }
         case 'radio': { add('walkie', 0.02, 1.3); o.marker = MARK.obj; { const g = this.glowSprite(0xff5040, 0.3); g.position.y = 0.15; grp.add(g); o.glow = g; } break; }
         case 'tape': { add('tape'); const g = this.glowSprite(0xff4040, 0.4); g.position.y = 0.15; grp.add(g); o.glow = g; o.marker = MARK.tape; break; }
-        case 'battery': add('battery', 0.03, 2); o.spin = true; o.marker = MARK.supply; { const g = this.glowSprite(0x80d0ff, 0.45); g.position.y = 0.12; grp.add(g); o.glow = g; } break;
-        case 'almond': add('almond', 0, 1.3); o.spin = true; { const g = this.glowSprite(0xfff0c0, 0.5); g.position.y = 0.2; grp.add(g); o.glow = g; } break;
-        case 'glowstick': add('glowstick', 0.02, 2); o.spin = true; { const g = this.glowSprite(0x40ff70, 0.6); g.position.y = 0.05; grp.add(g); o.glow = g; } break;
+        case 'battery': add('battery', 0, 1.6); o.marker = MARK.supply; { const g = this.glowSprite(0x80d0ff, 0.45); g.position.y = 0.12; grp.add(g); o.glow = g; } break;
+        case 'almond': add('almond', 0, 1.2); o.marker = MARK.supply; { const g = this.glowSprite(0xfff0c0, 0.5); g.position.y = 0.2; grp.add(g); o.glow = g; } break;
+        case 'glowstick': add('glowstick', 0, 1.6); o.marker = MARK.supply; { const g = this.glowSprite(0x40ff70, 0.6); g.position.y = 0.05; grp.add(g); o.glow = g; } break;
         case 'flashlight': add('flashlight', 0, 1.2); { const g = this.glowSprite(0xffffff, 0.35); grp.add(g); o.glow = g; } o.marker = MARK.obj; break;
-        case 'token': add('token', 0.84, 2.5); { const g = this.glowSprite(0xffd060, 0.35); g.position.y = 0.9; grp.add(g); o.glow = g; } o.marker = MARK.obj; o.pos.y = 0; break;
-        case 'fuse': add('fuse', 0.03, 1.8); o.spin = true; o.marker = MARK.obj; { const g = this.glowSprite(0xffd040, 0.5); g.position.y = 0.1; grp.add(g); o.glow = g; } break;
+        case 'token': add('token', 0.789, 1.6); { const g = this.glowSprite(0xffd060, 0.35); g.position.y = 0.9; grp.add(g); o.glow = g; } o.marker = MARK.obj; o.pos.y = 0; break;
+        case 'fuse': add('fuse', 0, 1.5); o.marker = MARK.obj; { const g = this.glowSprite(0xffd040, 0.5); g.position.y = 0.1; grp.add(g); o.glow = g; } break;
         case 'fuelCan': add('fuelCan', 0, 1.2); o.marker = MARK.obj; { const g = this.glowSprite(0xff8030, 0.6); g.position.y = 0.3; grp.add(g); o.glow = g; } break;
-        case 'keycard': add('keycard', 0, 2.5); o.spin = true; o.marker = MARK.obj; { const g = this.glowSprite(0x60a0ff, 0.4); g.position.y = 0.1; grp.add(g); o.glow = g; } o.pos.y = 0.8; { const tbl = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.78, 0.6), w.mat('darkMetal')); tbl.position.y = -0.39; grp.add(tbl); } break;
+        case 'keycard': add('keycard', 0, 1.6); o.marker = MARK.obj; { const g = this.glowSprite(0x60a0ff, 0.4); g.position.y = 0.1; grp.add(g); o.glow = g; } o.pos.y = 0.8; { const tbl = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.78, 0.6), w.mat('darkMetal')); tbl.position.y = -0.39; grp.add(tbl); } break;
         case 'memento': {
           const key = { billy: 'watch', ivy: 'glasses', penny: 'walkman', clyde: 'lighter' }[it.data] || 'watch';
           add(key, 0.03, 2.2); o.spin = true; o.marker = ST.charColor(it.data);
@@ -710,13 +707,14 @@
       for (const it of this.interactables) {
         const p = it.pos;
         const dx = p.x - cp.x, dy = p.y - cp.y, dz = p.z - cp.z;
-        const d = Math.hypot(dx, dy, dz);
-        if (d > (it.reach || 2.3)) continue;
+        const d = Math.hypot(dx, dz, Math.max(0, Math.abs(dy) - 0.9));
+        if (d > (it.reach || 2.5)) continue;
         const text = it.prompt();
         if (!text) continue;
-        const dot = (dx * fwd.x + dy * fwd.y + dz * fwd.z) / Math.max(d, 1e-3);
+        const d3 = Math.hypot(dx, dy, dz);
+        const dot = (dx * fwd.x + dy * fwd.y + dz * fwd.z) / Math.max(d3, 1e-3);
         const hd = Math.hypot(dx, dz);
-        if (dot < (hd < 0.9 ? 0.2 : 0.82)) continue;
+        if (dot < (hd < 0.9 ? 0.2 : 0.8)) continue;
         if (it.kind !== 'door' && !this.level.los(cp.x, cp.z, p.x - dx / Math.max(hd, 1e-3) * 0.25, p.z - dz / Math.max(hd, 1e-3) * 0.25)) continue;
         const score = d * (2 - dot);
         if (score < bestScore) { bestScore = score; best = { it, text }; }
@@ -738,12 +736,34 @@
         }
       }
       this.ui.prompt(tgt ? tgt.text : null);
+      this.updateMarks(tgt);
       if (this.input.pressed('interact')) {
         if (pl.hidden && (!tgt || tgt.it.kind !== 'hide')) { pl.unhide(); return; }
         if (!tgt) return;
         if (holdLen > 0 && (tgt.it.ref && this.canHold(tgt.it))) { this.holding = { it: tgt.it, t: 0 }; if (this.script.holdStart) this.script.holdStart(this, tgt.it.ref); return; }
         tgt.it.act();
       }
+    }
+    // Small on-screen rings over nearby usable things (fade in with distance, the aimed one fills)
+    updateMarks(tgt) {
+      const out = this.markList || (this.markList = []);
+      out.length = 0;
+      if (S.data.hints && this.state === 'play' && !this.player.hidden) {
+        const cam = this.camera, cp = cam.position, v = this.markV || (this.markV = new THREE.Vector3());
+        for (const it of this.interactables) {
+          if (it.kind !== 'item' || !it.ref.marker || it.ref.taken || (it.ref.mesh && !it.ref.mesh.visible)) continue;
+          const p = it.pos, hd = Math.hypot(p.x - cp.x, p.z - cp.z);
+          if (hd > 4.5) continue;
+          v.copy(p).project(cam);
+          if (v.z > 1 || Math.abs(v.x) > 1.1 || Math.abs(v.y) > 1.1) continue;
+          if (!this.level.los(cp.x, cp.z, p.x + (cp.x - p.x) * 0.25 / Math.max(hd, 0.25), p.z + (cp.z - p.z) * 0.25 / Math.max(hd, 0.25))) continue;
+          const on = !!(tgt && tgt.it === it);
+          if (!on && !it.prompt()) continue;
+          out.push({ x: (v.x * 0.5 + 0.5) * 100, y: (0.5 - v.y * 0.5) * 100, a: on ? 1 : U.clamp((4.5 - hd) / 2, 0, 1) * 0.8, on });
+          if (out.length >= 10) break;
+        }
+      }
+      this.ui.marks(out);
     }
     canHold(it) { return !this.script.canHold || this.script.canHold(this, it.ref); }
     noise(x, z, radius) { for (const e of this.entities) e.hear(x, z, radius); }
@@ -1123,6 +1143,7 @@
       this.player.updateFlash(dt);
       this.flashInterference = Math.max(0, this.flashInterference - dt);
       if (this.audio.ctx) { this.audio.camYaw = this.player.yaw; this.audio.listen(this.camera); if (this.state === 'play') this.audio.ambienceTick(this.camera); }
+      if (this.state !== 'play' && this.markList && this.markList.length) { this.markList.length = 0; this.ui.marks(this.markList); }
       this.updatePost(dt);
       if (this.postDirty) this.configurePost();
       this.post.render(this.scene, this.camera, this.time);
@@ -1184,7 +1205,6 @@
         if (o.spin) o.mesh.rotation.y += dt * 1.2;
         if (o.spinSlow) o.mesh.rotation.y += dt * 0.4;
         if (o.bob) o.mesh.position.y = o.baseY + Math.sin(t * 2.4 + o.pos.x) * 0.1;
-        if (o.glow) o.glow.material.opacity = 0.35 + Math.sin(t * 3 + o.pos.z) * 0.15;
         if (o.type === 'powerPellet' && o.light) o.light.intensity = 2.5 + Math.sin(t * 6) * 1;
         // Labirentte güç hapları dokununca yenir
         if (o.type === 'powerPellet' && this.levelDef.layout !== 'backrooms' && Math.hypot(pl.pos.x - o.pos.x, pl.pos.z - o.pos.z) < 1.0) this.useItem(o);
@@ -1293,6 +1313,7 @@
           fixtures.push({ x: pl.pl.position.x, y: pl.fix.light.y - 0.05, z: pl.pl.position.z, range: pl.pl.distance || 9, r: c.r * k, g: c.g * k, b: c.b * k });
         }
       }
+      if (this.world && this.world.street) { const l = this.world.street.lamp; fixtures.push({ x: l.x, y: l.y, z: l.z, range: 11, r: 0.12, g: 0.14, b: 0.2 }); }
       this.post.setLights(this.player.flash, fixtures);
       if (this.world) this.post.vol.uLvK.value = (this.postLvK || 0.03) * this.world.U.uLmIntensity.value;
       p.blur.value = this.state === 'pause' || this.state === 'map' || this.state === 'note' || this.state === 'keypad' || this.state === 'cabinet' ? 0.8 : 0;

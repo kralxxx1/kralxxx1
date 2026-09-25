@@ -123,8 +123,24 @@
       this.breathT = 0; this.heartT = 0;
       this.frozen = false;
       // Fener: kameraya bağlı spot ışığı, hafif gecikmeyle döner
-      const fl = new THREE.SpotLight(0xfff0d8, 0, 32, 0.46, 0.5, 2);
+      const fl = new THREE.SpotLight(0xfff0d8, 0, 32, 0.62, 0.35, 2);
       fl.position.set(0, 0, 0);
+      // Light cookie: hot center, reflector rings, dim outer spill, lens smudges
+      fl.map = PB.Tex.canvas('flashCookie', 256, 256, (g, w, h) => {
+        const cx = w / 2, cy = h / 2, R = w / 2;
+        g.fillStyle = '#000'; g.fillRect(0, 0, w, h);
+        const grd = g.createRadialGradient(cx, cy, 0, cx, cy, R);
+        grd.addColorStop(0, '#ffffff'); grd.addColorStop(0.12, '#fffcf6'); grd.addColorStop(0.22, '#d6d2ca'); grd.addColorStop(0.28, '#f2eee6'); grd.addColorStop(0.36, '#a8a49c');
+        grd.addColorStop(0.6, '#56534e'); grd.addColorStop(0.85, '#1e1d1b'); grd.addColorStop(1, '#000000');
+        g.fillStyle = grd; g.fillRect(0, 0, w, h);
+        const r = PB.U.rng(5);
+        g.globalAlpha = 0.08;
+        for (let k = 0; k < 7; k++) { g.strokeStyle = r() < 0.5 ? '#000' : '#fff'; g.lineWidth = 2 + r() * 3; g.beginPath(); g.arc(cx, cy, R * r.range(0.12, 0.6), 0, Math.PI * 2); g.stroke(); }
+        g.globalAlpha = 0.07; g.fillStyle = '#000';
+        for (let k = 0; k < 12; k++) { g.beginPath(); g.arc(cx + r.range(-0.3, 0.3) * R, cy + r.range(-0.3, 0.3) * R, r.range(4, 16), 0, Math.PI * 2); g.fill(); }
+        g.globalAlpha = 1;
+      });
+      fl.map.colorSpace = THREE.NoColorSpace;
       this.flash = fl;
       this.flashTarget = new THREE.Object3D();
       fl.target = this.flashTarget;
@@ -255,7 +271,7 @@
       let k = this.flashOn ? 1 : 0;
       if (this.flashOn && this.battery < 15) k *= Math.random() < 0.08 ? 0.15 : 0.75;
       if (this.flashOn && g.flashInterference > 0) k *= Math.random() < g.flashInterference * 0.5 ? 0.05 : 1;
-      this.flash.intensity = U.damp(this.flash.intensity, k * 70, 25, dt);
+      this.flash.intensity = U.damp(this.flash.intensity, k * 95, 25, dt);
       this.fill.intensity = this.flash.intensity * 0.012;
       const cam = this.cam;
       const want = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);

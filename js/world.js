@@ -8,14 +8,14 @@
   const { DX, DY, EDGE, SOLID } = G;
 
   const THEMES = {
-    arcade: { wall: 'arcadeWall', floor: 'arcadeCarpet', ceil: 'arcadeWall', ceilTint: 0x3a3440, trim: 'darkWood', pillar: 'arcadeWall', ambient: [0.012, 0.01, 0.018], bounce: 0.3, ceilFactor: 0.5, env: [0.05, 0.03, 0.08], envPanel: [1.4, 1.1, 1.6], trimH: 0.12, wainscot: true },
-    yellow: { wall: 'wallpaper', floor: 'carpet', ceil: 'ceiling', trim: 'trimPaint', pillar: 'wallpaper', ambient: [0.05, 0.045, 0.028], bounce: 0.45, ceilFactor: 0.8, env: [0.5, 0.42, 0.2], envPanel: [4, 3.8, 3.2], trimH: 0.1 },
-    dark: { wall: 'wallpaper', wallTint: 0x6a6258, floor: 'carpet', floorTint: 0x5a5448, ceil: 'ceiling', ceilTint: 0x707070, trim: 'trimPaint', pillar: 'wallpaper', ambient: [0.004, 0.004, 0.005], bounce: 0.35, ceilFactor: 0.7, env: [0.05, 0.05, 0.05], envPanel: [1.5, 1.4, 1.2], trimH: 0.1 },
-    concrete: { wall: 'concreteWall', floor: 'concreteFloor', ceil: 'concreteWall', ceilTint: 0x55585c, trim: null, pillar: 'concreteWall', ambient: [0.012, 0.013, 0.016], bounce: 0.35, ceilFactor: 0.45, env: [0.08, 0.09, 0.1], envPanel: [3, 2.6, 2], trimH: 0 },
-    pool: { wall: 'tile', floor: 'tile', ceil: 'tile', trim: null, pillar: 'tile', ambient: [0.1, 0.12, 0.13], bounce: 0.6, ceilFactor: 0.85, env: [0.4, 0.46, 0.5], envPanel: [2.6, 2.8, 3], trimH: 0 },
-    office: { wall: 'drywall', floor: 'officeCarpet', ceil: 'ceiling', trim: 'rubber', pillar: 'drywall', low: 'fabric', ambient: [0.03, 0.033, 0.036], bounce: 0.4, ceilFactor: 0.8, env: [0.25, 0.28, 0.3], envPanel: [3.5, 3.7, 4], trimH: 0.1 },
-    maze: { wall: 'mazeWall', floor: 'mazeFloor', ceil: null, trim: null, pillar: 'mazeWall', block: 'mazeWall', ambient: [0.01, 0.01, 0.04], bounce: 0.3, ceilFactor: 1, env: [0.02, 0.02, 0.1], envPanel: [0.6, 0.6, 3], trimH: 0 },
-    glitch: { wall: 'mazeWall', floor: 'mazeFloor', ceil: null, trim: null, pillar: 'mazeWall', block: 'mazeWall', ambient: [0.02, 0.01, 0.03], bounce: 0.3, ceilFactor: 1, env: [0.08, 0.02, 0.1], envPanel: [3, 0.6, 2], trimH: 0 },
+    arcade: { floorRefl: 0.02, wall: 'arcadeWall', floor: 'arcadeCarpet', ceil: 'arcadeWall', ceilTint: 0x3a3440, trim: 'darkWood', pillar: 'arcadeWall', ambient: [0.012, 0.01, 0.018], bounce: 0.3, ceilFactor: 0.5, env: [0.05, 0.03, 0.08], envPanel: [1.4, 1.1, 1.6], trimH: 0.12, wainscot: true },
+    yellow: { floorRefl: 0.04, wall: 'wallpaper', floor: 'carpet', ceil: 'ceiling', trim: 'trimPaint', pillar: 'wallpaper', ambient: [0.05, 0.045, 0.028], bounce: 0.45, ceilFactor: 0.8, env: [0.5, 0.42, 0.2], envPanel: [4, 3.8, 3.2], trimH: 0.1 },
+    dark: { floorRefl: 0.03, wall: 'wallpaper', wallTint: 0x6a6258, floor: 'carpet', floorTint: 0x5a5448, ceil: 'ceiling', ceilTint: 0x707070, trim: 'trimPaint', pillar: 'wallpaper', ambient: [0.004, 0.004, 0.005], bounce: 0.35, ceilFactor: 0.7, env: [0.05, 0.05, 0.05], envPanel: [1.5, 1.4, 1.2], trimH: 0.1 },
+    concrete: { floorRefl: 0.14, wall: 'concreteWall', floor: 'concreteFloor', ceil: 'concreteWall', ceilTint: 0x55585c, trim: null, pillar: 'concreteWall', ambient: [0.012, 0.013, 0.016], bounce: 0.35, ceilFactor: 0.45, env: [0.08, 0.09, 0.1], envPanel: [3, 2.6, 2], trimH: 0 },
+    pool: { floorRefl: 0.45, wallRefl: 0.25, wall: 'tile', floor: 'tile', ceil: 'tile', trim: null, pillar: 'tile', ambient: [0.1, 0.12, 0.13], bounce: 0.6, ceilFactor: 0.85, env: [0.4, 0.46, 0.5], envPanel: [2.6, 2.8, 3], trimH: 0 },
+    office: { floorRefl: 0, wall: 'drywall', floor: 'officeCarpet', ceil: 'ceiling', trim: 'rubber', pillar: 'drywall', low: 'fabric', ambient: [0.03, 0.033, 0.036], bounce: 0.4, ceilFactor: 0.8, env: [0.25, 0.28, 0.3], envPanel: [3.5, 3.7, 4], trimH: 0.1 },
+    maze: { floorRefl: 0.35, wall: 'mazeWall', floor: 'mazeFloor', ceil: null, trim: null, pillar: 'mazeWall', block: 'mazeWall', ambient: [0.01, 0.01, 0.04], bounce: 0.3, ceilFactor: 1, env: [0.02, 0.02, 0.1], envPanel: [0.6, 0.6, 3], trimH: 0 },
+    glitch: { floorRefl: 0.35, wall: 'mazeWall', floor: 'mazeFloor', ceil: null, trim: null, pillar: 'mazeWall', block: 'mazeWall', ambient: [0.02, 0.01, 0.03], bounce: 0.3, ceilFactor: 1, env: [0.08, 0.02, 0.1], envPanel: [3, 0.6, 2], trimH: 0 },
   };
   PB.THEMES = THEMES;
 
@@ -95,7 +95,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       this.zonesOn = new Set(level.meta.zonesOn || [0]);
       this.U = {
         uLvUp: { value: null }, uLvSide: { value: null }, uBounce: { value: null },
-        uLvSize: { value: new THREE.Vector3(level.w * this.C, level.ceil, level.h * this.C) }, uLvLayers: { value: 4 }, uDownK: { value: this.theme.bounce * 0.7 },
+        uLvSize: { value: new THREE.Vector3(level.w * this.C, level.ceil, level.h * this.C) }, uLvLayers: { value: 4 }, uDownK: { value: this.theme.bounce * (this.theme.downK || 0.45) },
         uLmIntensity: { value: 1 },
         uPac: { value: new THREE.Vector4(0, -999, 0, 0) }, uPacR: { value: new THREE.Vector2(5, 16) }, uTime: { value: 0 }, uEnvK: { value: 1 },
       };
@@ -143,16 +143,23 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
     mat(key) {
       if (this.mats.has(key)) return this.mats.get(key);
       const th = this.theme;
-      const S = (color, rough = 0.6, metal = 0, extra = {}) => this.patch(new THREE.MeshStandardMaterial(Object.assign({ color, roughness: rough, metalness: metal }, extra)));
+      const S = (color, rough = 0.6, metal = 0, extra = {}) => {
+        const { refl, ...rest } = extra;
+        const mm = this.patch(new THREE.MeshStandardMaterial(Object.assign({ color, roughness: rough, metalness: metal }, rest)));
+        // Screen-space reflection strength (read by the post prepass)
+        mm.userData.refl = refl != null ? refl : rest.transparent ? 0 : U.clamp((0.3 - rough) * (metal > 0.5 ? 2.5 : 1.2), 0, 0.6);
+        return mm;
+      };
+      const MT = PB.Models.tex;
       const E = (color, k = 1, extra = {}) => { const c = new THREE.Color(color).multiplyScalar(k); return new THREE.MeshBasicMaterial(Object.assign({ color: c }, extra)); };
       let m;
       switch (key) {
-        case 'wall': m = this.pbr(th.wall, { vertexColors: true, color: th.wallTint }); break;
-        case 'floor': m = this.pbr(th.floor, { vertexColors: true, color: th.floorTint, emissiveIntensity: 0.35 }); break;
+        case 'wall': m = this.pbr(th.wall, { vertexColors: true, color: th.wallTint }); m.userData.refl = th.wallRefl || 0; break;
+        case 'floor': m = this.pbr(th.floor, { vertexColors: true, color: th.floorTint, emissiveIntensity: 0.35 }); m.userData.refl = th.floorRefl || 0; break;
         case 'ceil': m = this.pbr(th.ceil || th.wall, { vertexColors: true, color: th.ceilTint }); break;
         case 'block': m = this.pbr(th.block || th.wall, { vertexColors: true }); break;
         case 'low': m = this.pbr('fabric', { vertexColors: true }); break;
-        case 'pool': m = this.pbr('tile', { vertexColors: true }); break;
+        case 'pool': m = this.pbr('tile', { vertexColors: true }); m.userData.refl = 0.4; break;
         case 'pillar': m = this.pbr(th.pillar || th.wall, { color: th.wallTint }); break;
         case 'trimPaint': m = S(0xa89c74, 0.5); break;
         case 'trim': m = th.trim === 'trimPaint' ? S(0xa89c74, 0.5) : th.trim === 'rubber' ? S(0x2a2a2c, 0.8) : th.trim === 'darkWood' ? this.pbr('wood', { color: 0x5a4030 }) : S(0x333333, 0.6); break;
@@ -176,7 +183,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         case 'yellowPaint': m = S(0xe8b818, 0.5, 0.2); break;
         case 'chrome': m = S(0xdddddd, 0.15, 1); break;
         case 'brass': m = S(0xc8a040, 0.3, 1); break;
-        case 'mirror': m = S(0xffffff, 0.03, 1); break;
+        case 'mirror': m = S(0xffffff, 0.03, 1, { refl: 1 }); break;
         case 'glass': m = S(0x9ab8d0, 0.05, 0, { transparent: true, opacity: 0.22, depthWrite: false }); break;
         case 'waterJug': m = S(0x7ab0e0, 0.08, 0, { transparent: true, opacity: 0.5 }); break;
         case 'ceramic': m = S(0xf2f2ee, 0.15); break;
@@ -217,6 +224,57 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         case 'whiteLight': m = E(0xfff8e8, 9); break;
         case 'elevatorPanel': m = E(0xffb040, 2); break;
         case 'crt': m = new THREE.MeshBasicMaterial({ map: T.crt('idle', ['C:\\> _']), color: new THREE.Color(1.3, 1.3, 1.3) }); break;
+        // --- Detailed model materials (models.js)
+        case 'tmold': m = S(0xd8b020, 0.3, 0, { refl: 0.2 }); break;
+        case 'kick': m = S(0x18181b, 0.45, 0.7); break;
+        case 'coinDoor': m = S(0xa4a7ab, 0.32, 1); break;
+        case 'bezel': m = S(0x040405, 0.12, 0, { refl: 0.35 }); break;
+        case 'grille': m = new THREE.MeshStandardMaterial({ map: MT.grille(), roughness: 0.6, metalness: 0.4 }); m.map.repeat.set(4, 1); this.patch(m); break;
+        case 'cpArt': m = new THREE.MeshStandardMaterial({ map: MT.panel('classic'), roughness: 0.25 }); this.patch(m); break;
+        case 'coinCard': m = new THREE.MeshStandardMaterial({ map: MT.coinCard(), roughness: 0.6, emissive: 0xff3020, emissiveIntensity: 0.05 }); this.patch(m); break;
+        case 'airTable': m = S(0xf4f4f0, 0.2, 0, { refl: 0.3 }); break;
+        case 'airLine': m = S(0xd01818, 0.3); break;
+        case 'pinballPlay': m = new THREE.MeshStandardMaterial({ map: T.poster('poster3'), roughness: 0.3 }); this.patch(m); break;
+        case 'changeFace': m = new THREE.MeshStandardMaterial({ map: T.label('changeFace', 'CHANGE', { w: 256, h: 256, bg: '#1b2a48', color: '#ffd84a', font: `bold 58px ${T.FONTS.FONT_TYPE}` }), roughness: 0.4 }); this.patch(m); break;
+        case 'woodVarnish': m = this.pbr('wood', { color: 0x8a5a3c }); m.roughness = 0.55; m.userData.refl = 0.18; break;
+        case 'drawerWood': m = this.pbr('wood', { color: 0x6e4a30 }); break;
+        case 'drawer': m = new THREE.MeshStandardMaterial({ map: MT.drawer(), roughness: 0.5 }); this.patch(m); break;
+        case 'leather': m = S(0x3b2217, 0.55, 0, { refl: 0.05 }); break;
+        case 'folderBrown': m = S(0xb08850, 0.85); break;
+        case 'mug': m = S(0xe6dfcc, 0.25, 0, { refl: 0.15 }); break;
+        case 'coffee': m = S(0x1d0f06, 0.05, 0, { refl: 0.5 }); break;
+        case 'cigarette': m = S(0xefe9dc, 0.8); break;
+        case 'greenGlass': m = S(0x0f5a2c, 0.12, 0, { emissive: 0x1d7a3e, emissiveIntensity: 0.35, refl: 0.2 }); break;
+        case 'labelCard': m = S(0xe8e2cf, 0.8); break;
+        case 'safeGreen': m = S(0x2f3f35, 0.4, 0.5); break;
+        case 'tape': m = S(0xb89868, 0.4, 0, { refl: 0.1 }); break;
+        case 'porcelain': m = S(0xf3f2ec, 0.07, 0, { refl: 0.35 }); break;
+        case 'porcelainIn': m = S(0xe4e2d6, 0.09, 0, { refl: 0.3 }); break;
+        case 'water': m = S(0x6f8a88, 0.02, 0, { refl: 0.85 }); break;
+        case 'seat': m = S(0xf0eee6, 0.18, 0, { refl: 0.15 }); break;
+        case 'soap': m = S(0xf2d8e0, 0.3); break;
+        case 'paperRoll': m = S(0xf4f2ea, 0.95); break;
+        case 'keysBeige': m = new THREE.MeshStandardMaterial({ map: T.canvas('keysBeige', 128, 64, (g, w, h) => { g.fillStyle = '#6b6352'; g.fillRect(0, 0, w, h); g.fillStyle = '#d8ceb2'; for (let y = 0; y < 5; y++) for (let x = 0; x < 15; x++) g.fillRect(2 + x * 8.4, 2 + y * 12.4, 7, 10.4); }), roughness: 0.5 }); this.patch(m); break;
+        case 'lace': m = S(0xefe8da, 0.95); break;
+        case 'wrap': m = S(0xd8e4ea, 0.1, 0, { transparent: true, opacity: 0.35, depthWrite: false }); break;
+        case 'batteryTop': m = S(0xc89a28, 0.3, 0.8); break;
+        case 'rubber': m = S(0x121212, 0.9); break;
+        case 'floorTile': m = this.pbr('hexTile', { vertexColors: true }); m.userData.refl = 0.3; break;
+        case 'floorWood': m = this.pbr('planks', { vertexColors: true }); m.userData.refl = 0.12; break;
+        case 'floorConcrete': m = this.pbr('concreteFloor', { vertexColors: true }); m.userData.refl = 0.05; break;
+        case 'floorLino': m = this.pbr('linoleum', { vertexColors: true }); m.userData.refl = 0.12; break;
+        case 'wallTile': m = this.pbr('subway', { vertexColors: true }); m.userData.refl = 0.2; break;
+        case 'wainscotWood': m = this.pbr('wood', { vertexColors: true, color: 0x6e4a30 }); m.userData.scale = 0.8; break;
+        case 'rackUpright': m = new THREE.MeshStandardMaterial({ map: PB.Models.tex.perforated(), color: 0x2a5fb0, roughness: 0.45, metalness: 0.5 }); this.patch(m); break;
+        case 'wireDeck': m = new THREE.MeshStandardMaterial({ map: PB.Models.tex.wire(), alphaTest: 0.5, color: 0x9aa0a8, roughness: 0.4, metalness: 0.8, side: THREE.DoubleSide }); this.patch(m); break;
+        case 'fixtureWhite': m = S(0xe9e6dc, 0.45, 0.1); break;
+        case 'fixtureGrime': m = S(0x6b6250, 0.9, 0, { transparent: true, opacity: 0.35, depthWrite: false }); break;
+        case 'fixtureGrey': m = S(0x9aa0a4, 0.5, 0.1); break;
+        case 'enamel': m = S(0x2c4a3a, 0.28, 0.1); break;
+        case 'enamelIn': m = S(0xf2f0e6, 0.3, 0, { emissive: 0xfff0d0, emissiveIntensity: 0.15 }); break;
+        case 'bakelite': m = S(0x1c1410, 0.35); break;
+        case 'blackMetal': m = S(0x151517, 0.4, 0.7); break;
+        case 'calendar': m = new THREE.MeshStandardMaterial({ map: MT.calendar(), roughness: 0.8 }); this.patch(m); break;
         case 'screen': m = new THREE.MeshBasicMaterial({ color: 0x050505 }); break;
         case 'marquee': m = new THREE.MeshBasicMaterial({ color: 0x050505 }); break;
         default: m = S(0x888888, 0.6);
@@ -245,6 +303,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       const texNames = [this.theme.wall, this.theme.floor, this.theme.ceil, this.theme.block, this.theme.pillar, 'wood', 'metal'].filter(Boolean);
       if (this.L.theme === 'office') texNames.push('fabric');
       if (this.L.theme === 'pool' || this.L.floorType.some(v => v)) texNames.push('tile');
+      if (this.L.meta.finishes) texNames.push('hexTile', 'subway', 'planks', 'linoleum', 'concreteFloor');
       if (this.L.doors.some(d => d.kind === 'stair')) texNames.push('concreteWall');
       const uniq = [...new Set(texNames)];
       for (let k = 0; k < uniq.length; k++) {
@@ -408,6 +467,8 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       }
       // Zemin, havuzlar ve tavan
       const floorS = scaleOf('floor');
+      const finishOf = new Map();
+      for (const f of L.meta.finishes || []) for (let y = f.y0; y <= f.y1; y++) for (let x = f.x0; x <= f.x1; x++) finishOf.set(L.i(x, y), f);
       for (let y = 0; y < L.h; y++) for (let x = 0; x < L.w; x++) {
         const i = L.i(x, y);
         if (!vis(x, y)) continue;
@@ -427,9 +488,26 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
           const wb = this.chunkBuf(bufs, 'water', L.cx(x), L.cz(y));
           this.hface(wb, x0, z0, x1, z1, -0.1, true, 3, 1);
         } else {
-          this.hface(this.chunkBuf(bufs, 'floor', L.cx(x), L.cz(y)), x0, z0, x1, z1, 0, true, floorS, 1);
+          const fin = finishOf.get(i);
+          if (fin && fin.floor) this.hface(this.chunkBuf(bufs, fin.floor, L.cx(x), L.cz(y)), x0, z0, x1, z1, 0, true, scaleOf(fin.floor), 1);
+          else this.hface(this.chunkBuf(bufs, 'floor', L.cx(x), L.cz(y)), x0, z0, x1, z1, 0, true, floorS, 1);
         }
         if (!L.meta.noCeiling) this.hface(this.chunkBuf(bufs, 'ceil', L.cx(x), L.cz(y)), x0, z0, x1, z1, H, false, scaleOf('ceil'), 1);
+      }
+      // Wainscot panels (tiles, wood) and a small ledge on the walls of finished rooms
+      for (const f of L.meta.finishes || []) {
+        if (!f.wall) continue;
+        const ws = scaleOf(f.wall), o = t / 2 + 0.006, lo = o + 0.022, hh = f.h;
+        for (let y = f.y0; y <= f.y1; y++) for (let x = f.x0; x <= f.x1; x++) for (let d = 0; d < 4; d++) {
+          if (L.edgeKind(x, y, d) !== EDGE.WALL) continue;
+          const buf = this.chunkBuf(bufs, f.wall, L.cx(x), L.cz(y));
+          const x0 = x * C, x1 = (x + 1) * C, z0 = y * C, z1 = (y + 1) * C;
+          const trim = this.chunkBuf(bufs, 'trimPaint', L.cx(x), L.cz(y));
+          if (d === 0) { this.vface(buf, x0, z0 + o, x1, z0 + o, 0, hh, 0, 1, ws, null); this.vface(trim, x0, z0 + lo, x1, z0 + lo, hh, hh + 0.035, 0, 1, 1, null); this.hface(trim, x0, z0 + o, x1, z0 + lo, hh + 0.035, true, 1, 1); }
+          if (d === 2) { this.vface(buf, x0, z1 - o, x1, z1 - o, 0, hh, 0, -1, ws, null); this.vface(trim, x0, z1 - lo, x1, z1 - lo, hh, hh + 0.035, 0, -1, 1, null); this.hface(trim, x0, z1 - lo, x1, z1 - o, hh + 0.035, true, 1, 1); }
+          if (d === 3) { this.vface(buf, x0 + o, z0, x0 + o, z1, 0, hh, 1, 0, ws, null); this.vface(trim, x0 + lo, z0, x0 + lo, z1, hh, hh + 0.035, 1, 0, 1, null); this.hface(trim, x0 + o, z0, x0 + lo, z1, hh + 0.035, true, 1, 1); }
+          if (d === 1) { this.vface(buf, x1 - o, z0, x1 - o, z1, 0, hh, -1, 0, ws, null); this.vface(trim, x1 - lo, z0, x1 - lo, z1, hh, hh + 0.035, -1, 0, 1, null); this.hface(trim, x1 - lo, z0, x1 - o, z1, hh + 0.035, true, 1, 1); }
+        }
       }
       // Kapı yanı duvar parçaları ve lentolar
       for (const door of L.doors) this.doorWall(bufs, door);
@@ -576,64 +654,54 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       return m;
     }
     buildFixtures() {
-      const L = this.L;
+      const L = this.L, MF = PB.Models.fixture, MT = PB.Models.tex;
       const kinds = new Map();
       L.lights.forEach((l, i) => {
         l.id = i;
         l.phase = U.hash2(i, 3, 9);
         if (['glow', 'street', 'none'].includes(l.kind)) { this.fixtures.push({ light: l, mesh: null, powered: this.zonesOn.has(l.zone) }); return; }
-        if (!kinds.has(l.kind)) kinds.set(l.kind, []);
-        kinds.get(l.kind).push(l);
+        // Fixtures hang from the ceiling, so the model depends on the drop below it
+        const key = l.kind + ':' + Math.max(0, L.ceil - l.y).toFixed(2);
+        if (!kinds.has(key)) kinds.set(key, []);
+        kinds.get(key).push(l);
       });
-      const panelTex = T.panelTex();
-      const defs = {
-        panel: () => ({ geo: new THREE.BoxGeometry(1.2, 0.04, 0.6), tex: panelTex, base: 3.2, yOff: -0.02 }),
-        poolPanel: () => ({ geo: new THREE.BoxGeometry(0.9, 0.04, 0.9), tex: panelTex, base: 3.4, yOff: -0.02 }),
-        hanging: () => ({ geo: new THREE.CylinderGeometry(0.16, 0.16, 0.02, 16), base: 8, yOff: -0.05, shade: true }),
-        bulb: () => ({ geo: new THREE.SphereGeometry(0.07, 12, 8), base: 7, yOff: -0.2, cord: true }),
-        spot: () => ({ geo: new THREE.CylinderGeometry(0.1, 0.1, 0.02, 16), base: 6, yOff: -0.12, can: true }),
-        lamp: () => ({ geo: new THREE.SphereGeometry(0.05, 10, 8), base: 6, yOff: 0 }),
-        shrine: () => ({ geo: new THREE.SphereGeometry(0.09, 12, 8), base: 6, yOff: -0.3, cord: true }),
-        cage: () => ({ geo: new THREE.SphereGeometry(0.09, 12, 8), base: 5, yOff: -0.1 }),
-        exitSign: () => ({ geo: new THREE.BoxGeometry(0.5, 0.2, 0.06), tex: T.exitSign(), base: 1.8, yOff: 0 }),
-        neon: () => ({ geo: new THREE.PlaneGeometry(3.2, 0.8), tex: T.label('neon', 'STARLIGHT', { w: 1024, h: 256, bg: 'rgba(0,0,0,0)', color: '#ff4fb0', glow: true, font: `bold 150px ${T.FONTS.FONT_HAND}` }), base: 3, yOff: 0, transparent: true }),
-      };
-      for (const [kind, list] of kinds) {
-        const d = (defs[kind] || defs.bulb)();
-        const mat = this.fixtureMat(d.tex, kind);
+      const texOf = name => name === 'troffer' ? MT.troffer(L.theme) : name === 'opal' ? MT.opal() : name === 'exit' ? T.exitSign()
+        : name === 'neon' ? T.label('neon', 'STARLIGHT', { w: 1024, h: 256, bg: 'rgba(0,0,0,0)', color: '#ff4fb0', glow: true, font: `bold 150px ${T.FONTS.FONT_HAND}` }) : null;
+      const dummy = new THREE.Object3D();
+      const col = new THREE.Color();
+      for (const [key, list] of kinds) {
+        const kind = list[0].kind;
+        const d = MF(kind, L.ceil, list[0].y) || MF('bulb', L.ceil, list[0].y);
+        const mat = this.fixtureMat(texOf(d.tex), kind);
         if (d.transparent) { mat.transparent = true; mat.depthWrite = false; }
-        const mesh = new THREE.InstancedMesh(d.geo, mat, list.length);
+        const glowGeo = P.build('fxg:' + key, d.glow)[0].geo;
+        const mesh = new THREE.InstancedMesh(glowGeo, mat, list.length);
         const bright = new Float32Array(list.length);
         mesh.geometry.setAttribute('aBright', new THREE.InstancedBufferAttribute(bright, 1));
-        const dummy = new THREE.Object3D();
-        const col = new THREE.Color();
+        const mats = [];
         list.forEach((l, k) => {
           dummy.position.set(l.x, l.y + d.yOff, l.z);
           dummy.rotation.set(0, l.rot || 0, 0);
           if (kind === 'neon' || kind === 'exitSign') dummy.rotation.set(0, l.x < 1 ? Math.PI / 2 : 0, 0);
           dummy.updateMatrix();
+          mats.push(dummy.matrix.clone());
           mesh.setMatrixAt(k, dummy.matrix);
           col.setRGB(l.color[0], l.color[1], l.color[2]);
           mesh.setColorAt(k, col);
-          const f = { light: l, mesh, index: k, base: d.base, powered: this.zonesOn.has(l.zone), cur: -1 };
-          this.fixtures.push(f);
+          this.fixtures.push({ light: l, mesh, index: k, base: d.base, powered: this.zonesOn.has(l.zone), cur: -1 });
         });
         mesh.instanceMatrix.needsUpdate = true;
         if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
         mesh.frustumCulled = false;
         this.group.add(mesh);
         this.fxMeshes.push(mesh);
-        // Aksesuarlar: abajur, kablo, kutu
-        if (d.shade || d.cord || d.can) {
-          const parts = [];
-          if (d.shade) parts.push(['cone', 'darkMetal', 0.42, 0.35, 16, 0, 0.12, 0, Math.PI]);
-          if (d.shade) parts.push(['cyl', 'darkMetal', 0.012, 0.012, L.ceil - 5.6, 6, 0, (L.ceil - 5.6) / 2 + 0.25, 0]);
-          if (d.cord) parts.push(['cyl', 'blackPlastic', 0.008, 0.008, 0.25, 6, 0, 0.12, 0]);
-          if (d.can) parts.push(['cyl', 'darkMetal', 0.13, 0.13, 0.22, 16, 0, 0.1, 0, 0, 0, 0, true]);
-          for (const part of P.build('fix-' + kind, parts)) {
+        // Housing: shades, frames, sockets, chains
+        if (d.body.length) {
+          for (const part of P.build('fxb:' + key, d.body)) {
             const im = new THREE.InstancedMesh(part.geo, this.mat(part.mat), list.length);
-            list.forEach((l, k) => { dummy.position.set(l.x, l.y + d.yOff, l.z); dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); im.setMatrixAt(k, dummy.matrix); });
-            im.castShadow = false;
+            mats.forEach((m, k) => im.setMatrixAt(k, m));
+            im.castShadow = false; im.receiveShadow = true;
+            im.computeBoundingSphere();
             this.group.add(im);
           }
         }
@@ -687,9 +755,11 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       const n = PB.Settings.data.dynLights;
       this.pool = [];
       for (let k = 0; k < n; k++) {
-        const pl = new THREE.PointLight(0xffffff, 0, 9, 2);
+        // Downward spot lights: recessed fixtures must not light the ceiling around them
+        const pl = new THREE.SpotLight(0xffffff, 0, 9, 1.25, 0.85, 2);
         pl.castShadow = false;
         this.group.add(pl);
+        this.group.add(pl.target);
         this.pool.push({ pl, fix: null, cur: 0 });
       }
     }
@@ -715,7 +785,10 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
           const free = this.pool.find(p => !p.fix);
           if (!free) break;
           free.fix = f; free.cur = 0;
-          free.pl.position.set(f.light.x, f.light.y - 0.35, f.light.z);
+          const recessed = ['panel', 'poolPanel', 'spot', 'cage', 'exitSign'].includes(f.light.kind);
+          free.pl.position.set(f.light.x, f.light.y - (recessed ? 0.08 : 0.2), f.light.z);
+          free.pl.target.position.set(f.light.x, 0, f.light.z);
+          free.pl.angle = recessed ? 1.25 : Math.PI / 2 - 0.02;
           free.pl.color.setRGB(f.light.color[0], f.light.color[1], f.light.color[2]);
           free.pl.distance = Math.min(12, (f.light.range || 10) * 0.9);
         }
@@ -827,7 +900,11 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
     buildCabinets(game, list) {
       const scr = T.cabinetScreen(game);
       const mq = T.marquee(game);
-      this.instanced('cabinetBody', P.DEFS.cabinetBody, list);
+      // Per-game side art and control panel overlay
+      const MT = PB.Models.tex;
+      const side = new THREE.MeshStandardMaterial({ map: MT.side(game), roughness: 0.4 }); this.patch(side); side.userData.refl = 0.08;
+      const cp = new THREE.MeshStandardMaterial({ map: MT.panel(game), roughness: 0.22 }); this.patch(cp); cp.userData.refl = 0.2;
+      this.instanced('cabinetBody', P.DEFS.cabinetBody, list, { matFn: k => k === 'cabinetSide' ? side : k === 'cpArt' ? cp : this.mat(k) });
       const sMat = new THREE.MeshBasicMaterial({ map: scr.tex, color: new THREE.Color(1.7, 1.7, 1.7) });
       const mMat = new THREE.MeshBasicMaterial({ map: mq, color: new THREE.Color(1.6, 1.6, 1.6) });
       const sm = this.instanced('cabinetScreen', P.DEFS.cabinetScreen, list, { matFn: () => sMat, cast: false });
@@ -1024,30 +1101,9 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       const L = this.L, C = this.C;
       if (L.theme === 'maze' || L.theme === 'glitch') this.buildMazeExtras();
       if (L.theme === 'arcade') {
-        // Vitrin dışında yağmur ve sokak lambası
-        const rainTex = T.rain();
-        const rainMat = new THREE.MeshBasicMaterial({ map: rainTex, transparent: true, color: new THREE.Color(0.6, 0.7, 1.2), depthWrite: false });
-        const rain = new THREE.Mesh(new THREE.PlaneGeometry(14, 5), rainMat);
-        rain.position.set(6, 2.5, L.h * C + 1.2);
-        rain.rotation.y = Math.PI;
-        this.group.add(rain);
-        this.rainTex = rainTex; rainTex.repeat.set(4, 1.2);
-        const street = new THREE.Mesh(new THREE.PlaneGeometry(30, 12), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.02, 0.025, 0.05) }));
-        street.rotation.x = -Math.PI / 2; street.position.set(6, -0.05, L.h * C + 6);
-        this.group.add(street);
-        const bg = new THREE.Mesh(new THREE.PlaneGeometry(40, 14), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.015, 0.02, 0.04) }));
-        bg.position.set(6, 5, L.h * C + 10); bg.rotation.y = Math.PI;
-        this.group.add(bg);
-        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 5, 8), this.mat('darkMetal'));
-        pole.position.set(L.cx(1.5), 2.5, L.h * C + 3.2);
-        this.group.add(pole);
-        const lampHead = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 3.2, 4) }));
-        lampHead.position.set(L.cx(1.5), 5, L.h * C + 3.2);
-        this.group.add(lampHead);
-        this.lightning = new THREE.PointLight(0xb8c8ff, 0, 30, 1.5);
-        this.lightning.position.set(6, 6, L.h * C + 6);
-        this.group.add(this.lightning);
-        this.nextLightning = 6;
+        // Rainy street outside the storefront
+        this.street = new PB.Exterior.Street(this);
+        this.street.build();
       }
       if (L.theme === 'concrete') {
         // Tavanda borular ve kirişler
@@ -1220,14 +1276,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         }
       }
       if (this.waterTex) { this.waterTex.offset.set(t * 0.02, t * 0.013); }
-      if (this.rainTex) { this.rainTex.offset.y = -t * 1.6; }
-      if (this.lightning) {
-        if (t > this.nextLightning) { this.nextLightning = t + U.lerp(7, 18, Math.random()); this.flashT = t; }
-        const k = this.flashT != null ? t - this.flashT : 9;
-        const fl = PB.Settings.data.reduceFlicker ? 0.35 : 1;
-        this.lightning.intensity = k < 0.5 ? (k < 0.08 || (k > 0.18 && k < 0.24) ? 900 : 0) * fl : 0;
-        if (k > 0 && k < 0.02 && this.game.audio) this.game.audio.thunder(this.lightning.position);
-      }
+      if (this.street) this.street.update(dt, t, cam);
       if (this.glitchTex && Math.random() < 0.25) {
         const tx = this.glitchTex[(Math.random() * this.glitchTex.length) | 0];
         tx.offset.set(Math.floor(Math.random() * 16) / 16, Math.floor(Math.random() * 16) / 16);

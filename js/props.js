@@ -8,9 +8,12 @@
 
   const tmpM = new THREE.Matrix4(), tmpQ = new THREE.Quaternion(), tmpE = new THREE.Euler(), tmpS = new THREE.Vector3(), tmpP = new THREE.Vector3();
 
-  function prim(spec) {
-    const [kind, , ...a] = spec;
-    let g, pos, rot = [0, 0, 0], scl = [1, 1, 1];
+  // Extra shape kinds (rounded boxes, lathes, extrusions, tubes...) are registered by models.js
+  P.shapes = {};
+  // One spec → list of [material, geometry] (a shape can emit parts with different materials)
+  function prims(spec) {
+    const [kind, mat, ...a] = spec;
+    let g, pos, rot = [0, 0, 0], scl = [1, 1, 1], extra = null;
     switch (kind) {
       case 'box': g = new THREE.BoxGeometry(a[0], a[1], a[2]); pos = [a[3], a[4], a[5]]; rot = [a[6] || 0, a[7] || 0, a[8] || 0]; break;
       case 'cyl': g = new THREE.CylinderGeometry(a[0], a[1], a[2], a[3] || 16, 1, a[10] || false); pos = [a[4], a[5], a[6]]; rot = [a[7] || 0, a[8] || 0, a[9] || 0]; break;
@@ -18,15 +21,25 @@
       case 'plane': g = new THREE.PlaneGeometry(a[0], a[1]); pos = [a[2], a[3], a[4]]; rot = [a[5] || 0, a[6] || 0, a[7] || 0]; break;
       case 'torus': g = new THREE.TorusGeometry(a[0], a[1], 8, a[2] || 16, a[3] || Math.PI * 2); pos = [a[4], a[5], a[6]]; rot = [a[7] || 0, a[8] || 0, a[9] || 0]; break;
       case 'cone': g = new THREE.ConeGeometry(a[0], a[1], a[2] || 16, 1, true); pos = [a[3], a[4], a[5]]; rot = [a[6] || 0, a[7] || 0, a[8] || 0]; break;
-      default: throw new Error('unknown shape: ' + kind);
+      default: {
+        const sh = P.shapes[kind];
+        if (!sh) throw new Error('unknown shape: ' + kind);
+        const r = sh(a);
+        g = r.g; pos = r.pos || [0, 0, 0]; rot = r.rot || rot; scl = r.scl || scl; extra = r.extra || null;
+      }
     }
     tmpE.set(rot[0], rot[1], rot[2]);
     tmpQ.setFromEuler(tmpE);
     tmpM.compose(tmpP.set(pos[0], pos[1], pos[2]), tmpQ, tmpS.set(scl[0], scl[1], scl[2]));
-    g = g.index ? g.toNonIndexed() : g;
-    g.applyMatrix4(tmpM);
-    return g;
+    const out = [[mat, g]];
+    if (extra) for (const [m2, g2] of extra) out.push([m2 || mat, g2]);
+    for (const o of out) {
+      o[1] = o[1].index ? o[1].toNonIndexed() : o[1];
+      o[1].applyMatrix4(tmpM);
+    }
+    return out;
   }
+  function prim(spec) { return prims(spec)[0][1]; }
   // Basit birleştirme (index'siz, position/normal/uv)
   function merge(geos) {
     let n = 0;
@@ -37,7 +50,7 @@
       const c = g.attributes.position.count;
       pos.set(g.attributes.position.array, o * 3);
       nor.set(g.attributes.normal.array, o * 3);
-      if (g.attributes.uv) uv.set(g.attributes.uv.array, o * 2);
+      if (g.attributes.uv) uv.set(g.attributes.uv.array.subarray(0, c * 2), o * 2);
       o += c;
       g.dispose();
     }
@@ -50,15 +63,17 @@
   }
   P.merge = merge;
   P.prim = prim;
+  P.prims = prims;
   // Tanımı malzemeye göre gruplanmış geometrilere çevir (önbellekli)
   const cache = new Map();
   P.build = function (key, specs) {
     if (cache.has(key)) return cache.get(key);
     const groups = new Map();
     for (const s of specs) {
-      const mat = s[1];
-      if (!groups.has(mat)) groups.set(mat, []);
-      groups.get(mat).push(prim(s));
+      for (const [mat, g] of prims(s)) {
+        if (!groups.has(mat)) groups.set(mat, []);
+        groups.get(mat).push(g);
+      }
     }
     const out = [];
     for (const [mat, list] of groups) out.push({ mat, geo: merge(list) });

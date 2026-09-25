@@ -305,6 +305,83 @@
     img.normalStrength = 0.8;
     return img;
   };
+  // Floor planks: staggered joints, per-board tone, grain, dark gaps and a worn walking path
+  R.planks = (n, s) => {
+    const img = new FImg(n);
+    const warp = field(n, 6, 3, s), wear = field(n, 2, 3, s + 3), dirt = field(n, 24, 2, s + 4);
+    const rows = 8;
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, v = y / n * rows, row = Math.floor(v), fv = v - row;
+      const off = h32(row, 7, s) * 0.8, u = fr(x / n * 2 + off), board = Math.floor((x / n * 2 + off)) + row * 13;
+      const tone = 0.8 + h32(board, row, s) * 0.35;
+      const g = Math.sin((fv * 3 + warp[i] * 5 + h32(board, 1, s) * 10) * Math.PI * 2) * 0.5 + 0.5;
+      const gap = 1 - sm(0, 0.035, Math.min(fv, 1 - fv)), joint = 1 - sm(0, 0.006, Math.min(u, 1 - u));
+      const worn = sm(0.45, 0.75, wear[i]) * 0.25;
+      const k = tone * (0.82 + g * 0.2 + (dirt[i] - 0.5) * 0.08) * (1 - Math.max(gap, joint) * 0.75) * (1 + worn * 0.3);
+      img.set(i, 0.46 * k, 0.3 * k, 0.18 * k);
+      img.h[i] = 0.55 + g * 0.1 - Math.max(gap, joint) * 0.5;
+      img.r[i] = 0.45 + g * 0.1 + worn * 0.25 + Math.max(gap, joint) * 0.3;
+    }
+    img.normalStrength = 1.2;
+    return img;
+  };
+  // Small hexagonal bathroom floor tiles with a few black ones and dirty grout
+  R.hexTile = (n, s) => {
+    const img = new FImg(n);
+    const grime = field(n, 12, 3, s);
+    const R6 = 8;
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x;
+      let px = x / n * R6 * 1.7320508, py = y / n * R6 * 3;
+      const r1 = [Math.round(px / 1.7320508) * 1.7320508, Math.round(py / 3) * 3];
+      const r2 = [Math.round((px - 0.8660254) / 1.7320508) * 1.7320508 + 0.8660254, Math.round((py - 1.5) / 3) * 3 + 1.5];
+      const d1 = Math.hypot(px - r1[0], py - r1[1]), d2 = Math.hypot(px - r2[0], py - r2[1]);
+      const c = d1 < d2 ? r1 : r2, dx = Math.abs(px - c[0]), dy = Math.abs(py - c[1]);
+      const hexD = Math.max(dx * 0.8660254 + dy * 0.5, dy);
+      const edge = 1 - sm(0.8, 0.9, hexD);
+      const id = h32(Math.round(c[0] * 10), Math.round(c[1] * 10), s);
+      const black = id > 0.9 ? 1 : 0;
+      if (edge < 0.5) { const g = 0.5 - sm(0.4, 0.8, grime[i]) * 0.25; img.set(i, g, g * 0.98, g * 0.92); img.r[i] = 0.9; img.h[i] = 0.1; }
+      else { const k = 0.92 + id * 0.08 - (grime[i] - 0.5) * 0.08; const b = black ? 0.12 : 0.9; img.set(i, b * k, b * k, (b - 0.03) * k); img.r[i] = 0.12 + id * 0.05; img.h[i] = 0.6 + (1 - sm(0.6, 0.85, hexD)) * 0.3; }
+    }
+    img.normalStrength = 1.6; img.aoStrength = 1.2;
+    return img;
+  };
+  // Pale green subway tiles for bathroom walls
+  R.subway = (n, s) => {
+    const img = new FImg(n);
+    const grime = field(n, 10, 3, s), low = field(n, 3, 3, s + 1);
+    const cols = 4, rows = 8, gw = 0.03;
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, v = y / n * rows, row = Math.floor(v), fv = v - row;
+      const u = x / n * cols + (row % 2) * 0.5, col = Math.floor(u), fu = u - col;
+      const d = Math.min(Math.min(fu, 1 - fu) * 2, Math.min(fv, 1 - fv));
+      const grout = d < gw ? 1 : 0, bevel = sm(gw, gw * 3, d);
+      const tr = h32(col + row * 31, row, s);
+      if (grout) { const g = 0.62 - sm(0.4, 0.8, grime[i]) * 0.25; img.set(i, g, g, g * 0.95); img.r[i] = 0.9; img.h[i] = 0.1; }
+      else { const k = 0.94 + tr * 0.06 + (low[i] - 0.5) * 0.05; img.set(i, 0.8 * k, 0.88 * k, 0.8 * k); img.r[i] = 0.06 + tr * 0.05; img.h[i] = 0.6 + bevel * 0.35; }
+    }
+    img.normalStrength = 1.4;
+    return img;
+  };
+  // Worn checkered vinyl floor tiles
+  R.linoleum = (n, s) => {
+    const img = new FImg(n);
+    const wear = field(n, 3, 3, s), dirt = field(n, 20, 2, s + 2);
+    const t = 4;
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, u = x / n * t, v = y / n * t, tx = Math.floor(u), ty = Math.floor(v);
+      const fu = u - tx, fv = v - ty, seam = 1 - sm(0, 0.012, Math.min(Math.min(fu, 1 - fu), Math.min(fv, 1 - fv)));
+      const dark = (tx + ty) % 2;
+      const k = (0.92 + h32(tx, ty, s) * 0.08) * (1 - seam * 0.3) * (1 - (dirt[i] - 0.5) * 0.12);
+      const worn = sm(0.5, 0.8, wear[i]);
+      img.set(i, (dark ? 0.42 : 0.82) * k, (dark ? 0.3 : 0.76) * k, (dark ? 0.2 : 0.62) * k);
+      img.h[i] = 0.5 - seam * 0.3;
+      img.r[i] = 0.35 + worn * 0.35 + seam * 0.2;
+    }
+    img.normalStrength = 0.8;
+    return img;
+  };
   R.arcadeWall = (n, s) => {
     const img = new FImg(n);
     const low = field(n, 4, 4, s), sponge = field(n, 32, 3, s + 1);
@@ -386,7 +463,7 @@
   };
 
   // Her dokunun dünyadaki tekrar boyu (metre)
-  T.SCALE = { wallpaper: 1.5, carpet: 2, ceiling: 1.2, concreteWall: 3, concreteFloor: 3, tile: 1.2, drywall: 2, officeCarpet: 2, fabric: 1, metal: 1.2, wood: 1.2, arcadeWall: 2, mazeWall: 3, mazeFloor: 3, arcadeCarpet: 2.5 };
+  T.SCALE = { planks: 2.4, hexTile: 0.7, subway: 0.9, linoleum: 1.2, wallpaper: 1.5, carpet: 2, ceiling: 1.2, concreteWall: 3, concreteFloor: 3, tile: 1.2, drywall: 2, officeCarpet: 2, fabric: 1, metal: 1.2, wood: 1.2, arcadeWall: 2, mazeWall: 3, mazeFloor: 3, arcadeCarpet: 2.5 };
 
   T.init = function (renderer, aniso) {
     T.maxAniso = renderer.capabilities.getMaxAnisotropy();

@@ -338,7 +338,7 @@
       this.mPre = mk(PREFILTER, { tIn: { value: null }, texel: V2(), threshold: { value: 2.4 }, knee: { value: 1.2 } });
       this.mDown = mk(DOWN, { tIn: { value: null }, texel: V2() });
       this.mUp = mk(UP, { tIn: { value: null }, texel: V2(), weight: { value: 1 } }, THREE.AdditiveBlending);
-      this.mAO = mk(AO, { tDepth: { value: null }, tNormal: { value: null }, uProj: M4(), uInvProj: M4(), uRes: V2(), uRadius: { value: 0.9 }, uIntensity: { value: 1.1 }, uSamples: { value: 12 }, uFrame: { value: 0 } });
+      this.mAO = mk(AO, { tDepth: { value: null }, tNormal: { value: null }, uProj: M4(), uInvProj: M4(), uRes: V2(), uRadius: { value: 0.5 }, uIntensity: { value: 0.9 }, uSamples: { value: 12 }, uFrame: { value: 0 } });
       this.mAOBlur = mk(AO_BLUR, { tIn: { value: null }, tDepth: { value: null }, uInvProj: M4(), uDir: V2() });
       this.mSSR = mk(SSR, { tColor: { value: null }, tDepth: { value: null }, tNormal: { value: null }, uProj: M4(), uInvProj: M4(), uSteps: { value: 32 }, uMaxDist: { value: 12 }, uFrame: { value: 0 } });
       const pl = [], pc = [];
@@ -533,8 +533,9 @@
         v.uFlOn.value = 1;
         v.uFlPos.value.copy(flash.position);
         v.uFlDir.value.copy(flash.target.position).sub(flash.position).normalize();
-        v.uFlColor.value.set(flash.color.r, flash.color.g, flash.color.b).multiplyScalar(flash.intensity * 0.0045);
-        v.uFlCosOuter.value = Math.cos(flash.angle); v.uFlCosInner.value = Math.cos(flash.angle * (1 - flash.penumbra * 0.9));
+        v.uFlColor.value.set(flash.color.r, flash.color.g, flash.color.b).multiplyScalar(flash.intensity * 0.0011);
+        // The visible shaft is the hot core of the beam, not the whole spill
+        v.uFlCosOuter.value = Math.cos(flash.angle * 0.62); v.uFlCosInner.value = Math.cos(flash.angle * 0.25);
         v.uFlDist.value = flash.distance || 30;
         const sm = flash.castShadow && flash.shadow && flash.shadow.map;
         v.uFlShadowOn.value = sm ? 1 : 0;

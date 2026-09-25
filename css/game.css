@@ -158,6 +158,9 @@ em { color: var(--yellow); font-style: normal; }
 @keyframes nIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
 #crosshair { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: rgba(255, 255, 255, 0.75); box-shadow: 0 0 3px #000; }
 body.no-crosshair #crosshair { display: none; }
+#marks { position: absolute; inset: 0; pointer-events: none; }
+#marks i { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.85); box-shadow: 0 0 4px rgba(0, 0, 0, 0.8); opacity: 0; transition: opacity 0.25s, width 0.15s, height 0.15s, margin 0.15s, background 0.15s; }
+#marks i.on { width: 16px; height: 16px; margin: -8px 0 0 -8px; background: rgba(255, 255, 255, 0.25); border-color: #fff; }
 #prompt { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; font-size: 24px; text-shadow: 0 1px 3px #000, 0 0 12px #000; white-space: nowrap; }
 #hold { position: absolute; left: 50%; top: -34px; width: 26px; height: 26px; margin-left: -13px; border-radius: 50%; background: conic-gradient(var(--yellow) calc(var(--p, 0) * 360deg), rgba(255, 255, 255, 0.15) 0); -webkit-mask: radial-gradient(circle, transparent 7px, #000 8px); mask: radial-gradient(circle, transparent 7px, #000 8px); }
 #status { position: absolute; left: 20px; bottom: calc(20px + var(--safe-b)); display: flex; flex-direction: column; gap: 8px; }

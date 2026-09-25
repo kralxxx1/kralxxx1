@@ -551,7 +551,7 @@
     L.addProp('filing', L.cx(12) + 0.9, 0.5, 0, { collider: { hw: 0.4, hd: 0.35 } });
     L.addProp('safe', L.cx(12) + 0.9, L.cz(2) + 0.6, -Math.PI / 2, { collider: { hw: 0.4, hd: 0.4 } });
     L.addProp('corkboard', L.cx(10) - 1.45 + 0.02, 1.7, Math.PI / 2, { wall: true });
-    L.addSpot('officeDesk', { x: 11, y: 0, wx: L.cx(11) + 0.3, wz: 1.1, h: 0.82 });
+    L.addSpot('officeDesk', { x: 11, y: 0, wx: L.cx(11) + 0.3, wz: 1.1, h: 0.792 });
     L.addSpot('officeWall', { x: 11, y: 2, d: 2 });
     // Depo: sigorta kutusu doğu duvarında
     L.addProp('shelf', L.cx(11), L.cz(3) + 0.1, 0, { collider: { hw: 1.3, hd: 0.35 } });
@@ -560,8 +560,11 @@
     L.addSpot('storage', { x: 11, y: 5 });
     // Tuvalet
     L.addProp('sink', L.cx(12) + 1.1, L.cz(7), -Math.PI / 2, { collider: { hw: 0.3, hd: 0.4 } });
-    L.addProp('mirror', L.cx(12) + 1.45, L.cz(7), -Math.PI / 2, { wall: true });
-    L.addProp('toilet', L.cx(12) + 0.9, L.cz(9) + 0.6, -Math.PI / 2, { collider: { hw: 0.4, hd: 0.35 } });
+    L.addProp('mirror', L.cx(12) + 1.4, L.cz(7), -Math.PI / 2, { wall: true });
+    L.addProp('toilet', L.cx(12) + 0.95, L.cz(9) + 0.6, -Math.PI / 2, { collider: { hw: 0.4, hd: 0.3 } });
+    L.addProp('paperHolder', L.cx(12) + 1.4, L.cz(9) + 0.05, -Math.PI / 2, { wall: true, y: 0.72 });
+    L.addProp('handDryer', L.cx(12) + 1.4, L.cz(7) + 0.95, -Math.PI / 2, { wall: true, y: 1.25 });
+    L.addProp('trashCan', L.cx(12) + 1.05, L.cz(7) - 0.75, 0, { collider: { hw: 0.18, hd: 0.18 } });
     L.addSpot('wc', { x: 11, y: 8 });
     L.addSpot('hall', { x: 3, y: 5 });
     L.addSpot('corridor', { x: 9, y: 4 });
@@ -572,7 +575,7 @@
     L.addLight({ x: L.cx(1), z: L.cz(8), y: 3.5, kind: 'panel', color: [0.9, 0.95, 1], intensity: 0.9, range: 9, zone: 1 });
     L.addLight({ x: L.cx(6), z: L.cz(8), y: 3.5, kind: 'panel', color: [1, 0.9, 0.8], intensity: 0.9, range: 9, zone: 1 });
     for (let y = 1; y < 10; y += 3) L.addLight({ x: L.cx(9), z: L.cz(y), y: 3.5, kind: 'bulb', color: [1, 0.8, 0.55], intensity: 0.7, range: 8, zone: 1, flicker: y === 7 ? 0.6 : 0 });
-    L.addLight({ x: L.cx(11) + 0.3, z: 1.2, y: 1.4, kind: 'lamp', color: [1, 0.75, 0.45], intensity: 0.8, range: 6, zone: 1 });
+    L.addLight({ x: L.cx(11) - 0.3, z: 1.06, y: 1.02, kind: 'lamp', color: [1, 0.78, 0.5], intensity: 0.42, range: 4.5, zone: 1 });
     L.addLight({ x: L.cx(11), z: L.cz(4) + 1, y: 3.5, kind: 'bulb', color: [1, 0.85, 0.6], intensity: 0.7, range: 7, zone: 1 });
     L.addLight({ x: L.cx(11), z: L.cz(8), y: 3.5, kind: 'panel', color: [0.85, 1, 0.9], intensity: 0.6, range: 7, zone: 1, flicker: 0.8 });
     // Neon yazı ve kabin ekranlarının yaydığı ışık
@@ -593,6 +596,13 @@
     L.addDecal(wallDecal(L, 9, 5, 1, 'sign', 1.0, 1.9, 0, 'STAFF ONLY'));
     L.meta.outsideRain = true;
     L.meta.zonesOn = [0];
+    // Room finishes: the back rooms are not carpeted like the hall
+    L.meta.finishes = [
+      { x0: 10, y0: 6, x1: 12, y1: 9, floor: 'floorTile', wall: 'wallTile', h: 1.45 },
+      { x0: 10, y0: 0, x1: 12, y1: 2, floor: 'floorWood', wall: 'wainscotWood', h: 0.95 },
+      { x0: 10, y0: 3, x1: 12, y1: 5, floor: 'floorConcrete' },
+      { x0: 9, y0: 0, x1: 9, y1: 9, floor: 'floorLino' },
+    ];
     return L;
   }
 

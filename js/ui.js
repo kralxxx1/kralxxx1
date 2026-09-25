@@ -210,6 +210,19 @@
       const ring = this.$('hold');
       if (hold != null) { ring.hidden = false; ring.style.setProperty('--p', hold); } else ring.hidden = true;
     }
+    marks(list) {
+      const box = this.$('marks');
+      if (!box) return;
+      const els = this.markEls || (this.markEls = []);
+      while (els.length < list.length) { const e = document.createElement('i'); box.appendChild(e); els.push(e); }
+      for (let k = 0; k < els.length; k++) {
+        const e = els[k], m = list[k];
+        if (!m) { if (e.style.opacity !== '0') e.style.opacity = '0'; continue; }
+        e.style.left = m.x.toFixed(2) + '%'; e.style.top = m.y.toFixed(2) + '%';
+        e.style.opacity = m.a.toFixed(2);
+        e.classList.toggle('on', m.on);
+      }
+    }
     hud(dt, p) {
       this.subT -= dt;
       if (this.subT <= 0) this.$('subtitle').classList.remove('on');

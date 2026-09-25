@@ -26,7 +26,7 @@
         { type: 'note', id: 'n_workorder', data: 'p_workorder', place: 'spot', spot: 'hall' },
         { type: 'note', id: 'n_notice', data: 'p_notice', place: 'spot', spot: 'counter', reuse: true, h: 1.02, offset: [-1.6, 0] },
         { type: 'note', id: 'n_hiscore', data: 'p_hiscore', place: 'spot', spot: 'corridor', wall: true, h: 1.6 },
-        { type: 'note', id: 'n_ledger', data: 'p_ledger', place: 'spot', spot: 'officeDesk', reuse: true, h: 0.82, offset: [-0.55, 0.05] },
+        { type: 'note', id: 'n_ledger', data: 'p_ledger', place: 'spot', spot: 'officeDesk', reuse: true, h: 0.82, offset: [-0.35, 0.18] },
         { type: 'note', id: 'n_frank', data: 'p_frank', place: 'spot', spot: 'officeDesk', reuse: true, h: 0.82, offset: [0.55, 0.12] },
         { type: 'note', id: 'n_birthday', data: 'p_birthday', place: 'spot', spot: 'storage' },
         { type: 'note', id: 'n_photo', data: 'p_photo', place: 'spot', spot: 'officeWall', h: 1.6 },
