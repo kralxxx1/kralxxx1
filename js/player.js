@@ -35,7 +35,7 @@
       });
       // Tıklamasız istekler (bölüm başı, devam) sessizce reddedilebilir; ipucu yalnızca tıklamayla gelen hata için
       document.addEventListener('pointerlockerror', () => {
-        if (this.lockGesture && !this.lockHint) { this.lockHint = true; game.ui && game.ui.hint('Fare kilitlenemedi. Sol tuşu basılı tutup sürükleyerek etrafına bak.'); }
+        if (this.lockGesture && !this.lockHint) { this.lockHint = true; game.ui && game.ui.hint(PB.t('n.lockFail'), true); }
         this.lockGesture = false;
       });
       root.addEventListener('mousemove', e => {
@@ -251,7 +251,7 @@
     updateFlash(dt) {
       const g = this.game, dif = PB.Settings.difficulty();
       const drain = (g.levelDef && g.levelDef.theme === 'dark' ? 0.55 : 0.36) * dif.battery;
-      if (this.flashOn) { this.battery = Math.max(0, this.battery - drain * dt); if (this.battery <= 0) { this.flashOn = false; g.ui.hint('Fenerin söndü.'); } }
+      if (this.flashOn) { this.battery = Math.max(0, this.battery - drain * dt); if (this.battery <= 0) { this.flashOn = false; g.ui.hint(PB.t('n.flashDead'), true); } }
       let k = this.flashOn ? 1 : 0;
       if (this.flashOn && this.battery < 15) k *= Math.random() < 0.08 ? 0.15 : 0.75;
       if (this.flashOn && g.flashInterference > 0) k *= Math.random() < g.flashInterference * 0.5 ? 0.05 : 1;

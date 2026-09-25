@@ -18,7 +18,7 @@
       case 'plane': g = new THREE.PlaneGeometry(a[0], a[1]); pos = [a[2], a[3], a[4]]; rot = [a[5] || 0, a[6] || 0, a[7] || 0]; break;
       case 'torus': g = new THREE.TorusGeometry(a[0], a[1], 8, a[2] || 16, a[3] || Math.PI * 2); pos = [a[4], a[5], a[6]]; rot = [a[7] || 0, a[8] || 0, a[9] || 0]; break;
       case 'cone': g = new THREE.ConeGeometry(a[0], a[1], a[2] || 16, 1, true); pos = [a[3], a[4], a[5]]; rot = [a[6] || 0, a[7] || 0, a[8] || 0]; break;
-      default: throw new Error('şekil? ' + kind);
+      default: throw new Error('unknown shape: ' + kind);
     }
     tmpE.set(rot[0], rot[1], rot[2]);
     tmpQ.setFromEuler(tmpE);
@@ -227,6 +227,8 @@
   D.key = [['torus', 'brass', 0.015, 0.004, 12, 0, 0, 0.004, 0, H, 0, 0], ['box', 'brass', 0.05, 0.004, 0.008, 0.035, 0.004, 0]];
   D.watch = [['torus', 'blackPlastic', 0.03, 0.006, 16, 0, 0, 0.004, 0, H, 0, 0], ['cyl', 'chrome', 0.022, 0.022, 0.008, 16, 0, 0.006, 0], ['box', 'blackPlastic', 0.02, 0.003, 0.12, 0, 0.002, 0.07]];
   D.glasses = [['torus', 'darkMetal', 0.028, 0.004, 16, 0, -0.035, 0.03, 0, 0, 0, 0], ['torus', 'darkMetal', 0.028, 0.004, 16, 0, 0.035, 0.03, 0, 0, 0, 0], ['box', 'darkMetal', 0.004, 0.004, 0.12, -0.065, 0.03, -0.06], ['box', 'darkMetal', 0.004, 0.004, 0.12, 0.065, 0.03, -0.06]];
+  // Walkie-talkie (lying on the floor)
+  D.walkie = [['box', 'blackPlastic', 0.07, 0.04, 0.2, 0, 0.02, 0], ['box', 'darkMetal', 0.05, 0.005, 0.07, 0, 0.042, 0.04], ['cyl', 'blackPlastic', 0.006, 0.006, 0.16, 8, 0.02, 0.025, -0.17, H, 0, 0], ['cyl', 'redPlastic', 0.009, 0.009, 0.012, 10, -0.022, 0.04, -0.07, 0, 0, 0]];
   D.walkman = [['box', 'pinkPlastic', 0.11, 0.03, 0.08, 0, 0.015, 0], ['box', 'cassette', 0.08, 0.004, 0.05, 0, 0.031, 0], ['torus', 'blackPlastic', 0.07, 0.005, 16, PI, 0, 0.005, -0.1, H, 0, 0]];
   D.lighter = [['box', 'chrome', 0.035, 0.055, 0.012, 0, 0.0275, 0], ['box', 'brass', 0.035, 0.015, 0.012, 0, 0.062, 0]];
   D.powerPellet = [['sph', 'pellet', 0.18, 0, 0, 0, 24, 16]];

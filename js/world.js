@@ -24,24 +24,28 @@
 
   const FRAG_HEAD = `
 varying vec3 vPbWorld; varying vec3 vPbNormal;
-uniform sampler2D uLightMap; uniform vec2 uLmSize; uniform float uLmIntensity; uniform float uCeil; uniform float uCeilFactor;
+uniform highp sampler3D uLvUp; uniform highp sampler3D uLvSide; uniform sampler2D uBounce;
+uniform vec3 uLvSize; uniform float uLvLayers; uniform float uLmIntensity; uniform float uDownK;
 uniform vec4 uPac; uniform vec2 uPacR; uniform float uTime; uniform float uEnvK;
 float pbHash(float n){ return fract(sin(n) * 43758.5453); }
 `;
+  // Baked light volume: irradiance for up-facing and vertical surfaces, bounce for down-facing ones.
+  // The shading normal (with normal maps) picks the blend, so bumps catch the light from above.
   const FRAG_LM = `
 #if defined( RE_IndirectDiffuse )
 {
-  vec2 lmUv = (vPbWorld.xz + vPbNormal.xz * 0.42) / uLmSize;
-  vec3 lm = texture2D(uLightMap, lmUv).rgb;
-  float hgt = clamp(vPbWorld.y / uCeil, 0.0, 1.0);
-  lm *= mix(1.0, uCeilFactor, hgt * hgt);
+  vec3 wn = inverseTransformDirection(normal, viewMatrix);
+  vec3 wp = vPbWorld + normalize(vPbNormal) * 0.16;
+  float ly = clamp(wp.y / uLvSize.y, 0.0, 1.0) * (uLvLayers - 1.0) / uLvLayers + 0.5 / uLvLayers;
+  vec3 uvw = vec3(wp.x / uLvSize.x, wp.z / uLvSize.z, ly);
+  vec3 eUp = texture(uLvUp, uvw).rgb, eSide = texture(uLvSide, uvw).rgb;
+  vec3 eDown = texture2D(uBounce, wp.xz / uLvSize.xz).rgb * uDownK;
+  vec3 lm = wn.y >= 0.0 ? mix(eSide, eUp, wn.y) : mix(eSide, eDown, -wn.y);
   float nearP = (1.0 - smoothstep(uPacR.x, uPacR.y, distance(vPbWorld, uPac.xyz))) * uPac.w;
   float blink = step(0.42, pbHash(floor(uTime * 13.0) + floor(vPbWorld.x / 3.0) * 7.0 + floor(vPbWorld.z / 3.0) * 13.0));
   lm *= mix(1.0, 0.12 + 0.55 * blink, nearP);
-  vec3 upV = normalize((viewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
-  float relief = 0.58 + 0.42 * clamp(dot(normal, upV) * 0.5 + 0.5, 0.0, 1.0);
   lm *= uLmIntensity;
-  irradiance += lm * relief * PI;
+  irradiance += lm * PI;
   float pbLum = clamp(dot(lm, vec3(0.3, 0.59, 0.11)) * 1.2, 0.0, 1.0) * uEnvK;
   iblIrradiance *= pbLum;
   #if defined( RE_IndirectSpecular )
@@ -90,8 +94,9 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       this.screens = [];
       this.zonesOn = new Set(level.meta.zonesOn || [0]);
       this.U = {
-        uLightMap: { value: null }, uLmSize: { value: new THREE.Vector2(level.w * this.C, level.h * this.C) },
-        uLmIntensity: { value: 1 }, uCeil: { value: level.ceil }, uCeilFactor: { value: this.theme.ceilFactor },
+        uLvUp: { value: null }, uLvSide: { value: null }, uBounce: { value: null },
+        uLvSize: { value: new THREE.Vector3(level.w * this.C, level.ceil, level.h * this.C) }, uLvLayers: { value: 4 }, uDownK: { value: this.theme.bounce * 0.7 },
+        uLmIntensity: { value: 1 },
         uPac: { value: new THREE.Vector4(0, -999, 0, 0) }, uPacR: { value: new THREE.Vector2(5, 16) }, uTime: { value: 0 }, uEnvK: { value: 1 },
       };
       const S = PB.Settings.data;
@@ -118,7 +123,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
   vPbNormal = normalize(mat3(modelMatrix) * pbN);`);
         sh.fragmentShader = FRAG_HEAD + sh.fragmentShader.replace('#include <lights_fragment_maps>', '#include <lights_fragment_maps>\n' + FRAG_LM);
       };
-      mat.customProgramCacheKey = () => 'pb-baked-v1';
+      mat.customProgramCacheKey = () => 'pb-baked-v2';
       return mat;
     }
     pbr(name, o = {}) {
@@ -236,7 +241,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
     // ------------------------------------------------------------ İNŞA
     async build(progress) {
       const step = async (p, label) => { progress(p, label); await U.nextFrame(); };
-      await step(0.02, 'Dokular dokunuyor…');
+      await step(0.02, PB.t('load.textures', { n: 0, m: 1 }));
       const texNames = [this.theme.wall, this.theme.floor, this.theme.ceil, this.theme.block, this.theme.pillar, 'wood', 'metal'].filter(Boolean);
       if (this.L.theme === 'office') texNames.push('fabric');
       if (this.L.theme === 'pool' || this.L.floorType.some(v => v)) texNames.push('tile');
@@ -244,25 +249,25 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       const uniq = [...new Set(texNames)];
       for (let k = 0; k < uniq.length; k++) {
         T.get(uniq[k], this.texRes);
-        await step(0.02 + 0.33 * (k + 1) / uniq.length, 'Dokular dokunuyor… (' + (k + 1) + '/' + uniq.length + ')');
+        await step(0.02 + 0.33 * (k + 1) / uniq.length, PB.t('load.textures', { n: k + 1, m: uniq.length }));
       }
-      await step(0.36, 'Duvarlar örülüyor…');
+      await step(0.36, PB.t('load.walls'));
       this.buildArchitecture();
-      await step(0.42, 'Işıklar pişiriliyor…');
-      await this.bake(p => progress(0.42 + p * 0.38, 'Işıklar pişiriliyor…'));
-      await step(0.82, 'Floresanlar takılıyor…');
+      await step(0.42, PB.t('load.bake'));
+      await this.bake(p => progress(0.42 + p * 0.38, PB.t('load.bake')));
+      await step(0.82, PB.t('load.fixtures'));
       this.buildFixtures();
       this.buildLightPool();
-      await step(0.86, 'Eşyalar yerleştiriliyor…');
+      await step(0.86, PB.t('load.props'));
       this.buildProps();
       this.buildPillars();
       this.buildDoors();
-      await step(0.9, 'Lekeler ve izler…');
+      await step(0.9, PB.t('load.decals'));
       this.buildDecals();
       this.buildThemeExtras();
       this.buildParticles();
       this.buildEnvironment();
-      await step(0.96, 'Neredeyse…');
+      await step(0.96, PB.t('load.shaders'));
       this.ready = true;
       return this;
     }
@@ -521,117 +526,37 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
 
     // ------------------------------------------------------------ IŞIK HARİTASI
     async bake(progress) {
-      const L = this.L, C = this.C, R = this.lmRes;
-      const W = L.w * R, Hh = L.h * R, ts = C / R, N = W * Hh;
-      const direct = new Float32Array(N * 3);
+      const L = this.L;
+      const S = PB.Settings.data;
       const lights = L.lights.filter(l => l.on && !l.broken && this.zonesOn.has(l.zone));
-      for (let k = 0; k < lights.length; k++) {
-        const l = lights[k];
-        const hl = Math.max(0.5, (l.y != null ? l.y : L.ceil) - 0.15);
-        const range = l.range || 10, r2 = range * range;
-        const I = l.intensity * (l.flicker ? 0.7 : 1) * LM_K;
-        const tx0 = Math.max(0, Math.floor((l.x - range) / ts)), tx1 = Math.min(W - 1, Math.floor((l.x + range) / ts));
-        const ty0 = Math.max(0, Math.floor((l.z - range) / ts)), ty1 = Math.min(Hh - 1, Math.floor((l.z + range) / ts));
-        const cr = l.color;
-        for (let ty = ty0; ty <= ty1; ty++) {
-          const cyl = (ty / R) | 0, pz = (ty + 0.5) * ts, dz = pz - l.z;
-          for (let tx = tx0; tx <= tx1; tx++) {
-            const cxl = (tx / R) | 0;
-            if (L.solid[cyl * L.w + cxl]) continue;
-            const px = (tx + 0.5) * ts, dx = px - l.x, d2 = dx * dx + dz * dz;
-            if (d2 > r2) continue;
-            if (l.region) { if (cxl < l.region.x0 || cxl > l.region.x1 || cyl < l.region.y0 || cyl > l.region.y1) continue; }
-            else if (!L.los(l.x, l.z, px, pz, 1)) continue;
-            const q = d2 + hl * hl;
-            let E = I * hl / (q * Math.sqrt(q));
-            const w = 1 - d2 / r2;
-            E *= w * w;
-            const o = (ty * W + tx) * 3;
-            direct[o] += cr[0] * E; direct[o + 1] += cr[1] * E; direct[o + 2] += cr[2] * E;
-          }
-        }
-        if (k % 80 === 79) { progress(k / lights.length * 0.85); await U.nextFrame(); }
-      }
-      // Hücre düzeyinde sekme ışığı (duvar bilen yayılım)
-      const cells = L.w * L.h, cellL = new Float32Array(cells * 3);
-      for (let ty = 0; ty < Hh; ty++) for (let tx = 0; tx < W; tx++) {
-        const c = ((ty / R) | 0) * L.w + ((tx / R) | 0), o = (ty * W + tx) * 3;
-        cellL[c * 3] += direct[o]; cellL[c * 3 + 1] += direct[o + 1]; cellL[c * 3 + 2] += direct[o + 2];
-      }
-      for (let i = 0; i < cells * 3; i++) cellL[i] /= R * R;
-      let cur = cellL, nxt = new Float32Array(cells * 3);
-      for (let it = 0; it < 6; it++) {
-        for (let y = 0; y < L.h; y++) for (let x = 0; x < L.w; x++) {
-          const c = y * L.w + x;
-          if (L.solid[c]) { nxt[c * 3] = nxt[c * 3 + 1] = nxt[c * 3 + 2] = 0; continue; }
-          let sr = cur[c * 3], sg = cur[c * 3 + 1], sb = cur[c * 3 + 2], n = 1;
-          for (let d = 0; d < 4; d++) {
-            if (!L.step(x, y, d, 'all')) continue;
-            const nc = (y + DY[d]) * L.w + x + DX[d];
-            sr += cur[nc * 3]; sg += cur[nc * 3 + 1]; sb += cur[nc * 3 + 2]; n++;
-          }
-          nxt[c * 3] = sr / n; nxt[c * 3 + 1] = sg / n; nxt[c * 3 + 2] = sb / n;
-        }
-        const tmp = cur; cur = nxt; nxt = tmp === cellL ? new Float32Array(cells * 3) : tmp;
-      }
-      progress(0.9);
+      if (!World.baker) World.baker = new PB.LightBake(this.game.renderer);
+      progress(0.1);
       await U.nextFrame();
-      // Birleştir: doğrudan + sekme + ortam, duvar dibi AO
-      const th = this.theme, amb = th.ambient, bk = th.bounce;
-      const out = new Float32Array(N * 3);
-      for (let ty = 0; ty < Hh; ty++) {
-        const cy = (ty / R) | 0, fz = ((ty % R) + 0.5) / R * C;
-        for (let tx = 0; tx < W; tx++) {
-          const cx = (tx / R) | 0, c = cy * L.w + cx, o = (ty * W + tx) * 3;
-          if (L.solid[c] && L.solid[c] !== SOLID.RACK) continue;
-          const fx = ((tx % R) + 0.5) / R * C;
-          let dmin = 9;
-          if (L.edgeKind(cx, cy, 0) === 1 || !L.passable(cx, cy - 1)) dmin = Math.min(dmin, fz);
-          if (L.edgeKind(cx, cy, 2) === 1 || !L.passable(cx, cy + 1)) dmin = Math.min(dmin, C - fz);
-          if (L.edgeKind(cx, cy, 3) === 1 || !L.passable(cx - 1, cy)) dmin = Math.min(dmin, fx);
-          if (L.edgeKind(cx, cy, 1) === 1 || !L.passable(cx + 1, cy)) dmin = Math.min(dmin, C - fx);
-          const ao = 0.5 + 0.5 * U.smoothstep(0, 0.95, dmin);
-          out[o] = (direct[o] + cur[c * 3] * bk + amb[0]) * ao;
-          out[o + 1] = (direct[o + 1] + cur[c * 3 + 1] * bk + amb[1]) * ao;
-          out[o + 2] = (direct[o + 2] + cur[c * 3 + 2] * bk + amb[2]) * ao;
-        }
-      }
-      // Tek geçişli, duvar bilen yumuşatma
-      const sm = new Float32Array(N * 3);
-      for (let ty = 0; ty < Hh; ty++) for (let tx = 0; tx < W; tx++) {
-        const o = (ty * W + tx) * 3, cx = (tx / R) | 0, cy = (ty / R) | 0;
-        let r = out[o] * 2, g = out[o + 1] * 2, b = out[o + 2] * 2, n = 2;
-        for (let d = 0; d < 4; d++) {
-          const nx = tx + DX[d], ny = ty + DY[d];
-          if (nx < 0 || ny < 0 || nx >= W || ny >= Hh) continue;
-          const ncx = (nx / R) | 0, ncy = (ny / R) | 0;
-          if ((ncx !== cx || ncy !== cy) && !L.step(cx, cy, d, 'all')) continue;
-          const q = (ny * W + nx) * 3;
-          r += out[q]; g += out[q + 1]; b += out[q + 2]; n++;
-        }
-        sm[o] = r / n; sm[o + 1] = g / n; sm[o + 2] = b / n;
-      }
-      const half = new Uint16Array(N * 4);
-      const toH = THREE.DataUtils.toHalfFloat;
-      for (let i = 0; i < N; i++) {
-        half[i * 4] = toH(Math.min(sm[i * 3], 60)); half[i * 4 + 1] = toH(Math.min(sm[i * 3 + 1], 60)); half[i * 4 + 2] = toH(Math.min(sm[i * 3 + 2], 60)); half[i * 4 + 3] = toH(1);
-      }
-      const tex = new THREE.DataTexture(half, W, Hh, THREE.RGBAFormat, THREE.HalfFloatType);
-      tex.magFilter = THREE.LinearFilter; tex.minFilter = THREE.LinearFilter;
-      tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
-      tex.needsUpdate = true;
-      if (this.U.uLightMap.value) this.U.uLightMap.value.dispose();
-      this.U.uLightMap.value = tex;
-      this.lmData = sm; this.lmW = W; this.lmH = Hh;
+      const samples = this.lmRes >= 12 ? 8 : this.lmRes >= 8 ? 4 : this.lmRes >= 6 ? 2 : 1;
+      const res = World.baker.bake(L, { res: this.lmRes, lights, K: LM_K, samples, ambient: this.theme.ambient, bounce: this.theme.bounce });
+      this.disposeBake();
+      this.bakeRes = res;
+      this.U.uLvUp.value = res.up.texture; this.U.uLvSide.value = res.side.texture; this.U.uBounce.value = res.bounceTex;
+      this.U.uLvLayers.value = res.NY;
+      this.cellLight = res.cells;
+      if (this.game.syncPostWorld && this.game.world === this) this.game.syncPostWorld();
       progress(1);
+      void S;
+    }
+    disposeBake() {
+      const b = this.bakeRes;
+      if (!b) return;
+      b.up.dispose(); b.side.dispose(); b.bounceTex.dispose();
+      this.bakeRes = null;
     }
     // Bir dünya noktasındaki pişmiş ışık parlaklığı (yapay zekâ görüşü için)
     lightAt(x, z) {
-      if (!this.lmData) return 1;
-      const ts = this.C / this.lmRes;
-      const tx = U.clamp(Math.floor(x / ts), 0, this.lmW - 1), ty = U.clamp(Math.floor(z / ts), 0, this.lmH - 1);
-      const o = (ty * this.lmW + tx) * 3;
-      return (this.lmData[o] * 0.3 + this.lmData[o + 1] * 0.59 + this.lmData[o + 2] * 0.11) * this.U.uLmIntensity.value;
+      const cl = this.cellLight;
+      if (!cl) return 1;
+      const L = this.L, cx = U.clamp(Math.floor(x / this.C), 0, L.w - 1), cz = U.clamp(Math.floor(z / this.C), 0, L.h - 1);
+      const o = (cz * L.w + cx) * 3, bk = this.theme.bounce, a = this.theme.ambient;
+      const r = cl.direct[o] + cl.bounce[o] * bk + a[0], g = cl.direct[o + 1] + cl.bounce[o + 1] * bk + a[1], b = cl.direct[o + 2] + cl.bounce[o + 2] * bk + a[2];
+      return (r * 0.3 + g * 0.59 + b * 0.11) * this.U.uLmIntensity.value;
     }
     async setZone(zone, on) {
       if (on) this.zonesOn.add(zone); else this.zonesOn.delete(zone);
@@ -671,7 +596,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         shrine: () => ({ geo: new THREE.SphereGeometry(0.09, 12, 8), base: 6, yOff: -0.3, cord: true }),
         cage: () => ({ geo: new THREE.SphereGeometry(0.09, 12, 8), base: 5, yOff: -0.1 }),
         exitSign: () => ({ geo: new THREE.BoxGeometry(0.5, 0.2, 0.06), tex: T.exitSign(), base: 1.8, yOff: 0 }),
-        neon: () => ({ geo: new THREE.PlaneGeometry(3.2, 0.8), tex: T.label('neon', 'YILDIZ ATARİ', { w: 1024, h: 256, bg: 'rgba(0,0,0,0)', color: '#ff4fb0', glow: true, font: `bold 150px ${T.FONTS.FONT_HAND}` }), base: 3, yOff: 0, transparent: true }),
+        neon: () => ({ geo: new THREE.PlaneGeometry(3.2, 0.8), tex: T.label('neon', 'STARLIGHT', { w: 1024, h: 256, bg: 'rgba(0,0,0,0)', color: '#ff4fb0', glow: true, font: `bold 150px ${T.FONTS.FONT_HAND}` }), base: 3, yOff: 0, transparent: true }),
       };
       for (const [kind, list] of kinds) {
         const d = (defs[kind] || defs.bulb)();
@@ -883,7 +808,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         if (type.startsWith('cabinet:')) { this.buildCabinets(type.slice(8), list); continue; }
         if (type.startsWith('crt')) {
           const k = +type.slice(3);
-          const lines = [['C:\\> DIR', ' SAYAC    EXE', ' PERSONEL TXT', ' NOT      TXT', '', 'C:\\> _'], ['ÇIKIŞ YOK', 'ÇIKIŞ YOK', 'ÇIKIŞ YOK', 'ÇIKIŞ YOK'], ['RAPOR 17.04', '', 'Sarı ziyaretçi', 'katta görüldü.', '', 'Masanın altına', 'saklanın.'], ['> ', '> vaka', '> vaka vaka', '> _']][k];
+          const lines = [['C:\\> DIR', ' COUNTER  EXE', ' PERSONNL TXT', ' CODE     TXT', '', 'C:\\> _'], ['NO EXIT', 'NO EXIT', 'NO EXIT', 'NO EXIT'], ['REPORT 4/17', '', 'Yellow visitor', 'seen on floor.', '', 'Hide under', 'the desks.'], ['> ', '> waka', '> waka waka', '> _']][k];
           const tex = T.crt('desk' + k, lines, k === 1 ? '#ffb040' : '#7dff8a');
           const mat = new THREE.MeshBasicMaterial({ map: tex, color: new THREE.Color(1.4, 1.4, 1.4) });
           this.instanced('crtScreen', P.DEFS.crtScreen, list, { matFn: () => mat, cast: false });
@@ -1372,7 +1297,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         if (o.geometry) o.geometry.dispose();
       });
       for (const m of this.mats.values()) m.dispose();
-      if (this.U.uLightMap.value) this.U.uLightMap.value.dispose();
+      this.disposeBake();
       if (this.envRT) this.envRT.dispose();
       P.clearCache();
     }

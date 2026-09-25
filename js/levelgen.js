@@ -408,7 +408,7 @@
     const entry = side === 0 ? { x: doorCell.x, y: y1, d: 2 } : side === 2 ? { x: doorCell.x, y: y0, d: 0 } : side === 3 ? { x: x1, y: doorCell.y, d: 1 } : { x: x0, y: doorCell.y, d: 3 };
     L.stampRoom(x0, y0, x1, y1, [entry], tag);
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) L.solid[L.i(x, y)] = 0;
-    const door = L.addDoor(doorCell.x, doorCell.y, side, Object.assign({ kind: 'exit', locked: true }, doorOpts || {}));
+    const door = L.addDoor(doorCell.x, doorCell.y, side, Object.assign({ kind: 'exit', locked: true, nameKey: 'door.exit' }, doorOpts || {}));
     L.meta.exit = { x: doorCell.x, y: doorCell.y, d: side, door: door.id, room: { x0, y0, x1, y1 }, entry };
     return { x0, y0, x1, y1, side, doorCell, entry, door };
   }
@@ -501,16 +501,16 @@
     for (let y = 0; y < 10; y++) if (y !== 1 && y !== 7) L.setEdge(9, y, 3, EDGE.WALL, true);
     // Koridor ile arka odalar arası
     for (let y = 0; y < 10; y++) L.setEdge(10, y, 3, EDGE.WALL, true);
-    L.addDoor(10, 1, 3, { id: 'officeDoor', kind: 'wood', locked: true, name: 'Ofis kapısı', lockMsg: 'Kilitli. Kapıda pirinç bir levha: "M. AKSOY — YETKİLİ".' });
-    L.addDoor(10, 4, 3, { id: 'storageDoor', kind: 'metal', name: 'Depo kapısı' });
-    L.addDoor(10, 8, 3, { id: 'wcDoor', kind: 'wood', name: 'Tuvalet kapısı' });
+    L.addDoor(10, 1, 3, { id: 'officeDoor', kind: 'wood', locked: true, nameKey: 'door.office', lockKey: 'lock.office' });
+    L.addDoor(10, 4, 3, { id: 'storageDoor', kind: 'metal', nameKey: 'door.storage' });
+    L.addDoor(10, 8, 3, { id: 'wcDoor', kind: 'wood', nameKey: 'door.wc' });
     for (let x = 10; x <= 12; x++) { L.setEdge(x, 3, 0, EDGE.WALL, true); L.setEdge(x, 6, 0, EDGE.WALL, true); }
     // Giriş holü ile salon arası
     for (let x = 0; x <= 8; x++) if (x !== 1 && x !== 2 && x !== 7) L.setEdge(x, 7, 0, EDGE.WALL, true);
     // Ön cephe: vitrin camları ve kilitli cam kapı
     L.setEdge(0, 9, 2, EDGE.GLASS, true); L.setEdge(3, 9, 2, EDGE.GLASS, true);
-    L.addDoor(1, 9, 2, { id: 'frontDoorA', kind: 'glass', locked: true, name: 'Giriş kapısı', lockMsg: 'Dışarıdan asma kilitle kapatılmış. Yağmur camı dövüyor.' });
-    L.addDoor(2, 9, 2, { id: 'frontDoorB', kind: 'glass', locked: true, name: 'Giriş kapısı', lockMsg: 'Dışarıdan asma kilitle kapatılmış. Yağmur camı dövüyor.' });
+    L.addDoor(1, 9, 2, { id: 'frontDoorA', kind: 'glass', locked: true, nameKey: 'door.front', lockKey: 'lock.front' });
+    L.addDoor(2, 9, 2, { id: 'frontDoorB', kind: 'glass', locked: true, nameKey: 'door.front', lockKey: 'lock.front' });
     for (let y = 0; y < 10; y++) for (let x = 0; x < 13; x++) L.reserved[L.i(x, y)] = 1;
     L.spawn = { x: 1, y: 8, yaw: 0, wx: L.cx(1) + 0.8, wz: L.cz(8) + 0.6 };
 
@@ -576,7 +576,7 @@
     L.addLight({ x: L.cx(11), z: L.cz(4) + 1, y: 3.5, kind: 'bulb', color: [1, 0.85, 0.6], intensity: 0.7, range: 7, zone: 1 });
     L.addLight({ x: L.cx(11), z: L.cz(8), y: 3.5, kind: 'panel', color: [0.85, 1, 0.9], intensity: 0.6, range: 7, zone: 1, flicker: 0.8 });
     // Neon yazı ve kabin ekranlarının yaydığı ışık
-    L.addLight({ x: L.cx(4), z: 0.3, y: 3.0, kind: 'neon', color: [1, 0.2, 0.6], intensity: 0.9, range: 10, zone: 1, text: 'YILDIZ ATARİ' });
+    L.addLight({ x: L.cx(4), z: 0.3, y: 3.0, kind: 'neon', color: [1, 0.2, 0.6], intensity: 0.9, range: 10, zone: 1, text: 'STARLIGHT' });
     L.addLight({ x: L.cx(1), z: L.cz(4), y: 1.3, kind: 'glow', color: [0.4, 0.5, 1], intensity: 0.5, range: 7, zone: 1 });
     L.addLight({ x: L.cx(7), z: L.cz(4), y: 1.3, kind: 'glow', color: [0.8, 0.3, 1], intensity: 0.5, range: 7, zone: 1 });
     L.addLight({ x: L.cx(2), z: L.cz(2), y: 1.3, kind: 'glow', color: [0.3, 1, 0.6], intensity: 0.5, range: 7, zone: 1 });
@@ -590,7 +590,7 @@
     L.addDecal(wallDecal(L, 6, 0, 0, 'poster', 1.3, 1.7, 0.5, 'poster2'));
     L.addDecal(wallDecal(L, 0, 2, 3, 'poster', 1.3, 1.7, 0, 'poster3'));
     L.addDecal(wallDecal(L, 8, 3, 1, 'poster', 1.3, 1.7, 0, 'poster4'));
-    L.addDecal(wallDecal(L, 9, 5, 1, 'sign', 1.0, 1.9, 0, 'PERSONEL'));
+    L.addDecal(wallDecal(L, 9, 5, 1, 'sign', 1.0, 1.9, 0, 'STAFF ONLY'));
     L.meta.outsideRain = true;
     L.meta.zonesOn = [0];
     return L;
@@ -700,7 +700,7 @@
     L.fixConnectivity(sp.x, sp.y, r);
     let dist = L.bfs(sp.x, sp.y, 'all');
     const ex = farthestBoundaryCell(L, dist, 0.75, r);
-    stampBoundaryRoom(L, r, ex[0], ex[1], 4, 3, 'elevatorRoom', { kind: 'elevator', name: 'Yük asansörü', lockMsg: 'Asansörün enerjisi yok. Çağrı düğmesi ölü.' });
+    stampBoundaryRoom(L, r, ex[0], ex[1], 4, 3, 'elevatorRoom', { kind: 'elevator', nameKey: 'door.elevator', lockKey: 'lock.elevator' });
     L.fixConnectivity(sp.x, sp.y, r);
     addPillars(L, r, 0.9, 4);
     L.spawn = { x: sp.x, y: sp.y, yaw: yawToward(L, sp.x, sp.y) };
@@ -735,7 +735,7 @@
     }
     decorDecals(L, r, Math.floor(L.w * L.h / 7), [
       { type: 'oil', floor: true, min: 0.8, max: 2.6 }, { type: 'crack', floor: true, min: 1, max: 3 }, { type: 'paintLine', floor: true, min: 2, max: 3 },
-      { type: 'rust', min: 0.8, max: 2, h: 2.4 }, { type: 'stain', min: 1, max: 2.5 }, { type: 'graffiti', min: 1.2, max: 2, h: 1.6, text: ['KIRMIZI GÖRÜRSEN KOŞ', 'B.K. 1987', 'SAAT KAÇ?', 'DÖRT KİŞİYDİK'] },
+      { type: 'rust', min: 0.8, max: 2, h: 2.4 }, { type: 'stain', min: 1, max: 2.5 }, { type: 'graffiti', min: 1.2, max: 2, h: 1.6, text: ['IF YOU SEE RED, RUN', 'BLY 1987', 'WHAT TIME IS IT?', 'THERE WERE FOUR OF US'] },
     ]);
     L.meta.zonesOn = [0];
     return L;
@@ -860,7 +860,7 @@
         L.reserveRect(b.x0, b.y0, b.x1, b.y1);
         for (let x = b.x0; x <= b.x1; x++) for (let y = b.y0; y <= b.y1; y++) { if (x < b.x1) L.setEdge(x, y, 1, 0, true); if (y < b.y1) L.setEdge(x, y, 2, 0, true); }
         L.wallRect(b.x0, b.y0, b.x1, b.y1, EDGE.WALL, true);
-        const o = openBlockSide(b, 1, { id: 'securityDoor', kind: 'security', locked: true, name: 'Güvenlik odası', lockMsg: 'Tuş takımı dört haneli bir şifre istiyor.' })[0];
+        const o = openBlockSide(b, 1, { id: 'securityDoor', kind: 'security', locked: true, nameKey: 'door.security', lockKey: 'lock.security' })[0];
         L.addSpot('keypad', { x: o.x + DX[o.d], y: o.y + DY[o.d], d: (o.d + 2) % 4 });
         L.addSpot('keycard', { x: cxm, y: cym });
         L.addSpot('monitors', { x: b.x0, y: b.y0 });
@@ -877,7 +877,7 @@
         else if (b.y1 === L.h - 1) door = { x: cxm, y: L.h - 1, d: 2 };
         else if (b.x0 === 0) door = { x: 0, y: cym, d: 3 };
         else door = { x: L.w - 1, y: cym, d: 1 };
-        const dd = L.addDoor(door.x, door.y, door.d, { id: 'stairDoor', kind: 'stair', locked: true, name: 'Yangın merdiveni', lockMsg: 'Kart okuyucunun ışığı kırmızı. Güvenlik kartı gerekiyor.' });
+        const dd = L.addDoor(door.x, door.y, door.d, { id: 'stairDoor', kind: 'stair', locked: true, nameKey: 'door.stair', lockKey: 'lock.stair' });
         L.meta.exit = { x: door.x, y: door.y, d: door.d, door: dd.id, room: b };
         L.addSpot('cardReader', { x: door.x, y: door.y, d: door.d });
       } else if (b.type === 'shrine') {
@@ -1038,8 +1038,8 @@
       if (ch === 'o') L.meta.pellets.push({ x, y, power: true });
     }
     // Hayalet evi kapısı ('-' hücreleri) evin kuzey sınırında
-    L.addDoor(PAD + 13, 12, 0, { id: 'houseDoorA', kind: 'house', locked: true, name: 'Hayalet evi', lockMsg: 'Pembe bir enerji perdesi. Dört güç hapının ışığıyla titreşiyor.' });
-    L.addDoor(PAD + 14, 12, 0, { id: 'houseDoorB', kind: 'house', locked: true, name: 'Hayalet evi', lockMsg: 'Pembe bir enerji perdesi. Dört güç hapının ışığıyla titreşiyor.' });
+    L.addDoor(PAD + 13, 12, 0, { id: 'houseDoorA', kind: 'house', locked: true, nameKey: 'door.house', lockKey: 'lock.house' });
+    L.addDoor(PAD + 14, 12, 0, { id: 'houseDoorB', kind: 'house', locked: true, nameKey: 'door.house', lockKey: 'lock.house' });
     L.setEdge(PAD + 13, 12, 1, 0, true);
     // Tünel: iki uç birbirine bağlı
     L.addPortal(0, 14, W - 1, 14);
@@ -1071,7 +1071,7 @@
       for (let y = H - 5; y < H - 1; y++) for (let x = W - PAD - 6; x < W - PAD; x++) L.solid[L.i(x, y)] = 0;
       L.solid[L.i(W - PAD - 1, H - 2)] = 0;
       for (let x = W - PAD - 1; x < W; x++) L.solid[L.i(x, H - 2)] = 0;
-      const dd = L.addDoor(W - 1, H - 2, 1, { id: 'exitDoor', kind: 'exit', locked: false, name: 'ÇIKIŞ' });
+      const dd = L.addDoor(W - 1, H - 2, 1, { id: 'exitDoor', kind: 'exit', locked: false, nameKey: 'door.exit' });
       L.meta.exit = { x: W - 1, y: H - 2, d: 1, door: dd.id };
       // Tünelin sağ ucu bozuk alanın içinde kalır: geçit yok
       L.portals = []; L.portalMap = new Map();
@@ -1192,7 +1192,7 @@
         if (s.wall) cell.d = r.pick(L.wallSides(cell.x, cell.y));
       }
       if (!s.reuse) used.add(L.i(cell.x, cell.y));
-      const item = { type: s.type, id: s.id ? (s.count > 1 ? s.id + (s._k + 1) : s.id) : s.type + placed.length, x: cell.x, y: cell.y, d: cell.d, group: s.group, data: s.data || null, spot: cell.spot || null };
+      const item = { type: s.type, id: s.id ? (s.count > 1 ? s.id + (s._k + 1) : s.id) : s.type + placed.length, x: cell.x, y: cell.y, d: cell.d, group: s.group, data: s.data || null, spot: cell.spot || null, clue: !!s.clue, prop: s.prop || null };
       const C = L.cell;
       if (cell.spot && cell.spot.wx != null) {
         item.wx = cell.spot.wx; item.wz = cell.spot.wz; item.wy = cell.spot.h != null ? cell.spot.h : (s.h != null ? s.h : 0);
@@ -1221,7 +1221,7 @@
     Level, DX, DY, EDGE, SOLID, FLOOR, CLASSIC,
     generate(def) {
       const fn = GEN[def.layout];
-      if (!fn) throw new Error('Bilinmeyen düzen: ' + def.layout);
+      if (!fn) throw new Error('Unknown layout: ' + def.layout);
       const L = fn(def);
       L.def = def;
       L.items = placeItems(L, def.items || [], def.seed + 4242);

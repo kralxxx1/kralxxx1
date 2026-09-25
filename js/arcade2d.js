@@ -823,9 +823,9 @@
   function drawHud() {
     text('SKOR', T, 0.8 * T, COLOR.text);
     text(score ? String(score) : '00', T, 2 * T, COLOR.white);
-    text('EN YÜKSEK', 14 * T, 0.8 * T, COLOR.text, 1, 'center');
+    text('HIGH SCORE', 14 * T, 0.8 * T, COLOR.text, 1, 'center');
     if (hi) text(String(hi), 14 * T, 2 * T, COLOR.white, 1, 'center');
-    text('SEVİYE', 27 * T, 0.8 * T, COLOR.text, 1, 'right');
+    text('LEVEL', 27 * T, 0.8 * T, COLOR.text, 1, 'right');
     text(String(level), 27 * T, 2 * T, COLOR.white, 1, 'right');
   }
 
@@ -867,9 +867,9 @@
       ghostBody(gx, y, g.color);
       ghostEyes(gx, y, RIGHT);
     }
-    text('BAŞLAMAK İÇİN', 14 * T, 21.4 * T, COLOR.text, 0.7, 'center');
+    text('PRESS START', 14 * T, 21.4 * T, COLOR.text, 0.7, 'center');
     if (reducedMotion.matches || Math.floor(frame / 30) % 2 === 0) {
-      text(coarse.matches ? 'EKRANA DOKUN' : "ENTER'A BAS", 14 * T, 23 * T, COLOR.pac, 0.7, 'center');
+      text(coarse.matches ? 'TAP THE SCREEN' : 'PRESS ENTER', 14 * T, 23 * T, COLOR.pac, 0.7, 'center');
     }
   }
 
@@ -893,14 +893,14 @@
     for (const p of popups) text(p.text, px(p.x), py(p.y), p.color, 0.55, 'center');
 
     const shown = state === 'paused' ? pausedFrom.state : state;
-    if (shown === 'ready') text('HAZIR!', 14 * T, 20.5 * T, COLOR.pac, 1, 'center');
-    if (state === 'gameover') text('OYUN BİTTİ', 14 * T, 20.5 * T, COLOR.red, 1, 'center');
+    if (shown === 'ready') text('READY!', 14 * T, 20.5 * T, COLOR.pac, 1, 'center');
+    if (state === 'gameover') text('GAME OVER', 14 * T, 20.5 * T, COLOR.red, 1, 'center');
     if (state === 'attract') drawAttract();
     if (state === 'paused') {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
       ctx.fillRect(0, TOP * T, COLS * T, ROWS * T);
-      text('DURAKLATILDI', 14 * T, 17.5 * T, COLOR.pac, 1, 'center');
-      text(coarse.matches ? 'DEVAM İÇİN DOKUN' : 'DEVAM İÇİN P', 14 * T, 19.5 * T, COLOR.text, 0.6, 'center');
+      text('PAUSED', 14 * T, 17.5 * T, COLOR.pac, 1, 'center');
+      text(coarse.matches ? 'TAP TO CONTINUE' : 'P TO CONTINUE', 14 * T, 19.5 * T, COLOR.text, 0.6, 'center');
     }
     drawBottomHud();
   }

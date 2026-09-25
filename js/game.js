@@ -5,7 +5,8 @@
   const PB = root.PB;
   const THREE = root.THREE;
   const U = PB.U, S = PB.Settings, ST = PB.Story, P = PB.Props, T = PB.Tex;
-  const SAVE_KEY = 'pb.save.v1';
+  const t = PB.t;
+  const SAVE_KEY = 'pb.save.v2';
   const $ = id => document.getElementById(id);
 
   const MARK = { obj: '#ffe23b', tape: '#ff5050', note: '#e8e8e8', shrine: '#ff9ad5', supply: '#6bd6ff' };
@@ -32,6 +33,7 @@
       this.camera = new THREE.PerspectiveCamera(S.data.fov, 1, 0.05, S.data.viewDist);
       this.scene.add(this.camera);
       this.post = new PB.Post(r);
+      this.configurePost();
       T.init(r, S.data.anisotropy);
       this.audio = new PB.Audio();
       this.input = new PB.Input(this, canvas);
@@ -39,17 +41,42 @@
       this.player = new PB.Player(this);
       this.audio.events.on('caption', (t, dir) => this.ui.caption(t, dir));
       this.save = U.store.get(SAVE_KEY, null);
+      if (this.save) this.migrateSave(this.save);
       root.addEventListener('resize', () => this.resize());
       S.events.on('change', key => this.applySetting(key));
       document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'play') this.pause(); });
       this.resize();
       this.bindUI();
-      this.ui.loading(0.02, 'Yazı tipleri yükleniyor…', U.fmtTime(0) && ST.TIPS[Math.floor(Math.random() * ST.TIPS.length)]);
+      this.ui.loading(0.02, t('boot.fonts'), ST.tip());
       await this.loadFonts();
       await this.loadMenuScene();
       this.last = performance.now();
+      this.state = 'menu';
       r.setAnimationLoop(() => this.frame());
+      if (!PB.I18N.stored()) await this.firstRun();
       this.toMenu();
+    }
+    // First launch: language and brightness
+    firstRun() {
+      return new Promise(resolve => {
+        const langs = $('first-langs');
+        langs.innerHTML = '';
+        const mark = () => { for (const b of langs.children) b.classList.toggle('on', b.dataset.lang === S.data.lang); };
+        for (const [id, label] of PB.I18N.LANGS) {
+          const b = document.createElement('button');
+          b.type = 'button'; b.textContent = label; b.dataset.lang = id;
+          b.addEventListener('click', () => { S.set('lang', id); mark(); });
+          langs.appendChild(b);
+        }
+        mark();
+        const rng = $('first-bright'), out = $('first-bright-out');
+        const sw = (el, base) => { const v = Math.round(255 * Math.pow(base, 1 / S.data.brightness)); el.style.background = `rgb(${v},${v},${v})`; };
+        const upd = () => { S.set('brightness', +rng.value); out.textContent = Math.round(S.data.brightness * 100) + '%'; sw(document.querySelector('.calib .c-dim'), 0.018); sw(document.querySelector('.calib .c-mid'), 0.1); };
+        rng.value = S.data.brightness; upd();
+        rng.oninput = upd;
+        $('first-go').onclick = () => { PB.I18N.set(S.data.lang, true); resolve(); };
+        this.ui.only('scr-first');
+      });
     }
     async loadFonts() {
       if (!document.fonts || !document.fonts.load) return;
@@ -68,7 +95,27 @@
       this.post.enabled.fxaa = aa === 'fxaa' || aa === 'both';
       if (this.ui && this.ui.isOpen('scr-map')) this.ui.drawMap(this);
     }
+    configurePost() {
+      const d = S.data;
+      this.post.configure({ ao: d.ao, ssr: d.ssr, vol: d.volumetric, mblur: d.motionBlur, lensDirt: d.lensDirt });
+      this.postDirty = false;
+    }
+    // Baked light volume and fog for the volumetric pass (after every bake)
+    syncPostWorld() {
+      const w = this.world, def = this.levelDef;
+      if (!w || !w.bakeRes || !def) return;
+      const fog = def.fog || [0, 0.02];
+      this.post.setWorld({
+        lvUp: w.bakeRes.up.texture, lvSize: w.U.uLvSize.value, lvLayers: w.U.uLvLayers.value,
+        density: def.volDensity != null ? def.volDensity : Math.min(0.06, fog[1] * 1.1 + 0.006),
+        lvK: def.volK != null ? def.volK : 0.03, maxDist: Math.min(48, S.data.viewDist * 0.6),
+      });
+      this.postLvK = def.volK != null ? def.volK : 0.03;
+    }
     applySetting(key) {
+      if (key === 'lang' || key === '*') { PB.I18N.set(S.data.lang); this.onLanguage(); }
+      if (['ao', 'ssr', 'volumetric', 'motionBlur', 'lensDirt', 'preset', '*'].includes(key)) this.postDirty = true;
+      if (['viewDist', 'preset', '*'].includes(key)) this.syncPostWorld();
       if (['renderScale', 'antialias', 'preset', '*'].includes(key)) this.resize();
       if (['shadows', 'preset', '*'].includes(key)) this.player.applyShadowSetting();
       if (['fov', '*'].includes(key)) { this.camera.fov = S.data.fov; this.camera.updateProjectionMatrix(); }
@@ -92,8 +139,19 @@
       const old = this.save || {};
       const keep = k => (Array.isArray(old[k]) ? old[k].slice() : []);
       const unlocked = keep('unlocked'); if (!unlocked.includes('prolog')) unlocked.unshift('prolog');
-      this.save = { v: 1, level: 'prolog', unlocked, notes: keep('notes'), freed: [], stats: { time: 0, deaths: 0 }, cp: null, completed: !!old.completed, endings: keep('endings') };
+      this.save = { v: 2, level: 'prolog', unlocked, notes: keep('notes'), drawings: [], freed: [], world: {}, stats: { time: 0, deaths: 0 }, cp: null, completed: !!old.completed, endings: keep('endings') };
       this.writeSave();
+    }
+    migrateSave(s) {
+      if (!Array.isArray(s.drawings)) s.drawings = [];
+      if (!s.world || typeof s.world !== 'object') s.world = {};
+      if (!Array.isArray(s.freed)) s.freed = [];
+      if (!Array.isArray(s.endings)) s.endings = [];
+      if (!Array.isArray(s.notes)) s.notes = [];
+      if (!Array.isArray(s.unlocked)) s.unlocked = ['prolog'];
+      if (s.level && !PB.Levels.byId(s.level)) { s.level = 'prolog'; s.cp = null; }
+      s.unlocked = s.unlocked.filter(id => PB.Levels.byId(id));
+      if (!s.stats) s.stats = { time: 0, deaths: 0 };
     }
     writeSave() { if (this.save) { this.save.stats.time = Math.round(this.playTime); U.store.set(SAVE_KEY, this.save); } }
     snapshot() {
@@ -115,7 +173,7 @@
       this.save.cp = this.snapshot();
       this.cpPos = { x: this.player.pos.x, z: this.player.pos.z, yaw: this.player.yaw };
       this.writeSave();
-      if (!silent) this.ui.notify('Oyun kaydedildi', 'save');
+      if (!silent) this.ui.notify(t('n.saved'), 'save');
     }
     safeCheckpoint() {
       // Kovalayan yaratık yoksa ve kimse yakında değilse otomatik kayıt
@@ -198,7 +256,7 @@
       this.input.exitLock();
       $('hud').hidden = true; $('touch').hidden = true;
       this.ui.only('scr-boot');
-      this.ui.loading(0.01, 'Seviye hazırlanıyor…', ST.TIPS[Math.floor(Math.random() * ST.TIPS.length)]);
+      this.ui.loading(0.01, t('boot.prep'), ST.tip());
       $('boot-level').textContent = opts.menu ? '' : `${def.name} — ${def.title}`;
       this.audio.stopAllLoops();
       this.audio.setMusic('none');
@@ -212,12 +270,13 @@
         await this.world.build((p, label) => this.ui.loading(p * 0.97, label));
       } catch (e) {
         console.error(e);
-        this.ui.loading(1, 'Yükleme hatası: ' + e.message);
+        this.ui.loading(1, t('load.error', { msg: e.message }));
         throw e;
       }
       this.scene.add(this.world.group);
       this.scene.environment = this.world.envMap;
       this.applyFog();
+      this.syncPostWorld();
       this.nav = new PB.Entities.Nav(this);
       this.explored = new Uint8Array(L.w * L.h);
       this.inv = { batteries: 0, almond: 0, glow: 0, fuses: 0, fuel: 0, pellets: 0, keys: [], memento: null, officeKey: false, token: false, keycard: false };
@@ -242,13 +301,14 @@
       if (!opts.menu) this.createEntities();
       this.glowPool = [];
       for (let k = 0; k < 3; k++) { const l = new THREE.PointLight(0x40ff70, 0, 8, 2); l.position.set(0, -50, 0); this.world.group.add(l); this.glowPool.push(l); }
-      this.script = SCRIPTS[id] || {};
+      this.script = PB.Chapters[id] || {};
+      this.talkQ = []; this.talkCur = null;
       if (!opts.menu && this.script.start) this.script.start(this);
       if (opts.restore) this.applySnapshot(opts.restore);
-      this.ui.loading(0.98, 'Gölgeler derleniyor…');
+      this.ui.loading(0.98, t('load.shaders'));
       await U.nextFrame();
       this.warmup();
-      this.ui.loading(1, 'Hazır');
+      this.ui.loading(1, t('load.ready'));
       if (opts.menu) { this.world.U.uLmIntensity.value = 1; return; }
       if (!this.save) this.newSave();
       if (!this.save.unlocked.includes(id)) this.save.unlocked.push(id);
@@ -340,17 +400,17 @@
       }
     }
     buildItem(o) {
-      const it = o.item, t = o.type, w = this.world;
+      const it = o.item, ty = o.type, w = this.world;
       const onWall = it.d >= 0 && (it.wy || 0) > 0.5;
       const grp = new THREE.Group();
       const add = (key, y = 0, scale = 1, rotX = 0) => { const m = this.meshFromDef(key); m.position.y = y; m.scale.setScalar(scale); m.rotation.x = rotX; grp.add(m); return m; };
       o.mesh = grp;
       if (it.yaw != null) grp.rotation.y = it.yaw;
-      switch (t) {
-        case 'note': case 'codeClue': case 'computer': {
-          const n = ST.NOTES[it.data];
-          const variant = it.prop || (t === 'computer' ? 'computer' : null);
-          o.marker = t === 'codeClue' ? MARK.obj : MARK.note;
+      switch (ty) {
+        case 'note': case 'codeClue': case 'computer': case 'drawing': {
+          const n = ST.note(it.data, 'en');
+          const variant = it.prop || (ty === 'computer' ? 'computer' : null);
+          o.marker = ty === 'codeClue' ? MARK.obj : MARK.note;
           if (variant === 'computer') {
             // Masa + CRT, ekranında metnin ilk satırları
             add('cubicleDesk', 0, 1);
@@ -371,7 +431,7 @@
             stand.position.y = -0.375; grp.add(stand);
             o.pos.y = 0.75;
             this.world.addCollider({ minX: it.wx - 0.35, maxX: it.wx + 0.35, minZ: it.wz - 0.35, maxZ: it.wz + 0.35 });
-          } else if (n.kind === 'duvar') {
+          } else if (n.kind === 'wall') {
             const tex = T.decal('wallText', n.body.split('\n').filter(Boolean).slice(0, 3).join('\n'));
             const m = new THREE.MeshStandardMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: 0.9 });
             w.patch(m);
@@ -379,7 +439,7 @@
             if (!onWall) { pl.rotation.x = -Math.PI / 2; pl.position.y = 0.01; } else pl.position.z = 0.01;
             grp.add(pl);
           } else {
-            const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.21, 0.29), new THREE.MeshStandardMaterial({ map: T.paper(it.id, !['mektup', 'ciktı', 'duyuru'].includes(n.kind)), roughness: 0.9, side: THREE.DoubleSide }));
+            const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.21, 0.29), new THREE.MeshStandardMaterial({ map: T.paper(it.id, !['letter', 'printout', 'notice', 'report', 'card', 'flyer'].includes(n.kind)), roughness: 0.9, side: THREE.DoubleSide }));
             w.patch(paper.material);
             if (onWall) paper.position.z = 0.012;
             else { paper.rotation.x = -Math.PI / 2; paper.position.y = 0.006; paper.rotation.z = Math.random() * 6; }
@@ -388,6 +448,7 @@
           }
           break;
         }
+        case 'radio': { add('walkie', 0.02, 1.3); o.marker = MARK.obj; { const g = this.glowSprite(0xff5040, 0.3); g.position.y = 0.15; grp.add(g); o.glow = g; } break; }
         case 'tape': { add('tape'); const g = this.glowSprite(0xff4040, 0.4); g.position.y = 0.15; grp.add(g); o.glow = g; o.marker = MARK.tape; break; }
         case 'battery': add('battery', 0.03, 2); o.spin = true; o.marker = MARK.supply; { const g = this.glowSprite(0x80d0ff, 0.45); g.position.y = 0.12; grp.add(g); o.glow = g; } break;
         case 'almond': add('almond', 0, 1.3); o.spin = true; { const g = this.glowSprite(0xfff0c0, 0.5); g.position.y = 0.2; grp.add(g); o.glow = g; } break;
@@ -398,9 +459,9 @@
         case 'fuelCan': add('fuelCan', 0, 1.2); o.marker = MARK.obj; { const g = this.glowSprite(0xff8030, 0.6); g.position.y = 0.3; grp.add(g); o.glow = g; } break;
         case 'keycard': add('keycard', 0, 2.5); o.spin = true; o.marker = MARK.obj; { const g = this.glowSprite(0x60a0ff, 0.4); g.position.y = 0.1; grp.add(g); o.glow = g; } o.pos.y = 0.8; { const tbl = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.78, 0.6), w.mat('darkMetal')); tbl.position.y = -0.39; grp.add(tbl); } break;
         case 'memento': {
-          const key = { bulent: 'watch', inci: 'glasses', pinar: 'walkman', cemil: 'lighter' }[it.data] || 'watch';
-          add(key, 0.03, 2.2); o.spin = true; o.marker = ST.CHAR[it.data] ? ST.CHAR[it.data].color : MARK.shrine;
-          const g = this.glowSprite(ST.CHAR[it.data] ? ST.CHAR[it.data].color : '#ffffff', 0.8); g.position.y = 0.12; grp.add(g); o.glow = g;
+          const key = { billy: 'watch', ivy: 'glasses', penny: 'walkman', clyde: 'lighter' }[it.data] || 'watch';
+          add(key, 0.03, 2.2); o.spin = true; o.marker = ST.charColor(it.data);
+          const g = this.glowSprite(ST.charColor(it.data), 0.8); g.position.y = 0.12; grp.add(g); o.glow = g;
           break;
         }
         case 'powerPellet': {
@@ -423,7 +484,7 @@
         case 'generator': add('generator'); o.marker = MARK.obj; o.hold = 3.2; o.interactPos = new THREE.Vector3(it.wx, 0.7, it.wz); { const pos = new THREE.Vector3(it.wx, 0, it.wz); this.world.addCollider({ minX: pos.x - 0.5, maxX: pos.x + 0.5, minZ: pos.z - 0.5, maxZ: pos.z + 0.5 }); } break;
         case 'shrine': {
           add('shrineAltar');
-          const col = ST.CHAR[it.data] ? ST.CHAR[it.data].color : '#ffffff';
+          const col = ST.charColor(it.data);
           const flame = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6), new THREE.MeshBasicMaterial({ color: new THREE.Color(col).multiplyScalar(4) }));
           flame.position.set(-0.4, 1.0, 0.1); grp.add(flame);
           const l = new THREE.PointLight(new THREE.Color(col), 2.5, 6, 2); l.position.set(0, 1.4, 0.2); grp.add(l); o.light = l;
@@ -447,54 +508,70 @@
           this.world.addCollider({ minX: it.wx - 0.75, maxX: it.wx + 0.75, minZ: it.wz - 0.45, maxZ: it.wz + 0.45 });
           break;
         }
-        case 'specialCabinet': case 'freeCabinet': o.mesh = null; o.marker = t === 'specialCabinet' ? MARK.obj : null; o.pos.y = 1.2; o.reach = 2.2; break;
+        case 'specialCabinet': case 'freeCabinet': o.mesh = null; o.marker = ty === 'specialCabinet' ? MARK.obj : null; o.pos.y = 1.2; o.reach = 2.2; break;
         default: break;
       }
     }
     itemPrompt(o) {
-      const t = o.type, it = o.item;
+      const ty = o.type, it = o.item;
       if (o.hiddenUntil && !this.flags[o.hiddenUntil]) return null;
       if (this.script.prompt) { const p = this.script.prompt(this, o); if (p !== undefined) return p; }
-      switch (t) {
-        case 'note': case 'codeClue': { const n = ST.NOTES[it.data]; return n.kind === 'duvar' ? 'Yazıyı oku' : n.kind === 'ekran' ? 'Ekrana bak' : 'Oku: ' + n.title; }
-        case 'computer': return 'Ekrana bak';
-        case 'tape': return 'Kaseti dinle (oyunu kaydeder)';
-        case 'battery': return 'Pil al';
-        case 'almond': return 'Badem suyu al';
-        case 'glowstick': return 'Işık çubuğu al';
-        case 'flashlight': return 'Feneri al';
-        case 'token': return 'Jetonu al';
-        case 'fuse': return 'Sigortayı al';
-        case 'fuelCan': return 'Mazot bidonunu al';
-        case 'keycard': return 'Güvenlik kartını al';
-        case 'memento': return 'Al: ' + mementoName(it.data);
-        case 'powerPellet': return 'Güç hapını yut';
-        case 'phone': return o.ringing ? 'Telefonu aç' : 'Ahizeyi kaldır';
-        case 'freeCabinet': return 'Kabinde oyna (BEDAVA)';
+      switch (ty) {
+        case 'note': case 'codeClue': { const n = ST.note(it.data); return !n ? null : n.kind === 'wall' ? t('pr.readWall') : n.kind === 'screen' ? t('pr.screen') : t('pr.read', { title: n.title }); }
+        case 'drawing': return t('pr.drawing');
+        case 'computer': return t('pr.screen');
+        case 'tape': return t('pr.tape');
+        case 'battery': return t('pr.battery');
+        case 'almond': return t('pr.almond');
+        case 'glowstick': return t('pr.glow');
+        case 'flashlight': return t('pr.flashlight');
+        case 'token': return t('pr.token');
+        case 'fuse': return t('pr.fuse');
+        case 'fuelCan': return t('pr.fuel');
+        case 'keycard': return t('pr.keycard');
+        case 'memento': return t('pr.take', { name: ST.memento(it.data).name });
+        case 'powerPellet': return t('pr.pellet');
+        case 'phone': return o.ringing ? t('pr.phoneRing') : t('pr.phone');
+        case 'freeCabinet': return t('pr.cabinetFree');
         default: return null;
       }
     }
     useItem(o) {
       if (o.taken) return;
       if (this.script.use && this.script.use(this, o)) return;
-      const t = o.type, it = o.item;
-      switch (t) {
-        case 'note': case 'codeClue': case 'computer': this.readNote(it.data, () => { if (t === 'codeClue' && this.script.clue) this.script.clue(this, o); }); break;
+      const ty = o.type, it = o.item;
+      switch (ty) {
+        case 'note': case 'codeClue': case 'computer': this.readNote(it.data, () => { if (ty === 'codeClue' && this.script.clue) this.script.clue(this, o); }); break;
+        case 'drawing': this.takeDrawing(o); break;
         case 'tape': this.readNote(it.data); this.checkpoint(); if (this.audio.ctx) { this.audio.loop('tape', 'tape', null, { bus: 'sfx', gain: 0.3, rev: 0 }); } break;
         case 'battery':
           this.takeItem(o);
-          if (this.player.battery < 70) { this.player.battery = Math.min(100, this.player.battery + 50); this.ui.notify('Fenere yeni pil taktın'); }
-          else { this.inv.batteries = Math.min(4, this.inv.batteries + 1); this.ui.notify('Yedek pil'); }
+          if (this.player.battery < 70) { this.player.battery = Math.min(100, this.player.battery + 50); this.ui.notify(t('n.batteryIn')); }
+          else { this.inv.batteries = Math.min(4, this.inv.batteries + 1); this.ui.notify(t('n.batterySpare')); }
           this.audio.pickup();
           break;
-        case 'almond': this.takeItem(o); this.inv.almond = Math.min(3, this.inv.almond + 1); this.audio.pickup(); this.ui.notify('Badem suyu (Q ile iç)'); break;
-        case 'glowstick': this.takeItem(o); this.inv.glow = Math.min(6, this.inv.glow + 1); this.audio.pickup(); this.ui.notify('Işık çubuğu (G ile at)'); break;
-        case 'memento': this.takeItem(o); this.inv.memento = it.data; this.audio.pickup('key'); this.ui.notify(mementoName(it.data) + ' bulundu', 'key'); this.ui.subtitle(mementoLine(it.data), 5); break;
+        case 'almond': this.takeItem(o); this.inv.almond = Math.min(3, this.inv.almond + 1); this.audio.pickup(); this.ui.notify(t('n.almond')); break;
+        case 'glowstick': this.takeItem(o); this.inv.glow = Math.min(6, this.inv.glow + 1); this.audio.pickup(); this.ui.notify(t('n.glow')); break;
+        case 'memento': {
+          this.takeItem(o); this.inv.memento = it.data; this.audio.pickup('key');
+          const m = ST.memento(it.data);
+          this.ui.notify(t('n.found', { name: m.name }), 'key'); this.ui.subtitle(m.line, 5);
+          const rk = PB.ChapterUtil.mementoRadio[it.data]; if (rk) this.radio(rk, { delay: 5.5 });
+          break;
+        }
         case 'phone': this.answerPhone(o); break;
         case 'freeCabinet': this.enterCabinet(); break;
         default: break;
       }
       this.updateInventoryUI();
+    }
+    takeDrawing(o) {
+      const id = o.item.data;
+      this.takeItem(o);
+      if (!this.save.drawings.includes(id)) this.save.drawings.push(id);
+      this.audio.pickup('key');
+      this.ui.notify(t('n.drawing', { n: this.save.drawings.length }), 'key');
+      this.readNote(id);
     }
     takeItem(o, silent) {
       o.taken = true;
@@ -502,8 +579,9 @@
       if (o.light) o.light.intensity = 0;
     }
     readNote(id, after) {
-      if (!ST.NOTES[id]) return;
-      if (this.save && !this.save.notes.includes(id)) { this.save.notes.push(id); this.writeSave(); this.ui.notify('Arşive eklendi: ' + ST.NOTES[id].title, 'note'); }
+      const n = ST.note(id);
+      if (!n) return;
+      if (this.save && !this.save.notes.includes(id)) { this.save.notes.push(id); this.writeSave(); this.ui.notify(t('n.added', { title: n.title }), 'note'); }
       this.state = 'note';
       this.input.exitLock();
       this.ignoreUnlock = true;
@@ -515,22 +593,22 @@
         if (after) after();
       });
     }
-    answerPhone(o) {
+    answerPhone(o, after) {
       o.ringing = false;
       this.audio.stopLoop('phone:' + o.id, 0.1);
       this.audio.click();
-      this.readNote(o.item.data);
+      this.readNote(o.item.data, after);
     }
     updateInventoryUI() {
       const keys = [];
       const inv = this.inv || {};
-      if (inv.officeKey) keys.push('OFİS ANAHTARI');
-      if (inv.token) keys.push('ÖZEL JETON');
-      if (inv.fuses) keys.push(`SİGORTA ×${inv.fuses}`);
-      if (inv.fuel) keys.push(`MAZOT ×${inv.fuel}`);
-      if (inv.keycard) keys.push('GÜVENLİK KARTI');
-      if (inv.memento) keys.push(mementoName(inv.memento).toUpperCase());
-      if (inv.pellets && this.levelDef && this.levelDef.id === 'l0' && !this.flags.exitOpen) keys.push(`GÜÇ HAPI ×${inv.pellets}`);
+      if (inv.officeKey) keys.push(t('inv.officeKey'));
+      if (inv.token) keys.push(t('inv.token'));
+      if (inv.fuses) keys.push(t('inv.fuses', { n: inv.fuses }));
+      if (inv.fuel) keys.push(t('inv.fuel', { n: inv.fuel }));
+      if (inv.keycard) keys.push(t('inv.keycard'));
+      if (inv.memento) keys.push(ST.memento(inv.memento).name.toLocaleUpperCase(PB.I18N.lang));
+      if (inv.pellets && this.levelDef && this.levelDef.id === 'lobby' && !this.flags.exitOpen) keys.push(t('inv.pellets', { n: inv.pellets }));
       this.ui.setInventory({ batteries: inv.batteries, almond: inv.almond, glow: inv.glow, keys });
     }
     createDoorInteractions() {
@@ -543,12 +621,12 @@
           kind: 'door', ref: door, pos, reach: 2.4,
           prompt: () => {
             if (door.kind === 'house') return null;
-            if (door.locked) return (door.name || 'Kapı') + ' (kilitli)';
+            if (door.locked) return t('pr.doorLocked', { name: t(door.nameKey || 'door.default') });
             if (['exit', 'elevator', 'stair'].includes(door.kind)) return null;
-            return door.open ? 'Kapıyı kapat' : 'Kapıyı aç';
+            return door.open ? t('pr.doorClose') : t('pr.doorOpen');
           },
           act: () => {
-            if (door.locked) { this.ui.hint(door.lockMsg || 'Kilitli.'); this.audio.door('locked', pos); if (this.script.lockedDoor) this.script.lockedDoor(this, door); return; }
+            if (door.locked) { this.ui.hint(t(door.lockKey || 'lock.default')); this.audio.door('locked', pos); if (this.script.lockedDoor) this.script.lockedDoor(this, door); return; }
             if (['exit', 'elevator', 'stair', 'house'].includes(door.kind)) return;
             if (door.open) { this.world.closeDoor(door.id); this.audio.door(door.kind, pos, false); }
             else { this.world.openDoor(door.id, this.player.pos.x, this.player.pos.z); this.audio.door(door.kind, pos, true); this.noise(pos.x, pos.z, 8); }
@@ -566,13 +644,13 @@
         const pos = new THREE.Vector3(p.x, 0.6, p.z);
         this.interactables.push({
           kind: 'hide', ref: p, pos, reach: 2.0,
-          prompt: () => this.player.hidden ? (this.player.hidden.spot === p ? 'Saklandığın yerden çık' : null) : 'Masanın altına saklan',
+          prompt: () => this.player.hidden ? (this.player.hidden.spot === p ? t('pr.unhide') : null) : t('pr.hide'),
           act: () => {
             if (this.player.hidden) { this.player.unhide(); return; }
             const watching = this.entities.filter(e => e.hostile && e.state === 'chase' && e.losToPlayer() && e.distToPlayer() < 14);
             for (const e of this.entities) e.sawHide = watching.includes(e);
             this.player.hide({ x: p.x, z: p.z, yaw: faceYaw, eye: 0.62 });
-            this.ui.subtitle(ST.MONO.hide, 2.5);
+            this.ui.subtitle(ST.mono('hide'), 2.5);
           },
         });
       }
@@ -600,7 +678,7 @@
             else if (maze) ent.placeCell(pad + 13, 11);
             else { const c = spawnFar(20); ent.placeCell(c.x, c.y); }
           } else if (e.type === 'ghost') {
-            const ch = E.GHOST[e.ghost].name;
+            const ch = ST.ghostChar(e.ghost);
             const friendly = this.save && this.save.freed.includes(ch);
             ent = new E.Ghost(this, Object.assign({}, e, { friendly }));
             created.add(e.ghost);
@@ -612,9 +690,10 @@
           if (ent) this.entities.push(ent);
         }
       }
-      // Önceki bölümlerde kurtarılan hayaletler sana eşlik eder
+      // Ghosts freed in earlier chapters follow you
+      const ghostOf = ch => Object.keys(ST.GHOSTS).find(k => ST.GHOSTS[k] === ch);
       if (this.save) for (const ch of this.save.freed) {
-        const gname = ST.CHAR[ch] && ST.CHAR[ch].ghost;
+        const gname = ghostOf(ch);
         if (!gname || created.has(gname)) continue;
         const g = new E.Ghost(this, { ghost: gname, friendly: true });
         g.placeCell(L.spawn.x, L.spawn.y);
@@ -682,27 +761,26 @@
       this.player.fear = Math.min(100, this.player.fear + 22);
       if (!this.spottedOnce[key]) {
         this.spottedOnce[key] = true;
-        const mono = { pacman: this.levelDef.id === 'l0' ? 'l0_pacmanSeen' : null, blinky: 'l1_blinkySeen', pinky: 'l3_pinkySeen', inky: 'l2_inkySeen' }[key];
-        if (mono && ST.MONO[mono]) this.ui.subtitle(ST.MONO[mono], 4);
+        if (this.script.onSpotted) this.script.onSpotted(this, ent);
       }
     }
     onClydeSeen() {
-      if (!this.spottedOnce.clyde) { this.spottedOnce.clyde = true; this.ui.subtitle(ST.MONO.l4_clydeSeen, 4); this.audio.stinger('spot'); }
+      if (!this.spottedOnce.clyde) { this.spottedOnce.clyde = true; if (this.script.onClyde) this.script.onClyde(this); this.audio.stinger('spot'); }
     }
     onWatcherSeen() {
-      if (!this.spottedOnce.watcher) { this.spottedOnce.watcher = true; this.ui.subtitle('Uzakta, uzun ve kapkara bir şey duruyor. Başı bir yana eğik. Sayıyor.', 5); }
+      if (!this.spottedOnce.watcher) { this.spottedOnce.watcher = true; this.mono('watcherSeen', 5); }
       this.audio.stinger('spot');
     }
     onGhostEaten(g) {
       this.audio.pickup('pellet');
-      this.ui.notify(ST.CHAR[g.cfg.name].name + ' geri çekildi', 'key');
+      this.ui.notify(t('n.ghostBack', { name: ST.char(ST.ghostChar(g.type)).name }), 'key');
       this.mazeScore += 200;
     }
     fearAdd(v) { this.player.fear = U.clamp(this.player.fear + v * PB.Settings.difficulty().fear, 0, 100); }
     killPlayer(ent) {
       if (this.state !== 'play') return;
       const dif = S.data.difficulty;
-      if (dif === 'kolay' && !this.graceUsed) {
+      if (dif === 'easy' && !this.graceUsed) {
         this.graceUsed = true;
         this.player.fear = 100;
         this.fx.damage = 1;
@@ -712,7 +790,7 @@
         else if (ent.kind === 'ghost') { if (ent.type === 'clyde') ent.retreat(); else { ent.setState('eaten'); ent.eatenT = 8; } }
         else if (ent.kind === 'grinner') ent.dissolve();
         else if (ent.kind === 'watcher') ent.vanish();
-        this.ui.hint('Kıl payı kurtuldun! (Kolay mod: bu bölümde bir kez)');
+        this.ui.hint(t('n.grace'));
         return;
       }
       this.state = 'dying';
@@ -720,12 +798,12 @@
       this.killer = ent;
       this.player.frozen = true;
       this.player.unhide();
-      this.audio.stinger(S.data.jumpscare === 'tam' ? 'jump' : 'spot');
+      this.audio.stinger(S.data.jumpscare === 'full' ? 'jump' : 'spot');
       this.audio.setMusic('none');
       this.save.stats.deaths++;
       this.writeSave();
       this.fx.damage = 1;
-      this.player.addTrauma(S.data.jumpscare === 'tam' ? 1 : 0.4);
+      this.player.addTrauma(S.data.jumpscare === 'full' ? 1 : 0.4);
     }
     updateDying(dt) {
       this.dyingT += dt;
@@ -734,7 +812,7 @@
         const a = Math.atan2(k.pos.x - pl.pos.x, k.pos.z - pl.pos.z);
         pl.yaw = U.angleDamp(pl.yaw, a + Math.PI, 10, dt);
         pl.pitch = U.damp(pl.pitch, k.kind === 'watcher' ? 0.35 : 0.05, 8, dt);
-        if (S.data.jumpscare === 'tam' && this.dyingT < 0.7) {
+        if (S.data.jumpscare === 'full' && this.dyingT < 0.7) {
           const cam = this.camera.position;
           const target = new THREE.Vector3(cam.x - Math.sin(pl.yaw) * 1.1, k.kind === 'pacman' ? 1.4 : 1.2, cam.z - Math.cos(pl.yaw) * 1.1);
           k.mesh.position.lerp(target, 1 - Math.exp(-9 * dt));
@@ -842,7 +920,7 @@
     exitCabinet() {
       if (this.state !== 'cabinet') return;
       this.classic.stop();
-      if (this.classic.score >= 10000 && !this.flags.cabinetHi) { this.flags.cabinetHi = true; this.ui.notify('Rekor tablosuna adın yazıldı: DNZ', 'key'); }
+      if (this.classic.score >= 10000 && !this.flags.cabinetHi) { this.flags.cabinetHi = true; this.ui.notify(t('n.cabinetHi'), 'key'); }
       this.ui.hide('scr-cabinet');
       this.state = 'play';
       this.ignoreUnlock = false;
@@ -866,7 +944,7 @@
       this.drainAnim = { t: 0, meshes: water };
     }
     throwGlowstick() {
-      if (this.inv.glow <= 0) { this.ui.hint('Işık çubuğun yok.'); return; }
+      if (this.inv.glow <= 0) { this.ui.hint(t('n.noGlow')); return; }
       this.inv.glow--;
       const pl = this.player;
       const f = pl.forward();
@@ -889,22 +967,64 @@
       this.updateInventoryUI();
     }
     drinkAlmond() {
-      if (this.inv.almond <= 0) { this.ui.hint('Badem suyun yok.'); return; }
+      if (this.inv.almond <= 0) { this.ui.hint(t('n.noAlmond')); return; }
       this.inv.almond--;
       this.player.fear = Math.max(0, this.player.fear - 50);
       this.player.stamina = 100; this.player.exhausted = false;
       this.audio.pickup();
-      this.ui.notify('Badem suyu içtin. Nefesin düzeldi.');
+      this.ui.notify(t('n.drank'));
       this.updateInventoryUI();
     }
-    setObj(key, n) {
-      this.objKey = key; this.objN = n;
+    // vars: object for {placeholders}; a bare number means {n}
+    setObj(key, vars) {
+      this.objKey = key; this.objVars = typeof vars === 'number' ? { n: vars } : (vars || {});
       this.refreshObjective();
     }
     refreshObjective() {
       if (!this.objKey) { this.ui.setObjective(''); return; }
-      let text = (ST.OBJ[this.objKey] || '').replace('{n}', this.objN != null ? this.objN : '');
-      this.ui.setObjective(text);
+      this.ui.setObjective(ST.obj(this.objKey, this.objVars));
+    }
+    // ---------------------------------------------------------------- speech
+    mono(key, dur) { const s = ST.mono(key); if (s) this.ui.subtitle(s, dur || Math.min(7, 2 + s.length * 0.045)); }
+    // Radio / dialogue sequence. Eddie only reaches you once you have the walkie-talkie.
+    radio(key, opts = {}) {
+      const seq = ST.radio(key);
+      if (!seq || !this.save) return;
+      const fk = 'r_' + key;
+      if (this.flags[fk] && !opts.repeat) return;
+      if (!opts.force && !this.save.world.radio && seq.some(l => l[0] === 'eddie')) return;
+      this.flags[fk] = true;
+      this.talkQ.push({ seq: seq.slice(), i: 0, wait: opts.delay || 0 });
+    }
+    talking() { return !!(this.talkCur || this.talkQ.length); }
+    updateTalk(dt) {
+      if (!this.talkCur) { if (!this.talkQ.length) return; this.talkCur = this.talkQ.shift(); this.talkCur.t = 0; }
+      const c = this.talkCur;
+      if (c.wait > 0) { c.wait -= dt; return; }
+      c.t -= dt;
+      if (c.t > 0) return;
+      if (c.i >= c.seq.length) { this.talkCur = null; return; }
+      const [who, text] = c.seq[c.i++];
+      const dur = U.clamp(1.4 + text.length * 0.052, 2.2, 9);
+      c.t = dur + 0.25;
+      this.ui.subtitle(text, dur, who === 'sam' ? null : ST.speaker(who), who);
+      if (who === 'eddie' || who === 'radio') this.audio.radioBlip && this.audio.radioBlip();
+    }
+    // Modal choice (e.g. at the final door)
+    choice(options, onCancel) {
+      this.state = 'choice';
+      this.input.exitLock();
+      this.ignoreUnlock = true;
+      this.ui.showChoice(options.map(o => ({ label: o.label, fn: () => { this.ui.hideChoice(); this.state = 'play'; this.ignoreUnlock = false; o.fn(); } })), () => {
+        this.ui.hideChoice(); this.state = 'play'; this.ignoreUnlock = false;
+        if (!this.ui.touch && !this.input.lockFailed) this.input.requestLock();
+        if (onCancel) onCancel();
+      });
+    }
+    onLanguage() {
+      if (this.ui) this.ui.onLanguage();
+      if (this.objKey) this.refreshObjective();
+      if (this.inv) this.updateInventoryUI();
     }
     completeStep() { this.objectivesDone++; this.safeCheckpoint(); }
     exitLevel(next) {
@@ -914,8 +1034,7 @@
       this.fadeTo(1, 1.4, () => {
         this.exiting = false;
         this.player.frozen = false;
-        if (next === 'ending-exit') return this.ending('exit');
-        if (next === 'ending-plug') return this.ending('plug');
+        if (next && next.startsWith('ending-')) return this.ending(next.slice(7));
         if (!this.save.unlocked.includes(next)) this.save.unlocked.push(next);
         this.save.level = next; this.save.cp = null;
         this.writeSave();
@@ -934,25 +1053,22 @@
       this.save.level = null; this.save.cp = null;
       this.writeSave();
       this.fx.blackout = 1;
-      this.ui.showEnding(kind, { time: this.playTime, deaths: this.save.stats.deaths, notes: this.save.notes.length, freed: this.save.freed.length }, () => this.toMenu());
+      this.ui.showEnding(kind, { time: this.playTime, deaths: this.save.stats.deaths, notes: this.save.notes.length, freed: this.save.freed.length, drawings: this.save.drawings.length }, () => this.toMenu());
     }
     freeGhost(ch) {
       if (!this.save.freed.includes(ch)) this.save.freed.push(ch);
       this.inv.memento = null;
-      const gname = ST.CHAR[ch].ghost;
+      const gname = Object.keys(ST.GHOSTS).find(k => ST.GHOSTS[k] === ch);
       const g = this.entities.find(e => e.kind === 'ghost' && e.type === gname);
       if (g) g.makeFriendly();
       this.audio.door('house');
       this.fx.flash = 0.6;
-      const lines = {
-        bulent: ['Bülent: "…03:17. Saatim durmuş. Ben hiç durmamışım ki."', 'Bülent: "Cemil’i zorla getirdim. Hepsini ben… Git. Seni kovalamayacağım artık."'],
-        inci: ['İnci: "Gözlüğüm! Her şey… netleşti."', 'İnci: "Artık emin olmak için beklemeyeceğim. Seninle geliyorum."'],
-        pinar: ['Pınar: "Kasetim. B yüzü hâlâ boş."', 'Pınar: "Bu sefer önüne geçmeyeceğim. Yanında yürüyeceğim."'],
-        cemil: ['Cemil: "Dedemin çakmağı…" (Çakmağı yakıyor. Yüzünü ilk defa görüyorsun: bir çocuk.)', 'Cemil: "Bana bakabilirsin artık. Korkmuyorum."'],
-      }[ch];
-      this.ui.subtitle(lines[0], 5);
-      this.later(5200, () => this.ui.subtitle(lines[1], 5));
-      this.ui.notify(ST.CHAR[ch].name + ' özgür', 'key');
+      const lines = ST.freedLines(ch);
+      if (lines[0]) this.ui.subtitle(lines[0], 5);
+      if (lines[1]) this.later(5200, () => this.ui.subtitle(lines[1], 5));
+      this.ui.notify(t('n.freed', { name: ST.char(ch).name }), 'key');
+      const rk = { billy: 'mill_freed', ivy: 'pool_freed', penny: 'office_freed', clyde: 'dark_freed' }[ch];
+      if (rk) this.radio(rk, { delay: 11 });
       this.updateInventoryUI();
       this.checkpoint(true);
     }
@@ -963,8 +1079,8 @@
       this.slowT = fps < 24 ? (this.slowT || 0) + 0.5 : Math.max(0, (this.slowT || 0) - 1);
       if (this.slowT < 12) return;
       this.perfHinted = true;
-      if (S.data.preset === 'dusuk' && S.data.renderScale <= 0.6) return;
-      this.ui.notify('Oyun yavaş çalışıyor. Duraklat › Ayarlar › Grafik’ten kaliteyi düşürebilirsin.');
+      if (S.data.preset === 'low' && S.data.renderScale <= 0.6) return;
+      this.ui.notify(t('n.slow'));
     }
 
     // ================================================================ ANA DÖNGÜ
@@ -984,7 +1100,7 @@
       }
       const inp = this.input;
       switch (this.state) {
-        case 'play': this.updatePlay(dt); break;
+        case 'play': this.updatePlay(dt); this.updateTalk(dt); break;
         case 'dying': this.updateDying(dt); this.updateEntities(dt, true); break;
         case 'menu': this.updateMenu(dt); break;
         case 'note':
@@ -1008,6 +1124,7 @@
       this.flashInterference = Math.max(0, this.flashInterference - dt);
       if (this.audio.ctx) { this.audio.camYaw = this.player.yaw; this.audio.listen(this.camera); if (this.state === 'play') this.audio.ambienceTick(this.camera); }
       this.updatePost(dt);
+      if (this.postDirty) this.configurePost();
       this.post.render(this.scene, this.camera, this.time);
       inp.endFrame();
     }
@@ -1043,7 +1160,7 @@
       this.updatePortals();
       this.updateExits();
       this.updateGlowsticks(dt);
-      if (pl.battery <= 0 && this.inv.batteries > 0) { this.inv.batteries--; pl.battery = 100; this.ui.notify('Yedek pili taktın'); this.updateInventoryUI(); }
+      if (pl.battery <= 0 && this.inv.batteries > 0) { this.inv.batteries--; pl.battery = 100; this.ui.notify(t('n.batterySwap')); this.updateInventoryUI(); }
       if (this.script.update) this.script.update(this, dt);
       this.updateFear(dt);
       this.updateMusic();
@@ -1132,7 +1249,7 @@
       if (this.world.lightAt(pl.pos.x, pl.pos.z) < 0.15 && !pl.flashOn) f += 3;
       const target = f * PB.Settings.difficulty().fear;
       pl.fear = U.clamp(pl.fear + (target > pl.fear * 0.3 ? target * dt * 0.6 : -8 * dt), 0, 100);
-      if (pl.fear > 95 && !this.flags.fearMono) { this.flags.fearMono = true; this.ui.subtitle(ST.MONO.fearHigh, 3); }
+      if (pl.fear > 95 && !this.flags.fearMono) { this.flags.fearMono = true; this.mono('fearHigh', 3); }
       if (pl.fear < 50) this.flags.fearMono = false;
     }
     updateMusic() {
@@ -1166,499 +1283,25 @@
       if (this.powerT > 0) gl = Math.max(gl, 0.05);
       p.glitch.value = d.reduceFlicker ? gl * 0.4 : gl;
       p.vhs.value = d.vhs ? 1 : 0;
+      // Volumetric inputs: flashlight + the dynamic fixture lights near the camera
+      const fixtures = this.volFix || (this.volFix = []);
+      fixtures.length = 0;
+      if (this.world && this.world.pool) {
+        for (const pl of this.world.pool) {
+          if (!pl.fix || pl.cur < 0.05) continue;
+          const c = pl.pl.color, k = pl.cur * 0.05;
+          fixtures.push({ x: pl.pl.position.x, y: pl.fix.light.y - 0.05, z: pl.pl.position.z, range: pl.pl.distance || 9, r: c.r * k, g: c.g * k, b: c.b * k });
+        }
+      }
+      this.post.setLights(this.player.flash, fixtures);
+      if (this.world) this.post.vol.uLvK.value = (this.postLvK || 0.03) * this.world.U.uLmIntensity.value;
       p.blur.value = this.state === 'pause' || this.state === 'map' || this.state === 'note' || this.state === 'keypad' || this.state === 'cabinet' ? 0.8 : 0;
       // Güç hapı: sahne hafif maviye döner
       if (this.powerT > 0) { const k = Math.min(1, this.powerT / 2); p.tint.value.set(tint[0] * (1 - 0.25 * k), tint[1] * (1 - 0.1 * k), tint[2] * (1 + 0.3 * k)); }
     }
   }
 
-  // ================================================================ YARDIMCI METİNLER
-  function mementoName(ch) { return { bulent: 'Bülent’in saati', inci: 'İnci’nin gözlüğü', pinar: 'Pınar’ın walkman’i', cemil: 'Cemil’in çakmağı' }[ch] || 'Eşya'; }
-  function mementoLine(ch) {
-    return {
-      bulent: 'Camı çatlak bir kol saati. Akrep ve yelkovan 03:17’de donmuş.',
-      inci: 'Kalın çerçeveli bir gözlük. Camları buğulu, sanki biri az önce nefes almış.',
-      pinar: 'Pembe bir walkman. İçinde "NİSAN 87" yazılı bir kaset. B yüzü boş.',
-      cemil: 'Eski bir benzin çakmağı. Üstüne kazınmış: "Torunum Cemil’e".',
-    }[ch] || '';
-  }
-
-  // ================================================================ BÖLÜM SENARYOLARI
-  const SCRIPTS = {};
-  const itemOf = (g, type) => g.items.find(i => i.type === type);
-  const exitDoorOf = g => g.level.meta.exit ? g.level.doors.find(d => d.id === g.level.meta.exit.door) : null;
-  const openExit = (g, next, doorId) => {
-    const d = doorId ? g.level.doors.find(x => x.id === doorId) : exitDoorOf(g);
-    if (!d) return;
-    d.locked = false;
-    g.world.openDoor(d.id);
-    const obj = g.world.doorObjs.get(d.id);
-    g.audio.door(d.kind, obj ? new THREE.Vector3(obj.g.cx, 1.2, obj.g.cz) : null, true);
-    g.exitDoorId = d.id; g.exitNext = next;
-    g.nav.dirty = true;
-  };
-  const shrineUse = (g, o, ch) => {
-    if (o.type !== 'shrine') return false;
-    if (g.save.freed.includes(ch)) { g.ui.hint('Sunak sessiz. Mum yanmaya devam ediyor.'); return true; }
-    if (g.inv.memento === ch) { g.freeGhost(ch); if (o.light) o.light.intensity = 6; return true; }
-    g.ui.subtitle(`Küçük bir sunak. Çerçevede ${ST.CHAR[ch].name}’in fotoğrafı. Burada bir şey eksik.`, 4);
-    return true;
-  };
-  const shrinePrompt = (g, o, ch) => o.type === 'shrine' ? (g.save.freed.includes(ch) ? null : g.inv.memento === ch ? 'Eşyayı sunağa bırak' : 'Sunağa bak') : undefined;
-  const wakePac = (g, near) => { if (g.pacman && g.pacman.state === 'dormant') { g.pacman.wake(near); g.flags.pacAwake = true; g.ui.subtitle(ST.MONO.l0_pacmanHeard, 4); } };
-
-  SCRIPTS.prolog = {
-    start(g) {
-      g.player.hasFlashlight = false;
-      g.setObj('p_flash');
-    },
-    afterCard(g) { g.ui.subtitle(ST.MONO.prolog_start, 5); },
-    restore(g) { this.refresh(g); },
-    refresh(g) {
-      if (!g.player.hasFlashlight) g.setObj('p_flash');
-      else if (!g.flags.power) g.setObj('p_power');
-      else if (!g.inv.officeKey && !g.flags.officeOpen) g.setObj('p_key');
-      else if (!g.inv.token) g.setObj(g.flags.inOffice ? 'p_token' : 'p_office');
-      else g.setObj('p_insert');
-      if (g.flags.power && !g.world.zonesOn.has(1)) g.world.setZone(1, true);
-    },
-    prompt(g, o) {
-      if (o.type === 'fuseBox') return g.flags.power ? null : 'Ana şalteri kaldır';
-      if (o.type === 'register') return g.flags.power ? (g.flags.registerOpen ? null : 'Yazar kasayı aç') : 'Yazar kasa';
-      if (o.type === 'specialCabinet') return g.inv.token ? 'Özel jetonu at' : '7 numaralı kabini incele';
-      return undefined;
-    },
-    use(g, o) {
-      switch (o.type) {
-        case 'flashlight':
-          g.takeItem(o); g.player.hasFlashlight = true; g.player.battery = 70; g.player.toggleFlash(true);
-          g.audio.pickup(); g.ui.subtitle(ST.MONO.prolog_flash, 4); g.ui.hint('F ile feneri aç/kapat.');
-          g.setObj('p_power'); g.completeStep();
-          return true;
-        case 'fuseBox':
-          if (g.flags.power) return true;
-          g.flags.power = true;
-          g.audio.mech('breaker', o.pos);
-          g.world.setZone(1, true);
-          g.fx.flash = 0.25;
-          g.ui.subtitle(ST.MONO.prolog_power, 4);
-          g.setObj('p_key'); g.completeStep();
-          // Vitrinin dışında bir an görünen uzun gölge
-          g.later(9000, () => { if (g.state === 'play') g.ui.subtitle('…Camın dışında biri mi vardı?', 3); });
-          return true;
-        case 'register':
-          if (!g.flags.power) { g.ui.hint('Yazar kasa elektriksiz. Çekmecesi kilitli.'); return true; }
-          if (g.flags.registerOpen) return true;
-          g.flags.registerOpen = true; g.inv.officeKey = true;
-          const door = g.level.doors.find(d => d.id === 'officeDoor'); if (door) door.locked = false;
-          g.audio.mech('coin', o.pos); g.audio.pickup('key');
-          g.ui.subtitle(ST.MONO.prolog_register, 4);
-          g.setObj('p_office'); g.completeStep(); g.updateInventoryUI();
-          return true;
-        case 'token':
-          g.takeItem(o); g.inv.token = true; g.audio.pickup('key');
-          g.ui.subtitle(ST.MONO.prolog_token, 4);
-          g.setObj('p_insert'); g.completeStep(); g.updateInventoryUI();
-          return true;
-        case 'specialCabinet':
-          if (!g.inv.token) { g.ui.subtitle(ST.MONO.prolog_cabinet, 4); return true; }
-          this.insertToken(g, o);
-          return true;
-      }
-      return false;
-    },
-    insertToken(g) {
-      g.inv.token = false; g.updateInventoryUI();
-      g.audio.mech('coin');
-      g.player.frozen = true;
-      const scr = PB.Tex.cabinetScreens.special;
-      if (scr) { scr.text = 'SEVİYE 256'; scr.sub = 'OYUNCU 2 HAZIR'; scr.dirty = true; }
-      g.ui.subtitle('Ekranın sağ yarısı harflerle doluyor. Ekran… büyüyor.', 4);
-      let k = 0;
-      const iv = setInterval(() => {
-        k++;
-        g.fx.flash = 0.35; g.player.addTrauma(0.35);
-        g.world.U.uLmIntensity.value = k % 2 ? 0.1 : 1;
-        if (k === 3) g.audio.stinger('spot');
-        if (k >= 7) { clearInterval(iv); g.world.U.uLmIntensity.value = 1; g.player.frozen = false; g.whenPlaying(() => g.exitLevel('l0')); }
-      }, 420);
-    },
-    update(g) {
-      if (!g.flags.inOffice && g.level.cellOf(g.player.pos.x, g.player.pos.z).x >= 10 && g.level.cellOf(g.player.pos.x, g.player.pos.z).y <= 2) {
-        g.flags.inOffice = true; g.flags.officeOpen = true;
-        if (!g.inv.token) g.setObj('p_token');
-      }
-    },
-  };
-
-  SCRIPTS.l0 = {
-    start(g) { g.setObj('l0_explore'); },
-    afterCard(g) { g.ui.subtitle(ST.MONO.l0_start, 5); },
-    restore(g) { this.refresh(g); },
-    refresh(g) {
-      if (g.flags.exitOpen) { openExit(g, 'l1'); g.setObj('l0_leave'); }
-      else if (g.inv.pellets >= 4) g.setObj('l0_insert');
-      else if (g.flags.exitSeen || g.inv.pellets > 0) g.setObj('l0_pellets', g.inv.pellets);
-      else g.setObj('l0_explore');
-      const panel = itemOf(g, 'exitPanel');
-      if (panel && g.flags.exitOpen) panel.sockets.forEach(s => s.material.color.setRGB(5, 3.4, 3));
-    },
-    prompt(g, o) {
-      if (o.type === 'exitPanel') return g.flags.exitOpen ? null : g.inv.pellets >= 4 ? 'Hapları yuvalara yerleştir' : `Dört yuva (${g.inv.pellets}/4 hap)`;
-      return undefined;
-    },
-    use(g, o) {
-      if (o.type === 'powerPellet') {
-        g.takeItem(o); g.inv.pellets++;
-        g.powerT = 8; g.audio.pickup('pellet'); g.fx.flash = 0.3;
-        if (g.inv.pellets === 1) { g.ui.subtitle(ST.MONO.l0_firstPellet, 5); g.later(6000, () => wakePac(g, false)); }
-        if (g.inv.pellets === 4) { g.ui.subtitle(ST.MONO.l0_allPellets, 3); g.setObj('l0_insert'); }
-        else g.setObj('l0_pellets', g.inv.pellets);
-        g.completeStep(); g.updateInventoryUI();
-        return true;
-      }
-      if (o.type === 'exitPanel') {
-        if (g.flags.exitOpen) return true;
-        if (g.inv.pellets < 4) { g.ui.subtitle(ST.MONO.l0_exitSeen, 4); g.flags.exitSeen = true; if (!g.inv.pellets) g.setObj('l0_pellets', 0); return true; }
-        g.flags.exitOpen = true;
-        o.sockets.forEach((s, k) => g.later(k * 350, () => { s.material.color.setRGB(5, 3.4, 3); g.audio.beep(); }));
-        g.later(1600, () => { openExit(g, 'l1'); g.setObj('l0_leave'); g.completeStep(); });
-        g.updateInventoryUI();
-        return true;
-      }
-      return false;
-    },
-    update(g) {
-      if (!g.flags.exitSeen) {
-        const d = exitDoorOf(g);
-        if (d) {
-          const obj = g.world.doorObjs.get(d.id);
-          const p = g.player.pos;
-          if (Math.hypot(p.x - obj.g.cx, p.z - obj.g.cz) < 9 && g.level.los(p.x, p.z, obj.g.cx + obj.g.nIn.x * 0.3, obj.g.cz + obj.g.nIn.z * 0.3)) {
-            g.flags.exitSeen = true; g.ui.subtitle(ST.MONO.l0_exitSeen, 5);
-            if (g.inv.pellets < 4) g.setObj('l0_pellets', g.inv.pellets);
-          }
-        }
-      }
-      // İki haptan sonra Yutucu avlanmaya başlar
-      if (g.pacman) g.pacman.huntBias = g.inv.pellets >= 2;
-    },
-  };
-
-  SCRIPTS.l1 = {
-    start(g) { g.setObj('l1_fuses', 0); },
-    afterCard(g) { g.ui.subtitle(ST.MONO.l1_start, 4); },
-    restore(g) {
-      if (g.flags.elevatorReady) { openExit(g, 'l2'); g.setObj('l1_leave'); }
-      else if (g.flags.panelDone) { g.flags.waitT = 12; g.setObj('l1_wait', 12); }
-      else if (g.inv.fuses >= 3) g.setObj('l1_panel');
-      else g.setObj('l1_fuses', g.inv.fuses);
-    },
-    prompt(g, o) {
-      if (o.type === 'fusePanel') return g.flags.panelDone ? null : g.inv.fuses >= 3 ? 'Sigortaları tak' : `Sigorta panosu (${g.inv.fuses}/3)`;
-      return shrinePrompt(g, o, 'bulent');
-    },
-    use(g, o) {
-      if (o.type === 'fuse') {
-        g.takeItem(o); g.inv.fuses++; g.audio.pickup();
-        g.ui.subtitle(ST.MONO.l1_fuse, 2);
-        if (g.inv.fuses >= 2) wakePac(g, false);
-        g.setObj(g.inv.fuses >= 3 ? 'l1_panel' : 'l1_fuses', g.inv.fuses);
-        g.completeStep(); g.updateInventoryUI();
-        return true;
-      }
-      if (o.type === 'fusePanel') {
-        if (g.flags.panelDone) return true;
-        if (g.inv.fuses < 3) { g.ui.hint('Panoda üç boş yuva var.'); return true; }
-        g.flags.panelDone = true;
-        o.slots.forEach((s, k) => g.later(k * 400, () => { s.material.color.setRGB(0.8, 0.6, 0.3); g.audio.mech('fuse', o.pos); }));
-        g.later(1400, () => { o.lamp.material.color.setRGB(0.2, 3, 0.4); g.audio.mech('breaker', o.pos); });
-        g.inv.fuses = 0; g.updateInventoryUI();
-        g.flags.waitT = 30;
-        g.setObj('l1_wait', 30);
-        g.ui.subtitle(ST.MONO.l1_elevator, 4);
-        g.noise(o.pos.x, o.pos.z, 60);
-        g.audio.loop('elevatorHum', 'elevator', { x: o.pos.x, y: 2, z: o.pos.z }, { bus: 'sfx', gain: 0.4 });
-        g.completeStep();
-        return true;
-      }
-      return shrineUse(g, o, 'bulent');
-    },
-    update(g, dt) {
-      if (g.flags.panelDone && !g.flags.elevatorReady) {
-        g.flags.waitT -= dt;
-        g.setObj('l1_wait', Math.max(0, Math.ceil(g.flags.waitT)));
-        if (g.flags.waitT <= 0) { g.flags.elevatorReady = true; g.audio.stopLoop('elevatorHum'); openExit(g, 'l2'); g.setObj('l1_leave'); g.completeStep(); }
-      }
-    },
-  };
-
-  SCRIPTS.l2 = {
-    start(g) { g.setObj('l2_valves', 0); g.flags.valves = 0; },
-    afterCard(g) { g.ui.subtitle(ST.MONO.l2_start, 4); },
-    restore(g) {
-      for (const it of g.items) if (it.type === 'valve' && g.flags['v_' + it.id]) it.done = true;
-      if (g.flags.drained) { g.drainPools(true); g.setObj('l2_hatch'); }
-      else if (g.flags.valves >= 4) { g.flags.drainT = 5; g.setObj('l2_drain'); }
-      else g.setObj('l2_valves', g.flags.valves || 0);
-    },
-    prompt(g, o) {
-      if (o.type === 'valve') return o.done ? null : 'Vanayı çevir (basılı tut)';
-      if (o.type === 'drain') return g.flags.drained ? 'Kapağı aç ve aşağı in' : null;
-      return shrinePrompt(g, o, 'inci');
-    },
-    holdStart(g, o) { if (o && o.type === 'valve') { g.audio.mech('valve', o.pos); g.noise(o.pos.x, o.pos.z, 22); } },
-    use(g, o) {
-      if (o.type === 'valve') {
-        if (o.done) return true;
-        o.done = true; g.flags['v_' + o.id] = true;
-        g.flags.valves = (g.flags.valves || 0) + 1;
-        if (o.wheel) o.wheel.rotation.z += 3;
-        g.ui.subtitle(ST.MONO.l2_valve, 2.5);
-        if (g.flags.valves >= 3) wakePac(g, false);
-        if (g.flags.valves >= 4) { g.setObj('l2_drain'); g.flags.drainT = 20; g.drainPools(false); g.audio.mech('drain', itemOf(g, 'drain').pos); g.noise(itemOf(g, 'drain').pos.x, itemOf(g, 'drain').pos.z, 40); }
-        else g.setObj('l2_valves', g.flags.valves);
-        g.completeStep();
-        return true;
-      }
-      if (o.type === 'drain') {
-        if (!g.flags.drained) return true;
-        g.audio.door('metal', o.pos, true);
-        g.exitLevel('l3');
-        return true;
-      }
-      return shrineUse(g, o, 'inci');
-    },
-    update(g, dt) {
-      if (g.flags.valves >= 4 && !g.flags.drained) {
-        g.flags.drainT -= dt;
-        if (g.flags.drainT <= 0) { g.flags.drained = true; g.world.drained = true; g.ui.subtitle(ST.MONO.l2_drained, 4); g.setObj('l2_hatch'); g.completeStep(); }
-      }
-      // Mavi, sudaki adımları çok daha iyi duyar
-      const ink = g.entities.find(e => e.type === 'inky');
-      if (ink) ink.hearMul = g.player.surface() === 'water' ? 2.4 : 1.1;
-    },
-  };
-
-  SCRIPTS.l3 = {
-    start(g) {
-      g.setObj('l3_code', 0); g.flags.digits = 0;
-      const ph = g.items.find(i => i.id === 'phone1');
-      if (ph) this.ring(g, ph);
-    },
-    afterCard(g) { g.ui.subtitle(ST.MONO.l3_start, 4); },
-    ring(g, ph) {
-      if (ph.ringing || ph.answered) return;
-      ph.ringing = true;
-      g.audio.loop('phone:' + ph.id, 'phone', { x: ph.pos.x, y: 1, z: ph.pos.z }, { bus: 'sfx', gain: 0.5, ref: 3 });
-      g.audio.caption('phone', '[bir telefon çalıyor]', ph.pos, 20);
-    },
-    restore(g) {
-      if (g.flags.stairOpen) { openExit(g, 'l4', 'stairDoor'); g.setObj('l3_stairs'); }
-      else if (g.inv.keycard) g.setObj('l3_stairs');
-      else if (g.flags.securityOpen) { g.setObj('l3_card'); }
-      else if ((g.flags.digits || 0) >= 4) g.setObj('l3_keypad');
-      else g.setObj('l3_code', g.flags.digits || 0);
-      if (g.flags.securityOpen) { const d = g.level.doors.find(x => x.id === 'securityDoor'); if (d) { d.locked = false; g.world.openDoor(d.id); } }
-    },
-    clue(g, o) {
-      if (o.clueDone) return;
-      o.clueDone = true;
-      g.flags['c_' + o.id] = true;
-      g.flags.digits = (g.flags.digits || 0) + 1;
-      if (g.flags.digits >= 4) { g.setObj('l3_keypad'); g.ui.subtitle(ST.MONO.l3_code, 4); }
-      else g.setObj('l3_code', g.flags.digits);
-      if (g.flags.digits === 2) { const ph = g.items.find(i => i.id === 'phone2'); if (ph) this.ring(g, ph); }
-      g.completeStep();
-    },
-    prompt(g, o) {
-      if (o.type === 'keypad') return g.flags.securityOpen ? null : 'Şifreyi gir';
-      if (o.type === 'cardReader') return g.flags.stairOpen ? null : g.inv.keycard ? 'Kartı okut' : 'Kart okuyucu (kırmızı)';
-      if (o.type === 'phone') { if (o.answered) return null; return o.ringing ? 'Telefonu aç' : 'Ahizeyi kaldır'; }
-      return shrinePrompt(g, o, 'pinar');
-    },
-    use(g, o) {
-      if (o.type === 'keypad') {
-        if (g.flags.securityOpen) return true;
-        g.state = 'keypad'; g.input.exitLock(); g.ignoreUnlock = true;
-        g.ui.showKeypad(code => {
-          if (code !== g.levelDef.code) return false;
-          g.flags.securityOpen = true;
-          const d = g.level.doors.find(x => x.id === 'securityDoor');
-          if (d) { d.locked = false; g.world.openDoor(d.id, g.player.pos.x, g.player.pos.z); }
-          if (o.led) o.led.material.color.setRGB(0.1, 3, 0.2);
-          g.setObj('l3_card'); g.completeStep();
-          wakePac(g, false);
-          const ph = g.items.find(i => i.id === 'phone3'); if (ph) this.ring(g, ph);
-          g.nav.dirty = true;
-          return true;
-        }, () => { g.state = 'play'; g.ignoreUnlock = false; g.suppressPauseUntil = performance.now() + 250; if (!g.ui.touch && !g.input.lockFailed) g.input.requestLock(); });
-        return true;
-      }
-      if (o.type === 'keycard') { g.takeItem(o); g.inv.keycard = true; g.audio.pickup('key'); g.setObj('l3_stairs'); g.updateInventoryUI(); g.completeStep(); return true; }
-      if (o.type === 'cardReader') {
-        if (g.flags.stairOpen) return true;
-        if (!g.inv.keycard) { g.ui.hint('Kart okuyucunun ışığı kırmızı.'); g.audio.beep(false); return true; }
-        g.flags.stairOpen = true; g.audio.mech('card', o.pos);
-        if (o.led) o.led.material.color.setRGB(0.1, 3, 0.2);
-        openExit(g, 'l4', 'stairDoor'); g.completeStep();
-        return true;
-      }
-      if (o.type === 'phone') { o.answered = true; g.answerPhone(o); return true; }
-      return shrineUse(g, o, 'pinar');
-    },
-    update(g) {
-      // Güvenlik odasındaki monitör duvarı: kameralar
-      if (!g.flags.cameraHint && g.flags.securityOpen) {
-        const sec = g.level.meta.security;
-        const c = g.level.cellOf(g.player.pos.x, g.player.pos.z);
-        if (sec && c.x >= sec.x0 && c.x <= sec.x1 && c.y >= sec.y0 && c.y <= sec.y1) {
-          g.flags.cameraHint = true; g.flags.cameras = true;
-          g.ui.subtitle('Monitörler katın kameralarını gösteriyor. Haritada artık onları görebiliyorum.', 5);
-        }
-      }
-    },
-  };
-
-  SCRIPTS.l4 = {
-    start(g) { g.setObj('l4_generators', 0); g.flags.gens = 0; },
-    afterCard(g) { g.ui.subtitle(ST.MONO.l4_start, 4); g.player.toggleFlash(true); },
-    restore(g) {
-      for (const it of g.items) if (it.type === 'generator' && g.flags['g_' + it.id]) it.done = true;
-      if ((g.flags.gens || 0) >= 3) { openExit(g, 'l5'); g.setObj('l4_leave'); }
-      else g.setObj('l4_generators', g.flags.gens || 0);
-    },
-    prompt(g, o) {
-      if (o.type === 'generator') return o.done ? null : g.inv.fuel > 0 ? 'Mazot dök ve çalıştır (basılı tut)' : 'Jeneratör (mazot yok)';
-      return shrinePrompt(g, o, 'cemil');
-    },
-    canHold(g, o) { if (o.type === 'generator' && g.inv.fuel <= 0) { g.ui.hint('Önce bir mazot bidonu bul.'); return false; } return true; },
-    holdStart(g, o) { if (o && o.type === 'generator') { g.noise(o.pos.x, o.pos.z, 20); } },
-    use(g, o) {
-      if (o.type === 'fuelCan') { g.takeItem(o); g.inv.fuel++; g.audio.pickup(); g.updateInventoryUI(); g.ui.notify('Mazot bidonu'); return true; }
-      if (o.type === 'generator') {
-        if (o.done) return true;
-        if (g.inv.fuel <= 0) { g.ui.hint('Jeneratörün deposu boş.'); return true; }
-        g.inv.fuel--; o.done = true; g.flags['g_' + o.id] = true;
-        g.flags.gens = (g.flags.gens || 0) + 1;
-        g.audio.mech('generator', o.pos);
-        g.audio.loop('gen:' + o.id, 'engine', { x: o.pos.x, y: 0.5, z: o.pos.z }, { bus: 'sfx', gain: 0.35, ref: 3 });
-        const zone = o.item.spot && o.item.spot.zone ? o.item.spot.zone : g.level.zone[g.level.i(o.item.x, o.item.y)];
-        g.world.setZone(zone, true);
-        g.ui.subtitle(ST.MONO.l4_gen, 3);
-        g.noise(o.pos.x, o.pos.z, 30);
-        if (g.flags.gens >= 2) wakePac(g, false);
-        if (g.flags.gens >= 3) { openExit(g, 'l5'); g.setObj('l4_leave'); }
-        else g.setObj('l4_generators', g.flags.gens);
-        g.updateInventoryUI(); g.completeStep();
-        return true;
-      }
-      return shrineUse(g, o, 'cemil');
-    },
-    update(g) {
-      if (!g.flags.grinnerMono && g.entities.some(e => e.kind === 'grinner' && e.state !== 'gone' && e.distToPlayer() < 10 && e.losToPlayer())) { g.flags.grinnerMono = true; g.ui.subtitle(ST.MONO.l4_grinner, 4); }
-    },
-  };
-
-  SCRIPTS.l5 = {
-    start(g) { g.setObj('l5_pellets', 0); g.flags.mp = 0; this.ready(g); },
-    ready(g) {
-      // "HAZIR!" — herkes üç saniye donar
-      g.readyT = 3.2;
-      if (g.world.readyText) g.world.readyText.visible = true;
-      for (const e of g.entities) e.frozenReady = true;
-    },
-    afterCard(g) {
-      g.ui.subtitle(ST.MONO.l5_start, 4);
-      if (g.audio.ctx) { const o = g.audio.out('sfx', null, { rev: 0.6, gain: 0.5 }); [523, 659, 784, 1047, 988, 784, 880, 1047].forEach((f, k) => g.audio.tone(o.input, 'square', f, f, g.audio.t + k * 0.16, 0.14, 0.12)); }
-    },
-    restore(g) {
-      g.flags.mp = g.flags.mp || 0;
-      if (g.flags.houseOpen) { this.openHouse(g, true); g.setObj('l5_house'); }
-      else g.setObj('l5_pellets', g.flags.mp);
-    },
-    use(g, o) {
-      if (o.type === 'powerPellet') {
-        g.takeItem(o); g.flags.mp = (g.flags.mp || 0) + 1;
-        g.powerT = 9; g.audio.pickup('pellet'); g.fx.flash = 0.3;
-        if (g.flags.mp >= 4) { this.openHouse(g); g.setObj('l5_house'); }
-        else g.setObj('l5_pellets', g.flags.mp);
-        g.completeStep();
-        return true;
-      }
-      if (o.type === 'portal') { g.exitLevel('l6'); return true; }
-      if (o.type === 'note' && o.item.data === 'l5_rules') { g.readNote('l5_rules', () => g.ui.subtitle(ST.MONO.l5_rules, 4)); return true; }
-      return false;
-    },
-    prompt(g, o) { if (o.type === 'portal') return g.flags.houseOpen ? 'Sayılamayan seviyeye geç' : null; return undefined; },
-    openHouse(g, instant) {
-      g.flags.houseOpen = true;
-      for (const id of ['houseDoorA', 'houseDoorB']) { const d = g.level.doors.find(x => x.id === id); if (d) { d.locked = false; g.world.openDoor(d.id); if (instant) { const ob = g.world.doorObjs.get(id); ob.amt = 1; g.world.applyDoor(ob); } } }
-      g.nav.dirty = true;
-      if (!instant) { g.audio.door('house'); g.ui.subtitle(ST.MONO.l5_house, 4); }
-    },
-    pellet(g) {
-      if (g.flags.pelletsEaten === 70 && !g.flags.fruit) {
-        g.flags.fruit = true;
-        const L = g.level, sp = L.spots.fruit[0];
-        const o = { item: { x: sp.x, y: sp.y, d: -1, data: 'l5_fruit' }, id: 'fruit', type: 'fruit', pos: new THREE.Vector3(L.cx(sp.x) + 1.5, 1, L.cz(sp.y)), taken: false };
-        const grp = new THREE.Group();
-        const cm = new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 0.2, 0.2) });
-        for (const [x, z] of [[-0.12, 0], [0.12, 0.05]]) { const s = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 12), cm); s.position.set(x, 0, z); grp.add(s); }
-        grp.add(this.stem || (this.stem = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.35, 6), new THREE.MeshBasicMaterial({ color: 0x5a3a10 }))));
-        grp.children[2].position.set(0, 0.2, 0); grp.children[2].rotation.z = 0.3;
-        grp.position.copy(o.pos); g.scene.add(grp); o.mesh = grp; o.spin = true; o.baseY = 1; o.bob = true; o.marker = MARK.obj;
-        g.items.push(o);
-        g.interactables.push({ kind: 'item', ref: o, pos: o.pos, reach: 2.3, prompt: () => o.taken ? null : 'Kirazı al', act: () => { g.takeItem(o); g.audio.pickup('key'); g.readNote('l5_fruit'); } });
-        g.ui.notify('Evin önünde bir meyve belirdi', 'key');
-      }
-      if (g.flags.pelletsEaten === g.world.pellets.length && !g.flags.perfect) { g.flags.perfect = true; g.ui.notify('Bütün pelletleri yedin. Mükemmel oyun.', 'key'); }
-    },
-    update(g, dt) {
-      if (g.readyT > 0) {
-        g.readyT -= dt;
-        if (g.readyT <= 0) { if (g.world.readyText) g.world.readyText.visible = false; for (const e of g.entities) e.frozenReady = false; }
-      }
-    },
-  };
-
-  SCRIPTS.l6 = {
-    start(g) { g.setObj('l6_core'); const d = exitDoorOf(g); if (d) { d.locked = false; } },
-    afterCard(g) { g.ui.subtitle(ST.MONO.l6_start, 4); },
-    restore(g) { g.setObj(g.flags.coreSeen ? 'l6_choice' : 'l6_core'); },
-    prompt(g, o) { if (o.type === 'plug') return g.save.freed.length >= 4 ? 'FİŞİ ÇEK' : 'Fişi çekmeyi dene'; return undefined; },
-    use(g, o) {
-      if (o.type === 'powerPellet') { g.takeItem(o); g.powerT = 9; g.audio.pickup('pellet'); g.fx.flash = 0.3; return true; }
-      if (o.type === 'plug') {
-        if (g.save.freed.length >= 4) {
-          g.player.frozen = true;
-          g.ui.subtitle('Dört renkli ışık yanına geliyor. Kırmızı, pembe, mavi, turuncu.', 4);
-          for (const e of g.entities) if (e.kind === 'ghost') { e.placeCell(o.item.x, o.item.y + 1); }
-          g.later(3500, () => { g.fx.flash = 1; g.audio.stinger('spot'); g.player.frozen = false; g.whenPlaying(() => g.exitLevel('ending-plug')); });
-        } else {
-          const missing = ['bulent', 'pinar', 'inci', 'cemil'].filter(c => !g.save.freed.includes(c)).map(c => ST.CHAR[c].name).join(', ');
-          g.ui.subtitle(`Fiş kıpırdamıyor. Tek başına çekemezsin… Dört el daha lazım. (Eksik: ${missing})`, 6);
-          g.setObj('l6_choice');
-        }
-        return true;
-      }
-      return false;
-    },
-    update(g) {
-      const d = exitDoorOf(g);
-      if (d && !g.exitDoorId) {
-        // ÇIKIŞ kapısı: yaklaşınca açılır, geçince kötü son
-        const obj = g.world.doorObjs.get(d.id);
-        if (Math.hypot(g.player.pos.x - obj.g.cx, g.player.pos.z - obj.g.cz) < 3.2) { openExit(g, 'ending-exit', d.id); }
-      }
-      if (!g.flags.coreSeen) {
-        const core = g.level.meta.core, c = g.level.cellOf(g.player.pos.x, g.player.pos.z);
-        if (core && c.x >= core.x0 - 1 && c.x <= core.x1 + 1 && c.y >= core.y0 - 1 && c.y <= core.y1 + 1) { g.flags.coreSeen = true; g.ui.subtitle(ST.MONO.l6_core, 5); g.setObj('l6_choice'); g.checkpoint(true); }
-      }
-    },
-  };
-
-  // Labirent başlangıcındaki "HAZIR" donması: yaratık güncellemesini sarmalayarak uygula
+  // Maze "READY!" freeze: wrap the creature update
   const baseUpdateEntities = Game.prototype.updateEntities;
   Game.prototype.updateEntities = function (dt, frozen) {
     if (this.readyT > 0) { for (const e of this.entities) if (e.pose) e.pose(dt); else if (e.mesh && e.kind === 'pacman') { e.mesh.position.set(e.pos.x, 1.2, e.pos.z); } return; }
@@ -1666,14 +1309,14 @@
   };
 
   PB.Game = Game;
-  PB.SCRIPTS = SCRIPTS;
 
   // Açılış
   function start() {
-    if (!root.THREE) { const l = document.getElementById('boot-label'); if (l) l.textContent = '3D motoru (three.js) yüklenemedi. İnternet bağlantını kontrol edip sayfayı yenile.'; return; }
+    PB.I18N.set(PB.Settings.data.lang || 'en', false);
+    if (!root.THREE) { const l = document.getElementById('boot-label'); if (l) l.textContent = PB.t('boot.noThree'); return; }
     const game = new Game();
     root.PB.game = game;
-    game.boot().catch(e => { console.error(e); const l = document.getElementById('boot-label'); if (l) l.textContent = 'Başlatma hatası: ' + e.message; });
+    game.boot().catch(e => { console.error(e); const l = document.getElementById('boot-label'); if (l) l.textContent = PB.t('boot.error', { msg: e.message }); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -3,6 +3,7 @@
   'use strict';
   const PB = root.PB;
   const U = PB.U, S = PB.Settings, ST = PB.Story;
+  const t = PB.t, I = PB.I18N;
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -18,6 +19,15 @@
       document.body.classList.toggle('touch', coarse);
       S.events.on('change', key => this.onSetting(key));
       this.onSetting('*');
+      I.apply(document);
+    }
+    // Language switched: re-apply static text and rebuild whatever dynamic screen is open
+    onLanguage() {
+      I.apply(document);
+      if (this.isOpen('scr-settings') && this.renderSettings) this.renderSettings(true);
+      if (this.isOpen('scr-menu')) this.buildMenu(this.g.save);
+      if (this.isOpen('scr-archive')) this.buildArchive(this.g.save || { notes: [] });
+      if (this.isOpen('scr-levels') && this.lastLevelPick) this.buildLevelSelect(this.g.save, this.lastLevelPick);
     }
     el(id) { return this.$(id); }
     // ---------------------------------------------------------- ekran yönetimi
@@ -67,21 +77,23 @@
       if (save && save.level) {
         const L = ST.level(save.level);
         cont.querySelector('small').textContent = L ? `${L.name} · ${L.title}` : '';
-      }
+      } else cont.querySelector('small').textContent = '';
       this.$('m-levels').hidden = !(save && save.unlocked && save.unlocked.length > 1);
       const found = save && save.notes ? save.notes.length : 0;
       this.$('m-archive').querySelector('small').textContent = `${found} / ${ST.noteCount()}`;
-      this.$('menu-foot').textContent = save && save.completed ? `Son: ${save.endings.map(e => ST.ENDINGS[e].title).join(', ')} · ölüm ${save.stats.deaths}` : 'Kulaklıkla, karanlıkta oyna.';
+      this.$('menu-foot').textContent = save && save.completed ? t('menu.footDone', { list: save.endings.map(e => (ST.ending(e) || { title: e }).title).join(', '), deaths: save.stats.deaths }) : t('menu.foot');
     }
     buildLevelSelect(save, onPick) {
+      this.lastLevelPick = onPick;
       const list = this.$('levels-list');
       list.innerHTML = '';
-      for (const L of ST.LEVELS) {
+      for (const D of ST.LEVELS) {
+        const L = ST.level(D.id);
         const ok = save.unlocked.includes(L.id);
         const b = document.createElement('button');
         b.className = 'level-row';
         b.disabled = !ok;
-        b.innerHTML = `<span class="lv-name">${esc(L.name)}</span><span class="lv-title">${ok ? esc(L.title) : '? ? ?'}</span><span class="lv-place">${ok ? esc(L.place) : 'Kilitli'}</span>`;
+        b.innerHTML = `<span class="lv-name">${esc(L.name)}</span><span class="lv-title">${ok ? esc(L.title) : '? ? ?'}</span><span class="lv-place">${ok ? esc(L.place) : esc(t('levels.locked'))}</span>`;
         if (ok) b.addEventListener('click', () => onPick(L.id));
         list.appendChild(b);
       }
@@ -90,19 +102,22 @@
       const list = this.$('archive-list');
       list.innerHTML = '';
       const found = new Set(save.notes || []);
-      this.$('archive-count').textContent = `${found.size} / ${ST.noteCount()} belge`;
-      for (const L of ST.LEVELS) {
-        const notes = Object.values(ST.NOTES).filter(n => n.level === L.id);
-        if (!notes.length) continue;
+      const placed = ST.placedNoteIds();
+      this.$('archive-count').textContent = t('archive.count', { n: placed.filter(id => found.has(id)).length, m: placed.length });
+      for (const D of ST.LEVELS) {
+        const ids = placed.filter(id => ST.noteLevel(id) === D.id);
+        if (!ids.length) continue;
+        const L = ST.level(D.id);
         const h = document.createElement('h3');
         h.textContent = `${L.name} — ${L.title}`;
         list.appendChild(h);
-        for (const n of notes) {
+        for (const nid of ids) {
+          const n = ST.note(nid);
           const b = document.createElement('button');
           b.className = 'arch-row';
           const has = found.has(n.id);
           b.disabled = !has;
-          b.innerHTML = has ? `<span class="kind">${esc(kindLabel(n.kind))}</span>${esc(n.title)}` : `<span class="kind">—</span>Bulunmadı`;
+          b.innerHTML = has ? `<span class="kind">${esc(kindLabel(n.kind))}</span>${esc(n.title)}` : `<span class="kind">—</span>${esc(t('archive.notFound'))}`;
           if (has) b.addEventListener('click', () => this.showNote(n.id, () => this.show('scr-archive'), true));
           list.appendChild(b);
         }
@@ -112,15 +127,16 @@
     buildSettings(onBack) {
       const tabs = this.$('set-tabs'), body = this.$('set-body');
       tabs.innerHTML = '';
-      let cur = this.setTab || 'grafik';
-      const render = () => {
+      let cur = this.setTab || 'graphics';
+      const render = (relabel) => {
+        if (relabel) for (const b of tabs.children) b.textContent = t('tab.' + b.dataset.tab);
         body.innerHTML = '';
         for (const s of S.SCHEMA.filter(x => x.tab === cur)) body.appendChild(this.settingRow(s));
         for (const b of tabs.children) b.classList.toggle('on', b.dataset.tab === cur);
       };
-      for (const [id, label] of S.TABS) {
+      for (const id of S.TABS) {
         const b = document.createElement('button');
-        b.textContent = label; b.dataset.tab = id;
+        b.textContent = t('tab.' + id); b.dataset.tab = id;
         b.addEventListener('click', () => { cur = this.setTab = id; render(); });
         tabs.appendChild(b);
       }
@@ -136,16 +152,17 @@
       const v = S.get(s.key);
       let ctl = '';
       if (s.type === 'range') ctl = `<input type="range" id="${id}" min="${s.min}" max="${s.max}" step="${s.step}" value="${v}"><output>${esc(s.fmt ? s.fmt(v) : v)}</output>`;
-      else if (s.type === 'toggle') ctl = `<button type="button" class="toggle" id="${id}" aria-pressed="${!!v}">${v ? 'Açık' : 'Kapalı'}</button>`;
-      else ctl = `<select id="${id}">${s.options.map(o => `<option value="${esc(o[0])}"${String(o[0]) === String(v) ? ' selected' : ''}>${esc(o[1])}</option>`).join('')}</select>`;
-      row.innerHTML = `<label for="${id}">${esc(s.label)}${s.reload ? ' <em>*</em>' : ''}</label><div class="ctl">${ctl}</div>${s.help ? `<p class="help">${esc(s.help)}</p>` : ''}`;
+      else if (s.type === 'toggle') ctl = `<button type="button" class="toggle" id="${id}" aria-pressed="${!!v}">${v ? t('common.on') : t('common.off')}</button>`;
+      else ctl = `<select id="${id}">${s.options.map(o => `<option value="${esc(o[0])}"${String(o[0]) === String(v) ? ' selected' : ''}>${esc(t(o[1]))}</option>`).join('')}</select>`;
+      const helpKey = 'set.' + s.key + '.help', help = t(helpKey);
+      row.innerHTML = `<label for="${id}">${esc(t('set.' + s.key))}${s.reload ? ' <em>*</em>' : ''}</label><div class="ctl">${ctl}</div>${help !== helpKey ? `<p class="help">${esc(help)}</p>` : ''}`;
       const input = row.querySelector('#' + id);
       if (s.type === 'range') {
-        input.addEventListener('input', () => { S.set(s.key, +input.value); row.querySelector('output').textContent = s.fmt ? s.fmt(S.get(s.key)) : S.get(s.key); if (S.PRESETS.ultra[s.key] !== undefined) this.syncPresetSelect(); });
+        input.addEventListener('input', () => { S.set(s.key, +input.value); row.querySelector('output').textContent = s.fmt ? s.fmt(S.get(s.key)) : S.get(s.key); if (S.PRESET_KEYS.includes(s.key)) this.syncPresetSelect(); });
       } else if (s.type === 'toggle') {
-        input.addEventListener('click', () => { S.set(s.key, !S.get(s.key)); input.setAttribute('aria-pressed', String(S.get(s.key))); input.textContent = S.get(s.key) ? 'Açık' : 'Kapalı'; });
+        input.addEventListener('click', () => { S.set(s.key, !S.get(s.key)); input.setAttribute('aria-pressed', String(S.get(s.key))); input.textContent = S.get(s.key) ? t('common.on') : t('common.off'); });
       } else {
-        input.addEventListener('change', () => { const o = s.options.find(q => String(q[0]) === input.value); S.set(s.key, o ? o[0] : input.value); if (s.key === 'preset') this.renderSettings(); else this.syncPresetSelect(); });
+        input.addEventListener('change', () => { const o = s.options.find(q => String(q[0]) === input.value); S.set(s.key, o ? o[0] : input.value); if (s.key === 'preset') this.renderSettings(); else if (s.key !== 'lang') this.syncPresetSelect(); });
       }
       return row;
     }
@@ -167,11 +184,13 @@
       setTimeout(() => n.classList.add('out'), 3200);
       setTimeout(() => n.remove(), 4000);
     }
-    hint(text) { if (!S.data.hints && !/Fenerin|Pil|Kilit|kilitlen/.test(text)) return; this.notify(text, 'hint'); }
-    subtitle(text, dur = 4) {
+    hint(text, force) { if (!S.data.hints && !force) return; this.notify(text, 'hint'); }
+    // speaker: label shown before the line (radio, dialogue); who: css accent
+    subtitle(text, dur = 4, speaker = null, who = null) {
       if (!S.data.subtitles) return;
       const e = this.$('subtitle');
-      e.textContent = text; e.classList.add('on');
+      e.innerHTML = speaker ? `<b class="spk spk-${esc(who || 'x')}">${esc(speaker)}</b> ${esc(text)}` : esc(text);
+      e.classList.add('on');
       this.subT = dur;
     }
     caption(text, dir) {
@@ -187,7 +206,7 @@
       if (!text) { p.hidden = true; return; }
       p.hidden = false;
       this.$('prompt-text').textContent = text;
-      this.$('prompt-key').textContent = this.touch ? 'DOKUN' : 'E';
+      this.$('prompt-key').textContent = this.touch ? t('touch.tap') : 'E';
       const ring = this.$('hold');
       if (hold != null) { ring.hidden = false; ring.style.setProperty('--p', hold); } else ring.hidden = true;
     }
@@ -207,9 +226,9 @@
     setInventory(inv) {
       const box = this.$('inv');
       const chips = [];
-      if (inv.batteries) chips.push(`PİL ×${inv.batteries}`);
-      if (inv.almond) chips.push(`BADEM SUYU ×${inv.almond} <kbd>Q</kbd>`);
-      if (inv.glow) chips.push(`IŞIK ÇUBUĞU ×${inv.glow} <kbd>G</kbd>`);
+      if (inv.batteries) chips.push(esc(t('inv.battery', { n: inv.batteries })));
+      if (inv.almond) chips.push(`${esc(t('inv.almond', { n: inv.almond }))} <kbd>Q</kbd>`);
+      if (inv.glow) chips.push(`${esc(t('inv.glow', { n: inv.glow }))} <kbd>G</kbd>`);
       for (const k of inv.keys || []) chips.push(esc(k));
       box.innerHTML = chips.map(c => `<span class="chip">${c}</span>`).join('');
     }
@@ -217,30 +236,36 @@
       this.$('rec-time').textContent = U.fmtTime(t).padStart(8, '0:0');
       this.$('rec-level').textContent = levelName || '';
     }
-    fps(v) { this.$('fps').textContent = v + ' FPS'; }
-    powerTimer(t) {
+    fps(v) { this.$('fps').textContent = t('hud.fps', { n: v }); }
+    powerTimer(tm) {
       const e = this.$('power-timer');
-      e.hidden = t <= 0;
-      if (t > 0) e.textContent = 'GÜÇ ' + t.toFixed(1);
+      e.hidden = tm <= 0;
+      if (tm > 0) e.textContent = t('hud.power', { t: tm.toFixed(1) });
     }
 
     // ---------------------------------------------------------- belgeler
     showNote(id, onClose, fromArchive) {
-      const n = ST.NOTES[id];
+      const n = ST.note(id);
       if (!n) { onClose && onClose(); return; }
       const box = this.$('note-paper');
       box.className = 'paper kind-' + n.kind;
       const meta = [n.from, n.date].filter(Boolean).map(esc).join(' · ');
       box.innerHTML = `<header><span class="nk">${esc(kindLabel(n.kind))}</span><h2>${esc(n.title)}</h2>${meta ? `<p class="meta">${meta}</p>` : ''}</header><div class="nb">${esc(n.body).replace(/\n/g, '<br>')}</div>`;
-      if (n.kind === 'fotograf') box.insertAdjacentHTML('afterbegin', `<canvas class="photo" width="320" height="240"></canvas>`);
-      if (n.kind === 'fotograf') { const c = box.querySelector('canvas'); c.getContext('2d').drawImage(PB.Tex.photo('arch').userData.canvas, 0, 0); }
+      if (n.kind === 'photo') {
+        box.insertAdjacentHTML('afterbegin', `<canvas class="photo" width="320" height="240"></canvas>`);
+        const c = box.querySelector('canvas'); c.getContext('2d').drawImage(PB.Tex.photo(n.photo || 'arch').userData.canvas, 0, 0);
+      }
+      if (n.kind === 'drawing' && PB.Tex.drawing) {
+        box.insertAdjacentHTML('afterbegin', `<canvas class="drawing" width="400" height="300"></canvas>`);
+        const c = box.querySelector('canvas'); c.getContext('2d').drawImage(PB.Tex.drawing(n.drawing || n.id).userData.canvas, 0, 0, 400, 300);
+      }
       this.$('note-close').onclick = () => { this.hide('scr-note'); onClose && onClose(); };
-      this.$('note-close').textContent = fromArchive ? 'Geri' : (this.touch ? 'Kapat' : 'Kapat (E)');
+      this.$('note-close').textContent = fromArchive ? t('common.back') : (this.touch ? t('note.close') : t('note.closeKey'));
       this.show('scr-note');
       box.scrollTop = 0;
-      if (this.g.audio) (n.kind === 'kaset' ? this.g.audio.click() : this.g.audio.paper());
-      // Kaset ve ekran metinleri daktilo efektiyle
-      if (n.kind === 'kaset' || n.kind === 'ekran' || n.kind === 'telefon') {
+      if (this.g.audio) (n.kind === 'tape' ? this.g.audio.click() : this.g.audio.paper());
+      // Tapes, screens and phone messages type themselves out
+      if (n.kind === 'tape' || n.kind === 'screen' || n.kind === 'phone') {
         const nb = box.querySelector('.nb');
         const full = n.body;
         let i = 0;
@@ -272,8 +297,8 @@
           const ok = onSubmit(code);
           this.g.audio && this.g.audio.beep(ok);
           code = '';
-          if (ok) { done = true; draw('AÇIK'); disp.classList.add('ok'); setTimeout(() => { close(); }, 700); }
-          else { draw('HATA'); disp.classList.add('err'); }
+          if (ok) { done = true; draw(t('kp.open')); disp.classList.add('ok'); setTimeout(() => { close(); }, 700); }
+          else { draw(t('kp.error')); disp.classList.add('err'); }
           return;
         } else if (code.length < 4) code += k;
         this.g.audio && this.g.audio.beep();
@@ -281,7 +306,7 @@
       };
       for (const k of ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'OK']) {
         const b = document.createElement('button');
-        b.textContent = k === 'C' ? 'SİL' : k === 'OK' ? 'GİR' : k;
+        b.textContent = k === 'C' ? t('kp.clear') : k === 'OK' ? t('kp.enter') : k;
         b.addEventListener('click', () => press(k));
         grid.appendChild(b);
       }
@@ -304,7 +329,7 @@
     drawMap(g, opts = {}) {
       const c = this.$('map-canvas'), L = g.level;
       if (!L) return;
-      this.$('map-close').textContent = this.touch ? 'Kapat' : 'Kapat (M)';
+      this.$('map-close').textContent = this.touch ? t('map.close') : t('map.closeKey');
       const box = c.parentElement.getBoundingClientRect();
       const cs = Math.max(4, Math.floor(Math.min((box.width - 20) / L.w, (box.height - 20) / L.h)));
       const dpr = Math.min(2, root.devicePixelRatio || 1);
@@ -349,7 +374,7 @@
       // Kamera ekranı: yaratıklar
       if (opts.entities) for (const e of g.entities) {
         if (!e.mesh.visible && e.kind !== 'pacman') continue;
-        x.fillStyle = e.kind === 'pacman' ? '#ffd21a' : e.kind === 'ghost' ? '#' + PB.Entities.GHOST[e.type].color.toString(16).padStart(6, '0') : '#cccccc';
+        x.fillStyle = e.kind === 'pacman' ? '#ffd21a' : e.kind === 'ghost' ? ST.charColor(ST.ghostChar(e.type)) : '#cccccc';
         x.beginPath(); x.arc(e.pos.x / L.cell * cs, e.pos.z / L.cell * cs, cs * 0.45, 0, Math.PI * 2); x.fill();
       }
       // Oyuncu oku
@@ -362,7 +387,7 @@
     }
     // ---------------------------------------------------------- ölüm
     showDeath(kind, onRetry, onMenu) {
-      const d = ST.DEATH[kind] || ST.DEATH.pacman;
+      const d = ST.death(kind);
       this.$('death-title').textContent = d[0];
       this.$('death-tip').textContent = d[1];
       this.$('death-retry').onclick = onRetry;
@@ -388,7 +413,7 @@
     }
     // ---------------------------------------------------------- son
     showEnding(kind, stats, onDone) {
-      const E = ST.ENDINGS[kind];
+      const E = ST.ending(kind);
       this.$('end-title').textContent = E.title;
       this.$('end-sub').textContent = E.subtitle;
       const box = this.$('end-lines');
@@ -406,11 +431,11 @@
           this.endT = setTimeout(next, 3200);
         } else {
           const st = this.$('end-stats');
-          st.innerHTML = `<div><b>${U.fmtTime(stats.time)}</b><span>oyun süresi</span></div><div><b>${stats.deaths}</b><span>ölüm</span></div><div><b>${stats.notes} / ${ST.noteCount()}</b><span>belge</span></div><div><b>${stats.freed} / 4</b><span>kurtarılan hayalet</span></div>`;
+          st.innerHTML = `<div><b>${U.fmtTime(stats.time)}</b><span>${esc(t('end.time'))}</span></div><div><b>${stats.deaths}</b><span>${esc(t('end.deaths'))}</span></div><div><b>${stats.notes} / ${ST.noteCount()}</b><span>${esc(t('end.docs'))}</span></div><div><b>${stats.freed} / 4</b><span>${esc(t('end.freed'))}</span></div><div><b>${stats.drawings || 0} / ${ST.drawingCount()}</b><span>${esc(t('end.drawings'))}</span></div>`;
           st.hidden = false;
           st.scrollIntoView({ behavior: 'smooth', block: 'center' });
           const cr = this.$('end-credits');
-          cr.innerHTML = ST.CREDITS.map(c => `<p><b>${esc(c[0])}</b>${c[1] ? `<span>${esc(c[1])}</span>` : ''}</p>`).join('');
+          cr.innerHTML = ST.credits().map(c => `<p><b>${esc(c[0])}</b>${c[1] ? `<span>${esc(c[1])}</span>` : ''}</p>`).join('');
           this.$('end-menu').hidden = false;
           this.$('end-skip').hidden = true;
           this.$('end-menu').onclick = onDone;
@@ -420,6 +445,23 @@
       this.endT = setTimeout(next, 1500);
       this.$('end-skip').onclick = () => { clearTimeout(this.endT); while (k < E.lines.length) { const p = document.createElement('p'); p.className = 'in'; p.textContent = E.lines[k++]; box.appendChild(p); } next(); };
     }
+    // ---------------------------------------------------------- choice
+    showChoice(options, onCancel) {
+      const box = this.$('choice-list');
+      box.innerHTML = '';
+      for (const o of options) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = o.label;
+        b.addEventListener('click', () => o.fn());
+        box.appendChild(b);
+      }
+      const back = document.createElement('button');
+      back.type = 'button'; back.className = 'ghost'; back.dataset.action = 'back'; back.textContent = t('choice.back');
+      back.addEventListener('click', () => onCancel());
+      box.appendChild(back);
+      this.show('scr-choice');
+    }
+    hideChoice() { this.hide('scr-choice'); }
     // ---------------------------------------------------------- dokunmatik
     buildTouch() {
       const t = this.$('touch');
@@ -427,8 +469,6 @@
       if (this.touch && !this.touchBound) { this.g.input.bindTouch(this); this.touchBound = true; }
     }
   }
-  function kindLabel(k) {
-    return { not: 'Not', mektup: 'Mektup', defter: 'Defter sayfası', kaset: 'Kaset kaydı', fotograf: 'Fotoğraf', ekran: 'Bilgisayar ekranı', telefon: 'Telefon', ciktı: 'Çıktı', duvar: 'Duvar yazısı', duyuru: 'Duyuru', anı: 'Anı' }[k] || 'Belge';
-  }
+  function kindLabel(k) { const s = t('kind.' + k); return s === 'kind.' + k ? t('kind.doc') : s; }
   PB.UI = UI;
 })(typeof window !== 'undefined' ? window : globalThis);

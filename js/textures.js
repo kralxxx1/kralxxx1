@@ -448,7 +448,7 @@
   }
   T.wrapText = wrapText;
 
-  T.exitSign = (label = 'ÇIKIŞ') => T.canvas('exit:' + label, 256, 96, (g, w, h) => {
+  T.exitSign = (label = 'EXIT') => T.canvas('exit:' + label, 256, 96, (g, w, h) => {
     g.fillStyle = '#06260d'; g.fillRect(0, 0, w, h);
     g.fillStyle = '#35ff6a'; g.font = `bold 56px ${FONT_TYPE}`; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.shadowColor = '#35ff6a'; g.shadowBlur = 12;
@@ -469,13 +469,13 @@
 
   // Afişler: hayali atari oyunları ve ofis "motivasyon" afişleri
   const POSTERS = {
-    poster1: { title: 'GALAKSİ 2000', sub: 'UZAYIN DERİNLİKLERİNDE', bg: ['#07052a', '#3a0b5e'], fg: '#ffe23b', art: 'ship' },
-    poster2: { title: 'KURBAĞA YOLU', sub: 'KARŞIYA GEÇEBİLECEK MİSİN?', bg: ['#0b3d0b', '#0c1c3a'], fg: '#8cff4a', art: 'frog' },
-    poster3: { title: 'EN YÜKSEK SKOR', sub: '3.333.360 — MAHİR, 1986', bg: ['#1a0000', '#3d0f00'], fg: '#ffcc33', art: 'pac' },
-    poster4: { title: 'JETON 250 TL', sub: '10 JETON ALANA 1 BEDAVA', bg: ['#2a002a', '#000033'], fg: '#ff66dd', art: 'coin' },
-    motive1: { title: 'EKİP RUHU', sub: 'Kimse tek başına kaçamaz.', bg: ['#1c2a3a', '#0c141c'], fg: '#e8eef5', art: 'mountain' },
-    motive2: { title: 'HEDEF', sub: 'Çıkış hep bir sonraki koridordadır.', bg: ['#2c2418', '#120e08'], fg: '#f5e6c8', art: 'arrow' },
-    motive3: { title: 'SABIR', sub: 'Mesai 03:17’de biter. Saat hep 03:17.', bg: ['#1a2a1a', '#0a120a'], fg: '#dfeedd', art: 'clock' },
+    poster1: { title: 'GALAXY 2000', sub: 'DEEP IN SPACE', bg: ['#07052a', '#3a0b5e'], fg: '#ffe23b', art: 'ship' },
+    poster2: { title: 'FROG ROAD', sub: 'CAN YOU MAKE IT ACROSS?', bg: ['#0b3d0b', '#0c1c3a'], fg: '#8cff4a', art: 'frog' },
+    poster3: { title: 'HIGH SCORE', sub: '921,450 — BLY, 1987', bg: ['#1a0000', '#3d0f00'], fg: '#ffcc33', art: 'pac' },
+    poster4: { title: 'TOKENS 25¢', sub: 'BUY 10, GET 1 FREE', bg: ['#2a002a', '#000033'], fg: '#ff66dd', art: 'coin' },
+    motive1: { title: 'TEAMWORK', sub: 'Nobody escapes alone.', bg: ['#1c2a3a', '#0c141c'], fg: '#e8eef5', art: 'mountain' },
+    motive2: { title: 'GOALS', sub: 'The exit is always in the next hallway.', bg: ['#2c2418', '#120e08'], fg: '#f5e6c8', art: 'arrow' },
+    motive3: { title: 'PATIENCE', sub: 'Shift ends at 3:17. It is always 3:17.', bg: ['#1a2a1a', '#0a120a'], fg: '#dfeedd', art: 'clock' },
   };
   T.poster = key => T.canvas('poster:' + key, 384, 512, (g, w, h) => {
     const p = POSTERS[key] || POSTERS.poster1;
@@ -628,7 +628,7 @@
       g.fillStyle = cols[k]; g.fillRect(x - 16, y - 14, 32, 60);
     }
     g.fillStyle = 'rgba(255,230,160,0.15)'; g.fillRect(0, 0, w, h);
-    g.fillStyle = '#333'; g.font = `18px ${FONT_HAND}`; g.fillText('16.04.87', 20, h - 16);
+    g.fillStyle = '#333'; g.font = `18px ${FONT_HAND}`; g.fillText('4/16/87', 20, h - 16);
   });
   // Bozuk ekran karakterleri (256. seviye)
   T.glitch = seed => T.canvas('glitch:' + seed, 512, 512, (g, w, h) => {
@@ -651,9 +651,9 @@
     g.font = `64px ${FONT_PIX}`; g.textBaseline = 'middle';
     g.fillStyle = '#ffffff'; g.shadowColor = '#ffffff'; g.shadowBlur = 20;
     g.textAlign = 'left'; g.fillText('1UP', 80, 70); g.fillText('00', 80, 180);
-    g.textAlign = 'center'; g.fillText('EN YÜKSEK SKOR', w / 2, 70); g.fillText('3333360', w / 2, 180);
+    g.textAlign = 'center'; g.fillText('HIGH SCORE', w / 2, 70); g.fillText('921450', w / 2, 180);
     g.textAlign = 'right'; g.fillText('2UP', w - 80, 70);
-    g.fillStyle = '#ffff00'; g.shadowColor = '#ffff00'; g.fillText('DNZ', w - 80, 180);
+    g.fillStyle = '#ffff00'; g.shadowColor = '#ffff00'; g.fillText('SAM', w - 80, 180);
   });
   T.readyText = (text, color) => T.canvas('ready:' + text, 1024, 160, (g, w, h) => {
     g.clearRect(0, 0, w, h);
@@ -697,7 +697,7 @@
     tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false;
     const r = U.rng(U.hashStr(game));
     const stars = Array.from({ length: 40 }, () => ({ x: r() * W, y: r() * H, s: r.range(0.3, 1.2) }));
-    const titles = { galaksi: 'GALAKSİ 2000', kurbaga: 'KURBAĞA YOLU', tugla: 'TUĞLA KIRAN', yilan: 'YILAN', uzay: 'UZAY İSTİLASI', yaris: 'GECE YARIŞI', dovus: 'SOKAK KAVGASI', tetris: 'DÜŞEN BLOKLAR', special: '', classic: 'PACMAN' };
+    const titles = { galaksi: 'GALAXY 2000', kurbaga: 'FROG ROAD', tugla: 'BRICK BREAKER', yilan: 'SNAKE BYTE', uzay: 'SPACE INVASION', yaris: 'NIGHT RACER', dovus: 'STREET BRAWL', tetris: 'FALLING BLOCKS', special: '', classic: 'PACMAN' };
     const scr = {
       tex, canvas: c, game, on: true, text: null,
       update(t) {
@@ -715,16 +715,16 @@
             const q = gr();
             if (q < 0.5) { g.fillStyle = ['#ff0000', '#ffb8ff', '#00ffff', '#ffb852', '#ffff00', '#dedeff'][Math.floor(gr() * 6)]; g.fillText('ABCDEF0123456789'[Math.floor(gr() * 16)], x + 4, y + 4); }
           }
-          g.fillStyle = '#fff'; g.fillText(this.text || 'SEVİYE 255', W / 2, 12);
-          if (Math.floor(t * 2) % 2 === 0) { g.fillStyle = '#ffff00'; g.fillText(this.sub || 'OYUNCU 1 HAZIR', W / 2, H - 12); }
+          g.fillStyle = '#fff'; g.fillText(this.text || 'LEVEL 255', W / 2, 12);
+          if (Math.floor(t * 2) % 2 === 0) { g.fillStyle = '#ffff00'; g.fillText(this.sub || 'PLAYER 1 READY', W / 2, H - 12); }
         } else if (game === 'classic') {
           g.fillStyle = '#ffff00'; g.font = `14px ${FONT_PIX}`; g.fillText('PACMAN', W / 2, 40);
-          g.font = `8px ${FONT_PIX}`; g.fillStyle = '#dedeff'; g.fillText('BEDAVA OYUN', W / 2, 70);
+          g.font = `8px ${FONT_PIX}`; g.fillStyle = '#dedeff'; g.fillText('FREE PLAY', W / 2, 70);
           const px = ((t * 40) % (W + 60)) - 30;
           g.fillStyle = '#ffff00'; g.beginPath(); const m = Math.abs(Math.sin(t * 10)) * 0.7; g.moveTo(px, 110); g.arc(px, 110, 9, m, 6.28 - m); g.fill();
           const gc = ['#ff0000', '#ffb8ff', '#00ffff', '#ffb852'];
           gc.forEach((col, k) => { const gx = px - 28 - k * 22; g.fillStyle = col; g.beginPath(); g.arc(gx, 108, 8, Math.PI, 0); g.lineTo(gx + 8, 118); g.lineTo(gx - 8, 118); g.fill(); });
-          if (Math.floor(t * 2) % 2 === 0) { g.fillStyle = '#fff'; g.fillText('E: OYNA', W / 2, 160); }
+          if (Math.floor(t * 2) % 2 === 0) { g.fillStyle = '#fff'; g.fillText('E: PLAY', W / 2, 160); }
         } else {
           for (const s of stars) { s.y = (s.y + s.s) % H; g.fillStyle = `rgba(255,255,255,${0.3 + s.s * 0.4})`; g.fillRect(s.x, s.y, 1, 1); }
           const hue = (U.hashStr(game) % 360);
@@ -742,7 +742,7 @@
             g.fillStyle = '#fff'; g.fillRect(W / 2 + 10 - Math.sin(t * 3) * 30, 100, 16, 30);
           }
           g.fillStyle = '#fff'; g.fillText(titles[game] || '', W / 2, 16);
-          if (Math.floor(t * 1.5) % 2 === 0) g.fillText('JETON AT', W / 2, H - 12);
+          if (Math.floor(t * 1.5) % 2 === 0) g.fillText('INSERT COIN', W / 2, H - 12);
         }
         for (let y = 0; y < H; y += 2) { g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(0, y, W, 1); }
         tex.needsUpdate = true;
@@ -753,7 +753,7 @@
     return scr;
   };
   T.marquee = game => T.canvas('marquee:' + game, 512, 128, (g, w, h) => {
-    const titles = { galaksi: 'GALAKSİ 2000', kurbaga: 'KURBAĞA YOLU', tugla: 'TUĞLA KIRAN', yilan: 'YILAN', uzay: 'UZAY İSTİLASI', yaris: 'GECE YARIŞI', dovus: 'SOKAK KAVGASI', tetris: 'DÜŞEN BLOKLAR', special: 'PACMAN ★ ÖZEL', classic: 'PACMAN' };
+    const titles = { galaksi: 'GALAXY 2000', kurbaga: 'FROG ROAD', tugla: 'BRICK BREAKER', yilan: 'SNAKE BYTE', uzay: 'SPACE INVASION', yaris: 'NIGHT RACER', dovus: 'STREET BRAWL', tetris: 'FALLING BLOCKS', special: 'PACMAN ★ #7', classic: 'PACMAN' };
     const hue = U.hashStr(game) % 360;
     const grd = g.createLinearGradient(0, 0, w, 0); grd.addColorStop(0, `hsl(${hue},70%,15%)`); grd.addColorStop(1, `hsl(${(hue + 60) % 360},70%,25%)`);
     g.fillStyle = game === 'special' || game === 'classic' ? '#000018' : grd; g.fillRect(0, 0, w, h);

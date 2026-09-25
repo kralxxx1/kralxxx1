@@ -8,10 +8,10 @@
   const { DX, DY } = PB.LevelGen;
 
   const GHOST = {
-    blinky: { name: 'bulent', color: 0xff2a2a, pitch: 300, speed: 3.9, patrol: 2.2, lose: 7, sight: 26, hear: 1.2 },
-    pinky: { name: 'pinar', color: 0xff8fd8, pitch: 390, speed: 3.75, patrol: 2.1, lose: 5, sight: 24, hear: 1.0 },
-    inky: { name: 'inci', color: 0x39e6ff, pitch: 350, speed: 3.4, patrol: 2.0, lose: 4, sight: 22, hear: 1.3 },
-    clyde: { name: 'cemil', color: 0xffae3b, pitch: 250, speed: 5.3, patrol: 0, lose: 99, sight: 40, hear: 0.6 },
+    blinky: { name: 'billy', color: 0xff2a2a, pitch: 300, speed: 3.9, patrol: 2.2, lose: 7, sight: 26, hear: 1.2 },
+    pinky: { name: 'penny', color: 0xff8fd8, pitch: 390, speed: 3.75, patrol: 2.1, lose: 5, sight: 24, hear: 1.0 },
+    inky: { name: 'ivy', color: 0x39e6ff, pitch: 350, speed: 3.4, patrol: 2.0, lose: 4, sight: 22, hear: 1.3 },
+    clyde: { name: 'clyde', color: 0xffae3b, pitch: 250, speed: 5.3, patrol: 0, lose: 99, sight: 40, hear: 0.6 },
   };
 
   // ------------------------------------------------------------ görseller
@@ -502,7 +502,7 @@
         // Labirentte dost hayaletler Yutucu’yu kısa süre iter
         if (pac && g.pacman.state !== 'stunned' && Math.hypot(pac.x - this.pos.x, pac.z - this.pos.z) < 2.5 && (this.pushT || 0) <= 0) {
           g.pacman.frozenT = 2.5; g.pacman.setState('stunned'); this.pushT = 20;
-          g.ui.subtitle(PB.Story.CHAR[this.cfg.name].name + ': "Koş! Onu tutuyorum!"', 3);
+          g.ui.subtitle(PB.Story.ghostHelp('billy').replace('BILLY', PB.Story.speaker(this.cfg.name)), 3);
         }
         this.pushT = (this.pushT || 0) - dt;
         this.faceToward(g.player.pos.x, g.player.pos.z, dt, 3);
@@ -539,8 +539,8 @@
         let gain = U.clamp(1 - d / 32, 0, 1) * (this.state === 'chase' ? 0.55 : 0.28);
         if (this.type === 'clyde') gain = this.moving ? U.clamp(1 - d / 20, 0, 1) * 0.8 : 0;
         g.audio.setLoop(k, gain, { x: this.pos.x, y: 1.2, z: this.pos.z }, !this.losToPlayer());
-        if (gain > 0.2 && this.type === 'clyde') g.audio.caption('clyde', '[yakında sürüklenen ayak sesleri]', { x: this.pos.x, y: 1, z: this.pos.z }, 8);
-        else if (gain > 0.15) g.audio.caption('ghost' + this.type, '[bir inleme]', { x: this.pos.x, y: 1, z: this.pos.z }, 12);
+        if (gain > 0.2 && this.type === 'clyde') g.audio.caption('clyde', PB.t('cap.drag'), { x: this.pos.x, y: 1, z: this.pos.z }, 8);
+        else if (gain > 0.15) g.audio.caption('ghost' + this.type, PB.t('cap.moan'), { x: this.pos.x, y: 1, z: this.pos.z }, 12);
       }
     }
     pose(dt) {
@@ -563,7 +563,7 @@
       if (!c) return;
       this.placeCell(c.x, c.y);
       if (this.state === 'patrol') this.setState('investigate'), this.lastKnown = { x: this.g.player.pos.x, z: this.g.player.pos.z };
-      if (this.g.audio) { this.g.audio.loop('inkyWhisper', 'whisper', { x: this.pos.x, y: 1.5, z: this.pos.z }, { gain: 0.5 }); setTimeout(() => this.g.audio && this.g.audio.stopLoop('inkyWhisper', 1), 2200); this.g.audio.caption('whisper', '[fısıltı]', { x: this.pos.x, y: 1, z: this.pos.z }, 6); }
+      if (this.g.audio) { this.g.audio.loop('inkyWhisper', 'whisper', { x: this.pos.x, y: 1.5, z: this.pos.z }, { gain: 0.5 }); setTimeout(() => this.g.audio && this.g.audio.stopLoop('inkyWhisper', 1), 2200); this.g.audio.caption('whisper', PB.t('cap.whisper'), { x: this.pos.x, y: 1, z: this.pos.z }, 6); }
     }
     // Turuncu: bakıldığında donar, bakılmadığında hızla yaklaşır, fenere uzun süre tutulursa kaçar
     clydeAI(dt, dm) {
@@ -600,7 +600,7 @@
       this.setState('retreat');
       this.beamT = 0;
       if (this.g.audio) this.g.audio.stinger('spot');
-      this.g.ui.subtitle('Cemil: "Bakma bana… lütfen bakma…"', 3);
+      this.g.ui.subtitle(PB.Story.ghostHelp('clydeWatch'), 3);
     }
     makeFriendly() {
       this.friendly = true; this.hostile = false;
@@ -653,7 +653,7 @@
         const k = this.loopKeys[0];
         if (!g.audio.loops.has(k)) g.audio.loop(k, 'giggle', { x: this.pos.x, y: 1.5, z: this.pos.z }, { gain: 0, ref: 2 });
         g.audio.setLoop(k, U.clamp(1 - d / 18, 0, 1) * 0.25 * vis, { x: this.pos.x, y: 1.5, z: this.pos.z }, !this.losToPlayer());
-        if (d < 12 && vis > 0.3) g.audio.caption('grin', '[karanlıkta kıkırdama]', { x: this.pos.x, y: 1.5, z: this.pos.z }, 10);
+        if (d < 12 && vis > 0.3) g.audio.caption('grin', PB.t('cap.giggle'), { x: this.pos.x, y: 1.5, z: this.pos.z }, 10);
       }
     }
     dissolve() { this.setState('gone'); this.respawnT = 18 + Math.random() * 12; this.fade = 1; }

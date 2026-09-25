@@ -138,7 +138,7 @@
       if (pos && this.listenerPos && this.camYaw != null) {
         const a = Math.atan2(pos.x - this.listenerPos.x, pos.z - this.listenerPos.z);
         const rel = U.angleWrap(a - (this.camYaw + Math.PI));
-        dir = Math.abs(rel) < 0.6 ? 'önünde' : Math.abs(rel) > 2.5 ? 'arkanda' : rel > 0 ? 'solunda' : 'sağında';
+        dir = PB.t(Math.abs(rel) < 0.6 ? 'cap.front' : Math.abs(rel) > 2.5 ? 'cap.back' : rel > 0 ? 'cap.left' : 'cap.right');
       }
       this.events.emit('caption', text, dir);
     }
@@ -316,8 +316,8 @@
       if (this.wakaFlip) this.tone(ws, 'triangle', 300, 150, t, 0.11, 0.7);
       else this.tone(ws, 'triangle', 150, 300, t, 0.11, 0.7);
       this.tone(o.input, 'sine', 60, 45, t, 0.14, 0.5);
-      if (!occluded && big > 0.5) this.caption('waka', '[yakında çiğneme sesi: vaka, vaka]', pos, 6);
-      else this.caption('wakaFar', '[uzakta çiğneme sesi]', pos, 10);
+      if (!occluded && big > 0.5) this.caption('waka', PB.t('cap.waka'), pos, 6);
+      else this.caption('wakaFar', PB.t('cap.wakaFar'), pos, 10);
     }
     stinger(kind = 'spot') {
       if (!this.ctx) return;
@@ -450,8 +450,8 @@
       const a = Math.random() * Math.PI * 2, d = 12 + Math.random() * 25;
       const pos = { x: cam.position.x + Math.cos(a) * d, y: 2, z: cam.position.z + Math.sin(a) * d };
       const t = this.t, o = this.out('amb', pos, { rev: 0.7, ref: 4 });
-      if (th === 'concrete' || th === 'pool') { for (let k = 0; k < 3; k++) this.tone(o.input, 'sine', 1800 + Math.random() * 1500, 1200, t + k * 0.7, 0.06, 0.25); this.caption('drip', '[su damlıyor]', pos, 30); }
-      else if (th === 'yellow' || th === 'dark') { if (Math.random() < 0.5) { this.burst(o.input, 'lowpass', 200, 1, t, 0.5, 0.5, 0.02, this.brown); this.caption('thud', '[uzakta bir şey düştü]', pos, 25); } else { this.burst(o.input, 'bandpass', 3000, 8, t, 0.05, 0.3); this.burst(o.input, 'bandpass', 3000, 8, t + 0.07, 0.05, 0.2); this.caption('buzz', '[bir floresan çıtırdıyor]', pos, 40); } }
+      if (th === 'concrete' || th === 'pool') { for (let k = 0; k < 3; k++) this.tone(o.input, 'sine', 1800 + Math.random() * 1500, 1200, t + k * 0.7, 0.06, 0.25); this.caption('drip', PB.t('cap.drip'), pos, 30); }
+      else if (th === 'yellow' || th === 'dark') { if (Math.random() < 0.5) { this.burst(o.input, 'lowpass', 200, 1, t, 0.5, 0.5, 0.02, this.brown); this.caption('thud', PB.t('cap.thud'), pos, 25); } else { this.burst(o.input, 'bandpass', 3000, 8, t, 0.05, 0.3); this.burst(o.input, 'bandpass', 3000, 8, t + 0.07, 0.05, 0.2); this.caption('buzz', PB.t('cap.buzz'), pos, 40); } }
       else if (th === 'office') { this.tone(o.input, 'square', 1300, 1300, t, 0.08, 0.06); this.tone(o.input, 'square', 1300, 1300, t + 0.15, 0.08, 0.06); }
       else if (th === 'glitch') this.glitchBurst(pos);
       else if (th === 'maze') { this.tone(o.input, 'triangle', 300, 150, t, 0.1, 0.12); this.tone(o.input, 'triangle', 150, 300, t + 0.12, 0.1, 0.12); }

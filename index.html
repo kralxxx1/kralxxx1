@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Pacman: Arka Odalar</title>
-<meta name="description" content="Pacman'in 256. seviyesinin ardındaki sonsuz sarı odalarda geçen birinci şahıs kaçış ve korku oyunu.">
+<title>Pacman: The Back Rooms</title>
+<meta name="description" content="A first-person horror escape game set in the endless rooms behind Pacman's level 256.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Caveat:wght@500;700&family=Courier+Prime:wght@400;700&display=swap">
@@ -12,19 +12,19 @@
 </head>
 <body>
 <div id="app">
-  <canvas id="view" aria-label="Oyun görüntüsü"></canvas>
+  <canvas id="view" data-t-aria="game.aria"></canvas>
 
   <!-- ============================== HUD -->
   <div id="hud" hidden>
-    <div id="rec" hidden><span class="dot"></span> KAYIT <span id="rec-time">00:00:00</span> <span id="rec-level"></span><span class="bat">▮▮▮▯</span></div>
-    <div id="objective"><span class="obj-label">HEDEF</span><span id="obj-text"></span></div>
+    <div id="rec" hidden><span class="dot"></span> <span data-t="hud.rec">REC</span> <span id="rec-time">00:00:00</span> <span id="rec-level"></span><span class="bat">▮▮▮▯</span></div>
+    <div id="objective"><span class="obj-label" data-t="hud.objective">OBJECTIVE</span><span id="obj-text"></span></div>
     <div id="power-timer" hidden></div>
     <div id="notif"></div>
     <div id="crosshair"></div>
     <div id="prompt" hidden><kbd id="prompt-key">E</kbd><span id="prompt-text"></span><div id="hold" hidden></div></div>
     <div id="status">
-      <div class="meter" id="m-stamina"><span>NEFES</span><i></i></div>
-      <div class="meter" id="m-battery"><span>FENER</span><i></i></div>
+      <div class="meter" id="m-stamina"><span data-t="hud.stamina">BREATH</span><i></i></div>
+      <div class="meter" id="m-battery"><span data-t="hud.battery">LIGHT</span><i></i></div>
     </div>
     <div id="inv"></div>
     <div id="talk">
@@ -34,172 +34,190 @@
     <div id="fps" hidden></div>
   </div>
 
-  <!-- ============================== DOKUNMATİK -->
+  <!-- ============================== TOUCH -->
   <div id="touch" hidden>
     <div id="touch-look"></div>
     <div id="touch-stick"><div id="touch-knob"></div></div>
     <div class="tb-col">
-      <button type="button" id="tb-pause" class="tb small" aria-label="Duraklat">❚❚</button>
-      <button type="button" id="tb-map" class="tb small">HARİTA</button>
-      <button type="button" id="tb-drink" class="tb small">İÇ</button>
-      <button type="button" id="tb-throw" class="tb small">AT</button>
-      <button type="button" id="tb-crouch" class="tb">EĞİL</button>
-      <button type="button" id="tb-sprint" class="tb">KOŞ</button>
-      <button type="button" id="tb-flash" class="tb">FENER</button>
+      <button type="button" id="tb-pause" class="tb small" data-t-aria="touch.pause">❚❚</button>
+      <button type="button" id="tb-map" class="tb small" data-t="touch.map">MAP</button>
+      <button type="button" id="tb-drink" class="tb small" data-t="touch.drink">DRINK</button>
+      <button type="button" id="tb-throw" class="tb small" data-t="touch.throw">THROW</button>
+      <button type="button" id="tb-crouch" class="tb" data-t="touch.crouch">CROUCH</button>
+      <button type="button" id="tb-sprint" class="tb" data-t="touch.sprint">RUN</button>
+      <button type="button" id="tb-flash" class="tb" data-t="touch.flash">LIGHT</button>
       <button type="button" id="tb-interact" class="tb big">E</button>
     </div>
   </div>
 
-  <!-- ============================== YÜKLEME -->
+  <!-- ============================== LOADING -->
   <section id="scr-boot" class="screen">
     <div class="boot-inner">
-      <p class="boot-title">PACMAN<span>ARKA ODALAR</span></p>
+      <p class="boot-title">PACMAN<span data-t="game.subtitle">THE BACK ROOMS</span></p>
       <p id="boot-level" class="boot-level"></p>
       <div class="boot-track"><div id="boot-bar"></div></div>
-      <p id="boot-label">Başlatılıyor…</p>
+      <p id="boot-label" data-t="boot.init">Starting…</p>
       <p id="boot-tip" class="tip"></p>
     </div>
   </section>
 
-  <!-- ============================== ANA MENÜ -->
+  <!-- ============================== FIRST LAUNCH -->
+  <section id="scr-first" class="screen nav dim" hidden>
+    <div class="panel narrow first">
+      <h2 data-t="first.title">Before you start</h2>
+      <p class="first-label" data-t="first.lang">Language</p>
+      <div class="row lang-row" id="first-langs"></div>
+      <div class="calib"><span class="c-dim"></span><span class="c-mid"></span></div>
+      <p class="help" data-t="first.bright">Adjust brightness until the left symbol is barely visible.</p>
+      <div class="set-row"><label for="first-bright" data-t="set.brightness">Brightness</label><div class="ctl"><input type="range" id="first-bright" min="0.5" max="1.8" step="0.05"><output id="first-bright-out"></output></div></div>
+      <p class="help" data-t="first.phones">Best with headphones, in a dark room.</p>
+      <div class="row"><button type="button" id="first-go" data-focus data-t="first.go">Continue</button></div>
+    </div>
+  </section>
+
+  <!-- ============================== MAIN MENU -->
   <section id="scr-menu" class="screen nav" hidden>
     <div class="menu-side">
       <h1 class="title" data-text="PACMAN">PACMAN</h1>
-      <p class="subtitle">ARKA ODALAR</p>
+      <p class="subtitle" data-t="game.subtitle">THE BACK ROOMS</p>
       <nav class="menu">
-        <button type="button" id="m-continue" hidden>Devam et <small></small></button>
-        <button type="button" id="m-new">Yeni oyun</button>
-        <button type="button" id="m-levels" hidden>Bölümler</button>
-        <button type="button" id="m-settings">Ayarlar</button>
-        <button type="button" id="m-archive">Arşiv <small></small></button>
-        <button type="button" id="m-help">Nasıl oynanır</button>
+        <button type="button" id="m-continue" hidden><span data-t="menu.continue">Continue</span> <small></small></button>
+        <button type="button" id="m-new" data-t="menu.new">New game</button>
+        <button type="button" id="m-levels" hidden data-t="menu.levels">Chapters</button>
+        <button type="button" id="m-settings" data-t="menu.settings">Settings</button>
+        <button type="button" id="m-archive"><span data-t="menu.archive">Archive</span> <small></small></button>
+        <button type="button" id="m-help" data-t="menu.help">How to play</button>
       </nav>
       <p id="menu-foot" class="foot"></p>
     </div>
-    <p class="menu-credit">Moda, Kadıköy · 30 Kasım 1994 · 02:11</p>
+    <p class="menu-credit" data-t="menu.credit">Harlow · November 30, 1994 · 2:11 AM</p>
   </section>
 
   <section id="scr-confirm" class="screen nav dim" data-back hidden>
     <div class="panel narrow">
-      <h2>Yeni oyun?</h2>
-      <p>Kayıtlı ilerlemenin üzerine yazılacak. Bulduğun belgeler arşivde kalır.</p>
-      <div class="row"><button type="button" id="confirm-yes">Evet, baştan başla</button><button type="button" id="confirm-no" data-action="back">Vazgeç</button></div>
+      <h2 data-t="confirm.title">New game?</h2>
+      <p data-t="confirm.body"></p>
+      <div class="row"><button type="button" id="confirm-yes" data-t="confirm.yes">Yes</button><button type="button" id="confirm-no" data-action="back" data-t="confirm.no">Cancel</button></div>
     </div>
   </section>
 
   <section id="scr-diff" class="screen nav dim" data-back hidden>
     <div class="panel wide">
-      <h2>Zorluk</h2>
+      <h2 data-t="diff.title">Difficulty</h2>
       <div class="diff-grid">
-        <button type="button" data-diff="kolay"><b>Kolay</b><span>Hikâyeye odaklan. Yaratıklar daha yavaş ve daha az dikkatli. Her bölümde bir kez yakalanmaktan kurtulursun.</span></button>
-        <button type="button" data-diff="normal" data-focus><b>Normal</b><span>Tasarlandığı gibi. Tek yakalanma, son kayda dönüş.</span></button>
-        <button type="button" data-diff="kabus"><b>Kâbus</b><span>Daha hızlı, daha keskin kulaklı yaratıklar. Pil hızla biter. Korku daha çabuk basar.</span></button>
+        <button type="button" data-diff="easy"><b data-t="diff.easy">Easy</b><span data-t="diff.easyDesc"></span></button>
+        <button type="button" data-diff="normal" data-focus><b data-t="diff.normal">Normal</b><span data-t="diff.normalDesc"></span></button>
+        <button type="button" data-diff="nightmare"><b data-t="diff.nightmare">Nightmare</b><span data-t="diff.nightmareDesc"></span></button>
       </div>
-      <p class="help">Tahmini oyun süresi: tüm belgeleri okuyan ve dört hayaleti kurtaran biri için 2–3 saat.</p>
-      <div class="row"><button type="button" id="diff-back" data-action="back">Geri</button></div>
+      <p class="help" data-t="diff.time"></p>
+      <div class="row"><button type="button" id="diff-back" data-action="back" data-t="common.back">Back</button></div>
     </div>
   </section>
 
   <section id="scr-levels" class="screen nav dim" data-back hidden>
     <div class="panel wide">
-      <h2>Bölümler</h2>
+      <h2 data-t="levels.title">Chapters</h2>
       <div id="levels-list" class="list"></div>
-      <div class="row"><button type="button" id="levels-back" data-action="back">Geri</button></div>
+      <div class="row"><button type="button" id="levels-back" data-action="back" data-t="common.back">Back</button></div>
     </div>
   </section>
 
   <section id="scr-settings" class="screen nav dim" data-back hidden>
     <div class="panel settings">
-      <h2>Ayarlar</h2>
+      <h2 data-t="settings.title">Settings</h2>
       <div id="set-tabs" class="tabs" role="tablist"></div>
       <div id="set-body" class="set-body"></div>
-      <p class="help"><em>*</em> işaretli ayarlar bir sonraki bölüm yüklemesinde uygulanır.</p>
-      <div class="row"><button type="button" id="set-reset">Varsayılanlar</button><button type="button" id="set-back" data-action="back">Geri</button></div>
+      <p class="help" data-t="settings.reloadNote"></p>
+      <div class="row"><button type="button" id="set-reset" data-t="settings.reset">Defaults</button><button type="button" id="set-back" data-action="back" data-t="common.back">Back</button></div>
     </div>
   </section>
 
   <section id="scr-archive" class="screen nav dim" data-back hidden>
     <div class="panel wide">
-      <h2>Arşiv <small id="archive-count"></small></h2>
+      <h2><span data-t="archive.title">Archive</span> <small id="archive-count"></small></h2>
       <div id="archive-list" class="list archive"></div>
-      <div class="row"><button type="button" id="archive-back" data-action="back">Geri</button></div>
+      <div class="row"><button type="button" id="archive-back" data-action="back" data-t="common.back">Back</button></div>
     </div>
   </section>
 
   <section id="scr-help" class="screen nav dim" data-back hidden>
     <div class="panel wide help-panel">
-      <h2>Nasıl oynanır</h2>
+      <h2 data-t="help.title">How to play</h2>
       <div class="help-cols">
         <div>
-          <h3>Klavye ve fare</h3>
+          <h3 data-t="help.kbm">Keyboard and mouse</h3>
           <dl class="keys">
-            <dt><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></dt><dd>Yürü</dd>
-            <dt><kbd>Fare</kbd></dt><dd>Etrafına bak (tıklayınca kilitlenir)</dd>
-            <dt><kbd>Shift</kbd></dt><dd>Koş (gürültülü, nefes tüketir)</dd>
-            <dt><kbd>C</kbd></dt><dd>Eğil (neredeyse sessiz)</dd>
-            <dt><kbd>E</kbd></dt><dd>Etkileşim, oku, al, saklan</dd>
-            <dt><kbd>F</kbd></dt><dd>Fener</dd>
-            <dt><kbd>Q</kbd></dt><dd>Badem suyu iç</dd>
-            <dt><kbd>G</kbd></dt><dd>Işık çubuğu at</dd>
-            <dt><kbd>M</kbd> / <kbd>Tab</kbd></dt><dd>Harita</dd>
-            <dt><kbd>Esc</kbd> / <kbd>P</kbd></dt><dd>Duraklat</dd>
+            <dt><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></dt><dd data-t="help.walk"></dd>
+            <dt><kbd data-t="help.mouse">Mouse</kbd></dt><dd data-t="help.look"></dd>
+            <dt><kbd>Shift</kbd></dt><dd data-t="help.sprint"></dd>
+            <dt><kbd>C</kbd></dt><dd data-t="help.crouch"></dd>
+            <dt><kbd>E</kbd></dt><dd data-t="help.interact"></dd>
+            <dt><kbd>F</kbd></dt><dd data-t="help.flash"></dd>
+            <dt><kbd>Q</kbd></dt><dd data-t="help.drink"></dd>
+            <dt><kbd>G</kbd></dt><dd data-t="help.throw"></dd>
+            <dt><kbd>M</kbd> / <kbd>Tab</kbd></dt><dd data-t="help.map"></dd>
+            <dt><kbd>Esc</kbd> / <kbd>P</kbd></dt><dd data-t="help.pause"></dd>
           </dl>
-          <h3>Dokunmatik</h3>
-          <p>Sol altta yürüme çubuğu, ekranın sağında parmağını sürükleyerek bakış. Sağdaki düğmeler: etkileşim, fener, koş, eğil, harita.</p>
+          <h3 data-t="help.touch">Touch</h3>
+          <p data-t="help.touchText"></p>
         </div>
         <div>
-          <h3>Hayatta kalmak</h3>
+          <h3 data-t="help.survive">Staying alive</h3>
           <ul class="tips">
-            <li><b>Yutucu</b> düz koridorlarda senden hızlı, dönüşlerde yavaş. Köşe dön.</li>
-            <li>Floresanlar titremeye başladıysa <b>o yakında</b>.</li>
-            <li><b>Güç hapı</b> yutunca her şey birkaç saniye senden kaçar.</li>
-            <li><b>Kırmızı</b> hiç durmaz. <b>Pembe</b> önüne geçer. <b>Mavi</b> kararsızdır. <b>Turuncu</b> ise sen bakarken donar.</li>
-            <li>Masaların altına <b>saklanabilirsin</b>. Seni girerken görmedilerse bulamazlar.</li>
-            <li><b>Kaset çalarlar</b> oyunu kaydeder. Otomatik kayıt, hedeflerde ve güvendeyken yapılır.</li>
-            <li>Dört hayaletin eşyalarını <b>türbelerine</b> götür. Son, buna bağlı.</li>
+            <li data-t-html="help.tip1"></li>
+            <li data-t-html="help.tip2"></li>
+            <li data-t-html="help.tip3"></li>
+            <li data-t-html="help.tip4"></li>
+            <li data-t-html="help.tip5"></li>
+            <li data-t-html="help.tip6"></li>
+            <li data-t-html="help.tip7"></li>
           </ul>
         </div>
       </div>
-      <div class="row"><button type="button" id="help-back" data-action="back">Geri</button></div>
+      <div class="row"><button type="button" id="help-back" data-action="back" data-t="common.back">Back</button></div>
     </div>
   </section>
 
   <section id="scr-pause" class="screen nav dim" data-back hidden>
     <div class="panel narrow pause">
-      <h2>Duraklatıldı</h2>
+      <h2 data-t="pause.title">Paused</h2>
       <nav class="menu">
-        <button type="button" id="p-resume" data-action="back" data-focus>Devam et</button>
-        <button type="button" id="p-map">Harita</button>
-        <button type="button" id="p-archive">Arşiv</button>
-        <button type="button" id="p-settings">Ayarlar</button>
-        <button type="button" id="p-help">Nasıl oynanır</button>
-        <button type="button" id="p-load">Son kayıttan yükle</button>
-        <button type="button" id="p-menu">Ana menü</button>
+        <button type="button" id="p-resume" data-action="back" data-focus data-t="pause.resume">Resume</button>
+        <button type="button" id="p-map" data-t="pause.map">Map</button>
+        <button type="button" id="p-archive" data-t="pause.archive">Archive</button>
+        <button type="button" id="p-settings" data-t="pause.settings">Settings</button>
+        <button type="button" id="p-help" data-t="pause.help">How to play</button>
+        <button type="button" id="p-load" data-t="pause.load">Load last save</button>
+        <button type="button" id="p-menu" data-t="pause.menu">Main menu</button>
       </nav>
     </div>
   </section>
 
-  <!-- ============================== OYUN İÇİ KATMANLAR -->
+  <!-- ============================== IN-GAME OVERLAYS -->
   <section id="scr-note" class="overlay dim" hidden>
     <article id="note-paper" class="paper"></article>
-    <button type="button" id="note-close" class="note-close">Kapat (E)</button>
+    <button type="button" id="note-close" class="note-close" data-t="note.closeKey">Close (E)</button>
+  </section>
+
+  <section id="scr-choice" class="overlay dim nav" data-back hidden>
+    <div id="choice-list" class="choice"></div>
   </section>
 
   <section id="scr-map" class="overlay dim" hidden>
     <div class="map-wrap">
       <p id="map-title" class="map-title"></p>
       <div class="map-box"><canvas id="map-canvas"></canvas></div>
-      <p class="map-legend"><i class="lg y"></i>Hedef <i class="lg r"></i>Kaset <i class="lg w"></i>Belge <i class="lg p"></i>Türbe <i class="lg b"></i>Malzeme <i class="lg d"></i>Kilitli kapı</p>
-      <button type="button" id="map-close">Kapat (M)</button>
+      <p class="map-legend"><i class="lg y"></i><span data-t="map.objective"></span> <i class="lg r"></i><span data-t="map.tape"></span> <i class="lg w"></i><span data-t="map.doc"></span> <i class="lg p"></i><span data-t="map.shrine"></span> <i class="lg b"></i><span data-t="map.supply"></span> <i class="lg d"></i><span data-t="map.locked"></span></p>
+      <button type="button" id="map-close" data-t="map.closeKey">Close (M)</button>
     </div>
   </section>
 
   <section id="scr-keypad" class="overlay dim" hidden>
     <div class="keypad">
-      <p class="kp-label">GÜVENLİK ODASI</p>
+      <p class="kp-label" data-t="kp.label">SECURITY</p>
       <div id="kp-display" class="kp-display">_ _ _ _</div>
       <div id="kp-grid" class="kp-grid"></div>
-      <button type="button" id="kp-close" class="kp-close">Vazgeç (Esc)</button>
+      <button type="button" id="kp-close" class="kp-close" data-t="kp.close">Cancel (Esc)</button>
     </div>
   </section>
 
@@ -207,7 +225,7 @@
     <div class="cabinet">
       <div class="marquee">PACMAN</div>
       <div class="bezel"><canvas id="cab-canvas"></canvas></div>
-      <p class="cab-help">Ok tuşları veya WASD · Enter başla · P duraklat · <button type="button" id="cab-exit">Kabinden ayrıl (Esc)</button></p>
+      <p class="cab-help"><span data-t="cab.help"></span> <button type="button" id="cab-exit" data-t="cab.exit">Leave the cabinet (Esc)</button></p>
     </div>
   </section>
 
@@ -217,15 +235,15 @@
       <h2 id="card-title" class="card-title"></h2>
       <p id="card-place" class="card-place"></p>
       <p id="card-intro" class="card-intro"></p>
-      <p class="card-skip">Geçmek için tıkla veya E</p>
+      <p class="card-skip" data-t="card.skip">Click or press E to continue</p>
     </div>
   </section>
 
   <section id="scr-death" class="screen nav death" hidden>
     <div class="death-inner">
-      <h2 id="death-title">YAKALANDIN</h2>
+      <h2 id="death-title">CAUGHT</h2>
       <p id="death-tip"></p>
-      <div class="row"><button type="button" id="death-retry" data-focus>Son kayıttan devam et</button><button type="button" id="death-menu">Ana menü</button></div>
+      <div class="row"><button type="button" id="death-retry" data-focus data-t="death.retry">Continue from last save</button><button type="button" id="death-menu" data-t="death.menu">Main menu</button></div>
     </div>
   </section>
 
@@ -236,31 +254,53 @@
       <div id="end-lines" class="end-lines"></div>
       <div id="end-stats" class="end-stats" hidden></div>
       <div id="end-credits" class="end-credits"></div>
-      <div class="row"><button type="button" id="end-menu" hidden>Ana menü</button><button type="button" id="end-skip" class="ghost">Geç</button></div>
+      <div class="row"><button type="button" id="end-menu" hidden data-t="end.menu">Main menu</button><button type="button" id="end-skip" class="ghost" data-t="end.skip">Skip</button></div>
     </div>
   </section>
 </div>
 
-<noscript><p class="noscript">Bu oyun için JavaScript gerekiyor.</p></noscript>
+<noscript><p class="noscript">This game needs JavaScript. / Bu oyun için JavaScript gerekiyor.</p></noscript>
 
-<!-- 3D motoru: three.js r170 (modül). Diğer betikler "defer" ile, bu modülden sonra ve sırayla çalışır. -->
+<!-- 3D engine: three.js r170 (module). The deferred scripts below run after it, in order. -->
 <script type="module">
   import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js';
   window.THREE = THREE;
 </script>
 <script defer src="js/util.js"></script>
+<script defer src="js/i18n.js"></script>
+<script defer src="js/text/en/ui.js"></script>
+<script defer src="js/text/en/core.js"></script>
+<script defer src="js/text/en/prolog.js"></script>
+<script defer src="js/text/en/lobby.js"></script>
+<script defer src="js/text/en/mill.js"></script>
+<script defer src="js/text/en/pool.js"></script>
+<script defer src="js/text/en/office.js"></script>
+<script defer src="js/text/en/dark.js"></script>
+<script defer src="js/text/en/finale.js"></script>
+<script defer src="js/text/tr/ui.js"></script>
+<script defer src="js/text/tr/core.js"></script>
+<script defer src="js/text/tr/prolog.js"></script>
+<script defer src="js/text/tr/lobby.js"></script>
+<script defer src="js/text/tr/mill.js"></script>
+<script defer src="js/text/tr/pool.js"></script>
+<script defer src="js/text/tr/office.js"></script>
+<script defer src="js/text/tr/dark.js"></script>
+<script defer src="js/text/tr/finale.js"></script>
 <script defer src="js/settings.js"></script>
+<script defer src="js/levels.js"></script>
 <script defer src="js/levelgen.js"></script>
 <script defer src="js/story.js"></script>
 <script defer src="js/textures.js"></script>
 <script defer src="js/post.js"></script>
 <script defer src="js/props.js"></script>
+<script defer src="js/lightbake.js"></script>
 <script defer src="js/world.js"></script>
 <script defer src="js/audio.js"></script>
 <script defer src="js/player.js"></script>
 <script defer src="js/entities.js"></script>
 <script defer src="js/arcade2d.js"></script>
 <script defer src="js/ui.js"></script>
+<script defer src="js/chapters.js"></script>
 <script defer src="js/game.js"></script>
 </body>
 </html>
