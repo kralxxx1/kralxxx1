@@ -109,6 +109,13 @@ I'm sorry, kid.` },
         ['sam', 'You were going to let me open it and walk through yourself.'],
         ['eddie', 'Hope is a year old, Sam. I have never held her. [His voice breaks.] I\'m not asking you to forgive me. I\'m asking you to hold the door.'],
       ],
+      // If Sam heard him out at the Starlite, Eddie keeps the promise he made there
+      ks_pleaTrust: [
+        ['eddie', 'That\'s the real one. Wind, rain, Front Street. Home.'],
+        ['eddie', 'I told you at the motel I wouldn\'t ask you. So I\'m not asking.'],
+        ['sam', 'But you want to.'],
+        ['eddie', 'Every second. [A long breath.] Go to the core first, Sam. If there\'s another way, it\'s there. If there isn\'t... I\'ll still be standing here.'],
+      ],
     },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

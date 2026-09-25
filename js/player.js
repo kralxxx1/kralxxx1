@@ -8,7 +8,7 @@
   const MAP = {
     forward: ['KeyW', 'ArrowUp'], back: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
     sprint: ['ShiftLeft', 'ShiftRight'], crouch: ['KeyC'], interact: ['KeyE', 'Enter'],
-    flash: ['KeyF'], map: ['KeyM', 'Tab'], journal: ['KeyJ'], pause: ['Escape', 'KeyP'], throw: ['KeyG'], inventory: ['KeyI'], drink: ['KeyQ'],
+    flash: ['KeyF'], map: ['KeyM', 'Tab'], journal: ['KeyJ'], pause: ['Escape', 'KeyP'], throw: ['KeyG'], inventory: ['KeyI'], drink: ['KeyQ'], leanL: ['KeyZ'], leanR: ['KeyX'],
   };
 
   class Input {
@@ -110,7 +110,7 @@
       this.pos = new THREE.Vector3();
       this.vel = new THREE.Vector3();
       this.yaw = 0; this.pitch = 0;
-      this.eye = 1.62; this.eyeCur = 1.62;
+      this.eye = 1.62; this.eyeCur = 1.62; this.lean = 0;
       this.radius = 0.3;
       this.stamina = 100; this.exhausted = false;
       this.fear = 0;
@@ -275,6 +275,17 @@
       let k = this.flashOn ? 1 : 0;
       if (this.flashOn && this.battery < 15) k *= Math.random() < 0.08 ? 0.15 : 0.75;
       if (this.flashOn && g.flashInterference > 0) k *= Math.random() < g.flashInterference * 0.5 ? 0.05 : 1;
+      // Eyes adapt: a wall right in front of the lens would blow out, so the beam backs off up close
+      if (this.flashOn) {
+        const L = g.level, cam = this.cam, d0 = this.flashDir, ceil = (L && L.ceil) || 3;
+        let hit = 4;
+        if (L) for (let s = 0.3; s <= 4; s += 0.3) {
+          const x = cam.position.x + d0.x * s, y = cam.position.y + d0.y * s, z = cam.position.z + d0.z * s;
+          if (y < 0.02 || y > ceil - 0.02 || !L.los(cam.position.x, cam.position.z, x, z)) { hit = s; break; }
+        }
+        this.flashNear = U.damp(this.flashNear == null ? 1 : this.flashNear, 0.42 + 0.58 * U.smoothstep(0.4, 3.2, hit), 6, dt);
+        k *= this.flashNear;
+      }
       this.flash.intensity = U.damp(this.flash.intensity, k * 95, 25, dt);
       this.fill.intensity = this.flash.intensity * 0.012;
       const cam = this.cam;
@@ -300,10 +311,24 @@
       const t = performance.now() / 1000;
       const shx = (Math.sin(t * 37) + Math.sin(t * 23.7)) * 0.03 * sh, shy = (Math.sin(t * 31) + Math.sin(t * 19.3)) * 0.03 * sh;
       const right = new THREE.Vector3(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
-      cam.position.set(this.pos.x + right.x * bx, this.pos.y + this.eyeCur + by, this.pos.z + right.z * bx);
+      // Lean around corners (Z / X): the head slides sideways and tilts, but never through a wall
+      const inp = this.game.input;
+      let leanT = this.hidden || this.frozen || !inp ? 0 : (inp.down('leanR') ? 1 : 0) - (inp.down('leanL') ? 1 : 0);
+      if (leanT && this.sprinting) leanT = 0;
+      this.lean = U.damp(this.lean, leanT, 9, dt || 1);
+      let lx = right.x * this.lean * 0.42, lz = right.z * this.lean * 0.42;
+      const L = this.game.level;
+      if (L && Math.abs(this.lean) > 0.01) {
+        const ex = this.pos.x + lx * 1.35, ez = this.pos.z + lz * 1.35;
+        const q = { x: ex, z: ez };
+        if (this.game.world && this.game.world.collide) this.game.world.collide(q, 0.14);
+        const blocked = !L.los(this.pos.x, this.pos.z, ex, ez) || Math.hypot(q.x - ex, q.z - ez) > 0.02;
+        if (blocked) { this.lean *= 0.85; lx *= 0.3; lz *= 0.3; }
+      }
+      cam.position.set(this.pos.x + right.x * bx + lx, this.pos.y + this.eyeCur + by - Math.abs(this.lean) * 0.05, this.pos.z + right.z * bx + lz);
       if (this.hidden) cam.position.set(this.hidden.x, this.hidden.floor + this.eyeCur, this.hidden.z);
       cam.rotation.order = 'YXZ';
-      cam.rotation.set(this.pitch + shy, this.yaw + shx, (Math.sin(this.bob) * 0.006 * bobK) + sh * 0.02 * Math.sin(t * 13));
+      cam.rotation.set(this.pitch + shy, this.yaw + shx, (Math.sin(this.bob) * 0.006 * bobK) + sh * 0.02 * Math.sin(t * 13) - this.lean * 0.13);
       // Koşarken hafif FOV artışı
       const fovT = S.fov + (this.sprinting ? 6 : 0) - (this.fear > 70 ? (this.fear - 70) * 0.15 : 0);
       if (Math.abs(cam.fov - fovT) > 0.05) { cam.fov = U.damp(cam.fov, fovT, 6, dt || 1); cam.updateProjectionMatrix(); }
@@ -313,6 +338,7 @@
     // ---------------------------------------------------------- saklanma
     hide(spot) {
       this.hidden = { x: spot.x, z: spot.z, eye: spot.eye || 0.72, floor: this.floorY, spot, fromX: this.pos.x, fromZ: this.pos.z, t: 0 };
+      document.body.classList.toggle('in-locker', spot.kind === 'locker');
       this.yaw = spot.yaw != null ? spot.yaw : this.yaw;
       this.pitch = -0.05;
       this.flashOn = false;
@@ -322,6 +348,7 @@
       const h = this.hidden;
       this.pos.x = h.fromX; this.pos.z = h.fromZ;
       this.hidden = null;
+      document.body.classList.remove('in-locker');
     }
     updateHidden(dt) {
       const h = this.hidden;

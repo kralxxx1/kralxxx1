@@ -156,7 +156,9 @@
             <dt><kbd>F</kbd></dt><dd data-t="help.flash"></dd>
             <dt><kbd>Q</kbd></dt><dd data-t="help.drink"></dd>
             <dt><kbd>G</kbd></dt><dd data-t="help.throw"></dd>
+            <dt><kbd>Z</kbd> / <kbd>X</kbd></dt><dd data-t="help.lean"></dd>
             <dt><kbd>M</kbd> / <kbd>Tab</kbd></dt><dd data-t="help.map"></dd>
+            <dt><kbd>I</kbd> / <kbd>J</kbd></dt><dd data-t="help.bag"></dd>
             <dt><kbd>Esc</kbd> / <kbd>P</kbd></dt><dd data-t="help.pause"></dd>
           </dl>
           <h3 data-t="help.touch">Touch</h3>
@@ -185,6 +187,7 @@
       <nav class="menu">
         <button type="button" id="p-resume" data-action="back" data-focus data-t="pause.resume">Resume</button>
         <button type="button" id="p-map" data-t="pause.map">Map</button>
+        <button type="button" id="p-journal" data-t="pause.journal">Journal</button>
         <button type="button" id="p-archive" data-t="pause.archive">Archive</button>
         <button type="button" id="p-settings" data-t="pause.settings">Settings</button>
         <button type="button" id="p-help" data-t="pause.help">How to play</button>
@@ -210,6 +213,26 @@
       <div class="map-box"><canvas id="map-canvas"></canvas></div>
       <p class="map-legend"><i class="lg y"></i><span data-t="map.objective"></span> <i class="lg r"></i><span data-t="map.tape"></span> <i class="lg w"></i><span data-t="map.doc"></span> <i class="lg p"></i><span data-t="map.shrine"></span> <i class="lg b"></i><span data-t="map.supply"></span> <i class="lg d"></i><span data-t="map.locked"></span></p>
       <button type="button" id="map-close" data-t="map.closeKey">Close (M)</button>
+    </div>
+  </section>
+
+  <section id="scr-bag" class="overlay dim" hidden>
+    <div class="panel wide bag">
+      <nav class="bag-tabs">
+        <button type="button" id="bag-tab-items" data-t="bag.items">Items</button>
+        <button type="button" id="bag-tab-journal" data-t="bag.journal">Journal</button>
+      </nav>
+      <div id="bag-items" class="bag-items">
+        <div id="bag-grid" class="bag-grid"></div>
+        <div class="bag-inspect">
+          <canvas id="bag-canvas"></canvas>
+          <h3 id="bag-name"></h3>
+          <p id="bag-desc"></p>
+          <p id="bag-hint" class="help"></p>
+        </div>
+      </div>
+      <div id="bag-journal" class="bag-journal" hidden></div>
+      <div class="row"><button type="button" id="bag-close" data-t="bag.close">Close (I / J)</button></div>
     </div>
   </section>
 
@@ -277,6 +300,13 @@
 <script defer src="js/text/en/pool.js"></script>
 <script defer src="js/text/en/office.js"></script>
 <script defer src="js/text/en/dark.js"></script>
+<script defer src="js/text/en/pipes.js"></script>
+<script defer src="js/text/en/school.js"></script>
+<script defer src="js/text/en/mall.js"></script>
+<script defer src="js/text/en/motel.js"></script>
+<script defer src="js/text/en/hospital.js"></script>
+<script defer src="js/text/en/maple.js"></script>
+<script defer src="js/text/en/workshop.js"></script>
 <script defer src="js/text/en/finale.js"></script>
 <script defer src="js/text/tr/ui.js"></script>
 <script defer src="js/text/tr/core.js"></script>
@@ -286,15 +316,25 @@
 <script defer src="js/text/tr/pool.js"></script>
 <script defer src="js/text/tr/office.js"></script>
 <script defer src="js/text/tr/dark.js"></script>
+<script defer src="js/text/tr/pipes.js"></script>
+<script defer src="js/text/tr/school.js"></script>
+<script defer src="js/text/tr/mall.js"></script>
+<script defer src="js/text/tr/motel.js"></script>
+<script defer src="js/text/tr/hospital.js"></script>
+<script defer src="js/text/tr/maple.js"></script>
+<script defer src="js/text/tr/workshop.js"></script>
 <script defer src="js/text/tr/finale.js"></script>
 <script defer src="js/settings.js"></script>
 <script defer src="js/levels.js"></script>
 <script defer src="js/levelgen.js"></script>
+<script defer src="js/levelgen2.js"></script>
 <script defer src="js/story.js"></script>
 <script defer src="js/textures.js"></script>
+<script defer src="js/art.js"></script>
 <script defer src="js/post.js"></script>
 <script defer src="js/props.js"></script>
 <script defer src="js/models.js"></script>
+<script defer src="js/models2.js"></script>
 <script defer src="js/exterior.js"></script>
 <script defer src="js/lightbake.js"></script>
 <script defer src="js/world.js"></script>
@@ -303,9 +343,12 @@
 <script defer src="js/viewmodel.js"></script>
 <script defer src="js/player.js"></script>
 <script defer src="js/entities.js"></script>
+<script defer src="js/entities2.js"></script>
 <script defer src="js/arcade2d.js"></script>
 <script defer src="js/ui.js"></script>
+<script defer src="js/bag.js"></script>
 <script defer src="js/chapters.js"></script>
+<script defer src="js/chapters2.js"></script>
 <script defer src="js/game.js"></script>
 </body>
 </html>

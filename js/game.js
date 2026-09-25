@@ -202,6 +202,7 @@
       on('p-archive', () => { this.ui.buildArchive(this.save); this.ui.only('scr-archive'); });
       on('p-help', () => this.ui.only('scr-help'));
       on('p-map', () => { this.ui.only(null); this.openMap(true); });
+      on('p-journal', () => { this.ui.only(null); this.openBag('journal', true); });
       on('p-load', () => { this.ui.only(null); this.continueGame(); });
       on('p-menu', () => { this.writeSave(); this.toMenu(); });
       on('map-close', () => this.closeMap());
@@ -318,6 +319,8 @@
       else this.writeSave();
       this.audio.init();
       this.audio.ambience(L.theme);
+      this.audio.music.flavor = L.def.music || 'default';
+      this.audio.warmMusic();
       if (this.world.street) { const zF = L.h * L.cell; this.audio.streetSounds({ x: 6, y: 1.6, z: zF - 0.2 }, { x: this.world.street.spout.x, y: 0.3, z: zF + 0.4 }); }
       this.audio.setMusic('explore');
       this.ui.buildTouch();
@@ -438,7 +441,11 @@
             if (!onWall) { pl.rotation.x = -Math.PI / 2; pl.position.y = 0.01; } else pl.position.z = 0.01;
             grp.add(pl);
           } else {
-            const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.21, 0.29), new THREE.MeshStandardMaterial({ map: T.paper(it.id, !['letter', 'printout', 'notice', 'report', 'card', 'flyer'].includes(n.kind)), roughness: 0.9, side: THREE.DoubleSide }));
+            // Drawings show Lily's actual picture, photos the actual print; everything else is handwriting or type
+            const loc = ST.note(it.data);
+            const map = n.kind === 'drawing' ? T.drawing(n.drawing || 1, T.drawingCaption(loc.body)) : n.kind === 'photo' ? T.photo(n.photo || 'arch', it.data) : T.paper(it.id, !['letter', 'printout', 'notice', 'report', 'card', 'flyer'].includes(n.kind));
+            const geo = n.kind === 'drawing' ? new THREE.PlaneGeometry(0.29, 0.22) : n.kind === 'photo' ? new THREE.PlaneGeometry(0.13, 0.1) : new THREE.PlaneGeometry(0.21, 0.29);
+            const paper = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map, roughness: n.kind === 'photo' ? 0.35 : 0.9, side: THREE.DoubleSide }));
             w.patch(paper.material);
             if (onWall) paper.position.z = 0.012;
             else { paper.rotation.x = -Math.PI / 2; paper.position.y = 0.006; paper.rotation.z = Math.random() * 6; }
@@ -507,6 +514,21 @@
           this.world.addCollider({ minX: it.wx - 0.75, maxX: it.wx + 0.75, minZ: it.wz - 0.45, maxZ: it.wz + 0.45 });
           break;
         }
+        case 'key': {
+          const k = it.data || '';
+          if (/^frame/.test(k)) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.002, 0.065), new THREE.MeshStandardMaterial({ map: T.photo('frame'), roughness: 0.3 })); m.position.y = 0.001; grp.add(m); w.patch(m.material); }
+          else if (/^page/.test(k)) add('note', 0, 1);
+          else { add('key', 0, 2.2); const tag = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.002, 0.05), w.mat('keyTag')); tag.position.set(0.06, 0.004, 0.02); grp.add(tag); }
+          o.marker = MARK.obj; o.pos.y = Math.max(o.pos.y, 0) ; break;
+        }
+        case 'dial': {
+          const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.085, 0.05, 24), w.mat('blackPlastic')); knob.rotation.x = Math.PI / 2; grp.add(knob);
+          const ptr = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.06, 0.012), w.mat('chrome')); ptr.position.set(0, 0.035, 0.03); knob.add(ptr); ptr.rotation.x = -Math.PI / 2;
+          const face = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3), new THREE.MeshBasicMaterial({ map: T.label('dialFace', '0 1 2 3 4 5 6 7 8 9', { w: 256, h: 64, bg: 'rgba(0,0,0,0)', color: '#e8e0c0', font: `22px ${T.FONTS.FONT_TYPE}` }), transparent: true }));
+          face.position.set(0, -0.12, 0.01); grp.add(face);
+          o.knob = knob; o.value = 0; o.marker = MARK.obj; grp.rotation.y = 0; break;
+        }
+        case 'booth': o.mesh = null; o.marker = MARK.obj; o.pos.y = 1.0; o.reach = 2.4; break;
         case 'specialCabinet': case 'freeCabinet': o.mesh = null; o.marker = ty === 'specialCabinet' ? MARK.obj : null; o.pos.y = 1.2; o.reach = 2.2; break;
         default: break;
       }
@@ -532,6 +554,7 @@
         case 'powerPellet': return t('pr.pellet');
         case 'phone': return o.ringing ? t('pr.phoneRing') : t('pr.phone');
         case 'freeCabinet': return t('pr.cabinetFree');
+        case 'key': return t('pr.take', { name: ST.item(it.data).name });
         default: return null;
       }
     }
@@ -564,6 +587,15 @@
           break;
         }
         case 'phone': this.answerPhone(o); break;
+        case 'key': {
+          this.takeItem(o); if (!this.inv.keys.includes(it.data)) this.inv.keys.push(it.data);
+          this.audio.pickup(/^(frame|page)/.test(it.data) ? 'item' : 'key');
+          const info = ST.item(it.data);
+          this.ui.notify(t('n.found', { name: info.name }), 'key');
+          if (info.doc) this.readNote(info.doc, () => { if (this.script.picked) this.script.picked(this, it.data, o); });
+          else if (this.script.picked) this.script.picked(this, it.data, o);
+          break;
+        }
         case 'freeCabinet': this.enterCabinet(); break;
         default: break;
       }
@@ -612,6 +644,9 @@
       if (inv.fuel) keys.push(t('inv.fuel', { n: inv.fuel }));
       if (inv.keycard) keys.push(t('inv.keycard'));
       if (inv.memento) keys.push(ST.memento(inv.memento).name.toLocaleUpperCase(PB.I18N.lang));
+      const counted = {};
+      for (const k of inv.keys || []) { const base = k.replace(/\d+$/, ''); if (/^(frame|page)$/.test(base)) counted[base] = (counted[base] || 0) + 1; else keys.push(ST.item(k).name.toLocaleUpperCase(PB.I18N.lang)); }
+      for (const b in counted) keys.push(ST.item(b).name.toLocaleUpperCase(PB.I18N.lang) + ' ×' + counted[b]);
       if (inv.pellets && this.levelDef && this.levelDef.id === 'lobby' && !this.flags.exitOpen) keys.push(t('inv.pellets', { n: inv.pellets }));
       this.ui.setInventory({ batteries: inv.batteries, almond: inv.almond, glow: inv.glow, keys });
     }
@@ -625,12 +660,16 @@
           kind: 'door', ref: door, pos, reach: 2.4,
           prompt: () => {
             if (door.kind === 'house') return null;
-            if (door.locked) return t('pr.doorLocked', { name: t(door.nameKey || 'door.default') });
+            const dname = door.label && !door.nameKey ? t('door.room', { n: door.label }) : t(door.nameKey || 'door.default');
+            if (door.locked) return this.script.unlockPrompt && this.script.unlockPrompt(this, door) || t('pr.doorLocked', { name: dname });
             if (['exit', 'elevator', 'stair'].includes(door.kind)) return null;
             return door.open ? t('pr.doorClose') : t('pr.doorOpen');
           },
           act: () => {
-            if (door.locked) { this.ui.hint(t(door.lockKey || 'lock.default')); this.audio.door('locked', pos); if (this.script.lockedDoor) this.script.lockedDoor(this, door); return; }
+            if (door.locked) {
+              if (this.script.unlockDoor && this.script.unlockDoor(this, door)) { this.nav.dirty = true; return; }
+              this.ui.hint(t(door.lockKey || 'lock.default')); this.audio.door('locked', pos); if (this.script.lockedDoor) this.script.lockedDoor(this, door); return;
+            }
             if (['exit', 'elevator', 'stair', 'house'].includes(door.kind)) return;
             if (door.open) { this.world.closeDoor(door.id); this.audio.door(door.kind, pos, false); }
             else { this.world.openDoor(door.id, this.player.pos.x, this.player.pos.z); this.audio.door(door.kind, pos, true); this.noise(pos.x, pos.z, 8); }
@@ -642,19 +681,19 @@
     createHideSpots() {
       for (const p of this.level.props) {
         if (!p.hide) continue;
-        const along = p.type === 'cubicleDesk';
-        const faceYaw = p.type === 'cubicleDesk' ? (p.rot === 0 ? -Math.PI / 2 : Math.PI / 2) : (p.rot === 0 ? Math.PI : 0);
-        void along;
-        const pos = new THREE.Vector3(p.x, 0.6, p.z);
+        // Look out the way the furniture faces (lockers: through the vents)
+        const faceYaw = p.type === 'cubicleDesk' ? (p.rot === 0 ? -Math.PI / 2 : Math.PI / 2) : p.hideKind === 'locker' ? p.rot + Math.PI : (p.rot === 0 ? Math.PI : 0);
+        const pos = new THREE.Vector3(p.x, p.hideKind === 'locker' ? 1.3 : 0.6, p.z);
         this.interactables.push({
           kind: 'hide', ref: p, pos, reach: 2.0,
-          prompt: () => this.player.hidden ? (this.player.hidden.spot === p ? t('pr.unhide') : null) : t('pr.hide'),
+          prompt: () => this.player.hidden ? (this.player.hidden.spot.x === p.x && this.player.hidden.spot.z === p.z || this.player.hidden.spot === p ? t('pr.unhide') : null) : t(p.hideKind === 'locker' ? 'pr.hideLocker' : 'pr.hide'),
           act: () => {
             if (this.player.hidden) { this.player.unhide(); return; }
             const watching = this.entities.filter(e => e.hostile && e.state === 'chase' && e.losToPlayer() && e.distToPlayer() < 14);
             for (const e of this.entities) e.sawHide = watching.includes(e);
-            this.player.hide({ x: p.x, z: p.z, yaw: faceYaw, eye: 0.62 });
-            this.ui.subtitle(ST.mono('hide'), 2.5);
+            this.player.hide({ x: p.x, z: p.z, yaw: faceYaw, eye: p.hideEye || 0.62, kind: p.hideKind });
+            this.audio.play && this.audio.play(p.hideKind === 'locker' ? 'doorLocked' : 'cloth', 2, 'sfx', null, { rev: 0.2, gain: 0.5 });
+            this.ui.subtitle(ST.mono(p.hideKind === 'locker' ? 'hideLocker' : 'hide'), 2.5);
           },
         });
       }
@@ -691,6 +730,7 @@
             else { const c = spawnFar(e.ghost === 'clyde' ? 14 : 18); ent.placeCell(c.x, c.y); }
           } else if (e.type === 'grinner') { ent = new E.Grinner(this, e); const c = spawnFar(12); ent.placeCell(c.x, c.y); }
           else if (e.type === 'watcher') { ent = new E.Watcher(this, e); ent.placeCell(L.spawn.x, L.spawn.y); }
+          else if (E.extra && E.extra[e.type]) { ent = new E.extra[e.type](this, e); const c = spawnFar(e.near || (e.type === 'mannequin' ? 10 : 16)); ent.placeCell(c.x, c.y); }
           if (ent) this.entities.push(ent);
         }
       }
@@ -817,6 +857,7 @@
         else if (ent.kind === 'ghost') { if (ent.type === 'clyde') ent.retreat(); else { ent.setState('eaten'); ent.eatenT = 8; } }
         else if (ent.kind === 'grinner') ent.dissolve();
         else if (ent.kind === 'watcher') ent.vanish();
+        else if (ent.stun) ent.stun();
         this.ui.hint(t('n.grace'));
         return;
       }
@@ -910,6 +951,31 @@
       this.ignoreUnlock = true;
       this.ui.show('scr-map');
       this.ui.drawMap(this, { entities: !!this.flags.cameras });
+    }
+    // Backpack: items with a 3D inspect view, and the journal
+    openBag(tab, fromPause) {
+      if (!this.bag) this.bag = new PB.Bag(this);
+      this.state = 'bag';
+      this.bagFromPause = !!fromPause;
+      this.input.exitLock();
+      this.ignoreUnlock = true;
+      this.audio.paper();
+      this.ui.show('scr-bag');
+      this.bag.open(tab);
+    }
+    closeBag() {
+      this.ui.hide('scr-bag');
+      this.ignoreUnlock = false;
+      if (this.bagFromPause) { this.state = 'pause'; this.ui.only('scr-pause'); return; }
+      this.state = 'play';
+      this.suppressPauseUntil = performance.now() + 250;
+      if (!this.ui.touch && !this.input.lockFailed) this.input.requestLock();
+    }
+    // Read a paper from the journal, then come back to it
+    readFromBag(id) {
+      this.ui.hide('scr-bag');
+      this.state = 'note';
+      this.ui.showNote(id, () => { this.state = 'bag'; this.ui.show('scr-bag'); this.bag.show('journal'); }, true);
     }
     closeMap() {
       this.ui.hide('scr-map');
@@ -1036,6 +1102,7 @@
       c.t = dur + 0.25;
       this.ui.subtitle(text, dur, who === 'sam' ? null : ST.speaker(who), who);
       if (who === 'eddie' || who === 'radio') this.audio.radioVoice(dur, who);
+      else if (who !== 'sam') this.audio.echoVoice(dur, who);
     }
     // Modal choice (e.g. at the final door)
     choice(options, onCancel) {
@@ -1134,6 +1201,12 @@
           if (inp.pressed('interact') || inp.pressed('pause')) { if (this.ui.finishType && this.ui.$('note-paper').querySelector('.caret')) this.ui.finishType(); else $('note-close').click(); }
           break;
         case 'map': if (inp.pressed('map') || inp.pressed('pause')) this.closeMap(); break;
+        case 'bag':
+          if (inp.pressed('pause')) this.closeBag();
+          else if (inp.pressed('inventory')) { if (this.bag.tab === 'items') this.closeBag(); else this.bag.show('items'); }
+          else if (inp.pressed('journal')) { if (this.bag.tab === 'journal') this.closeBag(); else this.bag.show('journal'); }
+          if (this.state === 'bag') this.bag.update(dt);
+          break;
         case 'pause': if (inp.pressed('pause') && this.ui.isOpen('scr-pause')) this.resume(); break;
         default: break;
       }
@@ -1172,6 +1245,8 @@
       this.playTime += dt;
       if (inp.pressed('pause') && performance.now() > (this.suppressPauseUntil || 0)) { if (pl.hidden) pl.unhide(); else { this.pause(); return; } }
       if (inp.pressed('map')) { this.openMap(); return; }
+      if (inp.pressed('inventory')) { this.openBag('items'); return; }
+      if (inp.pressed('journal')) { this.openBag('journal'); return; }
       if (inp.pressed('throw')) this.throwGlowstick();
       if (inp.pressed('drink')) this.drinkAlmond();
       pl.update(dt);
@@ -1323,7 +1398,7 @@
       if (this.world && this.world.street) { const l = this.world.street.lamp; fixtures.push({ x: l.x, y: l.y, z: l.z, range: 11, r: 0.12, g: 0.14, b: 0.2 }); }
       this.post.setLights(this.player.flash, fixtures);
       if (this.world) this.post.vol.uLvK.value = (this.postLvK || 0.03) * this.world.U.uLmIntensity.value;
-      p.blur.value = this.state === 'pause' || this.state === 'map' || this.state === 'note' || this.state === 'keypad' || this.state === 'cabinet' ? 0.8 : 0;
+      p.blur.value = this.state === 'pause' || this.state === 'map' || this.state === 'bag' || this.state === 'note' || this.state === 'keypad' || this.state === 'cabinet' ? 0.8 : 0;
       // Güç hapı: sahne hafif maviye döner
       if (this.powerT > 0) { const k = Math.min(1, this.powerT / 2); p.tint.value.set(tint[0] * (1 - 0.25 * k), tint[1] * (1 - 0.1 * k), tint[2] * (1 + 0.3 * k)); }
     }

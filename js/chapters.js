@@ -199,7 +199,7 @@
     start(g) { g.setObj('mill_fuses', { n: 0 }); },
     afterCard(g) { g.mono('mill_start', 4); g.radio('mill_start', { delay: 5 }); },
     restore(g) {
-      if (g.flags.elevatorReady) { openExit(g, 'pool'); g.setObj('mill_leave'); }
+      if (g.flags.elevatorReady) { openExit(g, 'pipes'); g.setObj('mill_leave'); }
       else if (g.flags.panelDone) { g.flags.waitT = 12; g.setObj('mill_wait', { n: 12 }); }
       else if (g.inv.fuses >= 3) g.setObj('mill_panel');
       else g.setObj('mill_fuses', { n: g.inv.fuses });
@@ -240,7 +240,7 @@
       if (g.flags.panelDone && !g.flags.elevatorReady) {
         g.flags.waitT -= dt;
         g.setObj('mill_wait', { n: Math.max(0, Math.ceil(g.flags.waitT)) });
-        if (g.flags.waitT <= 0) { g.flags.elevatorReady = true; g.audio.stopLoop('elevatorHum'); openExit(g, 'pool'); g.setObj('mill_leave'); g.completeStep(); }
+        if (g.flags.waitT <= 0) { g.flags.elevatorReady = true; g.audio.stopLoop('elevatorHum'); openExit(g, 'pipes'); g.setObj('mill_leave'); g.completeStep(); }
       }
     },
   };
@@ -312,7 +312,7 @@
       g.audio.caption('phone', t('cap.phone'), ph.pos, 20);
     },
     restore(g) {
-      if (g.flags.stairOpen) { openExit(g, 'dark', 'stairDoor'); g.setObj('office_stairs'); }
+      if (g.flags.stairOpen) { openExit(g, 'school', 'stairDoor'); g.setObj('office_stairs'); }
       else if (g.inv.keycard) g.setObj('office_stairs');
       else if (g.flags.securityOpen) g.setObj('office_card');
       else if ((g.flags.digits || 0) >= 4) g.setObj('office_keypad');
@@ -360,7 +360,7 @@
         if (!g.inv.keycard) { g.ui.hint(ST.line('office_cardRed')); g.audio.beep(false); return true; }
         g.flags.stairOpen = true; g.audio.mech('card', o.pos);
         if (o.led) o.led.material.color.setRGB(0.1, 3, 0.2);
-        openExit(g, 'dark', 'stairDoor'); g.completeStep();
+        openExit(g, 'school', 'stairDoor'); g.completeStep();
         return true;
       }
       if (o.type === 'phone') {
@@ -390,7 +390,7 @@
     afterCard(g) { g.mono('dark_start', 4); g.player.toggleFlash(true); g.radio('dark_start', { delay: 5 }); },
     restore(g) {
       for (const it of g.items) if (it.type === 'generator' && g.flags['g_' + it.id]) it.done = true;
-      if ((g.flags.gens || 0) >= 3) { openExit(g, 'maze'); g.setObj('dark_leave'); }
+      if ((g.flags.gens || 0) >= 3) { openExit(g, 'mall'); g.setObj('dark_leave'); }
       else g.setObj('dark_generators', { n: g.flags.gens || 0 });
     },
     prompt(g, o) {
@@ -413,7 +413,7 @@
         g.mono('dark_gen', 3);
         g.noise(o.pos.x, o.pos.z, 30);
         if (g.flags.gens >= 2) wakePac(g, false);
-        if (g.flags.gens >= 3) { openExit(g, 'maze'); g.setObj('dark_leave'); }
+        if (g.flags.gens >= 3) { openExit(g, 'mall'); g.setObj('dark_leave'); }
         else g.setObj('dark_generators', { n: g.flags.gens });
         g.updateInventoryUI(); g.completeStep();
         return true;
@@ -522,7 +522,7 @@
       if (d && !g.flags.choiceDone) {
         const obj = g.world.doorObjs.get(d.id);
         const dist = Math.hypot(g.player.pos.x - obj.g.cx, g.player.pos.z - obj.g.cz);
-        if (dist < 7 && !g.flags.pleaHeard) { g.flags.pleaHeard = true; g.mono('ks_exit', 3); g.radio('ks_plea', { delay: 3, force: true }); }
+        if (dist < 7 && !g.flags.pleaHeard) { g.flags.pleaHeard = true; g.mono('ks_exit', 3); g.radio(g.save.world.trustEddie ? 'ks_pleaTrust' : 'ks_plea', { delay: 3, force: true }); }
         // At the door: choose
         if (dist < 2.6 && g.state === 'play' && !g.talking() && !g.flags.choiceCool) {
           g.flags.choiceDone = true;

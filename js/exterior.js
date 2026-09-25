@@ -116,14 +116,13 @@
 
   // ------------------------------------------------------------ MATERIALS
   // Wet ground: puddle mask lowers roughness and darkens, rain ripples perturb the normal
-  function wetMaterial(map, o, uTime) {
-    const m = new THREE.MeshStandardMaterial({ map, color: o.color || 0xffffff, roughness: o.rough || 0.45, metalness: 0, emissive: new THREE.Color(o.amb || 0x05070a), emissiveMap: map });
-    m.userData.refl = o.refl || 0.5;
-    const puddles = TX.puddles(); puddles.wrapS = puddles.wrapT = THREE.RepeatWrapping;
-    m.onBeforeCompile = sh => {
-      sh.uniforms.uTime = uTime; sh.uniforms.uPud = { value: puddles }; sh.uniforms.uPudScale = { value: o.pudScale || 0.08 }; sh.uniforms.uWet = { value: o.wet != null ? o.wet : 1 };
-      sh.vertexShader = 'varying vec3 vExW;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\nvExW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
-      sh.fragmentShader = `varying vec3 vExW; uniform float uTime; uniform sampler2D uPud; uniform float uPudScale; uniform float uWet;
+  // Shader edit shared by the street and outdoor floors of other levels
+  let puddleTex = null;
+  function wetPatch(sh, uTime, o = {}) {
+    if (!puddleTex) { puddleTex = TX.puddles(); puddleTex.wrapS = puddleTex.wrapT = THREE.RepeatWrapping; }
+    sh.uniforms.uTime = uTime; sh.uniforms.uPud = { value: puddleTex }; sh.uniforms.uPudScale = { value: o.pudScale || 0.08 }; sh.uniforms.uWet = { value: o.wet != null ? o.wet : 1 };
+    sh.vertexShader = 'varying vec3 vExW;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\nvExW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = `varying vec3 vExW; uniform float uTime; uniform sampler2D uPud; uniform float uPudScale; uniform float uWet;
 float exH(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 vec2 exRipple(vec2 p, float t){
   vec2 n = vec2(0.0);
@@ -142,16 +141,20 @@ vec2 exRipple(vec2 p, float t){
   return n;
 }
 ` + sh.fragmentShader
-        .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+      .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
 float pud = smoothstep(0.35, 0.75, texture2D(uPud, vExW.xz * uPudScale).r) * uWet;
-roughnessFactor = mix(roughnessFactor, 0.03, pud);`)
-        .replace('#include <color_fragment>', `#include <color_fragment>
+roughnessFactor = mix(roughnessFactor * mix(1.0, 0.6, uWet), 0.03, pud);`)
+      .replace('#include <color_fragment>', `#include <color_fragment>
 float pud0 = smoothstep(0.35, 0.75, texture2D(uPud, vExW.xz * uPudScale).r) * uWet;
-diffuseColor.rgb *= mix(0.72, 0.35, pud0);`)
-        .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
-{ vec2 rp = exRipple(vExW.xz, uTime) * (0.25 + 0.75 * pud);
+diffuseColor.rgb *= mix(mix(1.0, 0.72, uWet), 0.35, pud0);`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+{ vec2 rp = exRipple(vExW.xz, uTime) * (0.25 + 0.75 * pud) * uWet;
   normal = normalize(normal + (viewMatrix * vec4(rp.x, 0.0, rp.y, 0.0)).xyz * 0.9); }`);
-    };
+  }
+  function wetMaterial(map, o, uTime) {
+    const m = new THREE.MeshStandardMaterial({ map, color: o.color || 0xffffff, roughness: o.rough || 0.45, metalness: 0, emissive: new THREE.Color(o.amb || 0x05070a), emissiveMap: map });
+    m.userData.refl = o.refl || 0.5;
+    m.onBeforeCompile = sh => wetPatch(sh, uTime, o);
     m.customProgramCacheKey = () => 'ex-wet';
     return m;
   }
@@ -166,14 +169,18 @@ diffuseColor.rgb *= mix(0.72, 0.35, pud0);`)
     attribute vec4 aSeed;
     uniform float uTime; uniform vec3 uCam; uniform vec3 uMin; uniform vec3 uSize; uniform vec3 uLamp; uniform float uFlash;
     uniform vec4 uHole; uniform float uHoleY; uniform float uLen; uniform float uSpeed; uniform float uWind;
+    uniform sampler2D uMask; uniform vec2 uMaskSize; uniform float uHasMask;
     varying vec2 vUv; varying float vLit; varying float vA;
     void main(){
       float sp = uSpeed * (0.85 + aSeed.w * 0.3);
       float y = fract(aSeed.z - uTime * sp / uSize.y);
       vec3 p = uMin + vec3(aSeed.x, y, aSeed.y) * uSize;
+      // Around-the-camera mode: world-anchored drops wrapped into the box
+      if (uHasMask > 0.5) p.xz = uMin.xz + mod(aSeed.xy * uSize.xz - uMin.xz, uSize.xz);
       p.x += (y - 0.5) * uWind;
       vA = 1.0;
       if (p.x > uHole.x && p.x < uHole.z && p.z > uHole.y && p.z < uHole.w && p.y < uHoleY) vA = 0.0;
+      if (uHasMask > 0.5 && (texture2D(uMask, p.xz / uMaskSize).r < 0.5 && p.y < 3.4)) vA = 0.0;
       vec3 vel = normalize(vec3(uWind * 0.12, -1.0, 0.0));
       vec3 toCam = normalize(uCam - p);
       vec3 side = normalize(cross(vel, toCam));
@@ -195,6 +202,7 @@ diffuseColor.rgb *= mix(0.72, 0.35, pud0);`)
   const SPLASH_VS = `
     attribute vec4 aSeed;
     uniform float uTime; uniform vec3 uMin; uniform vec3 uSize; uniform vec3 uLamp; uniform float uFlash; uniform vec4 uHole;
+    uniform sampler2D uMask; uniform vec2 uMaskSize; uniform float uHasMask;
     varying vec2 vUv; varying float vT; varying float vLit; varying float vA;
     void main(){
       float rate = 1.6 + aSeed.w;
@@ -203,7 +211,9 @@ diffuseColor.rgb *= mix(0.72, 0.35, pud0);`)
       float k = floor(cyc);
       vec2 j = fract(vec2(sin(k * 12.9898 + aSeed.x * 78.2), sin(k * 39.34 + aSeed.y * 11.1)) * 43758.5453);
       vec3 p = uMin + vec3(fract(aSeed.x + j.x * 0.2), 0.0, fract(aSeed.y + j.y * 0.2)) * uSize;
+      if (uHasMask > 0.5) p.xz = uMin.xz + mod(vec2(fract(aSeed.x + j.x * 0.2), fract(aSeed.y + j.y * 0.2)) * uSize.xz - uMin.xz, uSize.xz);
       vA = (p.x > uHole.x && p.x < uHole.z && p.z > uHole.y && p.z < uHole.w) ? 0.0 : 1.0;
+      if (uHasMask > 0.5 && texture2D(uMask, p.xz / uMaskSize).r < 0.5) vA = 0.0;
       float s = 0.03 + t * 0.12;
       vec3 pos = p + vec3(position.x * s, 0.004, position.y * s);
       vUv = position.xy + 0.5; vT = t;
@@ -475,7 +485,7 @@ diffuseColor.rgb *= mix(0.72, 0.35, pud0);`)
       };
       this.rainU = [];
       const hole = new THREE.Vector4(0.2, zF - 1, 8.8, zF + 1.45);
-      const common = () => ({ uTime: this.uTime, uCam: { value: new THREE.Vector3() }, uLamp: { value: this.lamp }, uFlash: { value: 0 } });
+      const common = () => ({ uTime: this.uTime, uCam: { value: new THREE.Vector3() }, uLamp: { value: this.lamp }, uFlash: { value: 0 }, uMask: { value: null }, uMaskSize: { value: new THREE.Vector2(1, 1) }, uHasMask: { value: 0 } });
       const rain = Object.assign(common(), { uMin: { value: new THREE.Vector3(x0 + 8, -0.15, zF + 0.25) }, uSize: { value: new THREE.Vector3(x1 - x0 - 16, 10, 16) }, uHole: { value: hole }, uHoleY: { value: 3.1 }, uLen: { value: 0.5 }, uSpeed: { value: 9 }, uWind: { value: 0.6 }, uAlpha: { value: 0.32 } });
       mk(Math.round(9000 * (0.4 + quality * 0.6)), RAIN_VS, RAIN_FS, rain);
       this.rainU.push(rain);
@@ -488,7 +498,7 @@ diffuseColor.rgb *= mix(0.72, 0.35, pud0);`)
       mk(120, RAIN_VS, RAIN_FS, sp);
       this.rainU.push(sp);
       // Ground splashes
-      const spl = { uTime: this.uTime, uLamp: { value: this.lamp }, uFlash: { value: 0 }, uMin: { value: new THREE.Vector3(x0 + 8, -0.148, zF + 0.3) }, uSize: { value: new THREE.Vector3(x1 - x0 - 16, 0, 16) }, uHole: { value: hole } };
+      const spl = { uTime: this.uTime, uLamp: { value: this.lamp }, uFlash: { value: 0 }, uMin: { value: new THREE.Vector3(x0 + 8, -0.148, zF + 0.3) }, uSize: { value: new THREE.Vector3(x1 - x0 - 16, 0, 16) }, uHole: { value: hole }, uMask: { value: null }, uMaskSize: { value: new THREE.Vector2(1, 1) }, uHasMask: { value: 0 } };
       mk(Math.round(1400 * (0.4 + quality * 0.6)), SPLASH_VS, SPLASH_FS, spl, true);
       this.rainU.push(spl);
     }
@@ -546,6 +556,88 @@ diffuseColor.rgb *= mix(0.72, 0.35, pud0);`)
       }
     }
   }
+  // ------------------------------------------------------------ OPEN (outdoor levels: Maple Street)
+  class Open {
+    constructor(world) {
+      this.w = world; this.L = world.L; this.C = world.C;
+      this.uTime = { value: 0 }; this.flash = 0; this.nextFlash = 6 + Math.random() * 8; this.flashT = -9;
+      this.lamp = new THREE.Vector3(); this.spout = null;
+    }
+    build() {
+      const L = this.L, C = this.C, g = this.w.group, W = L.w * C, D = L.h * C;
+      const add = m => { g.add(m); return m; };
+      // Sky and distant houses
+      const sky = new THREE.ShaderMaterial({ vertexShader: 'varying vec3 vDir; void main(){ vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }', fragmentShader: SKY_FS, uniforms: { uTime: this.uTime, uFlash: { value: 0 }, uSkyline: { value: null } }, side: THREE.BackSide, depthWrite: false, fog: false });
+      this.skyMat = sky;
+      const dome = add(new THREE.Mesh(new THREE.SphereGeometry(Math.min(58, W * 0.6), 32, 16), sky)); dome.position.set(W / 2, 0, D / 2); dome.renderOrder = -1;
+      this.bolt = new THREE.MeshBasicMaterial({ map: TX.bolt(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, color: new THREE.Color(3, 3, 3.4), opacity: 0 });
+      this.boltMesh = add(new THREE.Mesh(new THREE.PlaneGeometry(8, 30), this.bolt)); this.boltMesh.position.set(W / 2, 26, -40);
+      // Street lamps (cobra heads) at the lamp lights
+      const poleMat = outMat(0x3a3d40, 0.4, 0.8, { refl: 0.2 });
+      const lensMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(4.4, 3.4, 2.2) });
+      this.lamps = [];
+      for (const l of L.meta.streetLamps || []) {
+        const toward = l.z < D / 2 ? 1 : -1;
+        const specs = [['lathe', 'x', [[0.001, 0], [0.2, 0], [0.2, 0.08], [0.14, 0.14], [0.11, 0.6], [0.09, 0.65], [0.08, 6.4], [0.06, 6.5], [0.001, 6.5]], 20], ['tube', 'x', [[0, 6.3, 0], [0, 6.9, 0.3], [0, 7.05, 1.2], [0, 7.0, 1.6]], 0.05, 10], ['lathe', 'x', [[0.001, 0.12], [0.22, 0.1], [0.3, 0.02], [0.3, -0.02], [0.2, -0.05], [0.001, -0.06]], 24, 0, 6.95, 1.9, 0, 0, 0, [1, 1, 1.9]]];
+        for (const part of P.build('ex:lampO', specs)) { const m = add(new THREE.Mesh(part.geo, poleMat)); m.position.set(l.x, 0, l.z - toward * 1.9); m.rotation.y = toward > 0 ? 0 : PI; m.castShadow = true; }
+        const lens = add(new THREE.Mesh(new THREE.SphereGeometry(0.26, 20, 8, 0, PI * 2, H, H), lensMat)); lens.scale.set(1, 0.25, 1.8); lens.position.set(l.x, l.y + 0.1, l.z);
+        this.lamps.push(new THREE.Vector3(l.x, l.y, l.z));
+      }
+      // Rain over outdoor cells only (mask texture)
+      const od = L.meta.outdoor, mask = new Uint8Array(L.w * L.h * 4);
+      for (let i = 0; i < L.w * L.h; i++) { const v = od[i] ? 255 : 0; mask[i * 4] = mask[i * 4 + 1] = mask[i * 4 + 2] = v; mask[i * 4 + 3] = 255; }
+      const mt = new THREE.DataTexture(mask, L.w, L.h); mt.needsUpdate = true; mt.minFilter = mt.magFilter = THREE.NearestFilter;
+      this.buildRain(mt, W, D);
+      // Lightning through the whole street, shadowed so the houses stay dark inside
+      const lt = new THREE.DirectionalLight(0xc0d0ff, 0);
+      lt.position.set(W / 2 + 10, 35, -20); lt.target.position.set(W / 2, 0, D / 2);
+      lt.castShadow = PB.Settings.data.shadows > 0; lt.shadow.mapSize.set(2048, 2048); lt.shadow.bias = -0.0008;
+      Object.assign(lt.shadow.camera, { left: -W * 0.6, right: W * 0.6, top: D, bottom: -D, near: 1, far: 120 });
+      lt.visible = false; add(lt); add(lt.target); this.lightning = lt;
+    }
+    buildRain(mask, W, D) {
+      const g = this.w.group, quality = PB.Settings.data.particles;
+      const quad = new THREE.PlaneGeometry(1, 1);
+      const mk = (count, vs, fs, uniforms) => {
+        const geo = new THREE.InstancedBufferGeometry();
+        geo.index = quad.index; geo.setAttribute('position', quad.getAttribute('position'));
+        const seed = new Float32Array(count * 4); const r = U.rng(count + 29);
+        for (let i = 0; i < count * 4; i++) seed[i] = r();
+        geo.setAttribute('aSeed', new THREE.InstancedBufferAttribute(seed, 4));
+        geo.instanceCount = count;
+        const mat = new THREE.ShaderMaterial({ vertexShader: vs, fragmentShader: fs, uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+        const m = new THREE.Mesh(geo, mat); m.frustumCulled = false; m.renderOrder = 3; m.userData.noPrepass = true;
+        g.add(m);
+        return mat;
+      };
+      const mk2 = () => ({ uTime: this.uTime, uCam: { value: new THREE.Vector3() }, uLamp: { value: this.lamp }, uFlash: { value: 0 }, uMask: { value: mask }, uMaskSize: { value: new THREE.Vector2(W, D) }, uHasMask: { value: 1 }, uHole: { value: new THREE.Vector4(0, 0, 0, 0) }, uHoleY: { value: 0 } });
+      // Rain follows the camera (a 36 m box around it) so the whole street is covered
+      this.rain = Object.assign(mk2(), { uMin: { value: new THREE.Vector3() }, uSize: { value: new THREE.Vector3(36, 10, 36) }, uLen: { value: 0.5 }, uSpeed: { value: 9 }, uWind: { value: 0.5 }, uAlpha: { value: 0.3 } });
+      mk(Math.round(12000 * (0.4 + quality * 0.6)), RAIN_VS, RAIN_FS, this.rain);
+      this.splash = Object.assign(mk2(), { uMin: { value: new THREE.Vector3() }, uSize: { value: new THREE.Vector3(30, 0, 30) } });
+      mk(Math.round(1800 * (0.4 + quality * 0.6)), SPLASH_VS, SPLASH_FS, this.splash);
+    }
+    update(dt, t, cam) {
+      this.uTime.value = t;
+      // Nearest lamp lights the rain around the player
+      let best = null, bd = Infinity;
+      for (const l of this.lamps) { const d = Math.hypot(l.x - cam.x, l.z - cam.z); if (d < bd) { bd = d; best = l; } }
+      if (best) this.lamp.copy(best);
+      this.rain.uMin.value.set(cam.x - 18, 0, cam.z - 18);
+      this.splash.uMin.value.set(cam.x - 15, 0.004, cam.z - 15);
+      if (t > this.nextFlash) { this.nextFlash = t + U.lerp(10, 26, Math.random()); this.flashT = t; this.boltMesh.position.x = cam.x + U.lerp(-30, 30, Math.random()); this.thunderAt = t + U.lerp(0.6, 3, Math.random()); }
+      const k = t - this.flashT, fl = PB.Settings.data.reduceFlicker ? 0.35 : 1;
+      let f = 0;
+      if (k >= 0 && k < 0.7) f = (k < 0.07 ? 1 : k < 0.13 ? 0.15 : k < 0.2 ? 0.8 : k < 0.3 ? 0.1 : Math.max(0, 0.45 - (k - 0.3))) * fl;
+      this.flash = f;
+      this.lightning.visible = f > 0.01; this.lightning.intensity = f * 5;
+      this.skyMat.uniforms.uFlash.value = f; this.bolt.opacity = k < 0.25 ? f : 0;
+      this.rain.uFlash.value = f; this.splash.uFlash.value = f; this.rain.uCam.value.copy(cam);
+      if (this.thunderAt && t > this.thunderAt) { this.thunderAt = 0; if (this.w.game.audio) this.w.game.audio.thunder(new THREE.Vector3(this.boltMesh.position.x, 10, -40)); }
+    }
+  }
+  PB.Exterior.Open = Open;
+  PB.Exterior.wetPatch = wetPatch;
   PB.Exterior.Street = Street;
   PB.Exterior.TX = TX;
 })(typeof window !== 'undefined' ? window : globalThis);

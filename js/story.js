@@ -28,12 +28,15 @@
     noteIds() { return Object.keys(I.section('story', 'en').docs || {}); },
     // Chapter a document belongs to: the first chapter whose items reference it
     noteLevel(id) {
-      for (const L of LV.LEVELS) for (const it of L.items || []) if (it.data === id) return L.id;
+      for (const L of LV.LEVELS) { for (const it of L.items || []) if (it.data === id) return L.id; if ((L.extraDocs || []).includes(id)) return L.id; }
       return null;
     },
     placedNoteIds() {
       const out = [];
-      for (const L of LV.LEVELS) for (const it of L.items || []) if (it.data && en('docs.' + it.data) && !out.includes(it.data)) out.push(it.data);
+      for (const L of LV.LEVELS) {
+        for (const it of L.items || []) if (it.data && en('docs.' + it.data) && !out.includes(it.data)) out.push(it.data);
+        for (const d of L.extraDocs || []) if (en('docs.' + d) && !out.includes(d)) out.push(d);
+      }
       return out;
     },
     noteCount() { return this.placedNoteIds().length; },
@@ -55,5 +58,7 @@
     ghostChar(ghost) { return LV.GHOSTS[ghost] || null; },
     charColor(id) { return LV.CHAR_COLOR[id] || '#ffffff'; },
     drawingCount() { return 8; },
+    recap(id) { return st('recap.' + id) || ''; },
+    item(id) { return Object.assign({ name: id }, en('items.' + id) || {}, st('items.' + id) || {}); },
   };
 })(typeof window !== 'undefined' ? window : globalThis);

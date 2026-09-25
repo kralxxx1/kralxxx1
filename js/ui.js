@@ -266,11 +266,11 @@
       box.innerHTML = `<header><span class="nk">${esc(kindLabel(n.kind))}</span><h2>${esc(n.title)}</h2>${meta ? `<p class="meta">${meta}</p>` : ''}</header><div class="nb">${esc(n.body).replace(/\n/g, '<br>')}</div>`;
       if (n.kind === 'photo') {
         box.insertAdjacentHTML('afterbegin', `<canvas class="photo" width="320" height="240"></canvas>`);
-        const c = box.querySelector('canvas'); c.getContext('2d').drawImage(PB.Tex.photo(n.photo || 'arch').userData.canvas, 0, 0);
+        const c = box.querySelector('canvas'); c.getContext('2d').drawImage(PB.Tex.photo(n.photo || 'arch', n.id).userData.canvas, 0, 0);
       }
       if (n.kind === 'drawing' && PB.Tex.drawing) {
         box.insertAdjacentHTML('afterbegin', `<canvas class="drawing" width="400" height="300"></canvas>`);
-        const c = box.querySelector('canvas'); c.getContext('2d').drawImage(PB.Tex.drawing(n.drawing || n.id).userData.canvas, 0, 0, 400, 300);
+        const c = box.querySelector('canvas'); c.getContext('2d').drawImage(PB.Tex.drawing(n.drawing || 1, PB.Tex.drawingCaption(n.body)).userData.canvas, 0, 0, 400, 300);
       }
       this.$('note-close').onclick = () => { this.hide('scr-note'); onClose && onClose(); };
       this.$('note-close').textContent = fromArchive ? t('common.back') : (this.touch ? t('note.close') : t('note.closeKey'));
@@ -293,10 +293,10 @@
       } else this.finishType = null;
     }
     // ---------------------------------------------------------- tuş takımı
-    showKeypad(onSubmit, onClose) {
+    showKeypad(onSubmit, onClose, len = 4) {
       let code = '';
       const disp = this.$('kp-display');
-      const draw = (msg) => { disp.textContent = msg || (code.padEnd(4, '_').split('').join(' ')); };
+      const draw = (msg) => { disp.textContent = msg || (code.padEnd(len, '_').split('').join(' ')); };
       draw();
       const grid = this.$('kp-grid');
       grid.innerHTML = '';
@@ -306,14 +306,14 @@
         disp.classList.remove('err');
         if (k === 'C') code = code.slice(0, -1);
         else if (k === 'OK') {
-          if (code.length < 4) { this.g.audio && this.g.audio.beep(false); return; }
+          if (code.length < len) { this.g.audio && this.g.audio.beep(false); return; }
           const ok = onSubmit(code);
           this.g.audio && this.g.audio.beep(ok);
           code = '';
           if (ok) { done = true; draw(t('kp.open')); disp.classList.add('ok'); setTimeout(() => { close(); }, 700); }
           else { draw(t('kp.error')); disp.classList.add('err'); }
           return;
-        } else if (code.length < 4) code += k;
+        } else if (code.length < len) code += k;
         this.g.audio && this.g.audio.beep();
         draw();
       };

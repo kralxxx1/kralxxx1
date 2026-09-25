@@ -382,6 +382,169 @@
     img.normalStrength = 0.8;
     return img;
   };
+  // Old red brick with mortar, soot and efflorescence (storm tunnels)
+  R.brick = (n, s) => {
+    const img = new FImg(n);
+    const grime = field(n, 6, 4, s), stain = field(n, 2, 3, s + 1);
+    const rows = 16, cols = 4;
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, v = y / n * rows, row = Math.floor(v), fv = v - row;
+      const u = x / n * cols + (row % 2) * 0.5, col = Math.floor(u), fu = u - col;
+      const mortar = Math.min(fv, 1 - fv) < 0.08 || Math.min(fu, 1 - fu) < 0.03;
+      const t = h32(col + row * 57, row, s), wet = sm(0.55, 0.8, 1 - stain[i]);
+      if (mortar) { const g = 0.42 - grime[i] * 0.15; img.set(i, g, g * 0.97, g * 0.9); img.h[i] = 0.15; img.r[i] = 0.95; }
+      else {
+        const k = (0.75 + t * 0.35) * (0.85 + grime[i] * 0.25) * (1 - wet * 0.35);
+        const salt = sm(0.72, 0.9, grime[i]) * 0.25;
+        img.set(i, 0.46 * k + salt, 0.2 * k + salt, 0.14 * k + salt);
+        img.h[i] = 0.6 + (h32(x >> 2, y >> 2, s) - 0.5) * 0.15; img.r[i] = 0.8 - wet * 0.45;
+      }
+    }
+    img.normalStrength = 2; img.aoStrength = 1.4;
+    return img;
+  };
+  // Painted cinder blocks (school, workshop)
+  R.cinderblock = (n, s) => {
+    const img = new FImg(n);
+    const grime = field(n, 5, 3, s), pores = field(n, 64, 2, s + 2);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, v = y / n * 4, row = Math.floor(v), fv = v - row;
+      const u = x / n * 2 + (row % 2) * 0.5, fu = u - Math.floor(u);
+      const joint = Math.min(fv, 1 - fv) < 0.03 || Math.min(fu, 1 - fu) < 0.015;
+      const k = 0.9 + (pores[i] - 0.5) * 0.1 - sm(0.6, 0.9, grime[i]) * 0.15;
+      img.set(i, 0.86 * k, 0.84 * k, 0.74 * k);
+      img.h[i] = joint ? 0.35 : 0.55 + (pores[i] - 0.5) * 0.25; img.r[i] = 0.55;
+    }
+    img.normalStrength = 1.5;
+    return img;
+  };
+  // Speckled vinyl composition tile (hospital, school halls)
+  R.vinyl = (n, s) => {
+    const img = new FImg(n);
+    const wear = field(n, 3, 3, s);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, u = x / n * 4, v = y / n * 4, fu = u - Math.floor(u), fv = v - Math.floor(v);
+      const seam = Math.min(Math.min(fu, 1 - fu), Math.min(fv, 1 - fv)) < 0.008;
+      const tone = h32(Math.floor(u), Math.floor(v), s) * 0.06;
+      const sp = h32(x, y, s + 9); const chip = sp > 0.94 ? -0.25 : sp < 0.04 ? 0.08 : 0;
+      const k = 0.82 + tone + chip - (seam ? 0.2 : 0);
+      img.set(i, 0.8 * k, 0.8 * k, 0.76 * k);
+      img.h[i] = seam ? 0.3 : 0.55; img.r[i] = 0.3 + sm(0.4, 0.8, wear[i]) * 0.35;
+    }
+    img.normalStrength = 0.8;
+    return img;
+  };
+  // Pale green hospital paint with a darker lower band
+  R.hospitalWall = (n, s) => {
+    const img = new FImg(n);
+    const grime = field(n, 6, 3, s), fine = field(n, 48, 2, s + 1);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, v = y / n;
+      const k = 0.94 + (fine[i] - 0.5) * 0.05 - sm(0.65, 0.9, grime[i]) * 0.12;
+      img.set(i, 0.66 * k, 0.78 * k, 0.7 * k);
+      img.h[i] = 0.5 + (fine[i] - 0.5) * 0.1; img.r[i] = 0.5; void v;
+    }
+    return img;
+  };
+  // Motel wallpaper: brown damask-like stripes, water stains
+  R.motelWallpaper = (n, s) => {
+    const img = new FImg(n);
+    const stain = field(n, 3, 3, s), fine = field(n, 40, 2, s + 1);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, u = x / n * 6, fu = u - Math.floor(u), v = y / n * 6;
+      const stripe = fu < 0.1 ? 1 : 0;
+      const motif = Math.abs(Math.sin((fu - 0.55) * 7 + Math.sin(v * 6.28) * 0.8)) < 0.18 && fu > 0.2 ? 1 : 0;
+      const k = (0.9 + (fine[i] - 0.5) * 0.08) * (1 - sm(0.6, 0.85, stain[i]) * 0.25);
+      img.set(i, (0.55 - stripe * 0.12 + motif * 0.08) * k, (0.4 - stripe * 0.1 + motif * 0.06) * k, (0.24 - stripe * 0.06 + motif * 0.02) * k);
+      img.h[i] = 0.5 + motif * 0.08; img.r[i] = 0.8;
+    }
+    return img;
+  };
+  // 1970s motel carpet: orange/brown geometric pattern
+  R.motelCarpet = (n, s) => {
+    const img = new FImg(n);
+    const dirt = field(n, 4, 3, s), fiber = field(n, 128, 1, s + 1);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, u = x / n * 4, v = y / n * 4, fu = u - Math.floor(u), fv = v - Math.floor(v);
+      const d = Math.abs(fu - 0.5) + Math.abs(fv - 0.5);
+      const ring = Math.abs(Math.sin(d * 18)) > 0.6 ? 1 : 0;
+      const k = (0.85 + (fiber[i] - 0.5) * 0.25) * (1 - sm(0.55, 0.85, dirt[i]) * 0.3);
+      img.set(i, (ring ? 0.62 : 0.32) * k, (ring ? 0.3 : 0.18) * k, (ring ? 0.1 : 0.08) * k);
+      img.h[i] = 0.5 + (fiber[i] - 0.5) * 0.3; img.r[i] = 0.98;
+    }
+    img.normalStrength = 1.2;
+    return img;
+  };
+  // Polished terrazzo (mall)
+  R.terrazzo = (n, s) => {
+    const img = new FImg(n);
+    const base = field(n, 8, 2, s);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x;
+      const c = h32(x >> 1, y >> 1, s), c2 = h32(x >> 2, y >> 2, s + 3);
+      let r = 0.78, g = 0.76, b = 0.72;
+      if (c > 0.93) { r = 0.45; g = 0.42; b = 0.4; } else if (c < 0.05) { r = 0.9; g = 0.6; b = 0.5; } else if (c2 > 0.96) { r = 0.3; g = 0.4; b = 0.35; }
+      const k = 0.95 + (base[i] - 0.5) * 0.1;
+      const u = x / n * 2, v = y / n * 2, strip = Math.min(u - Math.floor(u), v - Math.floor(v)) < 0.006;
+      img.set(i, strip ? 0.6 : r * k, strip ? 0.55 : g * k, strip ? 0.4 : b * k);
+      img.h[i] = 0.5; img.r[i] = strip ? 0.3 : 0.12;
+    }
+    img.normalStrength = 0.4;
+    return img;
+  };
+  // Clapboard siding (houses)
+  R.siding = (n, s) => {
+    const img = new FImg(n);
+    const grime = field(n, 4, 3, s), fine = field(n, 64, 2, s + 1);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, v = y / n * 12, fv = v - Math.floor(v);
+      const lap = 1 - fv;
+      const k = (0.85 + lap * 0.15 + (fine[i] - 0.5) * 0.05) * (1 - sm(0.6, 0.9, grime[i]) * 0.3);
+      img.set(i, 0.78 * k, 0.8 * k, 0.76 * k);
+      img.h[i] = lap * 0.6; img.r[i] = 0.6;
+    }
+    img.normalStrength = 2.2;
+    return img;
+  };
+  R.grass = (n, s) => {
+    const img = new FImg(n);
+    const patch = field(n, 4, 3, s), blades = field(n, 96, 2, s + 1);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, b = h32(x, y >> 1, s);
+      const mud = sm(0.62, 0.8, patch[i]);
+      const k = 0.6 + blades[i] * 0.5 + (b - 0.5) * 0.2;
+      img.set(i, U.lerp(0.14, 0.3, mud) * k, U.lerp(0.26, 0.22, mud) * k, U.lerp(0.08, 0.14, mud) * k);
+      img.h[i] = blades[i] * 0.7 + b * 0.3; img.r[i] = 0.85 - mud * 0.4;
+    }
+    img.normalStrength = 1.8;
+    return img;
+  };
+  R.asphalt = (n, s) => {
+    const img = new FImg(n);
+    const patch = field(n, 3, 3, s), fine = field(n, 96, 1, s + 2);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, a = h32(x, y, s);
+      const k = 0.18 + a * 0.12 + (fine[i] - 0.5) * 0.08 - sm(0.6, 0.8, patch[i]) * 0.05;
+      img.set(i, k, k, k * 1.03);
+      img.h[i] = a * 0.6 + fine[i] * 0.4; img.r[i] = 0.7 + a * 0.2;
+    }
+    img.normalStrength = 1.6;
+    return img;
+  };
+  R.shingles = (n, s) => {
+    const img = new FImg(n);
+    const grime = field(n, 4, 3, s);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, v = y / n * 10, row = Math.floor(v), fv = v - row;
+      const u = x / n * 6 + (row % 2) * 0.5, col = Math.floor(u), fu = u - col;
+      const edge = fv > 0.9 || Math.min(fu, 1 - fu) < 0.02;
+      const k = (0.6 + h32(col, row, s) * 0.35) * (1 - sm(0.6, 0.85, grime[i]) * 0.3);
+      img.set(i, 0.22 * k, 0.2 * k, 0.2 * k);
+      img.h[i] = edge ? 0.2 : 0.4 + fv * 0.4; img.r[i] = 0.75;
+    }
+    img.normalStrength = 2;
+    return img;
+  };
   R.arcadeWall = (n, s) => {
     const img = new FImg(n);
     const low = field(n, 4, 4, s), sponge = field(n, 32, 3, s + 1);
@@ -463,7 +626,7 @@
   };
 
   // Her dokunun dünyadaki tekrar boyu (metre)
-  T.SCALE = { planks: 2.4, hexTile: 0.7, subway: 0.9, linoleum: 1.2, wallpaper: 1.5, carpet: 2, ceiling: 1.2, concreteWall: 3, concreteFloor: 3, tile: 1.2, drywall: 2, officeCarpet: 2, fabric: 1, metal: 1.2, wood: 1.2, arcadeWall: 2, mazeWall: 3, mazeFloor: 3, arcadeCarpet: 2.5 };
+  T.SCALE = { brick: 2.4, cinderblock: 1.6, vinyl: 1.2, hospitalWall: 2, motelWallpaper: 1.6, motelCarpet: 2.4, terrazzo: 2.4, siding: 2.4, grass: 2, asphalt: 3, shingles: 2, planks: 2.4, hexTile: 0.7, subway: 0.9, linoleum: 1.2, wallpaper: 1.5, carpet: 2, ceiling: 1.2, concreteWall: 3, concreteFloor: 3, tile: 1.2, drywall: 2, officeCarpet: 2, fabric: 1, metal: 1.2, wood: 1.2, arcadeWall: 2, mazeWall: 3, mazeFloor: 3, arcadeCarpet: 2.5 };
 
   T.init = function (renderer, aniso) {
     T.maxAniso = renderer.capabilities.getMaxAnisotropy();
@@ -493,7 +656,7 @@
   T.canvas = function (key, w, h, draw, opts = {}) {
     if (key && T.canvasCache.has(key)) return T.canvasCache.get(key);
     const c = document.createElement('canvas'); c.width = w; c.height = h;
-    const g = c.getContext('2d');
+    const g = c.getContext('2d', opts.readback ? { willReadFrequently: true } : undefined);
     draw(g, w, h);
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
@@ -553,6 +716,14 @@
     motive1: { title: 'TEAMWORK', sub: 'Nobody escapes alone.', bg: ['#1c2a3a', '#0c141c'], fg: '#e8eef5', art: 'mountain' },
     motive2: { title: 'GOALS', sub: 'The exit is always in the next hallway.', bg: ['#2c2418', '#120e08'], fg: '#f5e6c8', art: 'arrow' },
     motive3: { title: 'PATIENCE', sub: 'Shift ends at 3:17. It is always 3:17.', bg: ['#1a2a1a', '#0a120a'], fg: '#dfeedd', art: 'clock' },
+    school1: { title: 'READ!', sub: 'Books take you anywhere. Library open until 4.', bg: ['#f2c230', '#e08a1a'], fg: '#1a1a40', art: 'book' },
+    school2: { title: 'SPRING DANCE', sub: 'Friday April 24 — Gym — 7 PM. Tickets $2.', bg: ['#e05a9a', '#6a2a8a'], fg: '#fff4c8', art: 'note' },
+    school3: { title: 'GO HORNETS!', sub: 'Basketball: Hornets 54, Valley 51', bg: ['#1a3a8a', '#0a1a4a'], fg: '#ffd21a', art: 'ball' },
+    school4: { title: 'SCIENCE FAIR', sub: 'Room 112. Volcanoes welcome. No real lava.', bg: ['#2a8a5a', '#0a3a2a'], fg: '#f4fff0', art: 'star' },
+    motelArt1: { title: '', sub: '', bg: ['#7a9ac0', '#e0c898'], fg: '#f4efe4', art: 'boat', frame: '#6a4a24' },
+    motelArt2: { title: '', sub: '', bg: ['#9ab0c8', '#6a8a50'], fg: '#3a5a2a', art: 'hills', frame: '#6a4a24' },
+    hosp1: { title: 'WASH YOUR HANDS', sub: 'Germs travel. Soap stops them.', bg: ['#e8f0f0', '#b8d0d0'], fg: '#1a4a5a', art: 'drop' },
+    mall1: { title: 'HOLIDAY SALE', sub: 'Up to 40% off. Harlow Mall, open late.', bg: ['#b01a1a', '#5a0a0a'], fg: '#f8f0e0', art: 'star' },
   };
   T.poster = key => T.canvas('poster:' + key, 384, 512, (g, w, h) => {
     const p = POSTERS[key] || POSTERS.poster1;
@@ -566,9 +737,16 @@
     if (p.art === 'ship') { g.beginPath(); g.moveTo(0, -70); g.lineTo(50, 50); g.lineTo(0, 25); g.lineTo(-50, 50); g.closePath(); g.fill(); g.fillStyle = '#ff3b3b'; g.fillRect(-8, 50, 16, 30); }
     else if (p.art === 'frog') { g.beginPath(); g.arc(0, 0, 60, 0, 6.28); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(-25, -40, 16, 0, 6.28); g.arc(25, -40, 16, 0, 6.28); g.fill(); g.fillStyle = '#000'; g.beginPath(); g.arc(-25, -40, 7, 0, 6.28); g.arc(25, -40, 7, 0, 6.28); g.fill(); }
     else if (p.art === 'pac') { g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, 80, 0.6, 6.28 - 0.6); g.closePath(); g.fill(); for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(110 + k * 40, 0, 9, 0, 6.28); g.fill(); } }
-    else if (p.art === 'coin') { g.beginPath(); g.arc(0, 0, 75, 0, 6.28); g.stroke(); g.font = `bold 60px ${FONT_TYPE}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('₺', 0, 4); }
+    else if (p.art === 'coin') { g.beginPath(); g.arc(0, 0, 75, 0, 6.28); g.stroke(); g.font = `bold 60px ${FONT_TYPE}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('¢', 0, 4); }
     else if (p.art === 'mountain') { g.beginPath(); g.moveTo(-140, 80); g.lineTo(-40, -60); g.lineTo(10, 0); g.lineTo(60, -80); g.lineTo(150, 80); g.closePath(); g.globalAlpha = 0.6; g.fill(); }
     else if (p.art === 'arrow') { g.beginPath(); g.moveTo(-90, 20); g.lineTo(30, 20); g.lineTo(30, 55); g.lineTo(100, 0); g.lineTo(30, -55); g.lineTo(30, -20); g.lineTo(-90, -20); g.closePath(); g.globalAlpha = 0.7; g.fill(); }
+    else if (p.art === 'book') { g.beginPath(); g.moveTo(-100, -50); g.quadraticCurveTo(-50, -70, 0, -45); g.quadraticCurveTo(50, -70, 100, -50); g.lineTo(100, 60); g.quadraticCurveTo(50, 40, 0, 65); g.quadraticCurveTo(-50, 40, -100, 60); g.closePath(); g.fill(); g.strokeStyle = 'rgba(255,255,255,0.6)'; g.lineWidth = 3; g.beginPath(); g.moveTo(0, -45); g.lineTo(0, 65); g.stroke(); }
+    else if (p.art === 'note') { g.beginPath(); g.ellipse(-30, 50, 34, 24, -0.4, 0, 6.28); g.fill(); g.fillRect(-2, -80, 10, 130); g.beginPath(); g.moveTo(8, -80); g.quadraticCurveTo(60, -60, 50, -10); g.lineTo(40, -14); g.quadraticCurveTo(46, -50, 8, -55); g.fill(); }
+    else if (p.art === 'ball') { g.fillStyle = '#e07020'; g.beginPath(); g.arc(0, 0, 80, 0, 6.28); g.fill(); g.strokeStyle = '#1a1a1a'; g.lineWidth = 5; g.beginPath(); g.moveTo(-80, 0); g.lineTo(80, 0); g.moveTo(0, -80); g.lineTo(0, 80); g.stroke(); g.beginPath(); g.arc(-110, 0, 80, -0.8, 0.8); g.stroke(); g.beginPath(); g.arc(110, 0, 80, Math.PI - 0.8, Math.PI + 0.8); g.stroke(); }
+    else if (p.art === 'star') { g.beginPath(); for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? 36 : 85; g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } g.closePath(); g.fill(); }
+    else if (p.art === 'boat') { g.fillStyle = '#2a4a7a'; g.fillRect(-190, 40, 380, 200); g.fillStyle = '#f4efe4'; g.beginPath(); g.moveTo(0, -90); g.lineTo(0, 30); g.lineTo(70, 30); g.closePath(); g.fill(); g.beginPath(); g.moveTo(-8, -70); g.lineTo(-8, 30); g.lineTo(-60, 30); g.closePath(); g.fill(); g.fillStyle = '#6a3a1a'; g.beginPath(); g.moveTo(-70, 38); g.lineTo(80, 38); g.lineTo(55, 60); g.lineTo(-50, 60); g.closePath(); g.fill(); g.fillStyle = 'rgba(255,240,200,0.8)'; g.beginPath(); g.arc(120, -120, 26, 0, 6.28); g.fill(); }
+    else if (p.art === 'hills') { g.fillStyle = '#5a7a40'; g.beginPath(); g.moveTo(-200, 60); g.quadraticCurveTo(-90, -60, 20, 40); g.quadraticCurveTo(110, -30, 200, 30); g.lineTo(200, 240); g.lineTo(-200, 240); g.closePath(); g.fill(); g.fillStyle = '#3a5a2a'; g.beginPath(); g.moveTo(-200, 120); g.quadraticCurveTo(0, 40, 200, 110); g.lineTo(200, 240); g.lineTo(-200, 240); g.closePath(); g.fill(); g.fillStyle = '#6a4a24'; g.fillRect(60, 30, 50, 40); g.fillStyle = '#8a2a1a'; g.beginPath(); g.moveTo(52, 32); g.lineTo(85, 5); g.lineTo(118, 32); g.fill(); }
+    else if (p.art === 'drop') { g.beginPath(); g.moveTo(0, -85); g.quadraticCurveTo(70, 10, 0, 70); g.quadraticCurveTo(-70, 10, 0, -85); g.fill(); }
     else if (p.art === 'clock') { g.beginPath(); g.arc(0, 0, 80, 0, 6.28); g.stroke(); g.beginPath(); g.moveTo(0, 0); g.lineTo(0, -60); g.moveTo(0, 0); g.lineTo(45, 20); g.stroke(); }
     g.restore();
     g.fillStyle = p.fg; g.textAlign = 'center';
@@ -577,7 +755,8 @@
     g.fillText(p.title, w / 2, h * 0.8);
     g.font = pix ? `13px ${FONT_PIX}` : `22px ${FONT_TYPE}`;
     wrapText(g, p.sub, w / 2, h * 0.88, w - 40, 26);
-    g.strokeStyle = 'rgba(0,0,0,0.5)'; g.lineWidth = 10; g.strokeRect(0, 0, w, h);
+    if (p.frame) { g.strokeStyle = p.frame; g.lineWidth = 34; g.strokeRect(0, 0, w, h); g.strokeStyle = 'rgba(255,220,150,0.35)'; g.lineWidth = 3; g.strokeRect(17, 17, w - 34, h - 34); }
+    else { g.strokeStyle = 'rgba(0,0,0,0.5)'; g.lineWidth = 10; g.strokeRect(0, 0, w, h); }
   });
 
   // Çıkartmalar (saydam): lekeler, küf, çatlaklar, grafitiler, ısırık izleri
@@ -655,6 +834,16 @@
         break;
       }
       case 'poster': { g.drawImage(T.poster(text || 'motive1').userData.canvas, 0, 0, W, H); break; }
+      case 'storeSign': {
+        const cols = ['#ff4fa3', '#4fd8ff', '#ffd23f', '#7dff6a', '#ff7a3d', '#c77dff'];
+        const col = cols[U.hashStr(text || '') % cols.length];
+        g.fillStyle = '#17121a'; g.fillRect(0, H * 0.32, W, H * 0.36);
+        g.strokeStyle = col; g.globalAlpha = 0.6; g.lineWidth = 6; g.strokeRect(10, H * 0.32 + 10, W - 20, H * 0.36 - 20); g.globalAlpha = 1;
+        g.font = `bold ${text && text.length > 12 ? 92 : 112}px ${FONT_TYPE}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.shadowColor = col; g.shadowBlur = 28; g.fillStyle = col; g.fillText(text || '', W / 2, H / 2 + 4);
+        g.shadowBlur = 0; g.fillStyle = 'rgba(255,255,255,0.75)'; g.fillText(text || '', W / 2, H / 2 + 4);
+        break;
+      }
       case 'sign': { g.fillStyle = '#e8e2d0'; g.fillRect(0, H * 0.3, W, H * 0.4); g.fillStyle = '#1b1b1b'; g.font = `bold 120px ${FONT_TYPE}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text || '', W / 2, H / 2 + 6); break; }
       default: soft(W / 2, H / 2, W * 0.4, 'rgba(0,0,0,A)', 0.4);
     }

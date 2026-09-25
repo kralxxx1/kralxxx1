@@ -1206,6 +1206,9 @@
       const C = L.cell;
       if (cell.spot && cell.spot.wx != null) {
         item.wx = cell.spot.wx; item.wz = cell.spot.wz; item.wy = cell.spot.h != null ? cell.spot.h : (s.h != null ? s.h : 0);
+        // a spot against a wall faces away from it
+        if (cell.spot.yaw != null) item.yaw = cell.spot.yaw;
+        else if (cell.d >= 0) item.yaw = [0, -Math.PI / 2, Math.PI, Math.PI / 2][cell.d];
       } else if (cell.d >= 0) {
         const off = C / 2 - 0.1 - (s.depth || 0);
         const along = s.beside || 0;
@@ -1238,5 +1241,8 @@
       return L;
     },
     placeItems,
+    // Internals shared with the extra layouts (levelgen2.js)
+    layouts: GEN,
+    util: { divide, randomRemove, addStubs, longCorridors, addPillars, ceilingLights, farthestBoundaryCell, stampBoundaryRoom, roomWallSpot, randomRoomSpot, roomOpenings, landmark, pickSpawnCenter, yawToward, decorDecals, wallDecal, genBackrooms },
   };
 })(typeof window !== 'undefined' ? window : globalThis);

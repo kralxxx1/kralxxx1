@@ -9,6 +9,12 @@
       },
     },
     docs: {
+      office_lily4: { kind: 'drawing', drawing: 4, title: 'A drawing in a file folder marked "LIL — KEEP"', from: 'Lily, age 9', body:
+`Crayon. A tall building with many windows. In one window, a girl with a headset is talking into a microphone. Music notes fly out of the window over the whole town.
+
+PENNY IS GOING TO BE ON THE RADIO.
+(PENNY IS MY BABYSITTER SOMETIMES.)
+SHE LETS ME PICK THE SONGS.` },
       office_intro: { kind: 'notice', title: 'Sign on the security room door', from: 'Facilities', body:
 `SECURITY ROOM
 Code changed April 1987 per company policy.

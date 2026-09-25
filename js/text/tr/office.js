@@ -9,6 +9,12 @@
       },
     },
     docs: {
+      office_lily4: { title: '"LIL — SAKLA" yazan bir dosyanın içinde bir çizim', from: 'Lily, 9 yaşında', body:
+`Pastel boya. Çok pencereli, yüksek bir bina. Pencerelerden birinde kulaklıklı bir kız mikrofona konuşuyor. Pencereden bütün kasabanın üstüne notalar uçuşuyor.
+
+PENNY RADYODA OLACAK.
+(PENNY BAZEN BENİM BAKICIM.)
+ŞARKILARI BENİM SEÇMEME İZİN VERİYOR.` },
       office_intro: { title: 'Güvenlik odası kapısındaki tabela', from: 'Teknik Hizmetler', body:
 `GÜVENLİK ODASI
 Şifre şirket politikası gereği Nisan 1987’de değiştirildi.

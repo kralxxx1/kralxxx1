@@ -16,6 +16,13 @@
     office: { floorRefl: 0, wall: 'drywall', floor: 'officeCarpet', ceil: 'ceiling', trim: 'rubber', pillar: 'drywall', low: 'fabric', ambient: [0.03, 0.033, 0.036], bounce: 0.4, ceilFactor: 0.8, env: [0.25, 0.28, 0.3], envPanel: [3.5, 3.7, 4], trimH: 0.1 },
     maze: { floorRefl: 0.35, wall: 'mazeWall', floor: 'mazeFloor', ceil: null, trim: null, pillar: 'mazeWall', block: 'mazeWall', ambient: [0.01, 0.01, 0.04], bounce: 0.3, ceilFactor: 1, env: [0.02, 0.02, 0.1], envPanel: [0.6, 0.6, 3], trimH: 0 },
     glitch: { floorRefl: 0.35, wall: 'mazeWall', floor: 'mazeFloor', ceil: null, trim: null, pillar: 'mazeWall', block: 'mazeWall', ambient: [0.02, 0.01, 0.03], bounce: 0.3, ceilFactor: 1, env: [0.08, 0.02, 0.1], envPanel: [3, 0.6, 2], trimH: 0 },
+    tunnel: { cove: 0.6, floorRefl: 0.3, wall: 'brick', floor: 'concreteFloor', floorTint: 0x7a7870, ceil: 'brick', ceilTint: 0x6a6660, trim: null, pillar: 'brick', ambient: [0.006, 0.006, 0.007], bounce: 0.3, env: [0.04, 0.04, 0.045], envPanel: [1.2, 1.0, 0.8], trimH: 0 },
+    school: { floorRefl: 0.22, wall: 'cinderblock', wallTint: 0xe8ecd8, floor: 'linoleum', ceil: 'ceiling', trim: 'rubber', pillar: 'cinderblock', ambient: [0.018, 0.02, 0.02], bounce: 0.42, env: [0.2, 0.22, 0.2], envPanel: [3, 3.2, 3.2], trimH: 0.1 },
+    hospital: { floorRefl: 0.3, wall: 'hospitalWall', floor: 'vinyl', ceil: 'ceiling', trim: 'rubber', pillar: 'hospitalWall', ambient: [0.012, 0.016, 0.015], bounce: 0.45, env: [0.18, 0.22, 0.2], envPanel: [3, 3.4, 3.2], trimH: 0.12 },
+    motel: { floorRefl: 0, wall: 'motelWallpaper', floor: 'motelCarpet', ceil: 'ceiling', ceilTint: 0xd8d0c0, trim: 'darkWood', pillar: 'motelWallpaper', ambient: [0.012, 0.009, 0.006], bounce: 0.35, env: [0.12, 0.08, 0.05], envPanel: [2.4, 2, 1.5], trimH: 0.1 },
+    mall: { floorRefl: 0.4, wall: 'drywall', wallTint: 0xf0ece4, floor: 'terrazzo', ceil: 'ceiling', trim: null, pillar: 'drywall', ambient: [0.02, 0.02, 0.022], bounce: 0.5, env: [0.25, 0.25, 0.26], envPanel: [3.5, 3.5, 3.6], trimH: 0 },
+    street: { floorRefl: 0.05, wall: 'wallpaper', wallTint: 0xd8c8b0, floor: 'planks', ceil: 'ceiling', trim: 'darkWood', pillar: 'siding', ambient: [0.01, 0.011, 0.016], bounce: 0.3, env: [0.05, 0.06, 0.08], envPanel: [1.2, 1.1, 1.0], trimH: 0.1 },
+    workshop: { floorRefl: 0.1, wall: 'cinderblock', wallTint: 0xa8aca4, floor: 'concreteFloor', ceil: 'concreteWall', ceilTint: 0x6a6a68, trim: null, pillar: 'cinderblock', ambient: [0.01, 0.01, 0.009], bounce: 0.35, env: [0.08, 0.08, 0.07], envPanel: [2, 1.8, 1.4], trimH: 0 },
   };
   PB.THEMES = THEMES;
 
@@ -138,6 +145,13 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       m.normalScale.set(o.normalScale || 1, o.normalScale || 1);
       m.userData.scale = set.scale;
       return this.patch(m);
+    }
+    // Wet outdoor ground: puddles and rain ripples layered on top of the baked light patch
+    wetten(m, wet) {
+      const base = m.onBeforeCompile, uT = this.U.uTime;
+      m.onBeforeCompile = (sh, r) => { base(sh, r); PB.Exterior.wetPatch(sh, uT, { wet, pudScale: 0.1 }); };
+      m.customProgramCacheKey = () => 'pb-baked-wet';
+      return m;
     }
     // Dekor malzeme kütüphanesi
     mat(key) {
@@ -267,6 +281,12 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         case 'wainscotWood': m = this.pbr('wood', { vertexColors: true, color: 0x6e4a30 }); m.userData.scale = 0.8; break;
         case 'rackUpright': m = new THREE.MeshStandardMaterial({ map: PB.Models.tex.perforated(), color: 0x2a5fb0, roughness: 0.45, metalness: 0.5 }); this.patch(m); break;
         case 'wireDeck': m = new THREE.MeshStandardMaterial({ map: PB.Models.tex.wire(), alphaTest: 0.5, color: 0x9aa0a8, roughness: 0.4, metalness: 0.8, side: THREE.DoubleSide }); this.patch(m); break;
+        case 'siding': m = this.pbr('siding', { vertexColors: true }); m.userData.refl = 0.05; break;
+        case 'fence': m = this.pbr('wood', { vertexColors: true, color: 0xe8e4da }); break;
+        case 'floorGrass': m = this.pbr('grass', { vertexColors: true }); m.userData.refl = 0.08; this.wetten(m, 0.6); break;
+        case 'floorAsphalt': m = this.pbr('asphalt', { vertexColors: true }); m.userData.refl = 0.55; this.wetten(m, 1); break;
+        case 'floorSidewalk': m = this.pbr('concreteFloor', { vertexColors: true, color: 0xb8b4ac }); m.userData.refl = 0.35; this.wetten(m, 0.8); break;
+        case 'roofShingle': m = this.pbr('shingles'); break;
         case 'fixtureWhite': m = S(0xe9e6dc, 0.45, 0.1); break;
         case 'fixtureGrime': m = S(0x6b6250, 0.9, 0, { transparent: true, opacity: 0.35, depthWrite: false }); break;
         case 'fixtureGrey': m = S(0x9aa0a4, 0.5, 0.1); break;
@@ -277,7 +297,14 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         case 'calendar': m = new THREE.MeshStandardMaterial({ map: MT.calendar(), roughness: 0.8 }); this.patch(m); break;
         case 'screen': m = new THREE.MeshBasicMaterial({ color: 0x050505 }); break;
         case 'marquee': m = new THREE.MeshBasicMaterial({ color: 0x050505 }); break;
-        default: m = S(0x888888, 0.6);
+        default: {
+          // Simple colored materials and textured ones from the model library
+          const spec = PB.Models.MATS[key];
+          if (spec && spec.tex) { m = new THREE.MeshStandardMaterial({ map: PB.Models.tex[spec.tex](), color: spec.color != null ? spec.color : 0xffffff, roughness: spec.rough != null ? spec.rough : 0.7, metalness: spec.metal || 0, transparent: !!spec.transparent, opacity: spec.opacity != null ? spec.opacity : 1, depthWrite: !spec.transparent, side: spec.double ? THREE.DoubleSide : THREE.FrontSide, emissive: spec.emissive != null ? new THREE.Color(spec.emissive) : new THREE.Color(0), emissiveMap: spec.emissive != null ? PB.Models.tex[spec.tex]() : null, emissiveIntensity: spec.ei != null ? spec.ei : 1 }); this.patch(m); m.userData.refl = spec.refl || 0; }
+          else if (spec && spec.glow) m = E(spec.color, spec.glow);
+          else if (spec) m = S(spec.color, spec.rough != null ? spec.rough : 0.6, spec.metal || 0, Object.assign({}, spec.transparent ? { transparent: true, opacity: spec.opacity, depthWrite: false } : {}, spec.double ? { side: THREE.DoubleSide } : {}, spec.refl != null ? { refl: spec.refl } : {}));
+          else m = S(0x888888, 0.6);
+        }
       }
       this.mats.set(key, m);
       return m;
@@ -304,6 +331,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       if (this.L.theme === 'office') texNames.push('fabric');
       if (this.L.theme === 'pool' || this.L.floorType.some(v => v)) texNames.push('tile');
       if (this.L.meta.finishes) texNames.push('hexTile', 'subway', 'planks', 'linoleum', 'concreteFloor');
+      if (this.L.meta.outdoor) texNames.push('siding', 'grass', 'asphalt', 'shingles');
       if (this.L.doors.some(d => d.kind === 'stair')) texNames.push('concreteWall');
       const uniq = [...new Set(texNames)];
       for (let k = 0; k < uniq.length; k++) {
@@ -360,6 +388,46 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       if (up) buf.quad([x0, y, z1], [x1, y, z1], [x1, y, z0], [x0, y, z0], [0, 1, 0], [u0, v1], [u1, v1], [u1, v0], [u0, v0], ao, ao, ao, ao);
       else buf.quad([x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1], [0, -1, 0], [u0, v0], [u1, v0], [u1, v1], [u0, v1], ao, ao, ao, ao);
     }
+    // Picket fence along an edge
+    fenceRun(bufs, horiz, line, a0, a1) {
+      const buf = this.chunkBuf(bufs, 'fence', horiz ? (a0 + a1) / 2 : line, horiz ? line : (a0 + a1) / 2);
+      const t = 0.03;
+      for (let a = a0 + 0.06; a < a1; a += 0.16) {
+        const b = Math.min(a1, a + 0.09);
+        if (horiz) { this.vface(buf, a, line - t, b, line - t, 0, 1.05, 0, -1, 1, null); this.vface(buf, a, line + t, b, line + t, 0, 1.05, 0, 1, 1, null); this.hface(buf, a, line - t, b, line + t, 1.05, true, 1); }
+        else { this.vface(buf, line - t, a, line - t, b, 0, 1.05, -1, 0, 1, null); this.vface(buf, line + t, a, line + t, b, 0, 1.05, 1, 0, 1, null); this.hface(buf, line - t, a, line + t, b, 1.05, true, 1); }
+      }
+      for (const y of [0.3, 0.8]) {
+        if (horiz) { this.vface(buf, a0, line - t - 0.02, a1, line - t - 0.02, y, y + 0.08, 0, -1, 1, null); this.vface(buf, a0, line + t + 0.02, a1, line + t + 0.02, y, y + 0.08, 0, 1, 1, null); }
+        else { this.vface(buf, line - t - 0.02, a0, line - t - 0.02, a1, y, y + 0.08, -1, 0, 1, null); this.vface(buf, line + t + 0.02, a0, line + t + 0.02, a1, y, y + 0.08, 1, 0, 1, null); }
+      }
+    }
+    // Quarter-round cove along a wall top. wline: across-coordinate of the wall face; e0..e1 along the run;
+    // (nx, nz): the wall face normal (into the room); H: ceiling height; r: radius
+    cove(buf, horiz, wline, e0, e1, nx, nz, H, r, s) {
+      const N = 6, dir = horiz ? nz : nx;
+      const alongRight = horiz ? nz : -nx;            // right vector (nz, -nx) projected on the run axis
+      const aL = alongRight < 0 ? e1 : e0, aR = alongRight < 0 ? e0 : e1;
+      const pt = (a, q) => { const across = wline + dir * r * (1 - Math.cos(q)), y = H - r + r * Math.sin(q); return horiz ? [a, y, across] : [across, y, a]; };
+      let arc = (H - r) / s;
+      for (let k = 0; k < N; k++) {
+        const qa = k / N * Math.PI / 2, qb = (k + 1) / N * Math.PI / 2, qm = (qa + qb) / 2;
+        const n = horiz ? [0, -Math.sin(qm), dir * Math.cos(qm)] : [dir * Math.cos(qm), -Math.sin(qm), 0];
+        const va = arc, vb = arc + r * (qb - qa) / s; arc = vb;
+        const ao = 0.92 - 0.2 * Math.sin(qm);
+        buf.quad(pt(aL, qa), pt(aR, qa), pt(aR, qb), pt(aL, qb), n, [aL / s, va], [aR / s, va], [aR / s, vb], [aL / s, vb], ao, ao, ao, ao);
+      }
+      // end caps (both windings: one of them faces whoever looks at the open end)
+      for (const a of [e0, e1]) {
+        const cn = horiz ? [a === e0 ? -1 : 1, 0, 0] : [0, 0, a === e0 ? -1 : 1];
+        const corner = horiz ? [a, H, wline] : [wline, H, a];
+        for (let k = 0; k < N; k++) {
+          const p0 = pt(a, k / N * Math.PI / 2), p1 = pt(a, (k + 1) / N * Math.PI / 2);
+          buf.quad(corner, p0, p1, p1, cn, [0, 0], [0.1, 0], [0.1, 0.1], [0.1, 0.1], 0.7, 0.7, 0.7, 0.7);
+          buf.quad(corner, p1, p0, p0, cn.map(v => -v), [0, 0], [0.1, 0], [0.1, 0.1], [0.1, 0.1], 0.7, 0.7, 0.7, 0.7);
+        }
+      }
+    }
     wallAO(h) { return [[0, 0.42], [0.14, 0.58], [0.65, 0.86], [Math.max(0.7, h - 0.45), 0.98], [h, 0.8]]; }
 
     buildArchitecture() {
@@ -372,32 +440,43 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       const wallS = scaleOf('wall');
       const trimMat = th.trim ? 'trim' : null;
       this.trimH = th.trimH;
-      const emitRun = (horiz, line, a0, a1, kind, sideA, sideB) => {
+      const outdoor = L.meta.outdoor;
+      const od = (x, y) => !!(outdoor && L.inb(x, y) && outdoor[L.i(x, y)]);
+      const emitRun = (horiz, line, a0, a1, kind, sideA, sideB, odA, odB) => {
         // horiz: kenar x boyunca, z = line; değilse z boyunca, x = line
+        if (kind === EDGE.FENCE) { this.fenceRun(bufs, horiz, line, a0, a1); return; }
         const mkey = kind === EDGE.LOW ? 'low' : 'wall';
         const h = kind === EDGE.LOW ? 1.35 : kind === EDGE.GLASS ? H : H;
         const s = kind === EDGE.LOW ? scaleOf('low') : wallS;
         const ao = kind === EDGE.LOW ? [[0, 0.55], [0.3, 0.85], [h, 1]] : this.wallAO(h);
         const e0 = a0 - t / 2, e1 = a1 + t / 2;
         const midX = horiz ? (a0 + a1) / 2 : line, midZ = horiz ? line : (a0 + a1) / 2;
-        const buf = this.chunkBuf(bufs, mkey, midX, midZ);
+        const buf0 = this.chunkBuf(bufs, mkey, midX, midZ);
+        // Outdoor faces of a house wall are clapboard siding
+        const sideBuf = od2 => (od2 ? this.chunkBuf(bufs, 'siding', midX, midZ) : buf0);
+        const buf = buf0;
         const segs = kind === EDGE.GLASS ? [[0, 0.55], [2.75, h]] : [[0, h]];
         for (const [ya, yb] of segs) {
           if (horiz) {
-            if (sideA) this.vface(buf, e0, line - t / 2, e1, line - t / 2, ya, yb, 0, -1, s, ao);
-            if (sideB) this.vface(buf, e0, line + t / 2, e1, line + t / 2, ya, yb, 0, 1, s, ao);
+            if (sideA) this.vface(sideBuf(odA), e0, line - t / 2, e1, line - t / 2, ya, yb, 0, -1, odA ? scaleOf('siding') : s, odA ? null : ao);
+            if (sideB) this.vface(sideBuf(odB), e0, line + t / 2, e1, line + t / 2, ya, yb, 0, 1, odB ? scaleOf('siding') : s, odB ? null : ao);
             this.vface(buf, e0, line + t / 2, e0, line - t / 2, ya, yb, -1, 0, s, ao);
             this.vface(buf, e1, line - t / 2, e1, line + t / 2, ya, yb, 1, 0, s, ao);
             if (kind !== EDGE.WALL || !th.ceil) this.hface(buf, e0, line - t / 2, e1, line + t / 2, yb, true, s, 1);
             if (kind === EDGE.GLASS && ya > 0) this.hface(buf, e0, line - t / 2, e1, line + t / 2, ya, false, s, 1);
           } else {
-            if (sideA) this.vface(buf, line - t / 2, e0, line - t / 2, e1, ya, yb, -1, 0, s, ao);
-            if (sideB) this.vface(buf, line + t / 2, e0, line + t / 2, e1, ya, yb, 1, 0, s, ao);
+            if (sideA) this.vface(sideBuf(odA), line - t / 2, e0, line - t / 2, e1, ya, yb, -1, 0, odA ? scaleOf('siding') : s, odA ? null : ao);
+            if (sideB) this.vface(sideBuf(odB), line + t / 2, e0, line + t / 2, e1, ya, yb, 1, 0, odB ? scaleOf('siding') : s, odB ? null : ao);
             this.vface(buf, line - t / 2, e0, line + t / 2, e0, ya, yb, 0, -1, s, ao);
             this.vface(buf, line + t / 2, e1, line - t / 2, e1, ya, yb, 0, 1, s, ao);
             if (kind !== EDGE.WALL || !th.ceil) this.hface(buf, line - t / 2, e0, line + t / 2, e1, yb, true, s, 1);
             if (kind === EDGE.GLASS && ya > 0) this.hface(buf, line - t / 2, e0, line + t / 2, e1, ya, false, s, 1);
           }
+        }
+        // Vaulted haunch: a curved brick cove where wall meets ceiling (storm tunnels)
+        if (th.cove && kind === EDGE.WALL) {
+          if (horiz) { if (sideA && !odA) this.cove(buf, true, line - t / 2, a0, a1, 0, -1, H, th.cove, wallS); if (sideB && !odB) this.cove(buf, true, line + t / 2, a0, a1, 0, 1, H, th.cove, wallS); }
+          else { if (sideA && !odA) this.cove(buf, false, line - t / 2, a0, a1, -1, 0, H, th.cove, wallS); if (sideB && !odB) this.cove(buf, false, line + t / 2, a0, a1, 1, 0, H, th.cove, wallS); }
         }
         if (kind === EDGE.GLASS) {
           const gb = this.chunkBuf(bufs, 'glassPane', midX, midZ);
@@ -409,11 +488,11 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
           const tb = this.chunkBuf(bufs, 'trim', midX, midZ);
           const o = t / 2 + 0.016, hh = th.trimH;
           if (horiz) {
-            if (sideA) { this.vface(tb, e0, line - o, e1, line - o, 0, hh, 0, -1, 1); this.hface(tb, e0, line - o, e1, line - t / 2, hh, true, 1); }
-            if (sideB) { this.vface(tb, e0, line + o, e1, line + o, 0, hh, 0, 1, 1); this.hface(tb, e0, line + t / 2, e1, line + o, hh, true, 1); }
+            if (sideA && !odA) { this.vface(tb, e0, line - o, e1, line - o, 0, hh, 0, -1, 1); this.hface(tb, e0, line - o, e1, line - t / 2, hh, true, 1); }
+            if (sideB && !odB) { this.vface(tb, e0, line + o, e1, line + o, 0, hh, 0, 1, 1); this.hface(tb, e0, line + t / 2, e1, line + o, hh, true, 1); }
           } else {
-            if (sideA) { this.vface(tb, line - o, e0, line - o, e1, 0, hh, -1, 0, 1); this.hface(tb, line - o, e0, line - t / 2, e1, hh, true, 1); }
-            if (sideB) { this.vface(tb, line + o, e0, line + o, e1, 0, hh, 1, 0, 1); this.hface(tb, line + t / 2, e0, line + o, e1, hh, true, 1); }
+            if (sideA && !odA) { this.vface(tb, line - o, e0, line - o, e1, 0, hh, -1, 0, 1); this.hface(tb, line - o, e0, line - t / 2, e1, hh, true, 1); }
+            if (sideB && !odB) { this.vface(tb, line + o, e0, line + o, e1, 0, hh, 1, 0, 1); this.hface(tb, line + t / 2, e0, line + o, e1, hh, true, 1); }
           }
         }
       };
@@ -422,11 +501,11 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         let x = 0;
         while (x < L.w) {
           const kind = L.hW[y * L.w + x];
-          const vA = vis(x, y - 1), vB = vis(x, y);
+          const vA = vis(x, y - 1), vB = vis(x, y), oA = od(x, y - 1), oB = od(x, y);
           if (!kind || (!vA && !vB) || L.doorMap.get((y * L.w + x) * 2)) { x++; continue; }
           let x1 = x;
-          while (x1 + 1 < L.w && L.hW[y * L.w + x1 + 1] === kind && !L.doorMap.get((y * L.w + x1 + 1) * 2) && vis(x1 + 1, y - 1) === vA && vis(x1 + 1, y) === vB) x1++;
-          emitRun(true, y * C, x * C, (x1 + 1) * C, kind, vA, vB);
+          while (x1 + 1 < L.w && L.hW[y * L.w + x1 + 1] === kind && !L.doorMap.get((y * L.w + x1 + 1) * 2) && vis(x1 + 1, y - 1) === vA && vis(x1 + 1, y) === vB && od(x1 + 1, y - 1) === oA && od(x1 + 1, y) === oB) x1++;
+          emitRun(true, y * C, x * C, (x1 + 1) * C, kind, vA, vB, oA, oB);
           x = x1 + 1;
         }
       }
@@ -435,11 +514,11 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         let y = 0;
         while (y < L.h) {
           const kind = L.vW[y * (L.w + 1) + x];
-          const vA = vis(x - 1, y), vB = vis(x, y);
+          const vA = vis(x - 1, y), vB = vis(x, y), oA = od(x - 1, y), oB = od(x, y);
           if (!kind || (!vA && !vB) || L.doorMap.get((y * (L.w + 1) + x) * 2 + 1)) { y++; continue; }
           let y1 = y;
-          while (y1 + 1 < L.h && L.vW[(y1 + 1) * (L.w + 1) + x] === kind && !L.doorMap.get(((y1 + 1) * (L.w + 1) + x) * 2 + 1) && vis(x - 1, y1 + 1) === vA && vis(x, y1 + 1) === vB) y1++;
-          emitRun(false, x * C, y * C, (y1 + 1) * C, kind, vA, vB);
+          while (y1 + 1 < L.h && L.vW[(y1 + 1) * (L.w + 1) + x] === kind && !L.doorMap.get(((y1 + 1) * (L.w + 1) + x) * 2 + 1) && vis(x - 1, y1 + 1) === vA && vis(x, y1 + 1) === vB && od(x - 1, y1 + 1) === oA && od(x, y1 + 1) === oB) y1++;
+          emitRun(false, x * C, y * C, (y1 + 1) * C, kind, vA, vB, oA, oB);
           y = y1 + 1;
         }
       }
@@ -492,7 +571,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
           if (fin && fin.floor) this.hface(this.chunkBuf(bufs, fin.floor, L.cx(x), L.cz(y)), x0, z0, x1, z1, 0, true, scaleOf(fin.floor), 1);
           else this.hface(this.chunkBuf(bufs, 'floor', L.cx(x), L.cz(y)), x0, z0, x1, z1, 0, true, floorS, 1);
         }
-        if (!L.meta.noCeiling) this.hface(this.chunkBuf(bufs, 'ceil', L.cx(x), L.cz(y)), x0, z0, x1, z1, H, false, scaleOf('ceil'), 1);
+        if (!L.meta.noCeiling && !od(x, y)) this.hface(this.chunkBuf(bufs, 'ceil', L.cx(x), L.cz(y)), x0, z0, x1, z1, H, false, scaleOf('ceil'), 1);
       }
       // Wainscot panels (tiles, wood) and a small ledge on the walls of finished rooms
       for (const f of L.meta.finishes || []) {
@@ -826,7 +905,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         list.forEach((p, k) => {
           dummy.position.set(p.x, p.y || 0, p.z);
           dummy.rotation.set(0, p.rot || 0, 0);
-          dummy.scale.set(1, p.sy || 1, 1);
+          dummy.scale.set(p.sx || 1, p.sy || 1, p.sz || 1);
           dummy.updateMatrix();
           im.setMatrixAt(k, dummy.matrix);
         });
@@ -1075,8 +1154,10 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       for (const [key, list] of groups) {
         const [type, text] = key.split('|');
         const tex = T.decal(type, text || null);
-        const aspect = (type === 'graffiti' || type === 'wallText' || type === 'sign') ? 0.5 : type === 'poster' ? 1.33 : 1;
+        const aspect = (type === 'graffiti' || type === 'wallText' || type === 'sign' || type === 'storeSign') ? 0.5 : type === 'poster' ? 1.33 : 1;
         const mat = new THREE.MeshStandardMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4, roughness: type === 'poster' ? 0.55 : type === 'oil' ? 0.2 : 0.9 });
+        // Store signs are lit from inside
+        if (type === 'storeSign') { mat.emissive = new THREE.Color(1, 1, 1); mat.emissiveMap = tex; mat.emissiveIntensity = 1.6; }
         this.patch(mat);
         const im = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), mat, list.length);
         list.forEach((d, k) => {
@@ -1103,6 +1184,10 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       if (L.theme === 'arcade') {
         // Rainy street outside the storefront
         this.street = new PB.Exterior.Street(this);
+        this.street.build();
+      }
+      if (L.meta.outdoor) {
+        this.street = new PB.Exterior.Open(this);
         this.street.build();
       }
       if (L.theme === 'concrete') {

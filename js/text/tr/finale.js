@@ -109,6 +109,12 @@ Bu kapıyı ilk ayımda buldum. Bir buçuk yıldır yanında duruyorum.
         ['sam', 'Onu benim açmamı bekleyip kendin geçecektin.'],
         ['eddie', 'Hope bir yaşında Sam. Onu hiç kucağıma almadım. [Sesi çatlıyor.] Beni affetmeni istemiyorum. Kapıyı tutmanı istiyorum.'],
       ],
+      ks_pleaTrust: [
+        ['eddie', 'Gerçek olan bu. Rüzgâr, yağmur, Front Caddesi. Ev.'],
+        ['eddie', 'Motelde sana istemeyeceğimi söylemiştim. O yüzden istemiyorum.'],
+        ['sam', 'Ama istiyorsun.'],
+        ['eddie', 'Her saniye. [Uzun bir nefes.] Önce çekirdeğe git, Sam. Başka bir yol varsa oradadır. Yoksa... ben yine burada duruyor olacağım.'],
+      ],
     },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

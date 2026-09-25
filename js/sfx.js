@@ -385,6 +385,92 @@
     add(out, sweep(pink(n, r), 'bp', t => 500 + 300 * Math.sin(t * TAU * 1.5), 2, sr), 0.08);
     return normalize(loopify(out, sr, 1.2), 0.4);
   };
+  // --- Room tones for the later chapters
+  // A water drop into a puddle: a short upward chirp
+  function plip(out, sr, r, t0, f0, amp) {
+    const i0 = S(t0 * sr), L = S(0.06 * sr);
+    for (let i = 0; i < L && i0 + i < out.length; i++) { const tt = i / sr; out[i0 + i] += Math.sin(TAU * (f0 * tt + (6000 + r() * 8000) * tt * tt)) * Math.exp(-tt / 0.014) * amp; }
+  }
+  // Storm tunnel: water running in the channel, pipe rumble, drops far and near
+  R.tunnel = (sr, r) => {
+    const n = S(sr * 12.8), out = [new Float32Array(n), new Float32Array(n)];
+    out.forEach((ch, c) => {
+      const flow = sweep(pink(n, r), 'bp', t => 850 + 380 * Math.sin(t * TAU * 3 + c * 2) + 200 * Math.sin(t * TAU * 7.3), 0.9, sr);
+      for (let i = 0; i < n; i++) flow[i] *= 0.7 + 0.3 * Math.sin(i / sr * TAU * 0.35 + c);
+      add(ch, flow, 0.35);
+      add(ch, biquad(brown(n, r), 'lp', 85, 0.7, sr), 0.8);
+      for (let i = 0; i < n; i++) ch[i] += Math.sin(TAU * 38 * i / sr) * 0.03 * (1 + 0.5 * Math.sin(i / sr * 0.6));
+      for (let k = 0; k < 16; k++) plip(ch, sr, r, r() * 12, 700 + r() * 900, 0.08 + r() * 0.25);
+    });
+    return out.map(c => normalize(loopify(c, sr, 0.8), 0.5));
+  };
+  // School hallway after hours: air handler, the wall clock ticking
+  R.schoolHall = (sr, r) => {
+    const n = S(sr * 8.5), out = new Float32Array(n);
+    add(out, biquad(brown(n, r), 'lp', 200, 0.7, sr), 0.7);
+    add(out, biquad(pink(n, r), 'bp', 600, 0.6, sr), 0.08);
+    for (let k = 0; k < 8; k++) {
+      add(out, hit(n, sr, r, 0.25 + k, 0.35, 'bp', 3400, 3, 0.004));
+      add(out, modes(n, sr, [[2150, 0.02, 0.1], [4300, 0.01, 0.05]], 0.25 + k, r));
+    }
+    return normalize(loopify(out, sr, 0.5), 0.45);
+  };
+  // Mall atrium: the fountain, a huge empty hall
+  R.mallAtrium = (sr, r) => {
+    const n = S(sr * 12.8), out = [new Float32Array(n), new Float32Array(n)];
+    out.forEach((ch, c) => {
+      const splash = biquad(biquad(pink(n, r), 'hp', 380, 0.7, sr), 'lp', 7000, 0.7, sr);
+      for (let i = 0; i < n; i++) splash[i] *= 0.75 + 0.25 * Math.sin(i / sr * TAU * (0.8 + c * 0.13)) * Math.sin(i / sr * TAU * 0.17);
+      add(ch, splash, 0.3);
+      add(ch, biquad(brown(n, r), 'lp', 70, 0.7, sr), 0.6);
+      for (let k = 0; k < 90; k++) plip(ch, sr, r, r() * 12.5, 900 + r() * 1400, 0.04 + r() * 0.08);
+    });
+    return out.map(c => normalize(loopify(c, sr, 0.8), 0.5));
+  };
+  // Motel corridor: the VACANCY sign's neon buzz, the ice machine through the wall, Route 9 far off
+  R.motelHall = (sr, r) => {
+    const n = S(sr * 10.5), out = new Float32Array(n);
+    const nb = new Float32Array(n); for (let i = 0; i < n; i++) nb[i] = Math.sign(Math.sin(TAU * 120 * i / sr)) * (0.6 + 0.4 * Math.sin(i / sr * TAU * 0.13));
+    add(out, biquad(nb, 'bp', 1800, 4, sr), 0.05);
+    const motor = new Float32Array(n); for (let i = 0; i < n; i++) motor[i] = Math.sin(TAU * 58 * i / sr) + 0.4 * Math.sin(TAU * 116 * i / sr);
+    add(out, biquad(motor, 'lp', 300, 0.7, sr), 0.06);
+    add(out, creak(n, sr, r, 3.2, 1.6, 40, 70, [[900, 5, 0.6], [2400, 6, 0.3]], 0.12));
+    const road = biquad(brown(n, r), 'lp', 180, 0.7, sr); for (let i = 0; i < n; i++) road[i] *= 0.6 + 0.4 * Math.pow(Math.sin(i / n * Math.PI * 2), 2);
+    add(out, road, 0.5);
+    return normalize(loopify(out, sr, 0.5), 0.45);
+  };
+  // Hospital ward at night: ventilation, the building's low hum
+  R.hospitalHall = (sr, r) => {
+    const n = S(sr * 9.5), out = new Float32Array(n);
+    add(out, biquad(brown(n, r), 'lp', 240, 0.7, sr), 0.7);
+    add(out, biquad(pink(n, r), 'bp', 1200, 0.4, sr), 0.05);
+    for (let i = 0; i < n; i++) out[i] += (Math.sin(TAU * 60 * i / sr) * 0.03 + Math.sin(TAU * 180 * i / sr) * 0.012);
+    return normalize(loopify(out, sr, 0.5), 0.4);
+  };
+  // Rain outdoors: drops on asphalt and roofs, splashes, the whole street hissing
+  R.rainOutside = (sr, r) => {
+    const n = S(sr * 10.5), out = [new Float32Array(n), new Float32Array(n)];
+    for (const ch of out) {
+      add(ch, biquad(biquad(pink(n, r), 'lp', 6500, 0.7, sr), 'hp', 250, 0.7, sr), 0.55);
+      add(ch, biquad(brown(n, r), 'lp', 140, 0.7, sr), 0.3);
+      add(ch, biquad(crackle(n, sr, r, 1400, () => 0.2 + r() * 0.8), 'bp', 3200, 0.7, sr), 0.5);
+      for (let k = 0; k < 60; k++) plip(ch, sr, r, r() * 10, 600 + r() * 1200, 0.05 + r() * 0.1);
+    }
+    return out.map(c => normalize(loopify(c, sr, 0.5), 0.6));
+  };
+  // Walt's basement: transformer hum, and the Kernel breathing behind the steel door
+  R.workshop = (sr, r) => {
+    const n = S(sr * 12.5), out = new Float32Array(n);
+    for (const [f, a] of [[60, 0.25], [120, 0.18], [180, 0.08], [240, 0.05], [300, 0.03]]) { const w = TAU * f / sr; for (let i = 0; i < n; i++) out[i] += Math.sin(w * i) * a; }
+    const br = biquad(brown(n, r), 'lp', 320, 0.7, sr);
+    // two slow breaths per loop: in (rising filter), out (falling)
+    const env = t => { const p = (t / 6) % 1; return p < 0.4 ? Math.sin(p / 0.4 * Math.PI / 2) : Math.cos((p - 0.4) / 0.6 * Math.PI / 2); };
+    for (let i = 0; i < n; i++) br[i] *= 0.15 + 0.85 * Math.pow(env(i / sr), 1.5);
+    add(out, br, 1.2);
+    add(out, biquad(crackle(n, sr, r, 4, () => 0.3 + r() * 0.7), 'hp', 3000, 0.7, sr), 0.4);
+    return normalize(loopify(out, sr, 0.5), 0.5);
+  };
+
   R.radioStatic = (sr, r) => {
     const n = S(sr * 3.2), out = biquad(biquad(white(n, r), 'bp', 2200, 0.6, sr), 'hp', 500, 0.7, sr);
     add(out, crackle(n, sr, r, 60, () => 0.5 + r()), 0.5);
@@ -454,14 +540,15 @@
       const f0 = o.pitch * (1 + 0.12 * Math.sin(k * Math.PI * 2 * (1 + (o.seed || 0) % 3)) - 0.15 * k + 0.03 * Math.sin(tt * TAU * 5));
       ph += f0 / sr;
       if (ph >= 1) ph -= 1;
-      glot[i] = (ph < 0.4 ? Math.sin(Math.PI * ph / 0.4) : 0) * amp[i] + noise[i] + (r() - 0.5) * 0.04 * amp[i];
+      const asp = o.breathy ? 0.35 : 0.04;
+      glot[i] = (ph < 0.4 ? Math.sin(Math.PI * ph / 0.4) : 0) * amp[i] * (o.breathy ? 0.55 : 1) + noise[i] + (r() - 0.5) * asp * amp[i];
     }
     // Time-varying formant filters
     let out = new Float32Array(n);
     for (const [arr, q, g] of [[F1, 6, 1], [F2, 9, 0.6], [F3, 12, 0.3]]) {
       const y = new Float32Array(n); let x1 = 0, x2 = 0, y1 = 0, y2 = 0, b0 = 0, b2 = 0, a1 = 0, a2 = 0;
       for (let i = 0; i < n; i++) {
-        if ((i & 15) === 0) { const f = arr[i] || 500, w = TAU * f / sr, al = Math.sin(w) / (2 * q), a0 = 1 + al; b0 = al / a0; b2 = -al / a0; a1 = -2 * Math.cos(w) / a0; a2 = (1 - al) / a0; }
+        if ((i & 15) === 0) { const f = (arr[i] || 500) * (o.fscale || 1), w = TAU * Math.min(f, sr * 0.45) / sr, al = Math.sin(w) / (2 * q), a0 = 1 + al; b0 = al / a0; b2 = -al / a0; a1 = -2 * Math.cos(w) / a0; a2 = (1 - al) / a0; }
         const v = b0 * glot[i] + b2 * x2 - a1 * y1 - a2 * y2; x2 = x1; x1 = glot[i]; y2 = y1; y1 = v; y[i] = v;
       }
       add(out, y, g);
@@ -472,6 +559,7 @@
       add(out, biquad(white(n, r), 'bp', 2000, 0.6, sr), 0.05);
       add(out, crackle(n, sr, r, 25), 0.15);
     }
+    if (o.echo) out = biquad(biquad(out, 'hp', 220, 0.7, sr), 'lp', 5200, 0.7, sr);
     if (o.tape) {
       out = biquad(biquad(out, 'hp', 180, 0.7, sr), 'lp', 4200, 0.7, sr);
       add(out, biquad(white(n, r), 'hp', 5000, 0.5, sr), 0.03);

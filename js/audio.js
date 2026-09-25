@@ -16,6 +16,39 @@
     maze: { rt: 3.2, er: 0.1, taps: 20, damp: 6000, wet: 0.38 },
     glitch: { rt: 5, er: 0.15, taps: 24, damp: 8000, wet: 0.48 },
     menu: { rt: 3.2, er: 0.08, taps: 16, damp: 4000, wet: 0.45 },
+    tunnel: { rt: 3.8, er: 0.07, taps: 26, damp: 4200, wet: 0.46 },
+    school: { rt: 1.7, er: 0.05, taps: 18, damp: 5200, wet: 0.27 },
+    mall: { rt: 3.6, er: 0.13, taps: 24, damp: 6500, wet: 0.42 },
+    motel: { rt: 0.8, er: 0.025, taps: 10, damp: 3800, wet: 0.15 },
+    hospital: { rt: 1.5, er: 0.04, taps: 16, damp: 4800, wet: 0.25 },
+    street: { rt: 0.7, er: 0.02, taps: 8, damp: 7000, wet: 0.1 },
+    workshop: { rt: 1.1, er: 0.03, taps: 12, damp: 3400, wet: 0.2 },
+  };
+  // Per-chapter flavour of the exploration score: pad chords, piano scale, extras
+  const MUSIC = {
+    default: { chords: [[110, 130.8, 164.8, 220], [98, 116.5, 146.8, 196], [87.3, 110, 130.8, 174.6], [82.4, 98, 123.5, 164.8]], scale: [220, 246.9, 261.6, 293.7, 329.6, 392, 440, 523.3, 587.3, 659.3], piano: 0.55 },
+    // Mill: heavy low fifths, iron-coloured
+    warehouse: { chords: [[65.4, 98, 130.8], [61.7, 92.5, 123.5], [58.3, 87.3, 116.5], [61.7, 92.5, 123.5]], scale: [130.8, 155.6, 196, 233.1, 261.6], piano: 0.3, lp: [200, 480] },
+    // Pools: warm, wet, dreamy ninths
+    pools: { chords: [[130.8, 196, 246.9, 293.7], [110, 164.8, 196, 246.9], [146.8, 220, 261.6, 329.6], [123.5, 185, 220, 277.2]], scale: [587.3, 659.3, 784, 880, 987.8, 1174.7], piano: 0.5, wave: 'sine', lp: [500, 1300], pad: 0.05 },
+    // Office: a tritone that never resolves
+    office: { chords: [[98, 138.6, 196], [92.5, 130.8, 185], [98, 138.6, 196], [103.8, 146.8, 207.7]], scale: [392, 415.3, 554.4, 587.3, 784], piano: 0.35 },
+    // The dark: almost nothing, very low
+    dark: { chords: [[55, 82.4, 110], [51.9, 77.8, 103.8], [49, 73.4, 98], [51.9, 77.8, 103.8]], scale: [220, 233.1, 329.6, 349.2], piano: 0.22, lp: [180, 420] },
+    // Tunnels: a low, rubbing semitone drone; piano notes fall like drops
+    pipes: { chords: [[73.4, 110, 146.8], [69.3, 110, 138.6], [73.4, 103.8, 146.8], [65.4, 98, 130.8]], scale: [587.3, 659.3, 698.5, 880, 1046.5, 1174.7], piano: 0.35, wave: 'triangle', lp: [220, 520] },
+    // School: an out-of-tune music box over soft major sevenths
+    school: { chords: [[130.8, 164.8, 196, 246.9], [110, 130.8, 164.8, 196], [87.3, 110, 130.8, 164.8], [98, 123.5, 146.8, 174.6]], scale: [523.3, 587.3, 659.3, 784, 880, 1046.5], piano: 0.2, box: 0.6, detune: 28, pad: 0.026 },
+    // Mall: slowed, wobbling department-store muzak, too happy
+    mall: { chords: [[130.8, 164.8, 196], [174.6, 220, 261.6], [196, 246.9, 293.7], [130.8, 164.8, 196]], melody: [659.3, 587.3, 523.3, 587.3, 659.3, 659.3, 659.3, 0, 587.3, 587.3, 587.3, 0, 659.3, 784, 784, 0], mstep: 0.62, wobble: 35, wave: 'triangle', lp: [500, 1400], pad: 0.03, piano: 0 },
+    // Motel: slow lounge sevenths, a vibraphone somewhere through the wall
+    motel: { chords: [[110, 138.6, 164.8, 207.7], [123.5, 146.8, 185, 220], [146.8, 174.6, 220, 261.6], [98, 123.5, 146.8, 185]], scale: [440, 554.4, 659.3, 830.6, 987.8], piano: 0.45, vibes: true, wave: 'sine', lp: [600, 1200], pad: 0.05 },
+    // Hospital: open fifths, sparse high notes like a monitor
+    hospital: { chords: [[110, 164.8, 220], [103.8, 155.6, 207.7], [98, 146.8, 196], [103.8, 155.6, 207.7]], scale: [880, 987.8, 1046.5, 1318.5, 1760], piano: 0.3, lp: [260, 560] },
+    // Maple Street: a sad major key, a real melody on the piano
+    maple: { chords: [[87.3, 130.8, 174.6, 220], [73.4, 110, 146.8, 174.6], [116.5, 146.8, 174.6, 233.1], [98, 130.8, 164.8, 196]], melody: [440, 0, 392, 349.2, 0, 0, 440, 523.3, 0, 466.2, 440, 0, 392, 0, 0, 0], mstep: 0.9, inst: 'piano', pad: 0.03 },
+    // Workshop: a low cluster and a slow heartbeat thump
+    workshop: { chords: [[55, 58.3, 82.4], [51.9, 55, 77.8], [55, 61.7, 82.4], [49, 51.9, 73.4]], scale: [220, 233.1, 277.2, 293.7], piano: 0.15, lp: [160, 420], pulse: true },
   };
 
   class Audio {
@@ -259,6 +292,20 @@
       const st = this.play('radioStatic', 2, 'sfx', null, { rev: 0, gain: 0.07 });
       if (st) { st.loop = true; st.stop(t + dur + 0.2); }
       this.play('squelch', 3, 'sfx', null, { rev: 0, gain: 0.4, delay: Math.min(9, dur) + 0.15 });
+      this.duckFor(dur + 0.3);
+    }
+    // A voice in the room with you, not on the radio: memory echoes of the kids, Walt, the Neighbor.
+    // Breathy, far away, drifting from one side; children get higher pitch and smaller formants.
+    echoVoice(dur, who) {
+      if (!this.ctx || !this.sfx) return;
+      const pitch = { clyde: 262, billy: 180, penny: 236, ivy: 244, lily: 300, walt: 98, voice: 140 }[who] || 220;
+      const kid = pitch > 170;
+      const buf = this.sfx.voice(Math.min(9, dur), { pitch, echo: true, breathy: true, fscale: kid ? 1.2 : 1, seed: (this.voiceSeed = (this.voiceSeed || 0) + 1) });
+      const src = this.ctx.createBufferSource(); src.buffer = buf;
+      const pan = this.ctx.createStereoPanner(), side = Math.random() < 0.5 ? -1 : 1;
+      pan.pan.setValueAtTime(side * 0.7, this.t); pan.pan.linearRampToValueAtTime(-side * 0.3, this.t + dur);
+      const o = this.out('sfx', null, { rev: 0.9, gain: 0.26 });
+      src.connect(pan).connect(o.input); src.start(this.t + 0.1);
       this.duckFor(dur + 0.3);
     }
     // Old tape recorder voice (lo-fi, wow and flutter)
@@ -513,6 +560,13 @@
       if (theme === 'arcade') { L('rain', 'rainInside', 0.2, { rev: 0, lowpass: 3200 }); }
       if (theme === 'maze' || theme === 'glitch' || theme === 'dark') this.loop('amb:wind', 'wind', null, { bus: 'amb', gain: 0.05, rev: 0.3 });
       if (theme === 'maze' || theme === 'glitch') L('room', 'darkRoom', 0.25);
+      if (theme === 'tunnel') { L('water', 'tunnel', 0.5, { rev: 0.35 }); L('air', 'hvac', 0.06); }
+      if (theme === 'school') { L('room', 'schoolHall', 0.32); L('hum', 'fluorescent', 0.06); }
+      if (theme === 'mall') { L('room', 'mallAtrium', 0.36, { rev: 0.4 }); L('hum', 'fluorescent', 0.04); }
+      if (theme === 'motel') { L('room', 'motelHall', 0.34); L('rain', 'rainInside', 0.12, { lowpass: 1800 }); }
+      if (theme === 'hospital') { L('room', 'hospitalHall', 0.3); L('hum', 'fluorescent', 0.05); L('rain', 'rainInside', 0.1, { lowpass: 1500 }); }
+      if (theme === 'street') { L('rain', 'rainOutside', 0.55, { rev: 0 }); this.loop('amb:wind', 'wind', null, { bus: 'amb', gain: 0.05, rev: 0.1 }); }
+      if (theme === 'workshop') { L('room', 'workshop', 0.42); L('rain', 'rainInside', 0.05, { lowpass: 900 }); }
       this.nextAmb = this.t + 4;
     }
     // Positional rain on the storefront glass and the gutter outside (arcade)
@@ -533,9 +587,31 @@
       else if (th === 'office') { this.tone(o.input, 'square', 1300, 1300, t, 0.08, 0.06); this.tone(o.input, 'square', 1300, 1300, t + 0.15, 0.08, 0.06); }
       else if (th === 'glitch') this.glitchBurst(pos);
       else if (th === 'maze') { this.tone(o.input, 'triangle', 300, 150, t, 0.1, 0.12); this.tone(o.input, 'triangle', 150, 300, t + 0.12, 0.1, 0.12); }
+      else if (th === 'tunnel') {
+        if (Math.random() < 0.6) { for (let k = 0; k < 2; k++) this.tone(o.input, 'sine', 900 + Math.random() * 700, 1900, t + k * 0.9, 0.05, 0.3); this.caption('drip', PB.t('cap.drip'), pos, 30); }
+        else { const f = 180 + Math.random() * 120; this.tone(o.input, 'triangle', f, f * 0.98, t, 1.6, 0.18, 0.002); this.tone(o.input, 'sine', f * 2.76, f * 2.7, t, 1.1, 0.08, 0.002); this.burst(o.input, 'bandpass', 700, 6, t, 0.08, 0.3); this.caption('thud', PB.t('cap.pipe'), pos, 35); }
+      }
+      else if (th === 'school') {
+        if (Math.random() < 0.5) { this.burst(o.input, 'lowpass', 500, 1, t, 0.25, 0.5, 0.002); this.tone(o.input, 'square', 190, 170, t, 0.35, 0.05, 0.002); this.caption('door', PB.t('cap.locker'), pos, 35); }
+        else { this.tone(o.input, 'sine', 988, 988, t, 0.25, 0.04, 0.01); this.tone(o.input, 'sine', 784, 784, t + 0.35, 0.4, 0.04, 0.01); }
+      }
+      else if (th === 'mall') { if (Math.random() < 0.5) { this.burst(o.input, 'bandpass', 900, 3, t, 0.4, 0.12, 0.05); this.caption('plastic', PB.t('cap.plastic'), pos, 30); } else { this.tone(o.input, 'sine', 1318, 1318, t, 0.9, 0.035, 0.01); this.tone(o.input, 'sine', 1046, 1046, t + 0.5, 1.2, 0.035, 0.01); } }
+      else if (th === 'motel') { for (let k = 0; k < 3; k++) { this.burst(o.input, 'lowpass', 380, 1.5, t + k * 0.32, 0.09, 0.8, 0.001); this.tone(o.input, 'sine', 110, 80, t + k * 0.32, 0.08, 0.2, 0.001); } this.caption('knock', PB.t('cap.knock'), pos, 40); }
+      else if (th === 'hospital') { for (let k = 0; k < (Math.random() < 0.5 ? 2 : 3); k++) this.tone(o.input, 'sine', 960, 960, t + k * 0.8, 0.12, 0.08, 0.004); this.caption('beep', PB.t('cap.beep'), pos, 30); }
+      else if (th === 'street') { if (Math.random() < 0.35) { this.burst(o.input, 'lowpass', 110, 0.8, t, 3.5, 0.8, 0.4, this.brown); this.caption('thunder', PB.t('cap.thunder'), pos, 200); } }
+      else if (th === 'workshop') { this.burst(o.input, 'highpass', 3500, 1, t, 0.04, 0.3); this.burst(o.input, 'highpass', 3500, 1, t + 0.06, 0.03, 0.25); this.burst(o.input, 'highpass', 4000, 1, t + 0.15, 0.05, 0.2); this.caption('buzz', PB.t('cap.arc'), pos, 30); }
     }
 
     // ---------------------------------------------------------- müzik
+    // Render this chapter's piano notes ahead of time, one every few frames, so no music tick stalls
+    warmMusic() {
+      if (!this.sfx) return;
+      const F = MUSIC[this.music.flavor] || MUSIC.default, sc = F.scale || [];
+      const fs = sc.concat(sc.map(f => f * 1.5), sc.map(f => f * 1.2), F.inst === 'piano' ? F.melody || [] : []).filter(Boolean);
+      const q = [...new Set(fs.map(f => Math.round(f)))];
+      const next = () => { const f = q.shift(); if (f == null) return; this.sfx.note(f); setTimeout(next, 45); };
+      setTimeout(next, 600);
+    }
     setMusic(mode, intensity = 0) {
       if (this.music.mode !== mode) { this.music.mode = mode; this.music.step = 0; this.music.next = this.t + 0.1; }
       this.music.intensity = intensity;
@@ -557,32 +633,64 @@
         if (s % 16 === 0) this.burst(o.input, 'lowpass', 300, 1, m.next, 3, 0.05, 1, this.brown);
         m.next += step;
       } else if (m.mode === 'explore') {
-        // Slow evolving pad under sparse, detuned felt-piano notes (A minor)
+        // Slow evolving pad under sparse, detuned felt-piano notes; the chapter picks the flavour
+        const F = MUSIC[m.flavor] || MUSIC.default;
         if (s % 4 === 0) {
-          const chords = [[110, 130.8, 164.8, 220], [98, 116.5, 146.8, 196], [87.3, 110, 130.8, 174.6], [82.4, 98, 123.5, 164.8]];
+          const chords = F.chords;
           const ch = chords[(s / 4 | 0) % chords.length];
           const o = this.out('music', null, { rev: 0.95, gain: 0.3 });
-          const lp = this.filt('lowpass', 380, 0.9); lp.connect(o.input);
-          lp.frequency.setValueAtTime(300, m.next); lp.frequency.linearRampToValueAtTime(720 + Math.random() * 300, m.next + 5); lp.frequency.linearRampToValueAtTime(320, m.next + 10);
+          const [lo, hi] = F.lp || [300, 720];
+          const lp = this.filt('lowpass', lo, 0.9); lp.connect(o.input);
+          lp.frequency.setValueAtTime(lo, m.next); lp.frequency.linearRampToValueAtTime(hi + Math.random() * 300, m.next + 5); lp.frequency.linearRampToValueAtTime(lo, m.next + 10);
+          const pk = F.pad || 0.035;
           for (const f of ch) for (const det of [-7, 6]) {
-            const osc = this.osc('sawtooth', f), g = this.ctx.createGain();
+            const osc = this.osc(F.wave || 'sawtooth', f), g = this.ctx.createGain();
             osc.detune.value = det + (Math.random() - 0.5) * 4;
+            if (F.wobble) { const lfo = this.osc('sine', 0.23), lg = this.ctx.createGain(); lg.gain.value = F.wobble; lfo.connect(lg).connect(osc.detune); lfo.start(m.next); lfo.stop(m.next + 10.7); }
             osc.connect(g).connect(lp);
-            g.gain.setValueAtTime(0.0001, m.next); g.gain.linearRampToValueAtTime(0.035, m.next + 3.5); g.gain.setValueAtTime(0.035, m.next + 7); g.gain.linearRampToValueAtTime(0.0001, m.next + 10.5);
+            g.gain.setValueAtTime(0.0001, m.next); g.gain.linearRampToValueAtTime(pk, m.next + 3.5); g.gain.setValueAtTime(pk, m.next + 7); g.gain.linearRampToValueAtTime(0.0001, m.next + 10.5);
             osc.start(m.next); osc.stop(m.next + 10.7);
+          }
+          // A melody that plays through once per chord cycle
+          if (F.melody && (s / 4 | 0) % 2 === 0) {
+            const mo = this.out('music', null, { rev: 1, gain: F.inst === 'piano' ? 0.2 : 0.12 });
+            F.melody.forEach((f, k) => {
+              if (!f) return;
+              const at = m.next + 0.5 + k * (F.mstep || 0.6);
+              if (F.inst === 'piano' && this.sfx) { const src = this.ctx.createBufferSource(); src.buffer = this.sfx.note(f); src.detune.value = (Math.random() - 0.5) * 10; src.connect(mo.input); src.start(at); }
+              else { const osc = this.tone(mo.input, 'triangle', f, f, at, (F.mstep || 0.6) * 1.4, 0.05, 0.02); if (F.wobble) osc.detune.setValueAtTime(Math.sin(at * 1.3) * F.wobble, at); }
+            });
           }
           const sub = this.osc('sine', ch[0] / 2), sg = this.ctx.createGain(); sub.connect(sg).connect(o.input);
           sg.gain.setValueAtTime(0.0001, m.next); sg.gain.linearRampToValueAtTime(0.08, m.next + 4); sg.gain.linearRampToValueAtTime(0.0001, m.next + 10.5);
           sub.start(m.next); sub.stop(m.next + 10.7);
         }
-        if (this.sfx && Math.random() < 0.55) {
-          const scale = [220, 246.9, 261.6, 293.7, 329.6, 392, 440, 523.3, 587.3, 659.3];
+        // Music box: bright partials that die fast, slightly out of tune
+        if (F.box && Math.random() < F.box) {
+          const o = this.out('music', null, { rev: 1, gain: 0.1 });
+          const f = F.scale[Math.floor(Math.random() * F.scale.length)] * 2, at = m.next + Math.random() * 0.6;
+          const a = this.tone(o.input, 'sine', f, f, at, 1.6, 0.06, 0.002); a.detune.value = (Math.random() - 0.5) * (F.detune || 0);
+          const b = this.tone(o.input, 'sine', f * 3.01, f * 3.01, at, 0.35, 0.02, 0.002); b.detune.value = a.detune.value;
+        }
+        if (F.vibes && Math.random() < 0.35) {
+          const o = this.out('music', null, { rev: 0.9, gain: 0.12 });
+          const f = F.scale[Math.floor(Math.random() * F.scale.length)], at = m.next + Math.random() * 1.2;
+          const v = this.tone(o.input, 'sine', f, f, at, 2.2, 0.05, 0.004);
+          const lfo = this.osc('sine', 5.5), lg = this.ctx.createGain(); lg.gain.value = 6; lfo.connect(lg).connect(v.detune); lfo.start(at); lfo.stop(at + 2.3);
+        }
+        if (F.pulse && s % 2 === 0) {
+          const o = this.out('music', null, { rev: 0.4, gain: 0.35 });
+          this.tone(o.input, 'sine', 52, 38, m.next, 0.22, 0.25, 0.004); this.tone(o.input, 'sine', 48, 36, m.next + 0.28, 0.2, 0.16, 0.004);
+        }
+        if (this.sfx && Math.random() < (F.piano != null ? F.piano : 0.55) && F.scale) {
+          const scale = F.scale;
           const play = (f, d) => { const src = this.ctx.createBufferSource(); src.buffer = this.sfx.note(f); src.detune.value = (Math.random() - 0.5) * 18; const o = this.out('music', null, { rev: 1, gain: 0.16 + Math.random() * 0.08 }); src.connect(o.input); src.start(m.next + d); };
           const f = scale[Math.floor(Math.random() * scale.length)];
           play(f, Math.random() * 0.8);
           if (Math.random() < 0.3) play(f * (Math.random() < 0.5 ? 1.5 : 1.2), 0.35 + Math.random() * 0.5);
         }
-        m.next += 2.6;      } else if (m.mode === 'chase') {
+        m.next += 2.6;
+      } else if (m.mode === 'chase') {
         const k = 0.5 + m.intensity * 0.5;
         const step = 0.16;
         const o = this.out('music', null, { rev: 0.25, gain: 0.8 * k });
