@@ -317,6 +317,7 @@
       else this.writeSave();
       this.audio.init();
       this.audio.ambience(L.theme);
+      if (this.world.street) { const zF = L.h * L.cell; this.audio.streetSounds({ x: 6, y: 1.6, z: zF - 0.2 }, { x: this.world.street.spout.x, y: 0.3, z: zF + 0.4 }); }
       this.audio.setMusic('explore');
       this.ui.buildTouch();
       this.updateInventoryUI();
@@ -540,7 +541,11 @@
       switch (ty) {
         case 'note': case 'codeClue': case 'computer': this.readNote(it.data, () => { if (ty === 'codeClue' && this.script.clue) this.script.clue(this, o); }); break;
         case 'drawing': this.takeDrawing(o); break;
-        case 'tape': this.readNote(it.data); this.checkpoint(); if (this.audio.ctx) { this.audio.loop('tape', 'tape', null, { bus: 'sfx', gain: 0.3, rev: 0 }); } break;
+        case 'tape': {
+          this.readNote(it.data); this.checkpoint();
+          if (this.audio.ctx) { this.audio.loop('tape', 'tape', null, { bus: 'sfx', gain: 0.3, rev: 0 }); const n = ST.note(it.data); this.audio.tapeVoice(n ? U.clamp(n.body.length * 0.045, 4, 12) : 6); }
+          break;
+        }
         case 'battery':
           this.takeItem(o);
           if (this.player.battery < 70) { this.player.battery = Math.min(100, this.player.battery + 50); this.ui.notify(t('n.batteryIn')); }
@@ -1028,7 +1033,7 @@
       const dur = U.clamp(1.4 + text.length * 0.052, 2.2, 9);
       c.t = dur + 0.25;
       this.ui.subtitle(text, dur, who === 'sam' ? null : ST.speaker(who), who);
-      if (who === 'eddie' || who === 'radio') this.audio.radioBlip && this.audio.radioBlip();
+      if (who === 'eddie' || who === 'radio') this.audio.radioVoice(dur, who);
     }
     // Modal choice (e.g. at the final door)
     choice(options, onCancel) {

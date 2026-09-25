@@ -1336,6 +1336,14 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       pos.x = px; pos.z = pz;
       return pos;
     }
+    // Footstep surface of a finished room (tiles, planks...), or null
+    finishAt(x, z) {
+      const L = this.L, fl = L.meta.finishes;
+      if (!fl) return null;
+      const cx = Math.floor(x / this.C), cy = Math.floor(z / this.C);
+      for (const f of fl) if (cx >= f.x0 && cx <= f.x1 && cy >= f.y0 && cy <= f.y1) return { floorTile: 'tile', floorWood: 'wood', floorLino: 'lino', floorConcrete: 'concrete' }[f.floor] || null;
+      return null;
+    }
     floorAt(x, z) {
       const c = this.L.cellOf(x, z);
       if (!this.L.inb(c.x, c.y)) return 0;

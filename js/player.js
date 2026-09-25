@@ -180,7 +180,9 @@
       if (!w) return 'carpet';
       if (w.floorAt(this.pos.x, this.pos.z) < -0.1 && !w.drained) return 'water';
       const th = w.L.theme;
-      return th === 'concrete' ? 'concrete' : th === 'pool' ? 'tile' : th === 'maze' || th === 'glitch' ? 'metal' : 'carpet';
+      const fin = w.finishAt && w.finishAt(this.pos.x, this.pos.z);
+      if (fin) return fin;
+      return th === 'concrete' ? 'concrete' : th === 'pool' ? 'tile' : th === 'maze' || th === 'glitch' ? 'metal' : th === 'yellow' ? 'wetCarpet' : th === 'office' ? 'carpet' : 'carpet';
     }
     update(dt) {
       const g = this.game, inp = g.input, S = PB.Settings.data;
@@ -258,11 +260,11 @@
       this.updateCamera(dt, ml * speed);
     }
     toggleFlash(force) {
-      if (!this.hasFlashlight) { this.game.ui.hint('Fenerin yok.'); return; }
+      if (!this.hasFlashlight) { this.game.ui.hint(PB.t('n.noFlash')); return; }
       const on = force != null ? force : !this.flashOn;
-      if (on && this.battery <= 0) { this.game.ui.hint('Pil bitti. Yedek pil bul.'); if (this.game.audio) this.game.audio.click(); return; }
+      if (on && this.battery <= 0) { this.game.ui.hint(PB.t('n.noBattery')); if (this.game.audio) this.game.audio.flashClick(); return; }
       this.flashOn = on;
-      if (this.game.audio) this.game.audio.click();
+      if (this.game.audio) this.game.audio.flashClick();
     }
     updateFlash(dt) {
       const g = this.game, dif = PB.Settings.difficulty();

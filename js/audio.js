@@ -5,16 +5,17 @@
   const PB = root.PB;
   const U = PB.U;
 
+  // rt: decay time (s), er: early reflection window (s), taps: reflection count, damp: initial tail brightness (Hz), wet
   const REVERBS = {
-    arcade: { dur: 1.6, decay: 2.6, wet: 0.22 },
-    yellow: { dur: 2.2, decay: 2.2, wet: 0.3 },
-    dark: { dur: 3.2, decay: 2.0, wet: 0.38 },
-    concrete: { dur: 4.2, decay: 1.8, wet: 0.45 },
-    pool: { dur: 4.8, decay: 1.6, wet: 0.55 },
-    office: { dur: 1.2, decay: 3.0, wet: 0.18 },
-    maze: { dur: 3.5, decay: 1.9, wet: 0.4 },
-    glitch: { dur: 5, decay: 1.4, wet: 0.5 },
-    menu: { dur: 3.5, decay: 2, wet: 0.5 },
+    arcade: { rt: 1.5, er: 0.05, taps: 14, damp: 5000, wet: 0.2 },
+    yellow: { rt: 1.9, er: 0.06, taps: 18, damp: 4200, wet: 0.28 },
+    dark: { rt: 2.8, er: 0.08, taps: 16, damp: 3000, wet: 0.34 },
+    concrete: { rt: 4.2, er: 0.12, taps: 26, damp: 5500, wet: 0.42 },
+    pool: { rt: 4.6, er: 0.09, taps: 30, damp: 9000, wet: 0.5 },
+    office: { rt: 0.9, er: 0.03, taps: 10, damp: 3500, wet: 0.16 },
+    maze: { rt: 3.2, er: 0.1, taps: 20, damp: 6000, wet: 0.38 },
+    glitch: { rt: 5, er: 0.15, taps: 24, damp: 8000, wet: 0.48 },
+    menu: { rt: 3.2, er: 0.08, taps: 16, damp: 4000, wet: 0.45 },
   };
 
   class Audio {
@@ -54,6 +55,10 @@
       for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; b[i] = last * 3.5; }
       this.distCurve = new Float32Array(1024);
       for (let i = 0; i < 1024; i++) { const x = i / 512 - 1; this.distCurve[i] = Math.tanh(x * 4); }
+      this.sfx = new PB.Sfx(c);
+      this.sfx.warm(['step_carpet', 'step_wetCarpet', 'rainInside', 'rainGlass', 'gutter', 'fluorescent', 'hvac', 'paper', 'doorWoodOpen', 'breathIn', 'breathOut', 'heartbeat', 'squelch', 'radioStatic',
+        'thunder', 'carPass', 'stingSpot', 'stingJump', 'chew', 'keys', 'clink', 'plasticTap', 'flashClick', 'doorMetalOpen', 'doorLocked', 'poolRoom', 'warehouse', 'darkRoom']);
+      this.duck = c.createGain(); this.duck.gain.value = 1;
       this.setReverb('menu');
       this.applyVolumes();
       PB.Settings.events.on('change', () => this.applyVolumes());
@@ -73,11 +78,25 @@
     setReverb(name) {
       if (!this.ctx) return;
       const p = REVERBS[name] || REVERBS.yellow;
-      const c = this.ctx, len = Math.floor(c.sampleRate * p.dur);
-      const ir = c.createBuffer(2, len, c.sampleRate);
+      const c = this.ctx, sr = c.sampleRate, len = Math.floor(sr * p.rt * 1.1);
+      const ir = c.createBuffer(2, len, sr);
+      const rnd = U.rng(U.hashStr(name));
       for (let ch = 0; ch < 2; ch++) {
         const data = ir.getChannelData(ch);
-        for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, p.decay) * (i < 30 ? i / 30 : 1);
+        // Early reflections: discrete taps thinning out
+        for (let k = 0; k < p.taps; k++) {
+          const t = 0.003 + Math.pow(rnd(), 1.4) * p.er, i = Math.floor(t * sr);
+          data[i] += (rnd() * 2 - 1) * (1 - t / (p.er * 1.2)) * 0.7;
+        }
+        // Diffuse tail: noise through a one-pole lowpass that darkens over time (air and wall absorption)
+        let lp = 0;
+        const i0 = Math.floor(p.er * 0.5 * sr);
+        for (let i = i0; i < len; i++) {
+          const t = i / sr, fc = 300 + p.damp * Math.exp(-t * 2.5 / p.rt);
+          const a = Math.exp(-2 * Math.PI * fc / sr);
+          lp = lp * a + (rnd() * 2 - 1) * (1 - a);
+          data[i] += lp * Math.exp(-t * 6.9 / p.rt) * Math.min(1, (i - i0) / (0.03 * sr)) * 1.4;
+        }
       }
       this.reverb.buffer = ir;
       this.reverbOut.gain.value = p.wet;
@@ -123,6 +142,11 @@
       let node = g;
       let lp = null;
       if (o.occl) { lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = o.occluded ? 700 : 18000; node.connect(lp); node = lp; }
+      // Air absorption: distant sounds lose their highs
+      if (pos && this.listenerPos && o.air !== false) {
+        const d = Math.hypot(pos.x - this.listenerPos.x, pos.z - this.listenerPos.z);
+        if (d > 4) { const air = c.createBiquadFilter(); air.type = 'lowpass'; air.frequency.value = U.clamp(20000 / (1 + (d - 4) / 9), 1200, 20000); node.connect(air); node = air; }
+      }
       let pan = null;
       if (pos) { pan = this.panner(pos, o); node.connect(pan); node = pan; }
       node.connect(this.bus[bus]);
@@ -143,6 +167,19 @@
       this.events.emit('caption', text, dir);
     }
 
+    // Play a synthesized sample (random variant) through the positional chain
+    play(name, variants, bus, pos, o = {}) {
+      if (!this.ctx || !this.sfx) return null;
+      const buf = this.sfx.get(name, variants || 1);
+      if (!buf) return null;
+      const src = this.ctx.createBufferSource();
+      src.buffer = buf;
+      src.playbackRate.value = (o.rate || 1) * (1 + (Math.random() - 0.5) * (o.jitter != null ? o.jitter : 0.08));
+      const chain = this.out(bus || 'sfx', pos, o);
+      if (o.lowpass) { const f = this.filt('lowpass', o.lowpass, 0.7); src.connect(f).connect(chain.input); } else src.connect(chain.input);
+      src.start(this.t + (o.delay || 0));
+      return src;
+    }
     // ---------------------------------------------------------- yapı taşları
     env(g, t, a, peak, d, sustain = 0) {
       g.gain.cancelScheduledValues(t);
@@ -180,58 +217,83 @@
     // ---------------------------------------------------------- oyuncu sesleri
     footstep(surface, loud = 1, pos) {
       if (!this.ctx) return;
-      const t = this.t, o = this.out('sfx', pos, { rev: 0.25, gain: loud });
-      const v = 0.85 + Math.random() * 0.3;
-      switch (surface) {
-        case 'carpet':
-          this.burst(o.input, 'lowpass', 520 * v, 0.7, t, 0.13, 0.5);
-          this.tone(o.input, 'sine', 90 * v, 55, t, 0.09, 0.35);
-          break;
-        case 'concrete':
-          this.burst(o.input, 'bandpass', 1900 * v, 1.3, t, 0.06, 0.55);
-          this.tone(o.input, 'sine', 130 * v, 70, t, 0.07, 0.3);
-          break;
-        case 'tile':
-          this.burst(o.input, 'highpass', 2600 * v, 0.8, t, 0.045, 0.45);
-          this.burst(o.input, 'bandpass', 3300 * v, 9, t, 0.12, 0.2);
-          break;
-        case 'water': {
-          const f = this.burst(o.input, 'lowpass', 2200, 1, t, 0.32, 0.55, 0.01);
-          f.frequency.setValueAtTime(2400, t); f.frequency.exponentialRampToValueAtTime(380, t + 0.3);
-          for (let k = 0; k < 3; k++) this.tone(o.input, 'sine', 500 + Math.random() * 500, 900 + Math.random() * 600, t + 0.05 + k * 0.05, 0.04, 0.05);
-          break;
-        }
-        case 'metal':
-          this.burst(o.input, 'bandpass', 2800 * v, 5, t, 0.1, 0.5);
-          this.tone(o.input, 'triangle', 420 * v, 400, t, 0.2, 0.05);
-          break;
-        default:
-          this.burst(o.input, 'lowpass', 900 * v, 0.7, t, 0.08, 0.45);
-      }
+      const surf = ['carpet', 'wetCarpet', 'concrete', 'tile', 'lino', 'wood', 'metal', 'water', 'puddle'].includes(surface) ? surface : 'carpet';
+      this.play('step_' + surf, 8, 'sfx', pos, { rev: 0.22, gain: 0.55 * loud, jitter: 0.1 });
+      if (loud > 0.8 && Math.random() < 0.3) this.play('cloth', 4, 'sfx', null, { rev: 0, gain: 0.12 });
     }
     breath(k) {
       if (!this.ctx) return;
-      const t = this.t, o = this.out('sfx', null, { rev: 0.05, gain: 0.35 * k });
-      const f = this.burst(o.input, 'bandpass', 900, 0.9, t, 0.55, 0.5, 0.25);
-      f.frequency.setValueAtTime(700, t); f.frequency.linearRampToValueAtTime(1300, t + 0.4);
+      this.breathIn = !this.breathIn;
+      const heavy = k > 0.6;
+      this.play((this.breathIn ? 'breathIn' : 'breathOut') + (heavy ? 'Heavy' : ''), 4, 'sfx', null, { rev: 0.04, gain: 0.3 + 0.35 * k, jitter: 0.06 });
     }
     heartbeat(k) {
       if (!this.ctx) return;
-      const t = this.t, o = this.out('sfx', null, { rev: 0, gain: 0.8 * k });
-      this.tone(o.input, 'sine', 62, 38, t, 0.16, 0.9, 0.004);
-      this.tone(o.input, 'sine', 58, 36, t + 0.2, 0.14, 0.6, 0.004);
+      this.play('heartbeat', 2, 'sfx', null, { rev: 0, gain: 0.9 * k, jitter: 0.03 });
     }
     pickup(kind = 'item') {
       if (!this.ctx) return;
-      const t = this.t, o = this.out('ui', null, { rev: 0.45 });
-      if (kind === 'key') [659, 784, 988, 1319].forEach((f, k) => this.tone(o.input, 'triangle', f, f, t + k * 0.07, 0.3, 0.2));
-      else if (kind === 'pellet') { this.tone(o.input, 'square', 180, 720, t, 0.18, 0.12); this.tone(o.input, 'sine', 90, 360, t, 0.5, 0.4); }
-      else { this.tone(o.input, 'sine', 880, 880, t, 0.25, 0.25); this.tone(o.input, 'sine', 1320, 1320, t + 0.08, 0.35, 0.18); }
+      const t = this.t;
+      if (kind === 'pellet') { const o = this.out('ui', null, { rev: 0.45 }); this.tone(o.input, 'square', 180, 720, t, 0.18, 0.12); this.tone(o.input, 'sine', 90, 360, t, 0.5, 0.4); return; }
+      this.play(kind === 'key' ? 'keys' : Math.random() < 0.5 ? 'plasticTap' : 'clink', 4, 'sfx', null, { rev: 0.1, gain: 0.7 });
+      // A soft confirmation under the foley
+      const o = this.out('ui', null, { rev: 0.35, gain: 0.35 });
+      if (kind === 'key') [659, 988].forEach((f, k) => this.tone(o.input, 'sine', f, f, t + 0.12 + k * 0.09, 0.4, 0.07));
+      else this.tone(o.input, 'sine', 880, 880, t + 0.1, 0.3, 0.05);
     }
     paper() {
       if (!this.ctx) return;
-      const t = this.t, o = this.out('ui', null, { rev: 0.1 });
-      for (let k = 0; k < 6; k++) this.burst(o.input, 'bandpass', 2500 + Math.random() * 2500, 1.5, t + k * 0.035 + Math.random() * 0.02, 0.04, 0.25);
+      this.play('paper', 6, 'ui', null, { rev: 0.08, gain: 0.8 });
+    }
+    flashClick() { if (this.ctx) this.play('flashClick', 3, 'sfx', null, { rev: 0.05, gain: 0.5 }); }
+    // Walkie-talkie line: squelch, a voice made of formants, static under it; music and ambience duck
+    radioVoice(dur, who) {
+      if (!this.ctx || !this.sfx) return;
+      const t = this.t;
+      this.play('squelch', 3, 'sfx', null, { rev: 0, gain: 0.5 });
+      const pitch = { eddie: 118, walt: 96, radio: 110, penny: 205, ivy: 190 }[who] || 115;
+      const buf = this.sfx.voice(Math.min(9, dur), { pitch, radio: true, seed: (this.voiceSeed = (this.voiceSeed || 0) + 1) });
+      const src = this.ctx.createBufferSource(); src.buffer = buf;
+      const o = this.out('sfx', null, { rev: 0.05, gain: 0.32 });
+      src.connect(o.input); src.start(t + 0.12);
+      const st = this.play('radioStatic', 2, 'sfx', null, { rev: 0, gain: 0.07 });
+      if (st) { st.loop = true; st.stop(t + dur + 0.2); }
+      this.play('squelch', 3, 'sfx', null, { rev: 0, gain: 0.4, delay: Math.min(9, dur) + 0.15 });
+      this.duckFor(dur + 0.3);
+    }
+    // Old tape recorder voice (lo-fi, wow and flutter)
+    tapeVoice(dur) {
+      if (!this.ctx || !this.sfx) return;
+      const buf = this.sfx.voice(Math.min(12, dur), { pitch: 98, tape: true, seed: 77 });
+      const src = this.ctx.createBufferSource(); src.buffer = buf;
+      const lfo = this.osc('sine', 0.7), lg = this.ctx.createGain(); lg.gain.value = 0.006; lfo.connect(lg).connect(src.playbackRate); lfo.start(); lfo.stop(this.t + dur + 1);
+      const o = this.out('sfx', null, { rev: 0.1, gain: 0.35 });
+      src.connect(o.input); src.start(this.t + 0.3);
+      this.play('tapeClunk', 2, 'sfx', null, { rev: 0.1, gain: 0.6 });
+    }
+    duckFor(sec) {
+      if (!this.ctx) return;
+      const t = this.t;
+      for (const b of [this.bus.music, this.bus.amb]) { b.gain.cancelScheduledValues(t); }
+      const s = PB.Settings.data;
+      this.bus.music.gain.setTargetAtTime(s.music * 0.55 * 0.45, t, 0.15); this.bus.music.gain.setTargetAtTime(s.music * 0.55, t + sec, 0.6);
+      this.bus.amb.gain.setTargetAtTime(s.ambience * 0.7 * 0.6, t, 0.15); this.bus.amb.gain.setTargetAtTime(s.ambience * 0.7, t + sec, 0.6);
+    }
+    carPass(pos, dir, speed) {
+      if (!this.ctx) return;
+      const buf = this.sfx.get('carPass', 2);
+      const src = this.ctx.createBufferSource(); src.buffer = buf;
+      src.playbackRate.value = U.clamp(speed / 11, 0.85, 1.2);
+      const chain = this.out('amb', null, { rev: 0.15, gain: 0.55 });
+      const lp = this.filt('lowpass', 2600, 0.7);
+      if (dir < 0) {
+        // Cars from the other side: swap the stereo image
+        const sp = this.ctx.createChannelSplitter(2), mg = this.ctx.createChannelMerger(2);
+        src.connect(sp); sp.connect(mg, 0, 1); sp.connect(mg, 1, 0); mg.connect(lp);
+      } else src.connect(lp);
+      lp.connect(chain.input);
+      src.start(this.t);
+      this.caption('car', PB.t('cap.car'), pos, 20);
     }
     click() { if (!this.ctx) return; const o = this.out('ui', null, { rev: 0 }); this.burst(o.input, 'highpass', 3000, 1, this.t, 0.02, 0.4); }
     uiMove() { if (!this.ctx) return; const o = this.out('ui', null, { rev: 0 }); this.tone(o.input, 'square', 440, 440, this.t, 0.03, 0.06); }
@@ -245,26 +307,22 @@
     }
     door(kind, pos, open = true) {
       if (!this.ctx) return;
-      const t = this.t, o = this.out('sfx', pos, { rev: 0.4 });
+      const t = this.t, o0 = { rev: 0.4, gain: 0.8 };
       if (kind === 'elevator') {
+        const o = this.out('sfx', pos, { rev: 0.4 });
         this.tone(o.input, 'sine', 1318, 1318, t, 1.2, 0.25); this.tone(o.input, 'sine', 1046, 1046, t + 0.25, 1.4, 0.2);
-        this.burst(o.input, 'lowpass', 400, 1, t + 0.5, 1.6, 0.3, 0.3, this.brown);
+        this.play('doorMetalOpen', 2, 'sfx', pos, Object.assign({ delay: 0.5 }, o0));
       } else if (kind === 'metal' || kind === 'security' || kind === 'stair' || kind === 'exit') {
-        this.burst(o.input, 'bandpass', 700, 2, t, 0.35, 0.5);
-        this.tone(o.input, 'sawtooth', 70, 60, t, 0.4, 0.15);
-        if (!open) this.tone(o.input, 'sine', 90, 40, t + 0.3, 0.3, 0.6);
+        this.play(open ? 'doorMetalOpen' : 'doorMetalClose', 3, 'sfx', pos, o0);
       } else if (kind === 'locked') {
-        this.burst(o.input, 'bandpass', 1500, 3, t, 0.05, 0.5); this.burst(o.input, 'bandpass', 1300, 3, t + 0.1, 0.05, 0.4);
+        this.play('doorLocked', 3, 'sfx', pos, o0);
+      } else if (kind === 'glass') {
+        this.play('doorGlass', 2, 'sfx', pos, o0);
       } else if (kind === 'house') {
+        const o = this.out('sfx', pos, { rev: 0.4 });
         this.tone(o.input, 'sine', 220, 880, t, 1.4, 0.3); this.tone(o.input, 'triangle', 330, 1320, t + 0.1, 1.2, 0.15);
       } else {
-        const osc = this.osc('sawtooth', 110), bp = this.filt('bandpass', 600, 12), g = this.ctx.createGain();
-        osc.connect(bp).connect(g).connect(o.input);
-        bp.frequency.setValueAtTime(400, t); bp.frequency.linearRampToValueAtTime(1100, t + 0.6);
-        osc.frequency.setValueAtTime(95, t); osc.frequency.linearRampToValueAtTime(130, t + 0.6);
-        this.env(g, t, 0.05, 0.2, 0.6);
-        osc.start(t); osc.stop(t + 0.8);
-        this.burst(o.input, 'lowpass', 300, 1, t + 0.55, 0.2, 0.4);
+        this.play(open ? 'doorWoodOpen' : 'doorWoodClose', 4, 'sfx', pos, o0);
       }
     }
     mech(kind, pos) {
@@ -295,9 +353,9 @@
     }
     thunder(pos) {
       if (!this.ctx) return;
-      const t = this.t, o = this.out('amb', pos, { rev: 0.5, gain: 1.6, ref: 8 });
-      this.burst(o.input, 'lowpass', 180, 0.7, t + 0.3 + Math.random() * 0.8, 3.5, 0.9, 0.15, this.brown);
-      this.burst(o.input, 'lowpass', 900, 0.7, t + 0.2, 0.4, 0.4, 0.01);
+      // Heard from indoors: muffled, stereo, felt more than heard
+      this.play('thunder', 3, 'amb', null, { rev: 0.25, gain: 1.3, lowpass: 1400, jitter: 0.1 });
+      this.caption('thunder', PB.t('cap.thunder'), pos, 15);
     }
     glitchBurst(pos) {
       if (!this.ctx) return;
@@ -316,21 +374,30 @@
       if (this.wakaFlip) this.tone(ws, 'triangle', 300, 150, t, 0.11, 0.7);
       else this.tone(ws, 'triangle', 150, 300, t, 0.11, 0.7);
       this.tone(o.input, 'sine', 60, 45, t, 0.14, 0.5);
+      if (big > 0.6 && Math.random() < 0.35) this.play('chew', 4, 'ent', pos, { rev: 0.5, occl: true, occluded, ref: 3, gain: 0.8 * big });
       if (!occluded && big > 0.5) this.caption('waka', PB.t('cap.waka'), pos, 6);
       else this.caption('wakaFar', PB.t('cap.wakaFar'), pos, 10);
     }
     stinger(kind = 'spot') {
       if (!this.ctx) return;
-      const t = this.t, o = this.out('sfx', null, { rev: 0.5, gain: kind === 'jump' ? 1.4 : 0.7 });
-      if (kind === 'jump') {
-        const ws = this.ctx.createWaveShaper(); ws.curve = this.distCurve; ws.connect(o.input);
-        this.burst(ws, 'bandpass', 1800, 0.5, t, 0.9, 0.9, 0.005);
-        this.tone(ws, 'sawtooth', 1400, 180, t, 0.8, 0.6);
-        this.tone(o.input, 'sine', 55, 28, t, 1.4, 1, 0.005);
-      } else {
-        [110, 116.5, 155.6, 233.1, 246.9].forEach((f, k) => this.tone(o.input, 'sawtooth', f, f * 0.98, t, 2.2, 0.08, 0.02 + k * 0.01));
-        this.burst(o.input, 'highpass', 3000, 0.5, t, 0.8, 0.2, 0.01);
-      }
+      if (kind === 'jump') this.play('stingJump', 2, 'sfx', null, { rev: 0.5, gain: 1.2, jitter: 0.04 });
+      else this.play('stingSpot', 3, 'music', null, { rev: 0.6, gain: 1.0, jitter: 0.03 });
+    }
+    // Looping sample (room tones, rain) with the same key/gain API as synthesized loops
+    bufLoop(key, name, pos, o = {}) {
+      if (!this.ctx || !this.sfx) return null;
+      if (this.loops.has(key)) return this.loops.get(key);
+      const buf = this.sfx.get(name, 1);
+      if (!buf) return null;
+      const outp = this.out(o.bus || 'amb', pos, { rev: o.rev != null ? o.rev : 0.2, occl: !!pos, ref: o.ref, roll: o.roll, max: o.max, gain: 0, air: o.air });
+      const src = this.ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+      src.playbackRate.value = o.rate || 1;
+      if (o.lowpass) { const f = this.filt('lowpass', o.lowpass, 0.7); src.connect(f).connect(outp.input); } else src.connect(outp.input);
+      src.start(this.t, Math.random() * buf.duration);
+      const L = { key, type: name, out: outp, gain: outp.input, nodes: [src], target: 0 };
+      this.loops.set(key, L);
+      this.setLoop(key, o.gain != null ? o.gain : 0.5);
+      return L;
     }
     // Sürekli döngü sesi: key ile tekil. params: {type:'rumble'|'wail'|'whisper'|'phone'|'hum'|'tinnitus'|'shuffle'|'engine'|'giggle'|'water'|'rain'}
     loop(key, type, pos, o = {}) {
@@ -437,11 +504,22 @@
       for (const k of [...this.loops.keys()]) if (k.startsWith('amb:')) this.stopLoop(k, 1);
       this.setReverb(theme);
       this.ambTheme = theme;
-      if (['yellow', 'office', 'pool', 'dark', 'concrete'].includes(theme)) this.loop('amb:hum', 'hum', null, { bus: 'amb', gain: theme === 'dark' ? 0.02 : theme === 'concrete' ? 0.04 : 0.09, rev: 0.1 });
-      if (theme === 'arcade') { this.loop('amb:rain', 'rain', null, { bus: 'amb', gain: 0.14, rev: 0 }); }
-      if (theme === 'pool') this.loop('amb:water', 'water', null, { bus: 'amb', gain: 0.1, rev: 0.6 });
-      if (theme === 'maze' || theme === 'glitch' || theme === 'dark') this.loop('amb:wind', 'wind', null, { bus: 'amb', gain: 0.08, rev: 0.3 });
+      const L = (k, name, gain, o = {}) => this.bufLoop('amb:' + k, name, o.pos || null, Object.assign({ bus: 'amb', gain, rev: 0.1 }, o));
+      if (theme === 'yellow') { L('hum', 'fluorescent', 0.16); L('air', 'hvac', 0.22); }
+      if (theme === 'office') { L('hum', 'fluorescent', 0.08); L('air', 'hvac', 0.3); }
+      if (theme === 'pool') { L('water', 'poolRoom', 0.35, { rev: 0.5 }); L('hum', 'fluorescent', 0.06); }
+      if (theme === 'concrete') { L('room', 'warehouse', 0.4, { rev: 0.4 }); }
+      if (theme === 'dark') { L('room', 'darkRoom', 0.45); }
+      if (theme === 'arcade') { L('rain', 'rainInside', 0.2, { rev: 0, lowpass: 3200 }); }
+      if (theme === 'maze' || theme === 'glitch' || theme === 'dark') this.loop('amb:wind', 'wind', null, { bus: 'amb', gain: 0.05, rev: 0.3 });
+      if (theme === 'maze' || theme === 'glitch') L('room', 'darkRoom', 0.25);
       this.nextAmb = this.t + 4;
+    }
+    // Positional rain on the storefront glass and the gutter outside (arcade)
+    streetSounds(glassPos, gutterPos) {
+      if (!this.ctx) return;
+      this.bufLoop('amb:glass', 'rainGlass', glassPos, { bus: 'amb', gain: 0.5, rev: 0.05, ref: 3, roll: 1.1 });
+      this.bufLoop('amb:gutter', 'gutter', gutterPos, { bus: 'amb', gain: 0.35, rev: 0.05, ref: 2, roll: 1.2, lowpass: 2500 });
     }
     ambienceTick(cam) {
       if (!this.ctx || !this.ambTheme || this.t < this.nextAmb) return;
@@ -479,18 +557,32 @@
         if (s % 16 === 0) this.burst(o.input, 'lowpass', 300, 1, m.next, 3, 0.05, 1, this.brown);
         m.next += step;
       } else if (m.mode === 'explore') {
-        const chords = [[110, 130.8, 164.8], [98, 116.5, 146.8], [87.3, 110, 130.8], [92.5, 110, 138.6]];
-        const ch = chords[(s / 1 | 0) % chords.length];
-        const o = this.out('music', null, { rev: 0.9, gain: 0.35 });
-        for (const f of ch) {
-          const osc = this.osc('sawtooth', f), lp = this.filt('lowpass', 500 + Math.random() * 200, 0.7), g = this.ctx.createGain();
-          osc.detune.value = (Math.random() - 0.5) * 16;
-          osc.connect(lp).connect(g).connect(o.input);
-          g.gain.setValueAtTime(0.0001, m.next); g.gain.linearRampToValueAtTime(0.05, m.next + 3); g.gain.linearRampToValueAtTime(0.0001, m.next + 9);
-          osc.start(m.next); osc.stop(m.next + 9.2);
+        // Slow evolving pad under sparse, detuned felt-piano notes (A minor)
+        if (s % 4 === 0) {
+          const chords = [[110, 130.8, 164.8, 220], [98, 116.5, 146.8, 196], [87.3, 110, 130.8, 174.6], [82.4, 98, 123.5, 164.8]];
+          const ch = chords[(s / 4 | 0) % chords.length];
+          const o = this.out('music', null, { rev: 0.95, gain: 0.3 });
+          const lp = this.filt('lowpass', 380, 0.9); lp.connect(o.input);
+          lp.frequency.setValueAtTime(300, m.next); lp.frequency.linearRampToValueAtTime(720 + Math.random() * 300, m.next + 5); lp.frequency.linearRampToValueAtTime(320, m.next + 10);
+          for (const f of ch) for (const det of [-7, 6]) {
+            const osc = this.osc('sawtooth', f), g = this.ctx.createGain();
+            osc.detune.value = det + (Math.random() - 0.5) * 4;
+            osc.connect(g).connect(lp);
+            g.gain.setValueAtTime(0.0001, m.next); g.gain.linearRampToValueAtTime(0.035, m.next + 3.5); g.gain.setValueAtTime(0.035, m.next + 7); g.gain.linearRampToValueAtTime(0.0001, m.next + 10.5);
+            osc.start(m.next); osc.stop(m.next + 10.7);
+          }
+          const sub = this.osc('sine', ch[0] / 2), sg = this.ctx.createGain(); sub.connect(sg).connect(o.input);
+          sg.gain.setValueAtTime(0.0001, m.next); sg.gain.linearRampToValueAtTime(0.08, m.next + 4); sg.gain.linearRampToValueAtTime(0.0001, m.next + 10.5);
+          sub.start(m.next); sub.stop(m.next + 10.7);
         }
-        m.next += 8;
-      } else if (m.mode === 'chase') {
+        if (this.sfx && Math.random() < 0.55) {
+          const scale = [220, 246.9, 261.6, 293.7, 329.6, 392, 440, 523.3, 587.3, 659.3];
+          const play = (f, d) => { const src = this.ctx.createBufferSource(); src.buffer = this.sfx.note(f); src.detune.value = (Math.random() - 0.5) * 18; const o = this.out('music', null, { rev: 1, gain: 0.16 + Math.random() * 0.08 }); src.connect(o.input); src.start(m.next + d); };
+          const f = scale[Math.floor(Math.random() * scale.length)];
+          play(f, Math.random() * 0.8);
+          if (Math.random() < 0.3) play(f * (Math.random() < 0.5 ? 1.5 : 1.2), 0.35 + Math.random() * 0.5);
+        }
+        m.next += 2.6;      } else if (m.mode === 'chase') {
         const k = 0.5 + m.intensity * 0.5;
         const step = 0.16;
         const o = this.out('music', null, { rev: 0.25, gain: 0.8 * k });
