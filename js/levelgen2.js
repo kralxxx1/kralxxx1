@@ -271,7 +271,7 @@
     for (let k = 0; k < (two ? 2 : 1); k++) {
       const f = two ? 0.28 + k * 0.44 : 0.5;
       const bp = wallPoint(L, rm, d, f, 1.05);
-      prop(L, 'hospitalBed', bp.x, bp.z, bp.rot, { collider: { hw: 0.55, hd: 1.05 }, hide: true });
+      prop(L, 'hospitalBed', bp.x, bp.z, bp.rot, { collider: { hw: 0.55, hd: 1.05 }, hide: true, hideEye: 0.22 });
       const iv = wallPoint(L, rm, d, f + 0.14, 0.45); prop(L, 'ivStand', iv.x, iv.z, r.range(0, 6));
       const ns = wallPoint(L, rm, d, f - 0.16, 0.3); prop(L, 'nightstand', ns.x, ns.z, ns.rot, { collider: { hw: 0.25, hd: 0.25 } });
       if (two) { const cu = wallPoint(L, rm, d, 0.5, 1.2); prop(L, 'curtain', cu.x, cu.z, cu.rot + H); }
@@ -288,7 +288,7 @@
   };
   FURNISH.nurse = (L, r, rm) => {
     const d = opposite(rm.side), c = wallPoint(L, rm, d, 0.5, 1.3);
-    prop(L, 'nurseCounter', c.x, c.z, c.rot, { collider: { hw: 1.4, hd: 0.4 }, hide: true });
+    prop(L, 'nurseCounter', c.x, c.z, c.rot, { collider: { hw: 1.4, hd: 0.4 }, hide: true, hideAt: [0.95, -0.07], hideYaw: -H });
     const f = wallPoint(L, rm, d, 0.15, 0.35); prop(L, 'filing', f.x, f.z, f.rot, { collider: { hw: 0.35, hd: 0.35 } });
     spotIn(L, rm, 'nurse');
     L.addSpot('nurseTop', { x: L.cellOf(c.x, c.z).x, y: L.cellOf(c.x, c.z).y, wx: c.x, wz: c.z, h: 1.08 });
@@ -317,7 +317,7 @@
   FURNISH.motelRoom = (L, r, rm, p, own) => {
     const d = opposite(rm.side);
     const bp = wallPoint(L, rm, d, 0.5, 1.05);
-    prop(L, 'motelBed', bp.x, bp.z, bp.rot, { collider: { hw: 0.8, hd: 1.05 }, hide: true });
+    prop(L, 'motelBed', bp.x, bp.z, bp.rot, { collider: { hw: 0.8, hd: 1.05 }, hide: true, hideEye: 0.15 });
     const stands = [];
     for (const s of [-1, 1]) { const n = wallPoint(L, rm, d, 0.5 + s * 0.28, 0.25); prop(L, 'nightstand', n.x, n.z, n.rot, { collider: { hw: 0.25, hd: 0.25 } }); stands.push(n); const cn = L.cellOf(n.x, n.z); if (!own) L.addSpot('motelStand', { x: cn.x, y: cn.y, wx: n.x + 0.08, wz: n.z, h: 0.6 }); }
     const tv = wallPoint(L, rm, rm.side, rm.door && doorFrac(L, rm) < 0.5 ? 0.78 : 0.22, 0.3);
@@ -327,12 +327,12 @@
     L.addDecal({ type: 'poster', surface: 'wall', x: art.x, y: 1.72, z: art.z, nx: -DX[d], nz: -DY[d], size: 0.7, text: r.pick(['motelArt1', 'motelArt2']), rot: 0 });
     const chp = wallPoint(L, rm, (d + 1) % 4, 0.3, 0.45); prop(L, 'chair', chp.x, chp.z, chp.rot + r.range(-0.4, 0.4), { collider: { hw: 0.25, hd: 0.25 } });
     if (!own) spotIn(L, rm, 'motelRoom');
-    const c = L.cellOf(bp.x, bp.z); if (!own) L.addSpot('motelBed', { x: c.x, y: c.y, wx: bp.x, wz: bp.z, h: 0.62 });
+    const c = L.cellOf(bp.x, bp.z); if (!own) L.addSpot('motelBed', { x: c.x, y: c.y, wx: bp.x, wz: bp.z, h: 0.67 });
     return { bp, stands };
   };
   FURNISH.lobby = (L, r, rm) => {
     const d = opposite(rm.side);
-    const fd = wallPoint(L, rm, d, 0.5, 1.4); prop(L, 'frontDesk', fd.x, fd.z, fd.rot, { collider: { hw: 1.5, hd: 0.45 }, hide: true });
+    const fd = wallPoint(L, rm, d, 0.5, 1.4); prop(L, 'frontDesk', fd.x, fd.z, fd.rot, { collider: { hw: 1.5, hd: 0.45 }, hide: true, hideAt: [1.05, -0.1], hideYaw: -H });
     const kb = wallPoint(L, rm, d, 0.5, 0.02); prop(L, 'keyBoard', kb.x, kb.z, kb.rot, { wall: true, y: 1.5 });
     const cp = wallPoint(L, rm, (d + 1) % 4, 0.5, 0.5); prop(L, 'couch', cp.x, cp.z, cp.rot, { collider: { hw: 1.0, hd: 0.45 } });
     spotIn(L, rm, 'lobbyRoom');
@@ -379,7 +379,7 @@
   const WALL_STOCK = { records: 'comicRack', comics: 'comicRack', toys: 'toyShelf', clothes: 'toyShelf', photo: null, food: null };
   const store = (inside) => (L, r, rm) => {
     const d = opposite(rm.side), b = inner(L, rm);
-    const c = wallPoint(L, rm, d, 0.25, 0.8); prop(L, 'storeCounter', c.x, c.z, c.rot, { collider: { hw: 0.9, hd: 0.4 }, hide: true });
+    const c = wallPoint(L, rm, d, 0.25, 0.8); prop(L, 'storeCounter', c.x, c.z, c.rot, { collider: { hw: 0.9, hd: 0.4 }, hide: true, hideAt: [0.45, -0.1], hideYaw: -H });
     const stock = WALL_STOCK[rm.tag] === undefined ? 'toyShelf' : WALL_STOCK[rm.tag];
     if (stock) for (const sd of [(d + 1) % 4, (d + 3) % 4]) {
       const n = Math.max(1, Math.floor(sideLen(L, rm, sd) / 2.3) - 1);
@@ -528,7 +528,7 @@
       const lb = inner(L, living), bb = inner(L, bed);
       prop(L, 'couch', (lb.x0 + lb.x1) / 2, hs.north ? lb.z0 + 0.5 : lb.z1 - 0.5, hs.north ? 0 : PI, { collider: { hw: 1.0, hd: 0.45 } });
       prop(L, 'dresserTv', lb.x0 + 0.35, (lb.z0 + lb.z1) / 2, H, { collider: { hw: 0.3, hd: 0.6 } });
-      prop(L, 'motelBed', (bb.x0 + bb.x1) / 2, hs.north ? bb.z0 + 1.1 : bb.z1 - 1.1, hs.north ? 0 : PI, { collider: { hw: 0.8, hd: 1.05 }, hide: true });
+      prop(L, 'motelBed', (bb.x0 + bb.x1) / 2, hs.north ? bb.z0 + 1.1 : bb.z1 - 1.1, hs.north ? 0 : PI, { collider: { hw: 0.8, hd: 1.05 }, hide: true, hideEye: 0.15 });
       L.addSpot(tag + 'Living', { x: Math.floor((hs.x0 + mid) / 2), y: Math.floor((hs.y0 + hs.y1) / 2), room: living });
       L.addSpot(tag + 'Bed', { x: Math.floor((mid + 1 + hs.x1) / 2), y: Math.floor((hs.y0 + hs.y1) / 2), room: bed });
       // The pillow, a kid's desk with a drawer, and the screen door

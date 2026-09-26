@@ -322,6 +322,9 @@
       return d;
     },
   };
+  // Sculpted part geometries (shared by the walking mannequins and the ones on display in the stores)
+  const MQB = { torso: [[[-0.22, -0.45, -0.16], [0.22, 0.52, 0.16]], 0.01], head: [[[-0.12, -0.03, -0.13], [0.12, 0.26, 0.15]], 0.007], upperArm: [[[-0.07, -0.4, -0.07], [0.07, 0.07, 0.07]], 0.008], foreArm: [[[-0.06, -0.46, -0.06], [0.06, 0.05, 0.1]], 0.007], thigh: [[[-0.09, -0.52, -0.09], [0.09, 0.08, 0.09]], 0.009], shin: [[[-0.07, -0.5, -0.07], [0.07, 0.06, 0.18]], 0.008] };
+  const mqGeo = key => S.mesh('mq:' + key, MQ[key], MQB[key][0], MQB[key][1], { color: aoColor(MQ[key], [1, 1, 1], 1.2), smooth: 2 });
   function mannequin() {
     const plastic = T.canvas('mq:plastic', 512, 512, (g, w, h) => {
       const r = U.rng(41);
@@ -333,20 +336,20 @@
     const mat = new THREE.MeshPhysicalMaterial({ map: plastic, roughness: 0.3, clearcoat: 0.5, clearcoatRoughness: 0.35, vertexColors: true, emissive: 0x080706 });
     plastic.repeat.set(3, 3);
     mat.userData.refl = 0.12;
-    const mk = (key, fn, b, cell) => { const m = new THREE.Mesh(S.mesh('mq:' + key, fn, b, cell, { color: aoColor(fn, [1, 1, 1], 1.2), smooth: 2 }), mat); m.castShadow = true; return m; };
+    const mk = key => { const m = new THREE.Mesh(mqGeo(key), mat); m.castShadow = true; return m; };
     const g = new THREE.Group();
-    const torso = mk('torso', MQ.torso, [[-0.22, -0.45, -0.16], [0.22, 0.52, 0.16]], 0.01); torso.position.set(0, 1.28, 0); g.add(torso);
-    const head = mk('head', MQ.head, [[-0.12, -0.03, -0.13], [0.12, 0.26, 0.15]], 0.007); head.position.set(0, 1.72, 0.01); g.add(head);
+    const torso = mk('torso'); torso.position.set(0, 1.28, 0); g.add(torso);
+    const head = mk('head'); head.position.set(0, 1.72, 0.01); g.add(head);
     const limbs = [];
     for (const sx of [-1, 1]) {
       const sh = new THREE.Group(); sh.position.set(sx * 0.2, 1.56, 0); g.add(sh);
-      sh.add(mk('upperArm', MQ.upperArm, [[-0.07, -0.4, -0.07], [0.07, 0.07, 0.07]], 0.008));
+      sh.add(mk('upperArm'));
       const el = new THREE.Group(); el.position.set(0, -0.36, 0); sh.add(el);
-      el.add(mk('foreArm', MQ.foreArm, [[-0.06, -0.46, -0.06], [0.06, 0.05, 0.1]], 0.007));
+      el.add(mk('foreArm'));
       const hip = new THREE.Group(); hip.position.set(sx * 0.09, 0.9, 0); g.add(hip);
-      hip.add(mk('thigh', MQ.thigh, [[-0.09, -0.52, -0.09], [0.09, 0.08, 0.09]], 0.009));
+      hip.add(mk('thigh'));
       const kn = new THREE.Group(); kn.position.set(0, -0.48, 0); hip.add(kn);
-      kn.add(mk('shin', MQ.shin, [[-0.07, -0.5, -0.07], [0.07, 0.06, 0.18]], 0.008));
+      kn.add(mk('shin'));
       limbs.push({ sh, el, hip, kn, sx });
     }
     return { group: g, mats: [mat], head, limbs };
@@ -545,5 +548,5 @@
     return { group: g, mats: [gum, teeth, eyeMat] };
   }
 
-  Object.assign(PB.Monsters, { counter, crawler, monitor, mannequin, neighbor, chompy, grinner, skinTex, bumpTex });
+  Object.assign(PB.Monsters, { counter, crawler, monitor, mannequin, mqGeo, neighbor, chompy, grinner, skinTex, bumpTex });
 })(typeof window !== 'undefined' ? window : globalThis);

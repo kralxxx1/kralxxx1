@@ -87,7 +87,7 @@
   // Mounted on or built into a wall, or deliberately spanning cells: not pushed around
   const FIXED = /^(collider|pegboard|nightWindow|wallPipes|wallClock|monitorWall|chalkboard|keyBoard|handDryer|mirror|corkboard|paperHolder|curtain|hoop|roof|rug|poster|sign|vent|pipeRun|beam|stairsUp|bleachers|fix-)/;
   // Loose clutter that is simply left out when it cannot fit
-  const DECOR = /^(crate|crateStack|barrel|pallet|boxes|trashCan|mopBucket|planter|towelRack|lounger|debris|trashBag|cone|tire|bucket|chairPile)$/;
+  const DECOR = /^(crate|crateStack|barrel|pallet|boxes|trashCan|mopBucket|planter|towelRack|lounger|debris|trashBag|cone|tire|bucket|chairPile|chairStacks)$/;
   // Axis-aligned boxes of everything solid around (x, z): walls with their thickness, doorways, blocked cells
   function solidsNear(L, x, z, rad, pad) {
     const C = L.cell, out = [];

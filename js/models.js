@@ -148,6 +148,26 @@
     return out;
   };
 
+  // Move and turn a finished list of specs as one object (positions and rotations composed)
+  const PIDX = { box: [3, 6], rbox: [4, 7], cyl: [4, 7], torus: [4, 7], cone: [3, 6], lathe: [2, 5], cap: [2, 5], rcyl: [4, 7], disc: [1, 4], ring: [2, 5], plane: [2, 5], ext: [3, 6] };
+  M.place = (specs, px, py, pz, rx = 0, ry = 0, rz = 0) => {
+    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), qp = new THREE.Quaternion(), e = new THREE.Euler();
+    return specs.map(sp => {
+      const [kind, mat, ...a] = sp, b = a.slice();
+      if (kind === 'tube') { b[0] = a[0].map(p => { const v = V3(p[0], p[1], p[2]).applyQuaternion(q); return [v.x + px, v.y + py, v.z + pz]; }); return [kind, mat, ...b]; }
+      if (kind === 'sph') { const v = V3(a[1], a[2], a[3]).applyQuaternion(q); b[1] = v.x + px; b[2] = v.y + py; b[3] = v.z + pz; return [kind, mat, ...b]; }
+      const ix = PIDX[kind]; if (!ix) return sp;
+      const [pi, ri] = ix;
+      const v = V3(a[pi] || 0, a[pi + 1] || 0, a[pi + 2] || 0).applyQuaternion(q);
+      qp.setFromEuler(e.set(a[ri] || 0, a[ri + 1] || 0, a[ri + 2] || 0)).premultiply(q);
+      e.setFromQuaternion(qp);
+      b[pi] = v.x + px; b[pi + 1] = v.y + py; b[pi + 2] = v.z + pz; b[ri] = e.x; b[ri + 1] = e.y; b[ri + 2] = e.z;
+      return [kind, mat, ...b];
+    });
+  };
+  // Lowest point of a turned object, from a few points on it (to set it down on the floor)
+  M.lowest = (pts, rx, ry, rz) => { const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)); let m = Infinity; for (const p of pts) m = Math.min(m, V3(p[0], p[1], p[2]).applyQuaternion(q).y); return m; };
+
   // ------------------------------------------------------------ TEXTURES
   const T = PB.Tex;
   const SIDE_NAMES = { galaksi: 'GALAXY', kurbaga: 'FROG ROAD', tugla: 'BRICKS', yilan: 'SNAKE', uzay: 'INVADERS', yaris: 'RACER', dovus: 'BRAWL', tetris: 'BLOCKS', classic: 'PACMAN', special: '???' };
@@ -448,13 +468,19 @@
     ['sph', 'brass', 0.008, 0.05, 0.96, 0.09],
     ['tube', 'blackPlastic', [[0, 0.79, -0.05], [0.02, 0.785, -0.2], [0.1, 0.78, -0.35], [0.12, 0.6, -0.42], [0.1, 0.1, -0.42]], 0.004, 5],
   ];
-  // Wooden office chair with curved back
+  // Wooden side chair: rear legs run up into the back posts, curved back rail with a leather pad
   D.chair = [
-    ['rbox', 'leather', 0.46, 0.07, 0.44, 0.03, 0, 0.47, 0],
-    ['ext', 'woodVarnish', [[-0.23, 0], [0.23, 0], [0.22, 0.34], [0.18, 0.38], [-0.18, 0.38], [-0.22, 0.34]], 0.03, 0.006, 0, 0.55, -0.21, 0.1, 0, 0],
-    ['rbox', 'leather', 0.36, 0.22, 0.04, 0.015, 0, 0.77, -0.19, 0.1],
-    ...[[-0.2, -0.19], [0.2, -0.19], [-0.2, 0.19], [0.2, 0.19]].map(([x, z]) => ['cyl', 'woodVarnish', 0.018, 0.014, 0.45, 8, x, 0.22, z]),
-    ['cyl', 'woodVarnish', 0.01, 0.01, 0.38, 6, 0, 0.14, 0.19, 0, 0, H], ['cyl', 'woodVarnish', 0.01, 0.01, 0.38, 6, 0, 0.14, -0.19, 0, 0, H],
+    ['rbox', 'leather', 0.44, 0.06, 0.42, 0.025, 0, 0.475, 0.01],
+    ['rbox', 'woodVarnish', 0.46, 0.05, 0.44, 0.01, 0, 0.425, 0],
+    ...[-0.2, 0.2].flatMap(x => [
+      ['cyl', 'woodVarnish', 0.019, 0.015, 0.41, 8, x, 0.205, 0.19],
+      ['tube', 'woodVarnish', [[x, 0, -0.2], [x, 0.42, -0.19], [x, 0.66, -0.215], [x, 0.9, -0.25]], 0.017, 8, 16],
+      ['cyl', 'woodVarnish', 0.009, 0.009, 0.38, 6, x, 0.15, 0, H, 0, 0],
+    ]),
+    ['rbox', 'woodVarnish', 0.4, 0.15, 0.026, 0.008, 0, 0.8, -0.236, -0.1],
+    ['rbox', 'leather', 0.34, 0.12, 0.018, 0.008, 0, 0.8, -0.218, -0.1],
+    ['cyl', 'woodVarnish', 0.011, 0.011, 0.38, 6, 0, 0.58, -0.198, 0, 0, H],
+    ['cyl', 'woodVarnish', 0.009, 0.009, 0.38, 6, 0, 0.17, 0.19, 0, 0, H],
   ];
   D.filing = [
     ['rbox', 'paintMetal', 0.6, 1.32, 0.65, 0.012, 0, 0.66, 0],
@@ -653,8 +679,22 @@
   D.drain = [['rcyl', 'darkMetal', 0.6, 0.05, 0.01, 32, 0, 0.025, 0], ...[-0.4, -0.2, 0, 0.2, 0.4].map(x => ['box', 'socket', 0.04, 0.012, 0.9 - Math.abs(x), x, 0.052, 0]), ['rbox', 'chrome', 0.3, 0.05, 0.05, 0.01, 0, 0.07, 0]];
 
   // --- Warehouse
-  D.crate = [['rbox', 'crateWood', 1.1, 1.0, 1.1, 0.01, 0, 0.5, 0], ...[0.08, 0.92].map(y => ['rbox', 'crateWood', 1.13, 0.1, 1.13, 0.006, 0, y, 0]), ['box', 'crateWood', 0.1, 0.9, 1.12, -0.5, 0.5, 0], ['box', 'crateWood', 0.1, 0.9, 1.12, 0.5, 0.5, 0], ['box', 'labelCard', 0.3, 0.2, 0.004, 0, 0.5, 0.567]];
-  D.crateStack = D.crate.concat([['rbox', 'cardboard', 0.9, 0.7, 0.9, 0.01, 0.05, 1.35, 0, 0, 0.3], ['box', 'tape', 0.9, 0.004, 0.08, 0.05, 1.702, 0, 0, 0.3]]);
+  // Shipping crate: planked sides with gaps (dark inside), corner battens, a diagonal brace, skids
+  D.crate = (() => {
+    const s = [['box', 'kick', 1.0, 0.9, 1.0, 0, 0.52, 0]];
+    for (let i = 0; i < 4; i++) {
+      const y = 0.18 + i * 0.235;
+      s.push(['rbox', 'crateWood', 1.06, 0.215, 0.022, 0.004, 0, y, 0.539], ['rbox', 'crateWood', 1.06, 0.215, 0.022, 0.004, 0, y, -0.539]);
+      s.push(['rbox', 'crateWood', 0.022, 0.215, 1.06, 0.004, 0.539, y, 0], ['rbox', 'crateWood', 0.022, 0.215, 1.06, 0.004, -0.539, y, 0]);
+    }
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) s.push(['rbox', 'crateWood', 0.09, 0.96, 0.026, 0.005, sx * 0.49, 0.54, sz * 0.556], ['rbox', 'crateWood', 0.026, 0.96, 0.09, 0.005, sx * 0.556, 0.54, sz * 0.49]);
+    for (let i = 0; i < 5; i++) s.push(['rbox', 'crateWood', 1.1, 0.024, 0.2, 0.005, 0, 1.03, -0.44 + i * 0.22]);
+    s.push(['rbox', 'crateWood', 0.08, 1.2, 0.022, 0.004, 0, 0.54, 0.566, 0, 0, 0.8], ['rbox', 'crateWood', 0.022, 1.2, 0.08, 0.004, 0.566, 0.54, 0, -0.8, 0, 0]);
+    s.push(['rbox', 'crateWood', 1.1, 0.06, 0.09, 0.006, 0, 0.03, 0.45], ['rbox', 'crateWood', 1.1, 0.06, 0.09, 0.006, 0, 0.03, -0.45], ['rbox', 'crateWood', 1.1, 0.06, 0.09, 0.006, 0, 0.03, 0]);
+    s.push(['box', 'labelCard', 0.26, 0.17, 0.004, -0.26, 0.3, 0.552]);
+    return s;
+  })();
+  D.crateStack = D.crate.concat([['rbox', 'cardboard', 0.9, 0.7, 0.9, 0.01, 0.05, 1.395, 0, 0, 0.3], ['box', 'tape', 0.9, 0.004, 0.08, 0.05, 1.747, 0, 0, 0.3]]);
   D.barrel = [['lathe', 'barrelBlue', [[0.001, 0], [0.28, 0], [0.3, 0.03], [0.3, 0.2], [0.31, 0.22], [0.3, 0.24], [0.3, 0.66], [0.31, 0.68], [0.3, 0.7], [0.3, 0.87], [0.28, 0.9], [0.001, 0.9]], 28], ['cyl', 'barrelBlue', 0.03, 0.03, 0.02, 10, 0.15, 0.905, 0.05], ['cyl', 'barrelBlue', 0.02, 0.02, 0.02, 10, -0.15, 0.905, -0.05]];
   D.pallet = [['box', 'crateWood', 1.2, 0.025, 0.12, 0, 0.14, -0.44], ['box', 'crateWood', 1.2, 0.025, 0.12, 0, 0.14, -0.22], ['box', 'crateWood', 1.2, 0.025, 0.12, 0, 0.14, 0], ['box', 'crateWood', 1.2, 0.025, 0.12, 0, 0.14, 0.22], ['box', 'crateWood', 1.2, 0.025, 0.12, 0, 0.14, 0.44], ...[-0.55, 0, 0.55].map(x => ['box', 'crateWood', 0.1, 0.1, 1.0, x, 0.06, 0]), ['rbox', 'cardboard', 0.8, 0.4, 0.6, 0.01, 0.1, 0.36, 0], ['box', 'wrap', 0.82, 0.3, 0.62, 0.1, 0.33, 0]];
   D.pipe = [['cyl', 'darkMetal', 0.12, 0.12, 3, 16, 0, 0, 0, 0, 0, H], ['rcyl', 'darkMetal', 0.15, 0.06, 0.01, 16, -1.2, 0, 0, 0, 0, H], ['rcyl', 'darkMetal', 0.15, 0.06, 0.01, 16, 1.2, 0, 0, 0, 0, H]];
@@ -740,15 +780,34 @@
     for (let k = 0; k < 12; k += 2) s.push(['cyl', 'woodVarnish', 0.012, 0.012, 0.9, 6, -0.68, 0.25 + k * 0.25 + 0.45, 1.6 - k * 0.3]);
     return s;
   })();
+  // Stacking chair: moulded plastic seat and back on a splayed chrome frame (front +z)
+  const stackChair = mat => [
+    ['rbox', mat, 0.44, 0.035, 0.42, 0.014, 0, 0.455, 0.01],
+    ['rbox', mat, 0.44, 0.28, 0.028, 0.012, 0, 0.74, -0.225, -0.14],
+    ...[[-0.2, 0.18, -0.07, -0.05], [0.2, 0.18, -0.07, 0.05], [-0.2, -0.18, 0.07, -0.05], [0.2, -0.18, 0.07, 0.05]].map(([x, z, rx, rz]) => ['cyl', 'chrome', 0.011, 0.011, 0.45, 6, x, 0.225, z, rx, 0, rz]),
+    ['cyl', 'chrome', 0.01, 0.01, 0.34, 6, -0.2, 0.61, -0.2, -0.14], ['cyl', 'chrome', 0.01, 0.01, 0.34, 6, 0.2, 0.61, -0.2, -0.14],
+    ['cyl', 'chrome', 0.008, 0.008, 0.4, 6, 0, 0.43, -0.19, 0, 0, H],
+  ];
+  const CHAIR_PTS = [[-0.22, 0, 0.2], [0.22, 0, 0.2], [-0.22, 0, -0.2], [0.22, 0, -0.2], [-0.22, 0.47, 0.22], [0.22, 0.47, 0.22], [-0.22, 0.88, -0.27], [0.22, 0.88, -0.27]];
+  // The lobby's heap: layers of chairs thrown on top of each other, each one resting on the layer below
   D.chairPile = (() => {
-    const s = [];
-    const r = U.rng(55);
-    for (let k = 0; k < 14; k++) {
-      const x = r.range(-1.6, 1.6), z = r.range(-1.6, 1.6), y = r.range(0.2, 1.6), ry = r.range(0, 6.28), rx = r.range(-1, 1);
-      s.push(['rbox', 'redPlastic', 0.45, 0.04, 0.45, 0.015, x, y, z, rx, ry]);
-      s.push(['rbox', 'redPlastic', 0.45, 0.36, 0.04, 0.015, x, y + 0.2, z - 0.2, rx, ry]);
-      s.push(['cyl', 'chrome', 0.01, 0.01, 0.45, 6, x + 0.2, y - 0.2, z + 0.2, rx, ry]);
+    const s = [], r = U.rng(55), ch = stackChair('redPlastic');
+    for (const [n, rad, base] of [[15, 1.45, 0], [10, 1.05, 0.34], [7, 0.7, 0.66], [3, 0.35, 0.98]]) {
+      for (let k = 0; k < n; k++) {
+        const a = r.range(0, 6.2832), d = rad * Math.sqrt(r.range(0.05, 1));
+        const rx = r.range(-1.3, 1.3), ry = r.range(0, 6.2832), rz = r.range(-1.2, 1.2);
+        const y = Math.max(base * (1 - d / (rad + 0.6)), 0) - M.lowest(CHAIR_PTS, rx, ry, rz) * (base ? 0.55 : 1) + 0.01;
+        s.push(...M.place(ch, Math.cos(a) * d, y, Math.sin(a) * d, rx, ry, rz));
+      }
     }
+    return s;
+  })();
+  // Two neat stacks of chairs pushed into a corner (a third one left standing)
+  D.chairStacks = (() => {
+    const s = [], ch = stackChair('redPlastic');
+    for (let k = 0; k < 6; k++) s.push(...M.place(ch, -0.25, k * 0.058, -0.02 - k * 0.012, 0, 0.06, 0));
+    for (let k = 0; k < 4; k++) s.push(...M.place(ch, 0.27, k * 0.058, -0.02 - k * 0.012, 0, -0.1, 0));
+    s.push(...M.place(ch, 0.05, 0, 0.62, 0, 2.6, 0));
     return s;
   })();
 

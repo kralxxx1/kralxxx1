@@ -307,22 +307,31 @@
   // Wood: growth rings stretched along the grain with dark latewood bands, fine fibre streaks and pores,
   // and a slow tone drift across the board
   R.wood = (n, s) => {
+    // Flat-sawn board, grain along u. UVs are in meters, so one tile is a meter of board:
+    // ~34 growth rings, each a pale earlywood band ending in a thin dark latewood line; the saw plane
+    // crossing the rings at a shallow angle bends them into long nested arches ("cathedrals").
     const img = new FImg(n);
-    const warp = field(n, 3, 4, s), tone = field(n, 2, 2, s + 2), knot = field(n, 5, 2, s + 5);
+    const warp = field(n, 2, 3, s), jit = field(n, 24, 2, s + 1), tone = field(n, 2, 2, s + 2), streak = field(n, 3, 2, s + 4), knot = field(n, 4, 2, s + 5);
     const fib = (x, y) => { const X = x / 24, xi = Math.floor(X), t = X - xi; const a = h32(xi, y, s + 9), b = h32(xi + 1, y, s + 9); return a + (b - a) * (t * t * (3 - 2 * t)); };
+    const ph = h32(3, 1, s), ph2 = h32(5, 2, s);
     for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
-      const i = y * n + x;
-      const rc = y / n * 11 + warp[i] * 3.2 + Math.sin(x / n * 6.2832 + s) * 0.35 + sm(0.7, 1, knot[i]) * 1.5;
-      const ring = rc - Math.floor(rc);
-      const late = sm(0.55, 0.92, ring) * (1 - sm(0.92, 1, ring));
+      const i = y * n + x, u = x / n, v = y / n;
+      // cathedral arches: nested, round-tipped peaks that open up into straight grain, once per tile
+      const sa = Math.sin((u + ph + (tone[i] - 0.5) * 0.25) * 3.1416), arch = Math.sqrt(sa * sa + 0.03), arch2 = 0.5 - 0.5 * Math.cos((u * 2 + ph2) * 6.2832);
+      const rc = v * 34 + (warp[i] - 0.5) * 2.2 - arch * 4.5 + arch2 * 0.8 + (jit[i] - 0.5) * 0.3 + sm(0.8, 1, knot[i]) * 3;
+      // every ring is different: wide and narrow years, strong and faint latewood (mod 34 keeps it tiling)
+      const ri = ((Math.floor(rc) % 34) + 34) % 34, rw = h32(ri, 7, s), rs = 0.35 + 0.65 * h32(ri, 8, s);
+      const ring = rc - Math.floor(rc), lo = 0.5 + rw * 0.3;
+      const late = sm(lo, lo + 0.22, ring) * (1 - sm(0.9, 0.99, ring)) * rs;
       const fibre = fib(x, y) * 0.6 + fib(x * 3.1, y * 2 + 7) * 0.4;
-      const pore = h32(x >> 2, y, s + 3) > 0.985 ? 1 : 0;
-      const k = (0.8 + (tone[i] - 0.5) * 0.3) * (1 - late * 0.26) * (0.94 + fibre * 0.12) * (1 - pore * 0.25);
-      img.set(i, 0.5 * k, 0.33 * k, 0.2 * k);
-      img.h[i] = 0.5 - late * 0.25 + fibre * 0.15 - pore * 0.3;
-      img.r[i] = 0.5 + late * 0.08 + pore * 0.2;
+      const pore = h32(x >> 2, y, s + 3) > 0.988 ? 1 - late : 0;
+      const k = (1 + (tone[i] - 0.5) * 0.24 + (streak[i] - 0.5) * 0.1) * (0.95 + fibre * 0.1) * (1 - pore * 0.18);
+      const e = 1 - late * 0.7;
+      img.set(i, (0.33 + 0.23 * e) * k, (0.21 + 0.19 * e) * k, (0.13 + 0.13 * e) * k);
+      img.h[i] = 0.5 - late * 0.06 + fibre * 0.05 - pore * 0.15;
+      img.r[i] = 0.5 + late * 0.06 + pore * 0.15;
     }
-    img.normalStrength = 0.6;
+    img.normalStrength = 0.4;
     return img;
   };
   // Floor planks: staggered joints, per-board tone, grain, dark gaps and a worn walking path

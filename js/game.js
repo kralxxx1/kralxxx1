@@ -772,17 +772,21 @@
     createHideSpots() {
       for (const p of this.level.props) {
         if (!p.hide) continue;
-        // Look out the way the furniture faces (lockers: through the vents)
-        const faceYaw = p.type === 'cubicleDesk' ? (p.rot === 0 ? -Math.PI / 2 : Math.PI / 2) : p.hideKind === 'locker' ? p.rot + Math.PI : (p.rot === 0 ? Math.PI : 0);
-        const pos = new THREE.Vector3(p.x, p.hideKind === 'locker' ? 1.3 : 0.6, p.z);
+        // Look out the way the furniture faces (its local +z; cubicles out the side, counters out the
+        // open staff side); lockers through the vents. hideAt moves the spot off the prop's center.
+        const localYaw = p.hideYaw != null ? p.hideYaw : p.type === 'cubicleDesk' ? -Math.PI / 2 : Math.PI;
+        const faceYaw = p.rot + localYaw;
+        const c = Math.cos(p.rot), sn = Math.sin(p.rot), off = p.hideAt || [0, 0];
+        const hx = p.x + off[0] * c + off[1] * sn, hz = p.z - off[0] * sn + off[1] * c;
+        const pos = new THREE.Vector3(hx, p.hideKind === 'locker' ? 1.3 : 0.6, hz);
         this.interactables.push({
           kind: 'hide', ref: p, pos, reach: 2.0,
-          prompt: () => this.player.hidden ? (this.player.hidden.spot.x === p.x && this.player.hidden.spot.z === p.z || this.player.hidden.spot === p ? t('pr.unhide') : null) : t(p.hideKind === 'locker' ? 'pr.hideLocker' : 'pr.hide'),
+          prompt: () => this.player.hidden ? (this.player.hidden.spot.ref === p ? t('pr.unhide') : null) : t(p.hideKind === 'locker' ? 'pr.hideLocker' : 'pr.hide'),
           act: () => {
             if (this.player.hidden) { this.player.unhide(); return; }
             const watching = this.entities.filter(e => e.hostile && e.state === 'chase' && e.losToPlayer() && e.distToPlayer() < 14);
             for (const e of this.entities) e.sawHide = watching.includes(e);
-            this.player.hide({ x: p.x, z: p.z, yaw: faceYaw, eye: p.hideEye || 0.62, kind: p.hideKind });
+            this.player.hide({ x: hx, z: hz, yaw: faceYaw, eye: p.hideEye || 0.62, kind: p.hideKind, ref: p });
             this.audio.play && this.audio.play(p.hideKind === 'locker' ? 'doorLocked' : 'cloth', 2, 'sfx', null, { rev: 0.2, gain: 0.5 });
             this.ui.subtitle(ST.mono(p.hideKind === 'locker' ? 'hideLocker' : 'hide'), 2.5);
           },

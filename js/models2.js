@@ -34,27 +34,91 @@
       g.fillText('April 16, 1987', 30, 50); g.fillText('Homework: ch. 12, p. 214', 30, 100); g.fillText('SPRING DANCE — FRI. 4/24', 30, 150);
       g.font = `26px ${T.FONTS.FONT_HAND}`; g.fillText('256 ←?', 380, 210);
     }),
-    books: () => T.canvas('m2:books', 256, 256, (g, w, h) => {
+    // One shelf of books (the box spans a whole shelf): cloth and leather hardcovers with gilt bands and
+    // title labels, a few pale paperbacks, uneven heights, the odd gap with a book leaning into it
+    books: () => T.canvas('m2:books', 512, 128, (g, w, h) => {
       const r = U.rng(8);
-      for (let row = 0; row < 4; row++) { let x = 0; while (x < w) { const bw = r.range(6, 16), bh = r.range(44, 60); g.fillStyle = `hsl(${r() * 360 | 0},${30 + r() * 40 | 0}%,${20 + r() * 30 | 0}%)`; g.fillRect(x, row * 64 + 64 - bh, bw - 1, bh); g.fillStyle = 'rgba(255,230,160,0.4)'; g.fillRect(x + 2, row * 64 + 64 - bh + 8, bw - 5, 2); x += bw; } }
-    }, { repeat: true }),
-    spread: () => T.canvas('m2:spread', 256, 256, (g, w, h) => {
-      g.fillStyle = '#7a4a2a'; g.fillRect(0, 0, w, h);
+      g.fillStyle = '#120d08'; g.fillRect(0, 0, w, h);
+      const pal = ['#5a1a16', '#1c2a44', '#23402a', '#4a3220', '#161616', '#6a5a3a', '#3a3a40', '#5e2436', '#2a3a3a', '#7a6a50', '#d8d0bc', '#c8b890'];
+      let x = 0;
+      while (x < w) {
+        if (r() < 0.05) { const gap = r.range(18, 34); const bw = r.range(9, 15), bh = h * r.range(0.72, 0.9), c = r.pick(pal);
+          g.save(); g.translate(x + gap - 2, h); g.rotate(-0.32); g.fillStyle = c; g.fillRect(0, -bh, bw, bh); g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(bw - 2, -bh, 2, bh); g.restore(); x += gap; continue; }
+        const bw = r.range(7, 20) | 0, bh = h * r.range(0.68, 0.97), c = r.pick(pal), y0 = h - bh;
+        g.fillStyle = c; g.fillRect(x, y0, bw - 1, bh);
+        const sh = g.createLinearGradient(x, 0, x + bw, 0); sh.addColorStop(0, 'rgba(0,0,0,0.35)'); sh.addColorStop(0.35, 'rgba(255,255,255,0.08)'); sh.addColorStop(1, 'rgba(0,0,0,0.45)');
+        g.fillStyle = sh; g.fillRect(x, y0, bw - 1, bh);
+        if (r() < 0.6) { g.fillStyle = 'rgba(210,170,90,0.7)'; g.fillRect(x + 1, y0 + 5, bw - 3, 1.5); g.fillRect(x + 1, h - 8, bw - 3, 1.5); }
+        if (r() < 0.55) { g.fillStyle = r() < 0.5 ? 'rgba(230,220,190,0.75)' : 'rgba(20,16,10,0.5)'; g.fillRect(x + 2, y0 + bh * 0.25, bw - 5, bh * r.range(0.18, 0.3)); }
+        x += bw;
+      }
+      g.fillStyle = 'rgba(0,0,0,0.5)'; g.fillRect(0, 0, w, 6);
+    }),
+    // Quilted 1980s motel bedspread: rust ground, a lattice of big gold flowers with olive leaves,
+    // diamond quilting stitches and a woven texture (one tile = one meter)
+    spread: () => T.canvas('m2:spread', 512, 512, (g, w, h) => {
+      g.fillStyle = '#6a3620'; g.fillRect(0, 0, w, h);
       const r = U.rng(4);
-      for (let k = 0; k < 40; k++) { const x = r() * w, y = r() * h; g.fillStyle = r() < 0.5 ? '#c8883a' : '#e0b060'; for (let p = 0; p < 6; p++) { g.beginPath(); g.ellipse(x + Math.cos(p) * 8, y + Math.sin(p) * 8, 7, 4, p, 0, 6.28); g.fill(); } g.fillStyle = '#4a2a14'; g.beginPath(); g.arc(x, y, 4, 0, 6.28); g.fill(); }
+      for (let k = 0; k < 9000; k++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,0.08)' : 'rgba(255,220,180,0.06)'; g.fillRect(r() * w | 0, r() * h | 0, 2, 1); }
+      const flower = (cx, cy, s) => {
+        g.fillStyle = '#5a5a26';
+        for (let p = 0; p < 4; p++) { const a = p * 1.5708 + 0.785; g.beginPath(); g.ellipse(cx + Math.cos(a) * s * 1.25, cy + Math.sin(a) * s * 1.25, s * 0.55, s * 0.22, a, 0, 6.2832); g.fill(); }
+        for (let p = 0; p < 8; p++) { const a = p * 0.7854; g.fillStyle = p % 2 ? '#c98a3a' : '#e2b25e'; g.beginPath(); g.ellipse(cx + Math.cos(a) * s * 0.62, cy + Math.sin(a) * s * 0.62, s * 0.5, s * 0.26, a, 0, 6.2832); g.fill(); }
+        g.fillStyle = '#3e1e10'; g.beginPath(); g.arc(cx, cy, s * 0.28, 0, 6.2832); g.fill();
+        g.fillStyle = '#8a5020'; g.beginPath(); g.arc(cx, cy, s * 0.14, 0, 6.2832); g.fill();
+      };
+      for (let j = 0; j < 4; j++) for (let i = 0; i < 4; i++) {
+        const cx = i * 128 + (j % 2 ? 64 : 0) + 32, cy = j * 128 + 64;
+        for (const [ox, oy] of [[0, 0], [w, 0], [-w, 0], [0, h], [0, -h]]) flower(cx + ox, cy + oy, 30);
+      }
+      g.strokeStyle = 'rgba(40,16,8,0.45)'; g.lineWidth = 1.5; g.setLineDash([5, 3]);
+      for (let k = -h; k < w + h; k += 64) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k + h, h); g.stroke(); g.beginPath(); g.moveTo(k, h); g.lineTo(k + h, 0); g.stroke(); }
+      g.setLineDash([]);
     }, { repeat: true }),
+    // Record sleeves standing in a bin, seen edge-on: worn card in muted colors, a white inner sleeve here and there
     records: () => T.canvas('m2:records', 256, 128, (g, w, h) => {
       const r = U.rng(12);
-      let x = 0; while (x < w) { const bw = r.range(3, 6); g.fillStyle = `hsl(${r() * 360 | 0},${40 + r() * 50 | 0}%,${25 + r() * 40 | 0}%)`; g.fillRect(x, 0, bw, h); x += bw; }
+      const pal = ['#3a3530', '#6a2a20', '#20304a', '#b8b0a0', '#2a2a2a', '#7a6030', '#4a5a40', '#8a3a4a', '#d8d4c8', '#1a1a1a'];
+      let x = 0; while (x < w) { const bw = r.range(2, 5); g.fillStyle = r.pick(pal); g.fillRect(x, 0, bw, h); g.fillStyle = 'rgba(0,0,0,0.45)'; g.fillRect(x + bw - 0.6, 0, 0.6, h); if (r() < 0.2) { g.fillStyle = 'rgba(255,255,255,0.25)'; g.fillRect(x, 0, bw, 3); } x += bw; }
+      const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(255,255,255,0.08)'); gr.addColorStop(1, 'rgba(0,0,0,0.35)'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
     }, { repeat: true }),
     comics: () => T.canvas('m2:comics', 512, 256, (g, w, h) => {
       const r = U.rng(21);
       for (let y = 0; y < 3; y++) for (let x = 0; x < 8; x++) { g.fillStyle = `hsl(${r() * 360 | 0},70%,${40 + r() * 20 | 0}%)`; g.fillRect(x * 64 + 4, y * 85 + 4, 56, 77); g.fillStyle = '#fff'; g.fillRect(x * 64 + 8, y * 85 + 8, 48, 12); g.fillStyle = '#000'; g.font = 'bold 9px sans-serif'; g.fillText(['X-MEN', 'BAT', 'SPIDEY', 'HULK', 'THOR', 'NOVA'][(x + y) % 6], x * 64 + 10, y * 85 + 18); }
     }),
-    toys: () => T.canvas('m2:toys', 256, 256, (g, w, h) => {
+    // One shelf of toys (the box spans a shelf): boxed figures with cellophane windows, board games
+    // lying flat, balls and plush animals, all a little faded under the store lights
+    toys: () => T.canvas('m2:toys', 512, 128, (g, w, h) => {
       const r = U.rng(33);
-      for (let k = 0; k < 40; k++) { g.fillStyle = `hsl(${r() * 360 | 0},80%,55%)`; g.fillRect(r() * w, r() * h, r.range(12, 40), r.range(12, 40)); }
-    }, { repeat: true }),
+      g.fillStyle = '#0e0e10'; g.fillRect(0, 0, w, h);
+      let x = 4;
+      while (x < w - 10) {
+        const kind = r(), hue = r() * 360 | 0;
+        if (kind < 0.45) { // boxed toy with a window
+          const bw = r.range(34, 58), bh = r.range(70, 118), y0 = h - bh;
+          g.fillStyle = `hsl(${hue},55%,42%)`; g.fillRect(x, y0, bw, bh);
+          g.fillStyle = 'rgba(200,220,230,0.35)'; g.fillRect(x + 5, y0 + bh * 0.28, bw - 10, bh * 0.5);
+          g.fillStyle = `hsl(${(hue + 150) % 360},50%,55%)`; g.beginPath(); g.ellipse(x + bw / 2, y0 + bh * 0.52, bw * 0.18, bh * 0.18, 0, 0, 6.28); g.fill();
+          g.fillStyle = '#f0e8d0'; g.fillRect(x + 4, y0 + 5, bw - 8, bh * 0.14);
+          g.fillStyle = 'rgba(0,0,0,0.3)'; g.fillRect(x + bw - 3, y0, 3, bh);
+          x += bw + r.range(2, 6);
+        } else if (kind < 0.65) { // stack of board games
+          const bw = r.range(60, 90); let y = h;
+          for (let k = 0; k < r.int(2, 5); k++) { const th = r.range(10, 16); y -= th; g.fillStyle = `hsl(${(hue + k * 70) % 360},45%,${35 + k * 6}%)`; g.fillRect(x + r.range(-3, 3), y, bw, th - 1); g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(x + 8, y + 3, bw * 0.4, 2); }
+          x += bw + 6;
+        } else if (kind < 0.82) { // balls
+          for (let k = 0; k < r.int(2, 4); k++) { const rr = r.range(10, 18), cx = x + rr, cy = h - rr; const gr = g.createRadialGradient(cx - rr * 0.4, cy - rr * 0.4, 1, cx, cy, rr); gr.addColorStop(0, `hsl(${(hue + k * 90) % 360},70%,70%)`); gr.addColorStop(1, `hsl(${(hue + k * 90) % 360},65%,30%)`); g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, rr, 0, 6.28); g.fill(); x += rr * 2 + 2; }
+          x += 6;
+        } else { // plush bear
+          const s2 = r.range(20, 30), cx = x + s2, cy = h - s2 * 1.1, c = r.pick(['#8a6a48', '#c8b8a0', '#a04040', '#6a7a9a']);
+          g.fillStyle = c; g.beginPath(); g.ellipse(cx, cy + s2 * 0.35, s2 * 0.8, s2 * 0.75, 0, 0, 6.28); g.fill();
+          g.beginPath(); g.arc(cx, cy - s2 * 0.55, s2 * 0.55, 0, 6.28); g.fill();
+          g.beginPath(); g.arc(cx - s2 * 0.45, cy - s2 * 1.0, s2 * 0.2, 0, 6.28); g.arc(cx + s2 * 0.45, cy - s2 * 1.0, s2 * 0.2, 0, 6.28); g.fill();
+          g.fillStyle = '#111'; g.fillRect(cx - s2 * 0.22, cy - s2 * 0.62, 3, 3); g.fillRect(cx + s2 * 0.15, cy - s2 * 0.62, 3, 3);
+          x += s2 * 2 + 8;
+        }
+      }
+    }),
     vendingFront: () => T.canvas('m2:vend', 256, 512, (g, w, h) => {
       g.fillStyle = '#b01818'; g.fillRect(0, 0, w, h);
       g.fillStyle = '#0a0a0c'; g.fillRect(16, 60, 160, 380);
@@ -100,7 +164,7 @@
     washerWhite: { color: 0xe8e8e2, rough: 0.3, refl: 0.2 }, glassDoor: { color: 0x202428, rough: 0.05, refl: 0.5 },
     vendingFront: { tex: 'vendingFront', emissive: 0xffffff, ei: 0.35, rough: 0.3 }, iceWhite: { color: 0xd8dcd8, rough: 0.35, metal: 0.3 },
     records: { tex: 'records', rough: 0.6 }, comics: { tex: 'comics', rough: 0.7 }, toys: { tex: 'toys', rough: 0.5 },
-    clothes: { color: 0x6a3a5a, rough: 0.95 }, clothes2: { color: 0x2a4a6a, rough: 0.95 }, mannequin: { color: 0xe8e4dc, rough: 0.3, refl: 0.12 },
+    clothes: { color: 0x6a3a5a, rough: 0.95 }, clothes2: { color: 0x2a4a6a, rough: 0.95 }, clothes3: { color: 0x8a8272, rough: 0.95 }, clothes4: { color: 0x3a3a38, rough: 0.95 }, soil: { color: 0x241a12, rough: 1 }, bark: { color: 0x5a4a38, rough: 0.9 }, plant2: { color: 0x44702c, rough: 0.7, double: true }, mannequin: { color: 0xe8e4dc, rough: 0.3, refl: 0.12 },
     boothBody: { color: 0x1a4a8a, rough: 0.35, metal: 0.3, refl: 0.2 }, boothCurtain: { tex: 'boothCurtain', rough: 0.95, double: true },
     mailboxBlack: { color: 0x151515, rough: 0.4, metal: 0.6 }, pegboard: { tex: 'pegboard', rough: 0.8 }, tools: { color: 0x707378, rough: 0.35, metal: 0.9 },
     toolRed: { color: 0xa01818, rough: 0.4 }, kernel: { tex: 'kernel', rough: 0.4, refl: 0.1 }, chompyFur: { color: 0xf0c020, rough: 1 }, chompyDark: { color: 0x151010, rough: 0.9 },
@@ -155,13 +219,38 @@
   D.nightstand = [['rbox', 'drawerWood', 0.45, 0.6, 0.4, 0.01, 0, 0.3, 0], ['rbox', 'drawer', 0.4, 0.2, 0.02, 0.004, 0, 0.45, 0.2], ['rbox', 'brass', 0.08, 0.015, 0.02, 0.005, 0, 0.45, 0.215], ['lathe', 'mug', [[0.05, 0], [0.08, 0.2], [0.02, 0.22], [0.001, 0.22]], 12, -0.1, 0.6, -0.05], ['lathe', 'greenGlass', [[0.001, 0.2], [0.12, 0.05], [0.13, 0], [0.001, 0.02]], 16, -0.1, 0.8, -0.05]];
   D.curtain = (() => { const s = [['cyl', 'chrome', 0.012, 0.012, 2.4, 6, 0, 2.8, 0, 0, 0, H]]; for (let k = 0; k < 10; k++) s.push(['box', 'curtainFabric', 0.26, 2.2, 0.01, -1.1 + k * 0.24, 1.7, Math.sin(k * 1.4) * 0.05, 0, Math.sin(k * 2.1) * 0.25, 0]); return s; })();
   D.wheelchair = [['torus', 'blackPlastic', 0.3, 0.02, 24, 0, -0.28, 0.32, 0, 0, H, 0], ['torus', 'blackPlastic', 0.3, 0.02, 24, 0, 0.28, 0.32, 0, 0, H, 0], ['torus', 'chrome', 0.27, 0.008, 24, 0, -0.3, 0.32, 0, 0, H, 0], ['torus', 'chrome', 0.27, 0.008, 24, 0, 0.3, 0.32, 0, 0, H, 0], ['rbox', 'blackFabric', 0.46, 0.05, 0.42, 0.02, 0, 0.5, 0.05], ['rbox', 'blackFabric', 0.46, 0.45, 0.04, 0.02, 0, 0.78, -0.17, -0.1], ...[-0.23, 0.23].flatMap(x => [['cyl', 'chrome', 0.012, 0.012, 0.95, 6, x, 0.6, -0.2, -0.1], ['cyl', 'chrome', 0.012, 0.012, 0.5, 6, x, 0.5, 0.05, H], ['sph', 'blackPlastic', 0.05, x, 0.05, 0.35, 8, 6]])];
-  D.nurseCounter = [['rbox', 'laminate', 2.8, 1.1, 0.5, 0.02, 0, 0.55, 0], ['rbox', 'laminate', 2.9, 0.04, 0.7, 0.01, 0, 1.1, 0.05], ['rbox', 'beigePlastic', 0.36, 0.3, 0.35, 0.02, -0.6, 1.28, -0.05], ['box', 'bezel', 0.3, 0.22, 0.005, -0.6, 1.3, 0.13], ['box', 'paper', 0.25, 0.06, 0.3, 0.5, 1.15, 0, 0, 0.2], ['rbox', 'beigePlastic', 0.2, 0.06, 0.18, 0.01, 0.9, 1.15, 0]];
+  // Service counter shell: closed to the customer (+z) and at the -x end, open on the staff side and
+  // at the +x end (the way in), with a desk-height work surface and a shelf underneath, so there is
+  // room to crouch behind it and watch the gap at the open end
+  const counterShell = (mat, w, h, d) => [
+    ['rbox', mat, w, h - 0.02, 0.04, 0.01, 0, (h - 0.02) / 2, d / 2 - 0.02],
+    ['rbox', mat, 0.04, h - 0.02, d, 0.01, -w / 2 + 0.02, (h - 0.02) / 2, 0],
+    ['rbox', 'laminate', w - 0.08, 0.03, d - 0.06, 0.006, 0, 0.74, -0.01],
+    ['box', 'darkWood', w - 0.08, 0.02, d - 0.14, 0, 0.3, 0.03],
+    ['box', 'kick', w - 0.08, 0.06, 0.02, 0, 0.03, d / 2 - 0.05],
+  ];
+  D.nurseCounter = [...counterShell('laminate', 2.8, 1.1, 0.5), ['rbox', 'laminate', 2.9, 0.04, 0.7, 0.01, 0, 1.1, 0.05], ['rbox', 'beigePlastic', 0.36, 0.3, 0.35, 0.02, -0.6, 1.28, -0.05], ['box', 'bezel', 0.3, 0.22, 0.005, -0.6, 1.3, 0.13], ['box', 'paper', 0.25, 0.06, 0.3, 0.5, 1.15, 0, 0, 0.2], ['rbox', 'beigePlastic', 0.2, 0.06, 0.18, 0.01, 0.9, 1.15, 0]];
   D.altar = [['rbox', 'pewWood', 1.6, 0.9, 0.6, 0.02, 0, 0.45, 0], ['rbox', 'lace', 1.65, 0.02, 0.62, 0.005, 0, 0.91, 0], ['cyl', 'brass', 0.02, 0.02, 0.4, 8, 0, 1.12, -0.1], ['box', 'brass', 0.25, 0.02, 0.02, 0, 1.22, -0.1], ...[-0.5, 0.5].map(x => ['cyl', 'candle', 0.03, 0.03, 0.25, 10, x, 1.04, 0])];
   D.pew = [['rbox', 'pewWood', 1.8, 0.06, 0.45, 0.01, 0, 0.45, 0], ['rbox', 'pewWood', 1.8, 0.5, 0.04, 0.01, 0, 0.72, -0.22, -0.1], ...[-0.85, 0.85].map(x => ['ext', 'pewWood', [[-0.25, 0], [0.25, 0], [0.25, 0.9], [-0.2, 0.95]], 0.04, 0.005, x, 0, 0, 0, H, 0])];
   // ------------------------------------------------------------ MOTEL
-  D.motelBed = [['rbox', 'headboard', 1.6, 1.0, 0.06, 0.02, 0, 0.5, -1.05], ['box', 'bedFrame', 1.5, 0.25, 2.0, 0, 0.18, 0], ['rbox', 'mattress', 1.5, 0.25, 1.95, 0.06, 0, 0.42, 0], ['rbox', 'spread', 1.58, 0.1, 1.5, 0.05, 0, 0.55, 0.25], ['rbox', 'pillow', 0.6, 0.12, 0.35, 0.05, -0.35, 0.6, -0.75], ['rbox', 'pillow', 0.6, 0.12, 0.35, 0.05, 0.35, 0.6, -0.75]];
+  // Motel double on a steel frame (room to hide underneath): the spread drapes over the sides and
+  // foot down past the box spring and is folded back over the pillows
+  D.motelBed = [
+    ['rbox', 'headboard', 1.6, 1.0, 0.06, 0.02, 0, 0.5, -1.05],
+    ['rbox', 'headboard', 1.64, 0.04, 0.09, 0.012, 0, 1.0, -1.05],
+    ['box', 'bedFrame', 0.04, 0.05, 1.96, -0.72, 0.235, 0], ['box', 'bedFrame', 0.04, 0.05, 1.96, 0.72, 0.235, 0], ['box', 'bedFrame', 1.4, 0.05, 0.04, 0, 0.235, -0.96], ['box', 'bedFrame', 1.4, 0.05, 0.04, 0, 0.235, 0.96],
+    ...[[-0.72, -0.96], [0.72, -0.96], [-0.72, 0.96], [0.72, 0.96]].flatMap(([x, z]) => [['cyl', 'bedFrame', 0.018, 0.018, 0.2, 8, x, 0.12, z], ['sph', 'blackPlastic', 0.025, x, 0.025, z, 10, 8]]),
+    ['rbox', 'mattress', 1.5, 0.16, 1.98, 0.04, 0, 0.34, 0],
+    ['rbox', 'mattress', 1.5, 0.2, 1.98, 0.07, 0, 0.52, 0],
+    ['rbox', 'spread', 1.6, 0.05, 1.62, 0.025, 0, 0.645, 0.2],
+    ['rbox', 'spread', 0.025, 0.37, 1.62, 0.012, -0.79, 0.485, 0.2], ['rbox', 'spread', 0.025, 0.37, 1.62, 0.012, 0.79, 0.485, 0.2],
+    ['rbox', 'spread', 1.6, 0.37, 0.025, 0.012, 0, 0.485, 1.0],
+    ['cap', 'spread', 0.05, 1.5, 0, 0.68, -0.6, 0, 0, H],
+    ['rbox', 'pillow', 0.62, 0.13, 0.4, 0.06, -0.36, 0.69, -0.8, -0.12, 0.04], ['rbox', 'pillow', 0.62, 0.13, 0.4, 0.06, 0.36, 0.69, -0.8, -0.12, -0.05],
+  ];
+
   D.dresserTv = [['rbox', 'headboard', 1.2, 0.75, 0.5, 0.01, 0, 0.38, 0], ...[0.2, 0.5].map(y => ['rbox', 'drawer', 1.1, 0.25, 0.02, 0.004, 0, y, 0.25]), ['rbox', 'beigePlastic', 0.55, 0.45, 0.45, 0.04, 0, 0.98, 0], ['box', 'tvScreen', 0.42, 0.32, 0.01, -0.03, 0.98, 0.225], ['rcyl', 'blackPlastic', 0.02, 0.02, 0.005, 10, 0.21, 1.05, 0.23, H], ['cyl', 'chrome', 0.004, 0.004, 0.4, 6, 0.1, 1.35, -0.1, 0, 0, 0.5], ['cyl', 'chrome', 0.004, 0.004, 0.4, 6, -0.1, 1.35, -0.1, 0, 0, -0.5]];
-  D.frontDesk = [['rbox', 'headboard', 3.0, 1.1, 0.6, 0.02, 0, 0.55, 0], ['rbox', 'laminate', 3.1, 0.05, 0.7, 0.01, 0, 1.12, 0], ['rbox', 'register', 0.4, 0.14, 0.35, 0.02, 0.8, 1.2, 0], ['box', 'paper', 0.4, 0.04, 0.3, -0.6, 1.16, 0.1, 0, 0.1], ['sph', 'chrome', 0.04, 0.1, 1.17, 0.2, 10, 6, [1, 0.5, 1]]];
+  D.frontDesk = [...counterShell('headboard', 3.0, 1.1, 0.6), ['rbox', 'laminate', 3.1, 0.05, 0.7, 0.01, 0, 1.12, 0], ['rbox', 'register', 0.4, 0.14, 0.35, 0.02, 0.8, 1.2, 0], ['box', 'paper', 0.4, 0.04, 0.3, -0.6, 1.16, 0.1, 0, 0.1], ['sph', 'chrome', 0.04, 0.1, 1.17, 0.2, 10, 6, [1, 0.5, 1]]];
   D.keyBoard = (() => { const s = [['rbox', 'keyBoardWood', 1.2, 0.8, 0.04, 0.01, 0, 0, 0]]; for (let k = 0; k < 20; k++) { const x = -0.5 + (k % 5) * 0.25, y = 0.28 - Math.floor(k / 5) * 0.18; s.push(['cyl', 'brass', 0.006, 0.006, 0.05, 6, x, y, 0.04, H]); if (k !== 11) s.push(['rbox', 'keyTag', 0.04, 0.07, 0.008, 0.003, x, y - 0.06, 0.06]); } return s; })();
   D.couch = [['rbox', 'couchFabric', 2.0, 0.42, 0.9, 0.08, 0, 0.21, 0], ['rbox', 'couchFabric', 2.0, 0.5, 0.25, 0.08, 0, 0.65, -0.33], ['rbox', 'couchFabric', 0.22, 0.3, 0.9, 0.08, -0.95, 0.55, 0], ['rbox', 'couchFabric', 0.22, 0.3, 0.9, 0.08, 0.95, 0.55, 0], ['rbox', 'couchFabric', 0.9, 0.12, 0.6, 0.05, -0.45, 0.48, 0.05], ['rbox', 'couchFabric', 0.9, 0.12, 0.6, 0.05, 0.45, 0.48, 0.05]];
   D.washer = [['rbox', 'washerWhite', 0.7, 0.9, 0.65, 0.03, 0, 0.45, 0], ['rcyl', 'chrome', 0.22, 0.03, 0.01, 24, 0, 0.45, 0.33, H], ['disc', 'glassDoor', 0.19, 0, 0.45, 0.346], ['rbox', 'beigePlastic', 0.66, 0.12, 0.05, 0.01, 0, 0.84, -0.3], ['rcyl', 'chrome', 0.025, 0.02, 0.005, 12, 0.2, 0.84, -0.27, H]];
@@ -169,12 +258,42 @@
   D.iceMachine = [['rbox', 'iceWhite', 0.8, 1.6, 0.7, 0.03, 0, 0.8, 0], ['rbox', 'chrome', 0.5, 0.35, 0.02, 0.01, 0, 1.2, 0.36], ['box', 'labelCard', 0.4, 0.1, 0.002, 0, 1.5, 0.351], ['rbox', 'blackPlastic', 0.3, 0.15, 0.1, 0.02, 0, 0.6, 0.38]];
   D.vending = [['rbox', 'redPlastic', 0.9, 1.85, 0.8, 0.03, 0, 0.925, 0], ['box', 'vendingFront', 0.86, 1.8, 0.005, 0, 0.93, 0.402]];
   // ------------------------------------------------------------ MALL
-  D.storeCounter = [['rbox', 'laminate', 1.8, 1.0, 0.6, 0.02, 0, 0.5, 0], ['rbox', 'woodVarnish', 1.9, 0.05, 0.7, 0.01, 0, 1.02, 0], ['rbox', 'register', 0.4, 0.14, 0.35, 0.02, 0.5, 1.1, 0]];
+  D.storeCounter = [...counterShell('laminate', 1.8, 1.0, 0.6), ['rbox', 'woodVarnish', 1.9, 0.05, 0.7, 0.01, 0, 1.02, 0], ['rbox', 'register', 0.4, 0.14, 0.35, 0.02, 0.5, 1.1, 0]];
   D.recordBins = [['rbox', 'darkWood', 1.0, 0.8, 0.7, 0.02, 0, 0.4, 0], ...[0, 1].flatMap(k => [['box', 'records', 0.44, 0.3, 0.55, -0.24 + k * 0.48, 0.92, 0, 0.35, 0, 0]])];
   D.comicRack = [['rbox', 'darkWood', 2.0, 1.8, 0.3, 0.01, 0, 0.9, 0], ['box', 'comics', 1.9, 1.2, 0.01, 0, 1.1, 0.16, -0.08]];
-  D.toyShelf = [['rbox', 'paintMetal', 1.8, 1.6, 0.5, 0.01, 0, 0.8, 0], ...[0.3, 0.8, 1.3].map(y => ['box', 'toys', 1.7, 0.36, 0.4, 0, y, 0.03])];
-  D.clothesRack = [['cyl', 'chrome', 0.012, 0.012, 1.2, 8, 0, 1.4, 0, 0, 0, H], ['cyl', 'chrome', 0.012, 0.012, 1.4, 8, -0.58, 0.7, 0], ['cyl', 'chrome', 0.012, 0.012, 1.4, 8, 0.58, 0.7, 0], ...[-0.45, -0.3, -0.15, 0, 0.15, 0.3, 0.45].map((x, k) => ['rbox', k % 2 ? 'clothes' : 'clothes2', 0.1, 0.7, 0.45, 0.04, x, 1.02, 0])];
-  D.mannequinStatic = [['cap', 'mannequin', 0.15, 0.45, 0, 1.25, 0], ['sph', 'mannequin', 0.11, 0, 1.72, 0, 16, 12, [0.85, 1.15, 0.95]], ['cap', 'mannequin', 0.05, 0.6, -0.22, 1.15, 0, 0, 0, 0.12], ['cap', 'mannequin', 0.05, 0.6, 0.22, 1.15, 0, 0, 0, -0.12], ['cap', 'mannequin', 0.06, 0.75, -0.09, 0.45, 0], ['cap', 'mannequin', 0.06, 0.75, 0.09, 0.45, 0], ['cyl', 'chrome', 0.15, 0.15, 0.02, 16, 0, 0.01, 0]];
+  // Open steel store shelving: back, sides, four shelves with price strips, a shelf of toys on each
+  D.toyShelf = [
+    ['rbox', 'paintMetal', 1.8, 1.6, 0.03, 0.006, 0, 0.8, -0.235], ['rbox', 'paintMetal', 0.03, 1.62, 0.5, 0.006, -0.885, 0.81, 0], ['rbox', 'paintMetal', 0.03, 1.62, 0.5, 0.006, 0.885, 0.81, 0],
+    ['rbox', 'paintMetal', 1.8, 0.03, 0.5, 0.006, 0, 1.62, 0],
+    ...[0.08, 0.6, 1.12].flatMap(y => [['rbox', 'paintMetal', 1.74, 0.025, 0.47, 0.005, 0, y, 0.005], ['box', 'labelCard', 1.74, 0.03, 0.004, 0, y - 0.005, 0.242], ['box', 'toys', 1.72, 0.44, 0.34, 0, y + 0.235, -0.04]]),
+  ];
+  // Clothing rail: shirts and jackets on wire hangers, hanging edge-on along a chrome rail
+  D.clothesRack = (() => {
+    const s = [['cyl', 'chrome', 0.012, 0.012, 1.24, 8, 0, 1.45, 0, 0, 0, H], ['cyl', 'chrome', 0.014, 0.014, 1.45, 8, -0.6, 0.725, 0], ['cyl', 'chrome', 0.014, 0.014, 1.45, 8, 0.6, 0.725, 0]];
+    for (const x of [-0.6, 0.6]) s.push(['cyl', 'chrome', 0.012, 0.012, 0.5, 8, x, 0.03, 0, H], ['sph', 'blackPlastic', 0.022, x, 0.022, 0.24, 8, 6], ['sph', 'blackPlastic', 0.022, x, 0.022, -0.24, 8, 6]);
+    const shirt = [[-0.2, 0], [0.2, 0], [0.21, 0.5], [0.25, 0.45], [0.3, 0.52], [0.19, 0.65], [0.07, 0.69], [0.03, 0.66], [-0.03, 0.66], [-0.07, 0.69], [-0.19, 0.65], [-0.3, 0.52], [-0.25, 0.45], [-0.21, 0.5]];
+    const coat = [[-0.23, 0], [0.23, 0], [0.24, 0.6], [0.29, 0.02], [0.33, 0.04], [0.25, 0.86], [0.08, 0.9], [0.03, 0.86], [-0.03, 0.86], [-0.08, 0.9], [-0.25, 0.86], [-0.33, 0.04], [-0.29, 0.02], [-0.24, 0.6]];
+    const mats = ['clothes', 'clothes2', 'clothes3', 'clothes', 'clothes4', 'clothes2'];
+    for (let k = 0; k < 12; k++) {
+      const x = -0.5 + k * 0.09, long = k % 5 === 2, pts = long ? coat : shirt, hgt = long ? 0.9 : 0.69, ry = H + (k % 3 - 1) * 0.06;
+      s.push(['ext', mats[k % mats.length], pts, 0.03, 0.008, x, 1.4 - hgt, 0, 0, ry, 0]);
+      s.push(['cyl', 'chrome', 0.003, 0.003, 0.4, 5, x, 1.395, 0, H], ['torus', 'chrome', 0.018, 0.0025, 10, 6.2832, x, 1.45, 0, 0, H, 0]);
+    }
+    return s;
+  })();
+  // Store mannequin on its stand: the same sculpted parts as the ones that walk (one of them might be)
+  PB.Props.shapes.mq = a => ({ g: PB.Monsters.mqGeo(a[0]).clone(), pos: [a[1], a[2], a[3]], rot: [a[4] || 0, a[5] || 0, a[6] || 0] });
+  D.mannequinStatic = (() => {
+    const s = [['rcyl', 'chrome', 0.2, 0.02, 0.008, 24, 0, 0.01, 0], ['cyl', 'chrome', 0.012, 0.012, 0.52, 8, 0.04, 0.28, -0.02]];
+    const y0 = 0.06;
+    s.push(['mq', 'mannequin', 'torso', 0, 1.28 + y0, 0], ['mq', 'mannequin', 'head', 0, 1.72 + y0, 0.01, 0.06, 0.12, 0]);
+    for (const sx of [-1, 1]) {
+      const rz = sx * 0.1, ex = sx * 0.2 + Math.sin(rz) * 0.36, ey = 1.56 + y0 - Math.cos(rz) * 0.36;
+      s.push(['mq', 'mannequin', 'upperArm', sx * 0.2, 1.56 + y0, 0, 0, 0, rz], ['mq', 'mannequin', 'foreArm', ex, ey, 0, sx < 0 ? -0.35 : -0.12, 0, rz]);
+      s.push(['mq', 'mannequin', 'thigh', sx * 0.09, 0.9 + y0, 0, sx < 0 ? -0.05 : 0.04, 0, 0], ['mq', 'mannequin', 'shin', sx * 0.09, 0.42 + y0, sx < 0 ? -0.024 : 0.02, sx < 0 ? 0.03 : -0.02, 0, 0]);
+    }
+    return s;
+  })();
   D.photoBooth = [['rbox', 'boothBody', 1.2, 2.1, 1.3, 0.04, 0, 1.05, 0], ['box', 'boothCurtain', 0.7, 1.6, 0.02, -0.15, 1.05, 0.66], ['rbox', 'chrome', 0.3, 0.5, 0.04, 0.01, 0.4, 1.2, 0.66], ['box', 'socket', 0.12, 0.02, 0.01, 0.4, 0.95, 0.685], ['box', 'labelCard', 0.9, 0.2, 0.01, 0, 2.0, 0.66]];
   D.fountain = [['lathe', 'fountainStone', [[0.001, 0], [2.0, 0], [2.0, 0.45], [1.85, 0.5], [1.8, 0.1], [0.001, 0.1]], 40], ['lathe', 'water', [[1.8, 0.35], [0.001, 0.35]], 40], ['lathe', 'fountainStone', [[0.25, 0.35], [0.2, 1.3], [0.7, 1.4], [0.7, 1.5], [0.15, 1.52], [0.1, 2.0], [0.001, 2.0]], 24]];
   // Mall Christmas tree: stacked, jittered branch tiers, glass baubles, a spiral of warm bulbs, a star, presents
@@ -194,7 +313,21 @@
     return s;
   })();
   D.mallBench = [['rbox', 'woodVarnish', 1.8, 0.06, 0.45, 0.01, 0, 0.45, 0], ['rbox', 'woodVarnish', 1.8, 0.4, 0.05, 0.01, 0, 0.72, -0.2, -0.1], ...[-0.75, 0.75].map(x => ['rbox', 'darkMetal', 0.08, 0.45, 0.45, 0.02, x, 0.22, 0])];
-  D.planter = [['rbox', 'planterWood', 1.0, 0.6, 1.0, 0.02, 0, 0.3, 0], ...[0, 1, 2, 3, 4, 5].map(k => ['cone', 'plant', 0.2, 1.1, 5, Math.cos(k) * 0.2, 1.0, Math.sin(k) * 0.2, 0.2 * Math.cos(k * 2), 0, 0.2 * Math.sin(k * 2)])];
+  // Mall planter: a wooden box with a rim, dark soil and a dracaena of long arching leaves, each leaf
+  // two tapered blades (the outer one bent further down)
+  D.planter = (() => {
+    const s = [['rbox', 'planterWood', 1.0, 0.6, 1.0, 0.02, 0, 0.3, 0], ['rbox', 'planterWood', 1.06, 0.05, 1.06, 0.01, 0, 0.6, 0], ['box', 'soil', 0.92, 0.02, 0.92, 0, 0.6, 0]];
+    s.push(['cyl', 'bark', 0.035, 0.045, 0.7, 7, 0.05, 0.95, 0.02, 0.05, 0, -0.04], ['cyl', 'bark', 0.03, 0.04, 0.5, 7, -0.08, 0.85, -0.05, -0.08, 0, 0.1]);
+    const r = U.rng(71), blade = (len, w0, w1) => [[0.001, 0], [w0, len * 0.08], [Math.max(w0, w1) * 1.05, len * 0.45], [w1, len * 0.85], [0.001, len]];
+    for (let k = 0; k < 26; k++) {
+      const top = k < 12, bx = top ? r.range(-0.06, 0.12) : r.range(-0.12, 0.12), by = top ? r.range(1.15, 1.32) : r.range(0.62, 1.05), bz = top ? r.range(-0.08, 0.1) : r.range(-0.12, 0.12);
+      const f = r.range(0, 6.2832), t = r.range(0.25, 0.9), L1 = r.range(0.28, 0.42), L2 = r.range(0.25, 0.38), mat = r() < 0.5 ? 'plant' : 'plant2';
+      const e = [-L1 * Math.sin(t) * Math.cos(f), L1 * Math.cos(t), L1 * Math.sin(t) * Math.sin(f)];
+      s.push(...M.place([['lathe', mat, blade(L1, 0.02, 0.035), 6, 0, 0, 0, 0, 0, 0, [0.12, 1, 1]]], bx, by, bz, 0, f, t));
+      s.push(...M.place([['lathe', mat, blade(L2, 0.035, 0.012), 6, 0, 0, 0, 0, 0, 0, [0.12, 1, 1]]], bx + e[0], by + e[1], bz + e[2], 0, f, Math.min(t + r.range(0.45, 0.8), 2.2)));
+    }
+    return s;
+  })();
   D.kiosk = [['rbox', 'chompyFur', 2.0, 1.0, 1.2, 0.05, 0, 0.5, 0], ['rbox', 'woodVarnish', 2.1, 0.05, 1.3, 0.01, 0, 1.02, 0], ...[-0.9, 0.9].map(x => ['cyl', 'chrome', 0.03, 0.03, 1.4, 8, x, 1.75, 0]), ['rbox', 'redPlastic', 2.2, 0.3, 1.4, 0.03, 0, 2.5, 0]];
   // ------------------------------------------------------------ STREET
   // Unit gable roof (scaled to each house)

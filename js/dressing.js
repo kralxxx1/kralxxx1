@@ -13,11 +13,36 @@
   const P = PB.Props, D = P.DEFS, M = PB.Models, T = PB.Tex;
   const PI = Math.PI, H = PI / 2;
 
+  // Crumpled plastic bag: a sphere pushed out by what is inside, creased, gathered at the neck and
+  // sagging flat where it sits. args: radius, seed, x, y (center), z, [sx, sy, sz]
+  const bagGeo = new Map();
+  P.shapes.bag = a => {
+    let g = bagGeo.get(a[1]);
+    if (!g) {
+      g = new THREE.SphereGeometry(1, 32, 22);
+      const p = g.attributes.position, sd = a[1] * 1.7 + 0.3;
+      for (let i = 0; i < p.count; i++) {
+        let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+        const th = Math.atan2(z, x), ring = Math.sqrt(Math.max(0, 1 - y * y));
+        const lump = (0.09 * Math.sin(2 * th + sd) * Math.sin(3 * y + sd * 1.3) + 0.06 * Math.sin(3 * th - sd * 0.7 + y * 2)) * ring;
+        const crease = (0.025 * Math.sin(11 * th + 5 * y + sd) * Math.sin(7 * y - 3 * th) + 0.015 * Math.sin(23 * th + 13 * y)) * ring;
+        let k = 1 + lump + crease;
+        if (y > 0.5) k *= 1 - (y - 0.5) * 1.3;
+        x *= k; z *= k; y *= 1 + lump * 0.5;
+        if (y < -0.62) y = -0.62 + (y + 0.62) * 0.15;
+        p.setXYZ(i, x, y, z);
+      }
+      g.computeVertexNormals();
+      bagGeo.set(a[1], g);
+    }
+    return { g: g.clone().scale(a[0], a[0], a[0]), pos: [a[2], a[3], a[4]], scl: a[5] || [1, 1, 1] };
+  };
+
   Object.assign(M.MATS, {
     ivory: { color: 0xe8e0cc, rough: 0.4, refl: 0.08 },
     alarmRed: { color: 0xa81812, rough: 0.35, refl: 0.12 },
     ceilTile: { color: 0xd4cdb6, rough: 0.95 },
-    trashBag: { color: 0x0d0d10, rough: 0.3, refl: 0.18 },
+    trashBag: { color: 0x131317, rough: 0.55, refl: 0.06 },
     coneOrange: { color: 0xe0501a, rough: 0.5 },
     signYellow: { tex: 'wetSign', rough: 0.4 },
     bottlePlastic: { color: 0xc8d8dc, rough: 0.1, transparent: true, opacity: 0.55, refl: 0.3 },
@@ -77,7 +102,11 @@
     ['box', 'cardboard', 0.5, 0.01, 0.19, 0, 0.36, 0.28, -1.1, 0, 0], ['box', 'cardboard', 0.5, 0.01, 0.19, 0, 0.36, -0.28, 1.2, 0, 0],
     ['box', 'paper', 0.21, 0.08, 0.28, 0.05, 0.25, 0, 0.3, 0.2, 0],
   ];
-  D.trashBag = [['sph', 'trashBag', 0.22, 0, 0.17, 0, 16, 12, [1, 0.8, 0.9]], ['sph', 'trashBag', 0.16, 0.06, 0.33, 0.02, 14, 10, [1, 0.9, 0.9]], ['cyl', 'trashBag', 0.018, 0.03, 0.09, 8, 0.07, 0.46, 0.03, 0, 0, -0.3], ['sph', 'trashBag', 0.13, -0.18, 0.1, 0.12, 12, 8, [1, 0.7, 1]]];
+  D.trashBag = [
+    ['bag', 'trashBag', 0.24, 1, 0, 0.127, 0, [1, 0.85, 0.9]],
+    ['cyl', 'trashBag', 0.03, 0.012, 0.06, 8, 0, 0.36, 0], ['sph', 'trashBag', 0.03, -0.025, 0.4, 0, 8, 6, [1.3, 0.5, 0.7]], ['sph', 'trashBag', 0.03, 0.025, 0.4, 0.01, 8, 6, [1.3, 0.5, 0.7]],
+    ['bag', 'trashBag', 0.17, 2, -0.2, 0.08, 0.15, [1, 0.75, 1]], ['sph', 'trashBag', 0.022, -0.2, 0.2, 0.15, 8, 6, [1, 0.7, 1]],
+  ];
   D.wetFloorSign = [['box', 'signYellow', 0.3, 0.62, 0.012, 0, 0.3, 0.1, -0.17, 0, 0], ['box', 'signYellow', 0.3, 0.62, 0.012, 0, 0.3, -0.1, 0.17, PI, 0], ['rbox', 'signYellow', 0.2, 0.05, 0.03, 0.01, 0, 0.64, 0]];
   D.cone = [['rbox', 'blackPlastic', 0.36, 0.03, 0.36, 0.01, 0, 0.015, 0], ['lathe', 'coneOrange', [[0.14, 0.03], [0.03, 0.7], [0.001, 0.7]], 20, 0, 0, 0], ['lathe', 'fixtureWhite', [[0.092, 0.28], [0.07, 0.4], [0.068, 0.4], [0.09, 0.28]], 20, 0, 0, 0]];
   D.bottle = [['lathe', 'bottlePlastic', [[0.034, 0], [0.036, 0.01], [0.036, 0.17], [0.016, 0.21], [0.013, 0.235], [0.001, 0.235]], 14, 0, 0, 0], ['cyl', 'bluePlastic', 0.014, 0.014, 0.018, 10, 0, 0.24, 0], ['cyl', 'labelCard', 0.037, 0.037, 0.07, 14, 0, 0.1, 0, 0, 0, 0, true]];
@@ -119,7 +148,7 @@
     boxPile: [['boxClosed', 0.36, 0.33, 0.1, null], ['boxClosed', 0.9, 0.3, -0.15, null], ['boxOpen', 0.4, 0.82, 0.4, null], ['boxClosed', 0.38, 0.33, 0.25, null, 0.36]],
     vendingNook: [['vending', 0.62, 0.48, 0, [0.45, 0.4]], ['trashCan', 1.35, 0.3, 0, [0.18, 0.18]]],
     coolerSpot: [['waterCooler', 0.4, 0.35, 0, [0.2, 0.2]], ['bottleDown', 0.9, 0.7, 1.2, null]],
-    chairStack: [['chairPile', 0.95, 0.95, 0.3, [0.8, 0.8]]],
+    chairStack: [['chairStacks', 0.62, 0.36, 0, [0.52, 0.34]]],
     filingRow: [['filing', 0.4, 0.4, 0, [0.3, 0.33]], ['filing', 1.02, 0.4, 0, [0.3, 0.33]], ['boxOpen', 1.7, 0.4, 0.2, null]],
   };
   const THEME_VIG = {

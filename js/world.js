@@ -274,7 +274,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         case 'wood': m = this.pbr('wood'); break;
         case 'darkWood': m = this.pbr('wood', { color: 0x6a4a36 }); break;
         case 'laminate': m = this.pbr('wood', { color: 0xe0d0b4 }); m.roughness = 0.6; break;
-        case 'crateWood': m = this.pbr('wood', { color: 0xc8a878 }); break;
+        case 'crateWood': m = this.pbr('wood', { color: 0xead8b4 }); m.roughness = 0.85; break;
         case 'metal': m = this.pbr('metal'); break;
         case 'darkMetal': m = this.pbr('metal', { color: 0x44464c }); break;
         case 'paintMetal': m = S(0x6d7a82, 0.5, 0.25); break;
@@ -347,6 +347,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         case 'changeFace': m = new THREE.MeshStandardMaterial({ map: T.label('changeFace', 'CHANGE', { w: 256, h: 256, bg: '#1b2a48', color: '#ffd84a', font: `bold 58px ${T.FONTS.FONT_TYPE}` }), roughness: 0.4 }); this.patch(m); break;
         case 'woodVarnish': m = this.pbr('wood', { color: 0x8a5a3c }); m.roughness = 0.55; m.userData.refl = 0.18; break;
         case 'drawerWood': m = this.pbr('wood', { color: 0x6e4a30 }); break;
+        case 'headboard': m = this.pbr('wood', { color: 0x7a5236 }); m.roughness = 0.5; m.userData.refl = 0.08; break;
         case 'drawer': m = new THREE.MeshStandardMaterial({ map: MT.drawer(), roughness: 0.5 }); this.patch(m); break;
         case 'leather': m = S(0x3b2217, 0.55, 0, { refl: 0.05 }); break;
         case 'folderBrown': m = S(0xb08850, 0.85); break;
@@ -1146,7 +1147,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       // Dönüm noktası dekorları
       const rooms = L.meta.rooms || {};
       const center = r => ({ x: (r.x0 + r.x1 + 1) / 2 * C, z: (r.y0 + r.y1 + 1) / 2 * C });
-      if (rooms.chairs) add('chairPile', Object.assign(center(rooms.chairs), { rot: 0.4 }));
+      if (rooms.chairs) { const c = center(rooms.chairs); add('chairPile', { x: c.x, z: c.z, rot: 0.4 }); this.addCollider({ minX: c.x - 1.25, maxX: c.x + 1.25, minZ: c.z - 1.25, maxZ: c.z + 1.25 }); }
       if (rooms.stairs) { const c = center(rooms.stairs); add('stairsUp', { x: c.x, z: c.z + 0.2, rot: 0 }); this.addCollider({ minX: c.x - 0.75, maxX: c.x + 0.75, minZ: c.z - 1.6, maxZ: c.z + 1.9 }); }
       if (rooms.camp) { const c = center(rooms.camp); add('sleepingBag', { x: c.x - 0.9, z: c.z + 0.4, rot: 0.3 }); }
       if (rooms.lone) { const c = center(rooms.lone); add('cabinet:special', { x: c.x, z: c.z - 1.2, rot: 0, lone: true }); this.addCollider({ minX: c.x - 0.45, maxX: c.x + 0.45, minZ: c.z - 1.65, maxZ: c.z - 0.75 }); }
