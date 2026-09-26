@@ -331,7 +331,21 @@
         });
         this.list.push(c);
       }
+      if (this.list.length) this.warmSet();
       return this;
+    }
+    // Opening a drawer shows plain (not instanced) meshes with materials that may not be on screen yet.
+    // A speck of each, out of sight under the floor, gets their shaders compiled with the rest of the
+    // level, so the first drawer you open does not stall the frame.
+    warmSet() {
+      const w = this.g.world, keys = new Set(['drawerBox', 'drawerSteel', 'safeInner']);
+      for (const c of this.list) for (const sl of c.slots) for (const sp of sl.s.front) keys.add(sp[1]);
+      const r = U.rng(5);
+      for (const k in JUNK) for (let t = 0; t < 6; t++) for (const sp of JUNK[k](r, 0.4, 0.5)) keys.add(sp[1]);
+      const grp = new THREE.Group(), geo = new THREE.BoxGeometry(0.001, 0.001, 0.001);
+      // (far outside any view: compiled with the level, never drawn)
+      for (const k of keys) { const m = new THREE.Mesh(geo, w.mat(k)); m.position.set(-5000, -5000, -5000); m.userData.noPrepass = true; m.userData.noSupport = true; grp.add(m); }
+      w.group.add(grp);
     }
     prompt(sl) {
       if (this.g.player.hidden) return null;

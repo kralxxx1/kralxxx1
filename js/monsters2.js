@@ -189,14 +189,16 @@
     if (tg) {
       const teethM = new THREE.MeshStandardMaterial({ color: 0xe0d6bc, roughness: 0.3 });
       const tr = U.rng(71);
+      const teeth = [];
       for (const up of [true, false]) for (let k = -3; k <= 3; k++) {
         if (tr() < 0.15) continue;
         const t = new THREE.Mesh(tg[tr() < 0.4 ? 1 : 0], teethM);
         t.scale.set(0.16, 0.2 * tr.range(0.8, 1.3), 0.16);
         t.position.set(k * 0.013, 0.335 + (up ? 0.014 : -0.014), 0.655 - Math.abs(k) * 0.004);
         t.rotation.set(up ? PI : 0, 0, (tr() - 0.5) * 0.3);
-        g.add(t);
+        teeth.push(t);
       }
+      g.add(new THREE.Mesh(PB.Monsters.mergeMeshes(teeth), teethM));
     }
     const mirror = geo => { const f = geo.clone(); const pa = f.attributes.position, n = f.attributes.normal; for (let i = 0; i < pa.count; i++) { pa.setX(i, -pa.getX(i)); n.setX(i, -n.getX(i)); } const idx = f.index.array; for (let i = 0; i < idx.length; i += 3) { const t = idx[i + 1]; idx[i + 1] = idx[i + 2]; idx[i + 2] = t; } return f; };
     const geos = { 1: [upG, loG], [-1]: [mirror(upG), mirror(loG)] };
@@ -522,7 +524,7 @@
     const eyeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf0ece0, emissiveIntensity: 1.6, alphaHash: true });
     g.add(new THREE.Mesh(S.mesh('grin:gum', gumDist, [[-0.5, -0.15, -0.2], [0.5, 0.26, 0.1]], 0.008, { smooth: 2 }), gum));
     const tg = PB.Monsters.toothGeos ? PB.Monsters.toothGeos() : null;
-    const r = U.rng(23);
+    const r = U.rng(23), set = [];
     for (const [row, y0, flip] of [[0, 0.07, true], [1, -0.11, false]]) {
       for (let k = -9; k <= 9; k++) {
         const x = k * 0.042, y = y0 + Math.pow(x / 0.42, 2) * 0.18;
@@ -531,9 +533,10 @@
         t.scale.setScalar(0.5 * r.range(0.85, 1.15));
         t.position.set(x, y + (flip ? -0.012 : 0.012), 0.03 - Math.abs(x) * 0.35);
         t.rotation.set(flip ? PI : 0, -x * 0.8, (r() - 0.5) * 0.2);
-        g.add(t);
+        set.push(t);
       }
     }
+    g.add(new THREE.Mesh(PB.Monsters.mergeMeshes(set), teeth));
     // eyes: two pale discs with pinprick pupils, a hand's width above the smile
     for (const sx of [-0.2, 0.2]) {
       const e = new THREE.Mesh(new THREE.SphereGeometry(0.045, 14, 10), eyeMat); e.scale.set(1.2, 0.8, 0.5); e.position.set(sx, 0.36, 0); g.add(e);

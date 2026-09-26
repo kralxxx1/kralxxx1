@@ -443,6 +443,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       this.buildLightPool();
       await step(0.86, PB.t('load.props'));
       this.buildProps();
+      this.buildBlobs();
       this.buildPillars();
       this.buildDoors();
       await step(0.9, PB.t('load.decals'));
@@ -1185,6 +1186,31 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       const sm = this.instanced('cabinetScreen', P.DEFS.cabinetScreen, list, { matFn: () => sMat, cast: false });
       const mm = this.instanced('cabinetMarquee', P.DEFS.cabinetMarquee, list, { matFn: () => mMat, cast: false });
       this.screens.push({ scr, mats: [sMat, mMat], list, meshes: sm.concat(mm), lone: list.some(p => p.lone) });
+    }
+    // Contact shadows: a soft dark patch under everything that stands on the floor, so furniture and
+    // clutter sit on it instead of hovering (the baked light only knows the big pieces)
+    buildBlobs() {
+      const L = this.L, list = [];
+      for (const p of L.props) {
+        if (p.wall || p.type === 'collider' || (p.y || 0) > 0.05 || /^(rug|roof|stairsUp|paperScatter|fallenTile|bleachers)/.test(p.type)) continue;
+        const f = this.footprint(p.type === 'cabinet' ? 'cabinetBody' : p.type);
+        if (!f) continue;
+        const sx = (f.x1 - f.x0) * (p.sx || 1) + 0.22, sz = (f.z1 - f.z0) * (p.sz || 1) + 0.22;
+        if (sx * sz < 0.02 || sx > 6 || sz > 6) continue;
+        const c = Math.cos(p.rot || 0), sn = Math.sin(p.rot || 0), ox = (f.x0 + f.x1) / 2, oz = (f.z0 + f.z1) / 2;
+        list.push({ p, x: p.x + ox * c + oz * sn, z: p.z - ox * sn + oz * c, rot: p.rot || 0, sx, sz });
+      }
+      if (!list.length) return;
+      const tex = T.canvas('blob', 64, 64, (g, w, h) => { const gr = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.55, 'rgba(0,0,0,0.75)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
+      const mat = new THREE.MeshBasicMaterial({ map: tex, color: 0x000000, transparent: true, opacity: 0.5, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+      const geo = new THREE.PlaneGeometry(1, 1); geo.rotateX(-Math.PI / 2);
+      const im = new THREE.InstancedMesh(geo, mat, list.length);
+      const d = new THREE.Object3D();
+      list.forEach((b, k) => { d.position.set(b.x, 0.004, b.z); d.rotation.set(0, b.rot, 0); d.scale.set(b.sx, 1, b.sz); d.updateMatrix(); im.setMatrixAt(k, d.matrix); b.p.blob = { im, k, sx: b.sx, sz: b.sz }; });
+      im.userData.noPrepass = true; im.userData.noSupport = true; im.renderOrder = 1;
+      im.computeBoundingSphere();
+      this.group.add(im);
+      this.blobMesh = im;
     }
     buildPillars() {
       const L = this.L;

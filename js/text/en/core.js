@@ -99,6 +99,10 @@
       'The Neighbor uses voices you know. Do not answer.',
       'Walt tore five pages out of his diary. They matter more than they seem.',
       'Crawlers eat forgotten things. Keep the light on and you will not be forgotten.',
+      'A drawer left a finger\'s width open has something in it. So does a safe door that is off its latch.',
+      'Pick up a bottle or a box with E and throw it with G: the crash pulls anything that hunts by ear away from you.',
+      'Hold V (or the middle mouse button) to look back over your shoulder while you run.',
+      'You can shove boxes and chairs out of your way. Something big chasing you will not bother going around them either.',
     ],
     endings: {
       exit: {

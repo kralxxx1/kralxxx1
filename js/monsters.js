@@ -100,9 +100,34 @@
     };
   }
   function toothGeos() {
-    return [0, 1, 2, 3].map(k => S.mesh('eater:tooth' + k, toothDist(k), [[-0.06, -0.05, -0.05], [0.06, 0.16, 0.06]], 0.006, { smooth: 1 }));
+    return [0, 1, 2, 3].map(k => S.mesh('eater:tooth' + k, toothDist(k), [[-0.06, -0.05, -0.05], [0.06, 0.16, 0.06]], 0.009, { smooth: 1 }));
   }
 
+  // Many small parts with one material (teeth) drawn as one mesh instead of dozens of draw calls
+  function mergeMeshes(meshes) {
+    let nv = 0, ni = 0;
+    for (const m of meshes) { m.updateMatrix(); nv += m.geometry.attributes.position.count; ni += m.geometry.index ? m.geometry.index.count : m.geometry.attributes.position.count; }
+    const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), idx = new Uint32Array(ni);
+    let vo = 0, io = 0;
+    const v = new THREE.Vector3(), nm = new THREE.Matrix3();
+    for (const m of meshes) {
+      const g = m.geometry, pa = g.attributes.position, na = g.attributes.normal;
+      nm.getNormalMatrix(m.matrix);
+      for (let i = 0; i < pa.count; i++) {
+        v.fromBufferAttribute(pa, i).applyMatrix4(m.matrix); pos.set([v.x, v.y, v.z], (vo + i) * 3);
+        v.fromBufferAttribute(na, i).applyMatrix3(nm).normalize(); nor.set([v.x, v.y, v.z], (vo + i) * 3);
+      }
+      if (g.index) for (let i = 0; i < g.index.count; i++) idx[io + i] = g.index.array[i] + vo;
+      else for (let i = 0; i < pa.count; i++) idx[io + i] = vo + i;
+      io += g.index ? g.index.count : pa.count; vo += pa.count;
+    }
+    const out = new THREE.BufferGeometry();
+    out.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    out.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+    out.setIndex(new THREE.BufferAttribute(idx, 1));
+    out.computeBoundingSphere();
+    return out;
+  }
   function eater() {
     const t0 = performance.now();
     const skin = eaterSkinTex(), bump = eaterBumpTex();
@@ -149,8 +174,12 @@
         tooth.position.set(Math.sin(a) * rr, down ? -0.02 : 0.02, Math.cos(a) * rr);
         tooth.rotation.set(down ? 0 : PI, a + (tr() - 0.5) * 0.4, (tr() - 0.5) * 0.35);
         tooth.rotation.x += (down ? -1 : 1) * (0.15 + (tr() - 0.5) * 0.3);
-        jaw.add(tooth);
+        (jaw.userData.teeth || (jaw.userData.teeth = [])).push(tooth);
       }
+      const set = new THREE.Mesh(mergeMeshes(jaw.userData.teeth), teethMat);
+      set.castShadow = true;
+      jaw.add(set);
+      jaw.userData.teeth = null;
     }
     // Tongue: a long, heavy muscle lolling out over the lower teeth
     const tongueG = S.mesh('eater:tongue', p => S.smin(S.chain(p, [[0, -0.25, -0.3], [0, -0.18, 0.2], [0, -0.14, 0.62], [0.05, -0.2, 0.95]], [0.28, 0.24, 0.17, 0.1], 0.08), S.ellipsoid(p, [0, -0.2, 0.2], [0.36, 0.1, 0.5]), 0.1) + S.fbm(p[0] * 8, p[1] * 8, p[2] * 8, 2) * 0.02, [[-0.5, -0.6, -0.7], [0.5, 0.2, 1.2]], 0.03, { smooth: 2 });
@@ -258,5 +287,5 @@
     });
   }
 
-  PB.Monsters = { eater, sheetGeo, sheetTex, toothGeos, R };
+  PB.Monsters = { eater, sheetGeo, sheetTex, toothGeos, mergeMeshes, R };
 })(typeof window !== 'undefined' ? window : globalThis);

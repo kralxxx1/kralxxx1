@@ -99,6 +99,10 @@
       'Komşu tanıdığın sesleri kullanır. Cevap verme.',
       'Walt günlüğünden beş sayfa kopardı. Göründüklerinden daha önemliler.',
       'Sürüngenler unutulmuş şeyleri yer. Işığı açık tut, unutulmazsın.',
+      'Parmak kalınlığında aralık bırakılmış bir çekmecede bir şey vardır. Kilidi açık duran bir kasa kapısında da.',
+      'Bir şişeyi ya da kutuyu E ile al, G ile fırlat: çıkan gürültü sesle avlanan her şeyi senden uzaklaştırır.',
+      'Koşarken omzunun üstünden arkana bakmak için V’yi (ya da orta fare tuşunu) basılı tut.',
+      'Kutuları ve sandalyeleri itip yolundan çekebilirsin. Seni kovalayan büyük bir şey de onların etrafından dolaşmaz.',
     ],
     endings: {
       exit: {

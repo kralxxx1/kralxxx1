@@ -224,6 +224,9 @@
         tmpV.copy(rb.off).applyQuaternion(tmpQ).add(new THREE.Vector3(b.position.x, b.position.y, b.position.z));
         tmpM.compose(tmpV, tmpQ, rb.scale);
         for (const im of rb.rec.meshes) { im.setMatrixAt(rb.idx, tmpM); touched.add(im); }
+        // its contact shadow follows it along the floor, and fades while it is in the air
+        const bl = rb.p.blob;
+        if (bl) { const lift = Math.max(0, b.position.y - (rb.restY || (rb.restY = b.position.y))); const k = Math.max(0, 1 - lift * 1.5); tmpM.compose(new THREE.Vector3(b.position.x, 0.004, b.position.z), new THREE.Quaternion().setFromAxisAngle(up, rb.p.rot || 0), new THREE.Vector3(bl.sx * k + 0.001, 1, bl.sz * k + 0.001)); bl.im.setMatrixAt(bl.k, tmpM); touched.add(bl.im); }
         rb.p.x = tmpV.x; rb.p.z = tmpV.z;
         const it = g.interactables.find(i => i.live === rb);
         if (it) it.pos.set(b.position.x, b.position.y, b.position.z);
