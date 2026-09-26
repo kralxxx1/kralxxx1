@@ -91,11 +91,11 @@ O kış beşi her cumartesi uğradı. Gürültücü olan, kasetli olan, gözlük
 Arkadaşı. Arkadaşının adını hatırlayamıyorum. S ile başlıyor.
 
 Önemli. Neden önemli olduğunu bilmiyorum.` },
-      mall_lily5: { title: 'Boş bir vitrinin içine bantlanmış bir çizim', from: 'Lily, 8 yaşında', body:
-`Pastel boya. Kocaman bir Noel ağacı ve dibinde, küçük bir kızın elini tutan bacaklı sarı bir daire. Kar yağıyor, mavi noktalar olarak çizilmiş.
+      mall_lily5: { title: 'Starlight Jr. büfesinin içine bantlanmış bir çizim', from: 'Lily, 8 yaşında', date: 'Aralık 1982', body:
+`Pastel boya. Front Caddesi’ndeki kocaman Noel ağacı ve dibinde, küçük bir kızın elini tutan bacaklı sarı bir daire. Kar yağıyor, mavi noktalar olarak çizilmiş.
 
-BABAM AVM’DE DÜKKÂN AÇACAK!!
-CHOMPY AVM’YE GİDİYOR.
+BABAM BİR GÜN HER KASABADA BİR STARLIGHT OLACAK DİYOR.
+BİR AVM’DE KÜÇÜCÜK BİR TANE BİLE.
 (CHOMPY’Yİ BEN ÇİZDİM) (BABAM ONU BENİM İCAT ETTİĞİMİ SÖYLÜYOR)` },
       mall_tape: { title: 'Kaset: "Noel mesajı"', from: 'Penny’nin teybi', date: '20 Aralık 1986', body:
 `[Klik. Yemek alanı uğultusu, Noel müziği, bir çeşme.]

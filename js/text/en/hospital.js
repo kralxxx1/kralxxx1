@@ -49,7 +49,7 @@ The names on the table will never be erased. I promised.` },
       hospital_diary4: { kind: 'diary', title: "Walt's diary — page 4", from: 'Walt', date: 'October 21, 1983', body:
 `She sleeps most of the day.
 
-When she's awake she draws. Eight drawings on the wall now. The arcade. Chompy. The mall. A cave with boys in it (she says the boys in her class have a secret cave and she isn't allowed). Me.
+When she's awake she draws. Eight drawings on the wall now. The arcade. Chompy. The Christmas tree on Front Street. A cave with boys in it (two boys in her class found a secret cave under the street and won't let her in). Me.
 
 She asked: "When I'm gone, who will play my game?"
 
@@ -64,7 +64,7 @@ I am going to build a machine that remembers everything. I am going to build a g
 I know how that sounds.
 
 I'm writing it down anyway, so that someday, when I've done something terrible, someone can read this and know I did it for love. It won't be enough. I know it won't be enough.` },
-      hospital_nurse: { kind: 'note', title: "Nurse's notes, the night shift clipboard", from: 'Nurse Carol', date: 'October 1983', body:
+      hospital_nurse: { kind: 'note', title: "Nurse's notes, the night shift clipboard", from: 'Nurse Donna', date: 'October 1983', body:
 `207 — Lily, 9. Comfortable. Asked for more crayons (yellow). Father present, as always. Father slept in the chair, as always.
 
 Please somebody talk to him about going home to shower. He says "she'll wake up and I'll be gone." We have stopped arguing.
@@ -86,7 +86,7 @@ I'm sorry. I'll always be sorry.
 207 — Ruth (mother) ........ 10/1, 10/3
 207 — Nora (aunt) ........... 10/8, 10/14, 10/22
 207 — Room 104 class ....... 10/14 (card delivered)
-207 — Eddie?? ................. (crossed out — "not family, sorry")` },
+207 — Frank (friend of father) .. 10/20, 10/27 (brought oranges)` },
       hospital_card: { kind: 'note', title: 'A giant get-well card made of construction paper', from: '4th grade, Room 104', date: 'October 1983', body:
 `GET WELL SOON LILY!!!
 
@@ -97,7 +97,7 @@ We miss you in art class. Mrs. K says the crayons are lonely.
 — and 22 other names in careful capital letters
 
 (You remember writing this. You remember not knowing that it wouldn't work.)` },
-      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'A Polaroid taped above the bed', from: 'Nurse Carol', date: 'October 14, 1983', body:
+      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'A Polaroid taped above the bed', from: 'Nurse Donna', date: 'October 14, 1983', body:
 `A man in a huge yellow round costume, the face a big painted smile, kneeling beside a hospital bed. A very small girl in a party hat is hugging the costume's head with both arms.
 
 On the white strip: "LIL & CHOMPY — 9 TODAY!"` },

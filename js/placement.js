@@ -28,7 +28,8 @@
       if (!(o.isMesh || o.isInstancedMesh) || !o.visible) return;
       const m = o.material;
       if (!m || Array.isArray(m) && !o.isMesh) return;
-      if (!Array.isArray(m) && (m.transparent || m.isShaderMaterial || m.isPointsMaterial)) return;
+      // glows, pellets, lamp lenses and screens are not something to set a thing on
+      if (!Array.isArray(m) && (m.transparent || m.isShaderMaterial || m.isPointsMaterial || m.isMeshBasicMaterial)) return;
       if (o.userData.noPrepass || o.userData.noSupport) return;
       out.push(o);
     });
@@ -52,7 +53,7 @@
     if (g._supports) return g._supports;
     const out = [], m4 = new THREE.Matrix4(), p = new THREE.Vector3();
     g.world.group.traverse(o => {
-      if (!o.isInstancedMesh || !SUPPORT.test(o.userData.def || '')) return;
+      if (!o.isInstancedMesh || !SUPPORT.test(o.userData.def || '') || o.userData.def.includes('~')) return;
       for (let k = 0; k < o.count; k++) {
         o.getMatrixAt(k, m4); p.setFromMatrixPosition(m4);
         const h = hitDown(targets, p.x, p.z, 2.4, 2.6);
@@ -81,7 +82,98 @@
     if (o.mesh) { o.mesh.position.set(x, y, z); o.baseY = y; }
     if (o.interactPos) o.interactPos.set(x, y + 0.1, z);
   }
+  // ---- Furniture against walls -------------------------------------------------------------
+  const WALL_HALF = 0.1;
+  // Mounted on or built into a wall, or deliberately spanning cells: not pushed around
+  const FIXED = /^(collider|pegboard|nightWindow|wallPipes|wallClock|monitorWall|chalkboard|keyBoard|handDryer|mirror|corkboard|paperHolder|curtain|hoop|roof|rug|poster|sign|vent|pipeRun|beam|stairsUp|bleachers|fix-)/;
+  // Loose clutter that is simply left out when it cannot fit
+  const DECOR = /^(crate|crateStack|barrel|pallet|boxes|trashCan|mopBucket|planter|towelRack|lounger|debris|trashBag|cone|tire|bucket|chairPile)$/;
+  // Axis-aligned boxes of everything solid around (x, z): walls with their thickness, doorways, blocked cells
+  function solidsNear(L, x, z, rad, pad) {
+    const C = L.cell, out = [];
+    const x0 = Math.floor((x - rad) / C) - 1, x1 = Math.floor((x + rad) / C) + 1;
+    const y0 = Math.floor((z - rad) / C) - 1, y1 = Math.floor((z + rad) / C) + 1;
+    for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) {
+      if (!L.passable(cx, cy)) { out.push([cx * C - pad, cy * C - pad, (cx + 1) * C + pad, (cy + 1) * C + pad]); continue; }
+      for (const d of [0, 1, 2, 3]) {
+        const nx = cx + (d === 1 ? 1 : d === 3 ? -1 : 0), ny = cy + (d === 2 ? 1 : d === 0 ? -1 : 0);
+        if (!L.passable(nx, ny)) continue;
+        if (!L.edgeKind(cx, cy, d) && !(L.doorMap.size && L.doorMap.get(L.edgeKey(cx, cy, d)))) continue;
+        if (d === 1 || d === 3) { const ex = (cx + (d === 1 ? 1 : 0)) * C; out.push([ex - pad, cy * C - pad, ex + pad, (cy + 1) * C + pad]); }
+        else { const ez = (cy + (d === 2 ? 1 : 0)) * C; out.push([cx * C - pad, ez - pad, (cx + 1) * C + pad, ez + pad]); }
+      }
+    }
+    return out;
+  }
+  // Oriented footprint of a prop in the world
+  function obbOf(p, f) {
+    const r = p.rot || 0, c = Math.cos(r), s = Math.sin(r), sx = p.sx || 1, sz = p.sz || 1;
+    const ox = (f.x0 + f.x1) / 2 * sx, oz = (f.z0 + f.z1) / 2 * sz;
+    return { x: p.x + ox * c + oz * s, z: p.z - ox * s + oz * c, u: [c, -s], v: [s, c], hx: (f.x1 - f.x0) / 2 * sx, hz: (f.z1 - f.z0) / 2 * sz };
+  }
+  // Separating-axis test; returns the smallest push {x, z} that frees box a from box b, or null
+  function sat(a, bAxes, bProj, bx, bz) {
+    let best = null;
+    for (const ax of [[1, 0], [0, 1], a.u, a.v].concat(bAxes)) {
+      const ra = a.hx * Math.abs(a.u[0] * ax[0] + a.u[1] * ax[1]) + a.hz * Math.abs(a.v[0] * ax[0] + a.v[1] * ax[1]);
+      const rb = bProj(ax);
+      const d = (a.x - bx) * ax[0] + (a.z - bz) * ax[1];
+      const o = ra + rb - Math.abs(d);
+      if (o <= 0) return null;
+      if (!best || o < best.o) best = { o, x: ax[0] * Math.sign(d || 1), z: ax[1] * Math.sign(d || 1) };
+    }
+    return best;
+  }
+  const vsBox = (a, b) => sat(a, [], ax => (b[2] - b[0]) / 2 * Math.abs(ax[0]) + (b[3] - b[1]) / 2 * Math.abs(ax[1]), (b[0] + b[2]) / 2, (b[1] + b[3]) / 2);
+  const vsObb = (a, b) => sat(a, [b.u, b.v], ax => b.hx * Math.abs(b.u[0] * ax[0] + b.u[1] * ax[1]) + b.hz * Math.abs(b.v[0] * ax[0] + b.v[1] * ax[1]), b.x, b.z);
+
   const Placement = PB.Placement = {
+    WALL_HALF, FIXED, solidsNear, obbOf, vsBox, vsObb,
+    // Before anything is built: slide every free-standing piece of furniture out of the walls (their real
+    // thickness, not the cell line), and leave out loose clutter that overlaps other furniture.
+    fitProps(L, footprint) {
+      const pad = WALL_HALF + 0.03, placed = [], log = { moved: 0, dropped: 0, stuck: [] };
+      const drop = new Set();
+      const fp = p => !p.wall && !FIXED.test(p.type) && !(p.y > 0.05) ? footprint(p.type === 'cabinet' ? 'cabinetBody' : p.type) : null;
+      // Furniture first, clutter after, so clutter gives way
+      const isDecor = p => DECOR.test(p.type) || !!p.dressing;
+      const order = L.props.filter(p => !isDecor(p)).concat(L.props.filter(isDecor));
+      for (const p of order) {
+        const f = fp(p);
+        if (!f) continue;
+        const x0 = p.x, z0 = p.z;
+        let ok = false;
+        for (let it = 0; it < 10; it++) {
+          const a = obbOf(p, f);
+          let push = null;
+          for (const b of solidsNear(L, a.x, a.z, Math.hypot(a.hx, a.hz), pad)) {
+            const m = vsBox(a, b);
+            if (m && (!push || m.o > push.o)) push = m;
+          }
+          if (!push) { ok = true; break; }
+          p.x += push.x * (push.o + 0.004); p.z += push.z * (push.o + 0.004);
+        }
+        const decor = isDecor(p);
+        const moved = Math.hypot(p.x - x0, p.z - z0);
+        // Clutter shoved more than half a meter was in the wrong place: better absent than odd
+        if (decor && (!ok || moved > 0.6)) { log.dropped++; drop.add(p); continue; }
+        if (!ok) { p.x = x0; p.z = z0; log.stuck.push(p.type); }
+        else if (moved > 0.001) {
+          log.moved++;
+          // Things resting on it (items and spots set on the furniture) move with it
+          const q = { x: x0, z: z0, rot: p.rot, sx: p.sx, sz: p.sz }, a0 = obbOf(q, f), dx = p.x - x0, dz = p.z - z0;
+          const on = (x, z) => { const rx = x - a0.x, rz = z - a0.z; return Math.abs(rx * a0.u[0] + rz * a0.u[1]) < a0.hx + 0.05 && Math.abs(rx * a0.v[0] + rz * a0.v[1]) < a0.hz + 0.05; };
+          for (const it of L.items || []) if ((it.wy || 0) > 0.05 && on(it.wx, it.wz)) { it.wx += dx; it.wz += dz; }
+          for (const k in L.spots) for (const sp of L.spots[k]) if (sp.wx != null && (sp.h || 0) > 0.05 && on(sp.wx, sp.wz)) { sp.wx += dx; sp.wz += dz; }
+        }
+        const a = obbOf(p, f);
+        if (decor && placed.some(q => vsObb(a, q))) { log.dropped++; drop.add(p); continue; }
+        placed.push(a);
+      }
+      if (drop.size) { const keep = L.props.filter(p => !drop.has(p)); L.props.length = 0; L.props.push(...keep); }
+      L.fitLog = log;
+      return log;
+    },
     settle(g) {
       const L = g.level, taken = [], rng = PB.U.rng((L.def && L.def.seed || 1) + 77);
       g._supports = null;
@@ -89,7 +181,7 @@
       for (const o of g.items) if (o.mesh) o.mesh.updateMatrixWorld(true);
       const report = [];
       for (const o of g.items) {
-        if (!o.mesh || o.taken || SELF.has(o.type) || o.item.prop) continue;
+        if (!o.mesh || o.taken || SELF.has(o.type) || o.item.prop || o.container) continue;
         const it = o.item, targets = targetsOf(g, o.mesh);
         const onWall = it.d >= 0 && (it.wy || 0) > 0.5;
         if (onWall || WALL.has(o.type)) { Placement.toWall(g, o, targets); continue; }
@@ -146,7 +238,7 @@
       const issues = [], L = g.level;
       g.world.group.updateMatrixWorld(true);
       for (const o of g.items) {
-        if (!o.mesh || o.taken || SELF.has(o.type) || o.item.prop) continue;
+        if (!o.mesh || o.taken || SELF.has(o.type) || o.item.prop || o.container) continue;
         const targets = targetsOf(g, o.mesh), it = o.item;
         const onWall = it.d >= 0 && (it.wy || 0) > 0.5;
         if (onWall || WALL.has(o.type)) {
@@ -160,25 +252,36 @@
         const h = hitDown(targets, o.pos.x, o.pos.z, o.pos.y + 0.05, o.pos.y + 0.5);
         const gap = h ? o.pos.y - h.y : o.pos.y;
         if (gap > 0.04) issues.push({ id: o.id, type: o.type, kind: 'floating', gap: +gap.toFixed(2), y: +o.pos.y.toFixed(2) });
+        // Buried: something right on top of it, or shut in on every side under a lid (an open shelf is fine)
         const top = hitDown(targets, o.pos.x, o.pos.z, 2.6, 2.7);
-        if (top && top.y > o.pos.y + 0.12 && top.y < 2.4) issues.push({ id: o.id, type: o.type, kind: 'buried', under: +top.y.toFixed(2), y: +o.pos.y.toFixed(2) });
+        if (top && top.y > o.pos.y + 0.03 && top.y < 2.4) {
+          let walls = 0;
+          for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+            ray.set(v.set(o.pos.x, o.pos.y + 0.06, o.pos.z), new THREE.Vector3(dx, 0, dz)); ray.near = 0; ray.far = 0.7;
+            if (ray.intersectObjects(targets, false).length) walls++;
+          }
+          if (top.y < o.pos.y + 0.15 || walls === 4) issues.push({ id: o.id, type: o.type, kind: 'buried', under: +top.y.toFixed(2), y: +o.pos.y.toFixed(2), walls });
+        }
         const c = L.cellOf(o.pos.x, o.pos.z);
         if (!L.inb(c.x, c.y) || !L.passable(c.x, c.y)) issues.push({ id: o.id, type: o.type, kind: 'inSolid' });
       }
-      // Furniture pushed through walls: every corner of an instance's footprint must be on its side of the walls
-      const m4 = new THREE.Matrix4(), bb = new THREE.Box3(), p = new THREE.Vector3(), q = new THREE.Vector3();
+      // Furniture pushed through walls: the footprint (a few cm of slack) must not reach into a wall's thickness
+      const m4 = new THREE.Matrix4(), p = new THREE.Vector3(), sc = new THREE.Vector3(), qt = new THREE.Quaternion(), e = new THREE.Euler();
       g.world.group.traverse(o => {
-        if (!o.isInstancedMesh || !o.userData.def || /^(pillar|beam|pipeRun|vent|rack|archiveShelf|serverRack|serverLeds|crt|fix-)/.test(o.userData.def)) return;
+        const def = o.userData.def;
+        if (!o.isInstancedMesh || !def || o.userData.wallMounted || FIXED.test(def) || /^(pillar|beam|pipeRun|vent|rack|archiveShelf|serverRack|serverLeds|crt|fix-|cabinetScreen|cabinetMarquee|deskLamp|cubicleMonitor)/.test(def)) return;
         if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
         const b = o.geometry.boundingBox;
+        if (b.min.y > 2.2) return;
+        const f = { x0: b.min.x + 0.03, x1: b.max.x - 0.03, z0: b.min.z + 0.03, z1: b.max.z - 0.03 };
+        if (f.x1 <= f.x0 || f.z1 <= f.z0) return;
         for (let k = 0; k < o.count; k++) {
-          o.getMatrixAt(k, m4); p.setFromMatrixPosition(m4);
-          let bad = 0;
-          for (const [sx, sz] of [[b.min.x + 0.04, b.min.z + 0.04], [b.max.x - 0.04, b.min.z + 0.04], [b.min.x + 0.04, b.max.z - 0.04], [b.max.x - 0.04, b.max.z - 0.04]]) {
-            q.set(sx, 0, sz).applyMatrix4(m4);
-            if (!L.los(p.x, p.z, q.x, q.z)) bad++;
-          }
-          if (bad) issues.push({ id: o.userData.def + '#' + k, kind: 'inWall', corners: bad, x: +p.x.toFixed(1), z: +p.z.toFixed(1) });
+          o.getMatrixAt(k, m4); m4.decompose(p, qt, sc); e.setFromQuaternion(qt, 'YXZ');
+          if (sc.x < 1e-4) continue;   // swapped out for a moving copy (an open drawer or door)
+          const a = obbOf({ x: p.x, z: p.z, rot: e.y, sx: sc.x, sz: sc.z }, f);
+          let worst = 0;
+          for (const box of solidsNear(L, a.x, a.z, Math.hypot(a.hx, a.hz), WALL_HALF)) { const m = vsBox(a, box); if (m && m.o > worst) worst = m.o; }
+          if (worst > 0.005) issues.push({ id: def + '#' + k, kind: 'inWall', depth: +worst.toFixed(3), x: +p.x.toFixed(1), z: +p.z.toFixed(1) });
         }
       });
       // One report per prop instance, not per material part

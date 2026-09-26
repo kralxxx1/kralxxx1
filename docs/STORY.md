@@ -84,10 +84,10 @@ Each chapter is a memory. Emotional beat in brackets.
 | 2 | Pipe Dreams | Billy, Clyde, Sam | Crawlers | Steam valves and pressure, follow the kids' chalk arrows [happy childhood] |
 | 3 | The Pool | Ivy | Ivy (blue), the Drowned | Drain the pool. Ivy's glasses. Theo's letters [guilt, forgiveness] |
 | 4 | Insurance Office | Penny | Penny (pink), Clerks | Security code, keycard, fire stairs. Penny's mixtape [loneliness] |
-| 5 | Harlow Middle School | all five, Apr 16 1987 | Hall Monitor | Operation 256 plans, the kids' lockers, the gym [nostalgia, dread] |
+| 5 | Harlow Junior High | all five, Apr 16 1987 | Hall Monitor | Operation 256 plans, the kids' lockers, the gym [nostalgia, dread] |
 | 6 | Lights Out | Clyde | Clyde (orange), Grinners | Three generators. Clyde's lighter [fear, courage] |
 | 7 | Harlow Mall | all five, Dec 1986 | Mannequins | Find the four photo booth frames, rebuild the strip [the happiest day] |
-| 8 | Starlite Motor Inn | Eddie | the Neighbor | Find Room 12. Eddie's notebook: ONE IN, ONE OUT [suspicion] |
+| 8 | Blue Moon Motor Inn | Eddie | the Neighbor | Find Room 12. Eddie's notebook: ONE IN, ONE OUT [suspicion] |
 | 9 | St. Agnes Hospital | Walt | the Counter | Lily's room, Walt's diary, the Chompy photo [sorrow] |
 | 10 | Maple Street | Sam | the Neighbor (uses Clyde's voice) | Sam's house, Clyde's house, the fight [guilt, reconciliation] |
 | 11 | The Workshop | Walt, Apr 1987 | Chompy | Recalibrate the Kernel. The 3:17 tape: the truth [shock] |
@@ -146,14 +146,14 @@ wall writing, drawings), radio exchanges with Eddie from the Lobby onward, and o
 - **Insurance Office.** Penny's tracklist "SIDE B: FOR AFTER". Her mom's memos. Penny Radio practice
   tape from the break room. The security code comes from her DJ call sign. A torn page in Eddie's
   hand: "the kid might be the one" (first doubt). Lily's drawing #4.
-- **Harlow Middle School.** Notes passed in class ("Operation 256 tonight. B has the key").
+- **Harlow Junior High.** Notes passed in class ("Operation 256 tonight. B has the key").
   Detention slip. Yearbook page with all five. Sam's own locker: an apology to Clyde never given.
   Lily's memorial plaque in the hall (1983). School paper. Radio club flyer.
 - **Lights Out.** Clyde's diary ("Sam's mad at me. I just wanted him to stay"). Grandpa's lighter
   engraving. Eddie grows tense on the radio. Freed Clyde will not look at Sam yet.
 - **Harlow Mall.** Photo booth strip, the five laughing (Dec 1986). Christmas lists. Receipts from the
   record store and the comic store. The "Starlight Jr." kiosk. Lily's drawing #5.
-- **Starlite Motor Inn.** Room 12. Eddie's notebook: ONE IN, ONE OUT. June's letters, the ultrasound
+- **Blue Moon Motor Inn.** Room 12. Eddie's notebook: ONE IN, ONE OUT. June's letters, the ultrasound
   photo, Eddie's tape to Hope. After Sam reads it, Eddie asks to explain. Trust becomes a choice.
 - **St. Agnes Hospital.** Room 207. Photo of Walt in the Chompy costume at Lily's bedside. Five pages
   of Walt's diary (completing them is needed for the true ending). Nurse notes. Ruth's letter.
@@ -166,3 +166,37 @@ wall writing, drawings), radio exchanges with Eddie from the Lobby onward, and o
   Billy months earlier. Lily's drawing #8 in Walt's toolbox.
 - **The Maze.** Level 255. Walt's neon writing on the walls. The ghost house.
 - **Kill Screen.** Eddie in person at the EXIT. The plug. The Counter. The endings.
+
+## Continuity notes (checked against every document)
+
+- **The attract screen.** Pac-Man's ghosts are always four: Blinky, Pinky, Inky and Clyde. What changed on
+  April 16, 1987 is their *names*. Since 3:17 AM the attract screen of #7 lists them as BILLY, PENNY, IVY
+  and CLYDE (the kids always joked that the orange ghost was named after Clyde), and they move like the kids
+  did. That is what Walt saw at 3:20 AM and what he watched for five years.
+- **Schools.** Sam, Clyde and Lily were in 4th grade together at Harlow Elementary (Room 104) in 1983. In
+  1987 all five go to Harlow Junior High (grades 7–9): Sam and Clyde in 7th grade, Penny and Ivy in 9th,
+  Billy in 9th for the second time (hence his detention record). Lily's plaque came with her class when
+  they moved up in 1985.
+- **Lily died on October 29, 1983.** Everything she drew is from before that: Chompy (the costume was
+  bought in March 1983), the arcade, the Front Street Christmas tree (Dec 1982), a "cave under the street"
+  that Sam and Clyde found in the summer of 1983 and wouldn't let her into, Penny walking her home, the
+  3,190 points scored on the small cabinet Walt carried up to Room 207, the good swing Sam saved for her,
+  and Walt crying by her hospital monitor. The mall (1986) and the storm-tunnel fort (July 1985) come
+  after her; Walt used her old Chompy drawing on the mall kiosk sign.
+- **The two fights.** At lunch on April 16 Sam yelled at Clyde about the walkman Clyde sat on; Sam wrote
+  an apology and taped it inside his own locker (217) to give him later. At 9:40 PM at the arcade they
+  fought again ("Fine. Disappear then.") and Sam walked home. The note was never given.
+- **That night.** Walt went upstairs at 11 PM. Eddie had left the back door unlocked (the Rialto
+  midnight movie). Billy also had Walt's spare front key. The four were at #7 from 11:30 PM; Penny's
+  recorder ran all night (11:52 PM, 12:40 AM on the 17th, 3:14–3:42 AM). 3:17 AM: CONTINUE.
+- **People with the same first name.** There is only one Carol (Penny's mother, claims adjuster). The
+  night nurse at St. Agnes is Donna.
+- **Eddie** was hired in 1984, after Lily died; he knew her only from Walt's one story in 1986.
+- **The motel** is the Blue Moon Motor Inn on Route 9 (not to be confused with the Starlight Arcade).
+- **Time inside.** Eddie went in on June 12, 1993 and found the real EXIT in his first week; out here a
+  year and a half has passed, in there it has felt like one long night.
+- **The plug.** While the four are still ghosts it will not move for one pair of hands; it needs five.
+  Walt tried it alone on his first night inside, and the game took the move as his and made him its
+  player. With the four remembered, five hands pull it and the game ends properly.
+- **The movers** were due at 6 AM on Wednesday, November 30, 1994. Sam arrived at 2:11 AM, four hours
+  early.

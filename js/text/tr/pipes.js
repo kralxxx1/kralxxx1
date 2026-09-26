@@ -80,12 +80,12 @@ Sanırım bunlar oyunun çöpçüleri. Bir anı sayılamayacak kadar eskidiğind
 Karanlıkta hızlılar, ışıkta aptallar.
 
 Arkana yere bırakacağın bir ışık çubuğu sana bir dakika kazandırır. Bunu zor yoldan öğrendim.` },
-      pipes_lily3: { title: 'Bir borunun içine rulo yapılmış bir çizim', from: 'Lily, 8 yaşında', body:
-`Pastel boya. Büyük, kavisli bir tavanın altında üç oğlan ve örgülü saçlı bir kız. Hepsi tek bir feneri birlikte tutuyor. Kız biraz uzağa çizilmiş, el sallıyor.
+      pipes_lily3: { title: 'Bir borunun içine rulo yapılmış bir çizim', from: 'Lily, 8 yaşında', date: '1983 yazı', body:
+`Pastel boya. Büyük, kavisli bir tavanın altında iki oğlan ve örgülü saçlı bir kız. Oğlanlar tek bir feneri birlikte tutuyor. Kız biraz uzağa çizilmiş, el sallıyor.
 
-SAM VE CLYDE VE BILLY’NİN MAĞARASI.
-BENİM GİRMEM YASAKTI.
-KAFAMIN İÇİNDE GİREBİLİYORDUM.` },
+SAM VE CLYDE SOKAĞIN ALTINDA BİR MAĞARA BULMUŞ.
+KIZLAR GİREMEZ DİYORLAR.
+BEN KAFAMIN İÇİNDE GİREBİLİYORUM.` },
       pipes_tape: { title: 'Kaset: "Kale kaydı 1"', from: 'Billy’nin teyp çalarının kaydı', date: '19 Temmuz 1985', body:
 `[Klik. Damlayan su. Üç çocuk fısıldaşıyor, sesleri yankılanıyor.]
 

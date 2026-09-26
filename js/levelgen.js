@@ -1237,6 +1237,7 @@
       if (!fn) throw new Error('Unknown layout: ' + def.layout);
       const L = fn(def);
       L.def = def;
+      if (PB.Dressing && !def.noDressing) PB.Dressing.dress(L, def.seed);
       L.items = placeItems(L, def.items || [], def.seed + 4242);
       return L;
     },

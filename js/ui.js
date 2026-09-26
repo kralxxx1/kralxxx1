@@ -193,6 +193,12 @@
       e.classList.add('on');
       this.subT = dur;
     }
+    // A new level starts with a clean screen: nothing said in the last one carries over
+    clearSubtitles() {
+      const e = this.$('subtitle'); if (e) { e.classList.remove('on'); e.innerHTML = ''; }
+      this.subT = 0;
+      const c = this.$('caption'); if (c) c.innerHTML = '';
+    }
     caption(text, dir) {
       const e = this.$('caption');
       const line = document.createElement('div');

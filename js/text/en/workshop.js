@@ -98,13 +98,13 @@ CLYDE: [very small] I'll hold the button with you, Billy.
 
 [3:20. A door. Footsteps on the stairs. Walt, breathing hard.]
 
-WALT: Kids? Billy? — No. No, no, no. Look at me. Look at the screen. Who... oh God. Oh God, there are four of them.
+WALT: Kids? Billy? — No. No, no, no. The screen... the names under the ghosts. BILLY. PENNY. IVY. CLYDE. Oh God. Oh God, those are their names.
 
 WALT: [the sound of a man sitting down on the floor] I'm sorry. I'll get you out. I promise I'll get you out.
 
 [The tape runs on in silence for twenty-two minutes. Then: Click.]` },
       workshop_lily8: { kind: 'drawing', drawing: 8, title: "A drawing folded in Walt's toolbox", from: 'Lily, age 9', body:
-`Crayon, the last one. A big man sitting on the floor next to a glowing machine, crying. A small girl stands behind him with her hand on his shoulder. She is drawn smiling.
+`Crayon, the last one. A big man sitting on the floor of a hospital room next to a glowing machine with a green line on it, crying. A small girl stands behind him with her hand on his shoulder. She is drawn smiling.
 
 DON'T BE SAD DADDY.
 EVERYBODY GOES HOME AT THE END.

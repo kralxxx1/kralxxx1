@@ -55,9 +55,9 @@ SIRADAKİ OYUNCU: —` },
 
 Fiş burada. İçeriden çekilirse bu cinayet değil, bir son olur. OYUN BİTTİ. Hâlâ kendisi olan herkes eve döner.
 
-Ama sadece o dördü kim olduklarını hatırlıyorsa. Onlar hâlâ hayaletken çekersen oyun sadece yeni hayaletler seçer. Ve yeni bir oyuncu.
+Ama sadece o dördü kim olduklarını hatırlıyorsa. Onlar hâlâ hayaletken tek bir çift elle yerinden oynamaz. Beş çift el ister.
 
-Bir kere öyle denedim. Yeni oyuncu benim.
+İçerideki ilk gecemde tek başıma denedim. Oyun bunu bir hamle saydı ve beni oyuncusu yaptı. Şimdi onun oyuncusu benim.
 
 Nora’ya özür dilediğimi söyle. Ruth’a haklı olduğunu söyle. Lily’nin tablosuna skorunu korumasını söyle.
 
@@ -65,7 +65,7 @@ Nora’ya özür dilediğimi söyle. Ruth’a haklı olduğunu söyle. Lily’ni
       ks_eddie: { title: 'ÇIKIŞ’ın yanına iğnelenmiş bir not', from: 'Eddie', body:
 `Biri çıkar, biri kalır. Skor tutulmak zorunda.
 
-Bu kapıyı ilk ayımda buldum. Bir buçuk yıldır yanında duruyorum.
+Bu kapıyı ilk haftamda buldum. Dışarıda bir buçuk yıl geçti. İçeride upuzun tek bir gece gibi geldi.
 
 Özür dilerim evlat.` },
     },
@@ -105,7 +105,7 @@ Bu kapıyı ilk ayımda buldum. Bir buçuk yıldır yanında duruyorum.
       ],
       ks_plea: [
         ['eddie', 'Gerçek olan bu. Rüzgâr, yağmur, Front Caddesi. Ev.'],
-        ['eddie', 'Birini dışarı bırakır, birini içeride tutar. İlk ayımda öğrendim. O günden beri yanında duruyorum.'],
+        ['eddie', 'Birini dışarı bırakır, birini içeride tutar. İlk haftamda öğrendim. O günden beri yanında duruyorum.'],
         ['sam', 'Onu benim açmamı bekleyip kendin geçecektin.'],
         ['eddie', 'Hope bir yaşında Sam. Onu hiç kucağıma almadım. [Sesi çatlıyor.] Beni affetmeni istemiyorum. Kapıyı tutmanı istiyorum.'],
       ],

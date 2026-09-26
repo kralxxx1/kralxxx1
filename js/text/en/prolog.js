@@ -11,7 +11,7 @@
     docs: {
       p_workorder: { kind: 'printout', title: 'Tri-County Movers work order', from: 'Tri-County Movers', date: 'Work order #4471', body:
 `PICKUP: Starlight Arcade, 114 Front St., Harlow
-DATE: Thu, December 1, 1994 — 06:00
+DATE: Wed, November 30, 1994 — 06:00
 CONTENTS: 23 coin-op cabinets, 1 prize counter, misc. fixtures
 ACCESS: keys under the mat (First Harlow Savings)
 CREW: 3
@@ -125,7 +125,7 @@ HE IS THE BEST CHOMPY IN THE WORLD.
 
 WALT: If you're hearing this, I'm inside. Don't call Frank. Don't call Nora. Just listen.
 
-WALT: They're in there. Billy, Penny, Ivy and Clyde. I've watched them for five years. Four ghosts that were never on that board before April sixteenth.
+WALT: They're in there. Billy, Penny, Ivy and Clyde. Watch the attract screen long enough and it shows you the ghosts' names. It used to say Blinky, Pinky, Inky and Clyde. Since April sixteenth it says BILLY, PENNY, IVY... and Clyde. Our Clyde. And they don't move like ghosts anymore. They move like kids. I've watched them for five years.
 
 WALT: The gold token in my desk. The one stamped 0256. The machine takes it as a CONTINUE. That's how they got in. That's how I'm going in.
 

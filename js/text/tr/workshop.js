@@ -98,13 +98,13 @@ CLYDE: [çok küçük bir sesle] Düğmeyi seninle birlikte tutarım, Billy.
 
 [3:20. Bir kapı. Merdivenlerde ayak sesleri. Walt, zorlukla nefes alıyor.]
 
-WALT: Çocuklar? Billy? — Hayır. Hayır, hayır, hayır. Bana bakın. Ekrana bakın. Kim... aman Tanrım. Aman Tanrım, dört tane var.
+WALT: Çocuklar? Billy? — Hayır. Hayır, hayır, hayır. Ekran... hayaletlerin altındaki isimler. BILLY. PENNY. IVY. CLYDE. Aman Tanrım. Aman Tanrım, bunlar onların isimleri.
 
 WALT: [yere oturan bir adamın sesi] Özür dilerim. Sizi çıkaracağım. Söz veriyorum, sizi çıkaracağım.
 
 [Kaset yirmi iki dakika boyunca sessizce dönüyor. Sonra: Klik.]` },
       workshop_lily8: { title: 'Walt’ın alet çantasında katlanmış bir çizim', from: 'Lily, 9 yaşında', body:
-`Pastel boya, sonuncusu. Parlayan bir makinenin yanında yerde oturmuş, ağlayan iri bir adam. Arkasında küçük bir kız duruyor, eli adamın omzunda. Kız gülümserken çizilmiş.
+`Pastel boya, sonuncusu. Bir hastane odasında, üstünde yeşil bir çizgi olan parlayan bir makinenin yanında yerde oturmuş, ağlayan iri bir adam. Arkasında küçük bir kız duruyor, eli adamın omzunda. Kız gülümserken çizilmiş.
 
 ÜZÜLME BABACIĞIM.
 SONUNDA HERKES EVE GİDER.

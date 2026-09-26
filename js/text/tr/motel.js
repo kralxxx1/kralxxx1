@@ -1,15 +1,15 @@
-/* Türkçe — Bölüm 8: Starlite Motor Inn (Eddie’nin anısı). */
+/* Türkçe — Bölüm 8: Blue Moon Motor Inn (Eddie’nin anısı). */
 (function (root) {
   'use strict';
   root.PB.I18N.register('tr', 'story', {
     chapters: {
       motel: {
-        name: 'SEVİYE 8', title: 'Starlite Motor Inn', place: '9 numaralı yol, gece resepsiyonistinin vardiyası',
+        name: 'SEVİYE 8', title: 'Blue Moon Motor Inn', place: '9 numaralı yol, gece resepsiyonistinin vardiyası',
         intro: 'Bu senin anın değil. 9 numaralı yolun kenarında bir motel, "boş oda var" tabelası vızıldıyor, 1990’da sıska bir tamircinin şakalarına gülen bir gece resepsiyonisti. 12 numaralı odanın parası uzun süredir ödeniyor. Birisi kapıları çalıp duruyor.',
       },
     },
     items: {
-      room12Key: { name: '12 numaralı odanın anahtarı', desc: 'Yeşil plastik bir baklavaya takılı pirinç anahtar: STARLITE MOTOR INN — 12. Kurutma makinesinden hâlâ sıcak.' },
+      room12Key: { name: '12 numaralı odanın anahtarı', desc: 'Yeşil plastik bir baklavaya takılı pirinç anahtar: BLUE MOON MOTOR INN — 12. Kurutma makinesinden hâlâ sıcak.' },
     },
     docs: {
       motel_intro: { title: '"Boş oda var" tabelasının düğmesine yapışık bir not', from: 'June', date: '1991', body:
@@ -18,7 +18,7 @@ Bunu okuyorsan yine geç kaldın.
 Kahve hazır. Turta buzdolabında. Hepsini yeme.
 Seni seviyorum. Buz makinesini tamir et.
 — J.` },
-      motel_register: { title: 'Resepsiyondaki kayıt defteri', from: 'Starlite Motor Inn', date: '1990–1993', body:
+      motel_register: { title: 'Resepsiyondaki kayıt defteri', from: 'Blue Moon Motor Inn', date: '1990–1993', body:
 `...
 Oda 7 — gezici satıcı — 1 gece
 Oda 3 — Henderson’lar (yine)
@@ -38,7 +38,7 @@ Ayrıca 12 numaradaki adam bütün gece telsiziyle konuşuyor. Karşı tarafta k
 
 — Bir misafir` },
       motel_postcard: { title: 'Bir komodinin üstünde kartpostal', from: 'Eddie', date: 'Harlow damgalı, 1990', body:
-`(Ön yüzü: "STARLITE’TAN SELAMLAR — 9 numaralı yol, Harlow". Motelde olmayan bir yüzme havuzunun çizimi.)
+`(Ön yüzü: "BLUE MOON’DAN SELAMLAR — 9 numaralı yol, Harlow". Motelde olmayan bir yüzme havuzunun çizimi.)
 
 June,
 Buz makinesi şakasına güldün. O şakaya kimse gülmez. Benimle evlenene kadar o şakayı anlatmaya devam edeceğim.
@@ -129,7 +129,7 @@ EDDIE: Tamam. Tamam. Baban seni seviyor. Annene buz makinesi şakasını anlat. 
     },
     radio: {
       motel_start: [
-        ['eddie', '...Ah. Ah, burası Starlite.'],
+        ['eddie', '...Ah. Ah, burası Blue Moon.'],
         ['sam', 'Biliyor musun burayı?'],
         ['eddie', 'Karımla burada tanıştım. Gece vardiyasında çalışıyordu. Sadece... sadece ilerlemeye devam et, tamam mı? 12 numaralı odaya girme.'],
         ['sam', 'Neden?'],

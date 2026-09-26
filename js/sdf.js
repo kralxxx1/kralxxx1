@@ -38,6 +38,13 @@
     },
     // Torus in the plane perpendicular to axis y at c
     torus(p, c, R, r) { const x = p[0] - c[0], y = p[1] - c[1], z = p[2] - c[2]; const q = Math.sqrt(x * x + z * z) - R; return Math.sqrt(q * q + y * y) - r; },
+    // Torus around an arbitrary unit axis through c (lids around an eye, a collar round a neck)
+    torusAxis(p, c, ax, R, r) {
+      const vx = p[0] - c[0], vy = p[1] - c[1], vz = p[2] - c[2];
+      const h = vx * ax[0] + vy * ax[1] + vz * ax[2];
+      const q = len3(vx - ax[0] * h, vy - ax[1] * h, vz - ax[2] * h) - R;
+      return Math.sqrt(q * q + h * h) - r;
+    },
     // Polynomial smooth minimum / maximum
     smin(a, b, k) { const h = Math.max(k - Math.abs(a - b), 0) / k; return Math.min(a, b) - h * h * k * 0.25; },
     smax(a, b, k) { return -S.smin(-a, -b, k); },
@@ -76,9 +83,35 @@
     const N = nx * ny * nz;
     const F = new Float32Array(N);
     const p = [0, 0, 0];
-    for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
-      p[0] = b0[0] + i * cell; p[1] = b0[1] + j * cell; p[2] = b0[2] + k * cell;
-      F[i + nx * (j + ny * k)] = fn(p);
+    // Narrow band: sample a coarse grid first; blocks that are far from the surface everywhere are filled by
+    // interpolation instead of evaluating the field at every fine point (several times faster on big grids)
+    const B = 4, cx = Math.ceil((nx - 1) / B) + 1, cy = Math.ceil((ny - 1) / B) + 1, cz = Math.ceil((nz - 1) / B) + 1;
+    if (opts.sparse !== false && N > 60000) {
+      const G = new Float32Array(cx * cy * cz);
+      for (let k = 0; k < cz; k++) for (let j = 0; j < cy; j++) for (let i = 0; i < cx; i++) {
+        p[0] = b0[0] + i * B * cell; p[1] = b0[1] + j * B * cell; p[2] = b0[2] + k * B * cell;
+        G[i + cx * (j + cy * k)] = fn(p);
+      }
+      const far = B * cell * 1.8 * 1.5;
+      for (let bk = 0; bk < cz - 1; bk++) for (let bj = 0; bj < cy - 1; bj++) for (let bi = 0; bi < cx - 1; bi++) {
+        const g = [];
+        let near = false;
+        for (let c = 0; c < 8; c++) { const v = G[(bi + (c & 1)) + cx * ((bj + (c >> 1 & 1)) + cy * (bk + (c >> 2 & 1)))]; g.push(v); if (Math.abs(v) < far) near = true; }
+        const i0 = bi * B, j0 = bj * B, k0 = bk * B;
+        for (let k = k0; k <= Math.min(k0 + B, nz - 1); k++) for (let j = j0; j <= Math.min(j0 + B, ny - 1); j++) for (let i = i0; i <= Math.min(i0 + B, nx - 1); i++) {
+          const f = i + nx * (j + ny * k);
+          if (near) { p[0] = b0[0] + i * cell; p[1] = b0[1] + j * cell; p[2] = b0[2] + k * cell; F[f] = fn(p); continue; }
+          const u = (i - i0) / B, v = (j - j0) / B, w = (k - k0) / B;
+          const x00 = g[0] + (g[1] - g[0]) * u, x10 = g[2] + (g[3] - g[2]) * u, x01 = g[4] + (g[5] - g[4]) * u, x11 = g[6] + (g[7] - g[6]) * u;
+          const y0 = x00 + (x10 - x00) * v, y1 = x01 + (x11 - x01) * v;
+          F[f] = y0 + (y1 - y0) * w;
+        }
+      }
+    } else {
+      for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+        p[0] = b0[0] + i * cell; p[1] = b0[1] + j * cell; p[2] = b0[2] + k * cell;
+        F[i + nx * (j + ny * k)] = fn(p);
+      }
     }
     const idx = (i, j, k) => i + nx * (j + ny * k);
     // One vertex per cell that the surface crosses

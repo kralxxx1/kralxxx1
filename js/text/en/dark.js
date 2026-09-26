@@ -24,7 +24,9 @@ Billy says I can be in charge of the flashlight. Penny made a tape. Ivy made a m
 
 Sam is mad at me because I broke his walkman. I didn't mean to. I sat on it. I'm going to give him my allowance for March AND April.
 
-He'll come. He always comes.` },
+He'll come. He always comes.
+
+Billy says the orange ghost on #7 is named after me. Walt says the ghost had the name first. Either way it's MY ghost.` },
       dark_diary2: { kind: 'diary', title: 'The last page', from: 'Clyde', date: 'April 16, 1987 — 10 PM, at the arcade', body:
 `Sam went home.
 
@@ -73,7 +75,7 @@ I'M SORRY SAM` },
 Porch light stays on until you're home.
 
 Love, Mom` },
-      dark_tape: { kind: 'tape', title: 'Tape: "Clyde\'s joke"', from: "Penny's tape recorder", date: 'April 16, 1987, 12:40 AM', body:
+      dark_tape: { kind: 'tape', title: 'Tape: "Clyde\'s joke"', from: "Penny's tape recorder", date: 'April 17, 1987, 12:40 AM', body:
 `[Click. The back room of the arcade. The lights are off. Someone flicks a lighter.]
 
 CLYDE: Okay, okay. Why did Pacman cross the road?

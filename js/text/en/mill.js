@@ -117,7 +117,7 @@ CLYDE: He's not a chicken.
     },
     mono: {
       mill_start: 'A clock ticking. Always stuck on the same second.',
-      mill_redSeen: 'Red... like a bedsheet. Two white eyes. Looking at me.',
+      mill_redSeen: 'Red... a bedsheet, soaked through. A face pressing out of the cloth. Two torn holes where the eyes are. Looking at me.',
       mill_fuse: 'Another fuse.',
       mill_elevator: 'The elevator is coming. Slowly. Very slowly.',
       mill_watch: '3:17. Same as the clock.',

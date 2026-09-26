@@ -31,7 +31,7 @@ JULY 1985
 (EXCEPT IVY) (EXCEPT PENNY) (OK EVERYONE)` },
       pipes_map: { kind: 'note', title: 'A treasure map on the back of a cereal box', from: 'Clyde, age 11', body:
 `TUNNEL C — SECRET MAP
-(DO NOT SHOW BILLY'S BROTHER)
+(DO NOT SHOW ANY GROWNUPS)
 
 X = FORT
 ZIGZAG = THE LOUD PIPE
@@ -81,12 +81,12 @@ I think they're the game's garbage collectors. When a memory gets too old to cou
 They're fast in the dark and stupid in the light.
 
 A glow stick on the floor behind you buys you a minute. I learned that the hard way.` },
-      pipes_lily3: { kind: 'drawing', drawing: 3, title: 'A drawing rolled up inside a pipe', from: 'Lily, age 8', body:
-`Crayon. Three boys and one girl with pigtails under a big curved ceiling. They are all holding one flashlight together. The girl is drawn slightly apart, waving.
+      pipes_lily3: { kind: 'drawing', drawing: 3, title: 'A drawing rolled up inside a pipe', from: 'Lily, age 8', date: 'Summer 1983', body:
+`Crayon. Two boys and one girl with pigtails under a big curved ceiling. The boys are holding one flashlight together. The girl is drawn slightly apart, waving.
 
-SAM AND CLYDE AND BILLY'S CAVE.
-I WASN'T ALLOWED.
-I WAS ALLOWED IN MY HEAD.` },
+SAM AND CLYDE FOUND A CAVE UNDER THE STREET.
+THEY SAY NO GIRLS.
+I AM ALLOWED IN MY HEAD.` },
       pipes_tape: { kind: 'tape', title: 'Tape: "Fort log 1"', from: "Billy's boombox", date: 'July 19, 1985', body:
 `[Click. Dripping water. Three kids whispering, echoing.]
 

@@ -1,4 +1,4 @@
-/* Türkçe — Bölüm 5: Harlow Ortaokulu (16 Nisan 1987). */
+/* Türkçe — Bölüm 5: Harlow Ortaokulu (7–9. sınıflar, 16 Nisan 1987). */
 (function (root) {
   'use strict';
   root.PB.I18N.register('tr', 'story', {
@@ -30,7 +30,7 @@ ilk rakam = 3
 pacman’deki 3 can gibi
 —P.` },
       school_clue2: { title: 'Ceza kâğıdı, pembe karbon kopya', from: 'Harlow Ortaokulu', date: '14 Nisan 1987', body:
-`ÖĞRENCİ: Billy — 9. sınıf
+`ÖĞRENCİ: Billy — 9. sınıf (sınıf tekrarı)
 SUÇ: 4. derste hademe dolabının içinde bulundu. "Envanter saydığını" iddia ediyor.
 CEZA: Perşembe 16/4, 15:15–16:00
 
@@ -72,7 +72,8 @@ Her şeyin üstüne resim çizerdi.
 Her şeye gülerdi.
 O bizim arkadaşımızdı.
 
-— 4. sınıf, 104 numaralı sınıf` },
+— 4. sınıftaki sınıf arkadaşları, 104 numaralı sınıf, Harlow İlkokulu.
+Ortaokula geçerken bunu da yanımızda getirdik. (1985)` },
       school_paper: { title: 'The Harlow Hornet, okul gazetesi', from: 'Harlow Ortaokulu', date: 'Nisan 1987', body:
 `RADYO KULÜBÜ SENİ ARIYOR!
 Müzik sever misin? Konuşmayı sever misin? Yayında olmak ister misin?
@@ -82,8 +83,8 @@ Penny (9. sınıf) bir radyo kulübü kuruyor. İlk toplantı salı günü.
 OYUN SALONU REKORLARI (Starlight’tan)
 1. BLY 921.450  2. PNY 887.300  3. IVY 640.120  4. CLY 512.890  5. SAM 498.770
 
-KAYIP: bir walkman, mavi, arkasına "S" kazınmış. Biraz bozuk. Ödül: affedilmek.` },
-      school_samlocker: { title: '217 numaralı dolabın kapağına bantlanmış', from: 'Sam', date: '16 Nisan 1987', body:
+BULUNDU: bir walkman, mavi, arkasına "S" kazınmış. Biraz bozuk. Sahibi lütfen üstüne oturanı affetsin. —C.` },
+      school_samlocker: { title: '217 numaralı dolabın (seninkinin) kapağının içine bantlanmış', from: 'Sam', date: '16 Nisan 1987', body:
 `Clyde,
 
 Sadece bir walkman. Walkman umurumda bile değil. Kızdım çünkü her şeyi hep ilk sen yapıyorsun, ben de hep arkandan yetişmeye çalışıyorum.
@@ -96,7 +97,7 @@ Biz bir takımız.
 
 — Sam
 
-(Bunu sen yazdın. Ona hiç vermedin. Okulun son gününde burada unuttun ve bir daha almaya hiç gelmedin.)` },
+(Bunu öğle arasında yazdın ve okuldan sonra ona vermek için dolabının kapağının içine bantladın. O gece salonda onun yerine ikinci kavgayı ettiniz. Ona hiç vermedin. Haziranda dolapları boşaltana kadar orada kaldı.)` },
       school_attendance: { title: 'Yoklama kâğıdı, 112 numaralı sınıf', from: 'Sınıf öğretmeni', date: 'Cuma, 17 Nisan 1987', body:
 `GELMEYENLER:
 Billy
@@ -112,7 +113,7 @@ Sam — BURADA. Erken geldi. Clyde’ın sırasına oturdu. Kalkmadı. 09:30’d
       school_walt: { title: 'Walt’ın günlüğü, kurşun kalemle', from: 'W', date: '—', body:
 `Bir okul spor salonu. Hiç yapılmamış bir dansın süsleri.
 
-Bu okula bir kez geldim, 1983’te, Lily’nin sınıfıyla konuşmaya. Bana radarın ne işe yaradığını sordular. Dedim ki: kaybolan şeyleri bulur.
+Burası Lily’nin okulu değil ama aynı kokuyor. Onun okuluna bir kez gittim, 1983’te, sınıfıyla konuşmaya. Bana radarın ne işe yaradığını sordular. Dedim ki: kaybolan şeyleri bulur.
 
 Güldüler. O gülmedi. Gülemeyecek kadar yorgundu artık.
 

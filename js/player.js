@@ -8,7 +8,7 @@
   const MAP = {
     forward: ['KeyW', 'ArrowUp'], back: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
     sprint: ['ShiftLeft', 'ShiftRight'], crouch: ['KeyC'], interact: ['KeyE', 'Enter'],
-    flash: ['KeyF'], map: ['KeyM', 'Tab'], journal: ['KeyJ'], pause: ['Escape', 'KeyP'], throw: ['KeyG'], inventory: ['KeyI'], drink: ['KeyQ'], leanL: ['KeyZ'], leanR: ['KeyX'], reload: ['KeyR'],
+    flash: ['KeyF'], map: ['KeyM', 'Tab'], journal: ['KeyJ'], pause: ['Escape', 'KeyP'], throw: ['KeyG'], inventory: ['KeyI'], drink: ['KeyQ'], leanL: ['KeyZ'], leanR: ['KeyX'], reload: ['KeyR'], lookBack: ['KeyV', 'Mouse1'],
   };
 
   class Input {
@@ -41,6 +41,9 @@
       root.addEventListener('mousemove', e => {
         if (this.locked || this.dragging) { this.dx += e.movementX || 0; this.dy += e.movementY || 0; }
       });
+      // Mouse buttons count as keys too (the middle one looks back)
+      root.addEventListener('mousedown', e => { if (e.button === 1) { this.keys.add('Mouse1'); this.edges.add('Mouse1'); if (game.state === 'play') e.preventDefault(); } });
+      root.addEventListener('mouseup', e => { if (e.button === 1) this.keys.delete('Mouse1'); });
       canvas.addEventListener('mousedown', e => {
         if (e.button !== 0 && e.button !== 2) return;
         if (game.state !== 'play') return;
@@ -407,8 +410,11 @@
       }
       cam.position.set(this.pos.x + right.x * bx + lx, this.pos.y + this.eyeCur + by - Math.abs(this.lean) * 0.05, this.pos.z + right.z * bx + lz);
       if (this.hidden) cam.position.set(this.hidden.x, this.hidden.floor + this.eyeCur, this.hidden.z);
+      // Look back over your shoulder (hold V or the middle mouse button): the body keeps running the same way
+      const lb = inp && !this.hidden && !this.frozen && inp.down('lookBack') ? 1 : 0;
+      this.lookBack = U.damp(this.lookBack || 0, lb, 9, dt || 1);
       cam.rotation.order = 'YXZ';
-      cam.rotation.set(this.pitch + shy, this.yaw + shx, (Math.sin(this.bob) * 0.006 * bobK) + sh * 0.02 * Math.sin(t * 13) - this.lean * 0.13);
+      cam.rotation.set(this.pitch * (1 - this.lookBack * 0.7) + shy, this.yaw + shx + this.lookBack * 2.75, (Math.sin(this.bob) * 0.006 * bobK) + sh * 0.02 * Math.sin(t * 13) - this.lean * 0.13 + this.lookBack * 0.06);
       // Koşarken hafif FOV artışı
       const fovT = S.fov + (this.sprinting ? 6 : 0) - (this.fear > 70 ? (this.fear - 70) * 0.15 : 0);
       if (Math.abs(cam.fov - fovT) > 0.05) { cam.fov = U.damp(cam.fov, fovT, 6, dt || 1); cam.updateProjectionMatrix(); }

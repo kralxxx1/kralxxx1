@@ -81,9 +81,9 @@ Ivy ’85’ten sonra havuzun yanına bile gitmezdi. Burası onun mu?
 
 Burada her oda birine ait.` },
       lobby_lily2: { title: 'Bir havalandırmanın arkasına sıkışmış çocuk çizimi', from: 'Lily, 8 yaşında', body:
-`Pastel boya. Ekranında sarı bir daire olan bir makinenin önünde iri bir adam ve küçük bir kız. Kız kollarını havaya kaldırmış.
+`Pastel boya. Bir yatakta iri bir adam ve küçük bir kız; ikisi birlikte ekranında sarı bir daire olan küçük bir oyun makinesini tutuyor. Kız kollarını havaya kaldırmış.
 
-BEN VE BABAM SALONDA.
+BEN, BABAM VE KÜÇÜK MAKİNE.
 3190 PUAN YAPTIM!!!
 BABAM TABLODA SONSUZA KADAR KALACAK DEDİ.` },
       lobby_tape: { title: 'Kaset: "Deneme, deneme"', from: 'Eddie', date: 'İçeride', body:

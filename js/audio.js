@@ -379,6 +379,25 @@
       else if (ok === false) this.tone(o.input, 'sawtooth', 180, 160, t, 0.35, 0.18);
       else this.tone(o.input, 'square', 1000, 1000, t, 0.05, 0.09);
     }
+    // Drawers and safe doors: the start of the motion, and the knock when a drawer runs home
+    drawer(kind, open, pos) {
+      if (!this.ctx) return;
+      const o = { rev: 0.3, gain: 0.7 };
+      if (kind === 'safe') this.play(open ? 'safeOpen' : 'safeClose', 2, 'sfx', pos, o);
+      else if (kind === 'metal') this.play(open ? 'drawerMetalOpen' : 'drawerMetalSlide', open ? 3 : 2, 'sfx', pos, o);
+      else this.play(open ? 'drawerWoodOpen' : 'drawerWoodSlide', open ? 3 : 2, 'sfx', pos, o);
+    }
+    // A creature's voice where it stands: the Eater's roar, a ghost's wail, the hall monitor's whistle...
+    creature(kind, pos, occluded, o = {}) {
+      if (!this.ctx) return;
+      const name = { pacman: 'roarEater', ghost: 'screechGhost', crawler: 'hissCrawler', watcher: 'groanCounter', neighbor: 'moanNeighbor', chompy: 'laughChompy', monitor: 'whistle' }[kind];
+      if (!name) return;
+      this.play(name, name === 'whistle' ? 1 : name === 'groanCounter' || name === 'moanNeighbor' || name === 'laughChompy' ? 2 : 3, 'ent', pos, { rev: 0.5, occl: true, occluded, gain: o.gain != null ? o.gain : 1, rate: o.rate || 1, jitter: 0.06 });
+    }
+    drawerShut(kind, pos) {
+      if (!this.ctx) return;
+      this.play(kind === 'metal' ? 'drawerMetalShut' : 'drawerWoodShut', 3, 'sfx', pos, { rev: 0.3, gain: 0.75 });
+    }
     door(kind, pos, open = true, loud = 1) {
       if (!this.ctx) return;
       const t = this.t, o0 = { rev: 0.4, gain: 0.8 * loud, rate: loud < 1 ? 0.8 : 1 };

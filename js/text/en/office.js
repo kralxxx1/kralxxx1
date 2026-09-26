@@ -13,7 +13,7 @@
 `Crayon. A tall building with many windows. In one window, a girl with a headset is talking into a microphone. Music notes fly out of the window over the whole town.
 
 PENNY IS GOING TO BE ON THE RADIO.
-(PENNY IS MY BABYSITTER SOMETIMES.)
+(PENNY WALKS ME HOME FROM THE ARCADE SOMETIMES.)
 SHE LETS ME PICK THE SONGS.` },
       office_intro: { kind: 'notice', title: 'Sign on the security room door', from: 'Facilities', body:
 `SECURITY ROOM
@@ -129,7 +129,7 @@ WHERE DID EVERYONE GO` },
       office_phone3: { kind: 'phone', title: 'A call from 1987', from: 'Maggie', date: 'April 17, 1987, 7:12 AM', body:
 `[Ringing, then a woman's voice, trying very hard to be calm.]
 
-MAGGIE: Hello? This is Maggie, Clyde's mother. I'm sorry to call so early. Is Penny there? Clyde said he was sleeping over at Sam's, but Sam's mother says...
+MAGGIE: Hello? Carol? This is Maggie, Clyde's mother. I'm sorry to call you at work so early. Is Penny with you? Clyde said he was sleeping over at Sam's, but Sam's mother says...
 
 MAGGIE: Is anyone there?
 

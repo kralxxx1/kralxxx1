@@ -49,7 +49,7 @@ Tablodaki isimler asla silinmeyecek. Söz verdim.` },
       hospital_diary4: { title: 'Walt’ın günlüğü — sayfa 4', from: 'Walt', date: '21 Ekim 1983', body:
 `Günün çoğunu uyuyarak geçiriyor.
 
-Uyanıkken resim çiziyor. Duvarda artık sekiz çizim var. Oyun salonu. Chompy. AVM. İçinde oğlanlar olan bir mağara (sınıfındaki oğlanların gizli bir mağarası varmış, onun girmesi yasakmış). Ben.
+Uyanıkken resim çiziyor. Duvarda artık sekiz çizim var. Oyun salonu. Chompy. Front Caddesi’ndeki Noel ağacı. İçinde oğlanlar olan bir mağara (sınıfındaki iki oğlan sokağın altında gizli bir mağara bulmuş, onu içeri almıyorlarmış). Ben.
 
 Sordu: "Ben gidince benim oyunumu kim oynayacak?"
 
@@ -64,7 +64,7 @@ Her şeyi hatırlayan bir makine yapacağım. Kimsenin hiç gitmediği bir oyun 
 Kulağa nasıl geldiğini biliyorum.
 
 Yine de yazıyorum ki bir gün, korkunç bir şey yaptığımda, biri bunu okusun ve sevgi için yaptığımı bilsin. Yetmeyecek. Yetmeyeceğini biliyorum.` },
-      hospital_nurse: { title: 'Hemşire notları, gece vardiyası panosu', from: 'Hemşire Carol', date: 'Ekim 1983', body:
+      hospital_nurse: { title: 'Hemşire notları, gece vardiyası panosu', from: 'Hemşire Donna', date: 'Ekim 1983', body:
 `207 — Lily, 9. Rahat. Daha fazla pastel boya istedi (sarı). Babası yanında, her zamanki gibi. Babası sandalyede uyudu, her zamanki gibi.
 
 Lütfen biri onunla eve gidip duş alması hakkında konuşsun. "Uyanırsa ve ben burada olmazsam" diyor. Tartışmayı bıraktık.
@@ -86,7 +86,7 @@ Lütfen bunun seni yiyip bitirmesine izin verme.
 207 — Ruth (anne) ........ 1/10, 3/10
 207 — Nora (hala) ......... 8/10, 14/10, 22/10
 207 — 104 numaralı sınıf ... 14/10 (kart teslim edildi)
-207 — Eddie?? ............... (üstü çizilmiş — "aileden değil, üzgünüm")` },
+207 — Frank (babanın arkadaşı) .. 20/10, 27/10 (portakal getirdi)` },
       hospital_card: { title: 'Grafik kâğıdından kocaman bir geçmiş olsun kartı', from: '4. sınıf, 104 numaralı sınıf', date: 'Ekim 1983', body:
 `ÇABUK İYİLEŞ LILY!!!
 
@@ -97,7 +97,7 @@ Resim dersinde seni özlüyoruz. Bayan K. pastel boyaların yalnız kaldığın�
 — ve özenli büyük harflerle 22 isim daha
 
 (Bunu yazdığını hatırlıyorsun. İşe yaramayacağını bilmediğini hatırlıyorsun.)` },
-      hospital_chompy: { title: 'Yatağın üstüne bantlanmış bir Polaroid', from: 'Hemşire Carol', date: '14 Ekim 1983', body:
+      hospital_chompy: { title: 'Yatağın üstüne bantlanmış bir Polaroid', from: 'Hemşire Donna', date: '14 Ekim 1983', body:
 `Kocaman, sarı, yuvarlak bir kostüm giymiş bir adam, yüzü büyük boyalı bir gülümseme, bir hastane yatağının yanında diz çökmüş. Parti şapkalı çok küçük bir kız iki koluyla kostümün kafasına sarılmış.
 
 Beyaz şeritte: "LIL & CHOMPY — BUGÜN 9 YAŞINDA!"` },

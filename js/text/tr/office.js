@@ -13,7 +13,7 @@
 `Pastel boya. Çok pencereli, yüksek bir bina. Pencerelerden birinde kulaklıklı bir kız mikrofona konuşuyor. Pencereden bütün kasabanın üstüne notalar uçuşuyor.
 
 PENNY RADYODA OLACAK.
-(PENNY BAZEN BENİM BAKICIM.)
+(PENNY BAZEN BENİ SALONDAN EVE BIRAKIYOR.)
 ŞARKILARI BENİM SEÇMEME İZİN VERİYOR.` },
       office_intro: { title: 'Güvenlik odası kapısındaki tabela', from: 'Teknik Hizmetler', body:
 `GÜVENLİK ODASI
@@ -129,7 +129,7 @@ HERKES NEREYE GİTTİ` },
       office_phone3: { title: '1987’den bir arama', from: 'Maggie', date: '17 Nisan 1987, 07:12', body:
 `[Çalıyor, sonra sakin kalmak için çok uğraşan bir kadın sesi.]
 
-MAGGIE: Alo? Ben Maggie, Clyde’ın annesi. Bu kadar erken aradığım için kusura bakmayın. Penny orada mı? Clyde Sam’lerde kalacağını söylemişti ama Sam’in annesi diyor ki...
+MAGGIE: Alo? Carol? Ben Maggie, Clyde’ın annesi. Seni işte bu kadar erken aradığım için kusura bakma. Penny yanında mı? Clyde Sam’lerde kalacağını söylemişti ama Sam’in annesi diyor ki...
 
 MAGGIE: Orada kimse yok mu?
 

@@ -24,7 +24,9 @@ Billy feneri benim tutabileceğimi söyledi. Penny bir kaset yaptı. Ivy hayalet
 
 Sam walkman’ini kırdığım için bana kızgın. İstemeden oldu. Üstüne oturdum. Mart VE Nisan harçlığımı ona vereceğim.
 
-Gelecek. Hep gelir.` },
+Gelecek. Hep gelir.
+
+Billy, 7 numaradaki turuncu hayaletin adını benden aldığını söylüyor. Walt, ismin önce hayaletin olduğunu söylüyor. Ne olursa olsun o BENİM hayaletim.` },
       dark_diary2: { title: 'Son sayfa', from: 'Clyde', date: '16 Nisan 1987 — 22:00, salonda', body:
 `Sam eve gitti.
 

@@ -15,195 +15,65 @@
   };
 
   // ------------------------------------------------------------ görseller
-  // The Eater: breathing, lumpy skin; wet gums, tongue, uneven yellowed teeth and saliva strands
-  function pacmanMesh(game) {
-    const g = new THREE.Group();
-    const R = 1.15;
-    const skin = PB.Tex.canvas('pacSkin', 1024, 512, (c, w, h) => {
-      c.fillStyle = '#f2c21a'; c.fillRect(0, 0, w, h);
-      const r = U.rng(5);
-      for (let k = 0; k < 5000; k++) { c.fillStyle = `rgba(${150 + r() * 80},${70 + r() * 60},0,${r() * 0.14})`; c.beginPath(); c.arc(r() * w, r() * h, r.range(1, 8), 0, 6.28); c.fill(); }
-      for (let k = 0; k < 60; k++) { const grd = c.createRadialGradient(0, 0, 0, 0, 0, 40); c.save(); c.translate(r() * w, r() * h); grd.addColorStop(0, 'rgba(200,90,20,0.25)'); grd.addColorStop(1, 'rgba(200,90,20,0)'); c.fillStyle = grd; c.fillRect(-40, -40, 80, 80); c.restore(); }
-      c.strokeStyle = 'rgba(150,40,20,0.45)';
-      for (let v = 0; v < 40; v++) {
-        let x = r() * w, y = r() * h; c.lineWidth = r.range(1, 3); c.beginPath(); c.moveTo(x, y);
-        for (let s2 = 0; s2 < 24; s2++) { x += r.range(-16, 16); y += r.range(-9, 9); c.lineTo(x, y); if (r() < 0.1) { c.stroke(); c.lineWidth *= 0.6; c.beginPath(); c.moveTo(x, y); } }
-        c.stroke();
-      }
-    });
-    const bump = PB.Tex.canvas('pacBump', 512, 256, (c, w, h) => {
-      c.fillStyle = '#808080'; c.fillRect(0, 0, w, h);
-      const r = U.rng(9);
-      for (let k = 0; k < 900; k++) { const v = 110 + r() * 60 | 0; c.fillStyle = `rgba(${v},${v},${v},0.35)`; c.beginPath(); c.arc(r() * w, r() * h, r.range(1, 6), 0, 6.28); c.fill(); }
-    });
-    const uT = { value: 0 }, uBreath = { value: 0 };
-    const mat = new THREE.MeshStandardMaterial({ map: skin, bumpMap: bump, bumpScale: 2.5, color: 0xffffff, roughness: 0.28, metalness: 0, emissive: 0xffa800, emissiveIntensity: 0.4, side: THREE.DoubleSide });
-    mat.onBeforeCompile = sh => {
-      sh.uniforms.uT = uT; sh.uniforms.uBreath = uBreath;
-      sh.vertexShader = 'uniform float uT; uniform float uBreath;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
-        float lump = sin(position.x * 7.0 + uT * 1.3) * sin(position.y * 6.0 - uT * 0.9) * sin(position.z * 8.0 + uT * 1.1);
-        transformed += normal * (lump * 0.035 + uBreath * 0.045);`);
-    };
-    mat.customProgramCacheKey = () => 'pac-skin';
-    const upper = new THREE.Mesh(new THREE.SphereGeometry(R, 64, 32, 0, Math.PI * 2, 0, Math.PI / 2), mat);
-    const lower = new THREE.Mesh(new THREE.SphereGeometry(R, 64, 32, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), mat);
-    upper.castShadow = lower.castShadow = true;
-    // Mouth interior: wet gums, a dark throat and a tongue
-    const gum = new THREE.MeshStandardMaterial({ color: 0x6a0c14, roughness: 0.18, metalness: 0, emissive: 0x250004, emissiveIntensity: 0.6 });
-    gum.userData.refl = 0.3;
-    const innerU = new THREE.Mesh(new THREE.SphereGeometry(R * 0.955, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), gum);
-    const innerL = new THREE.Mesh(new THREE.SphereGeometry(R * 0.955, 40, 20, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), gum);
-    innerU.material.side = THREE.BackSide;
-    const throat = new THREE.Mesh(new THREE.CircleGeometry(R * 0.55, 24), new THREE.MeshBasicMaterial({ color: 0x020000 }));
-    throat.position.set(0, 0, -R * 0.2);
-    const tongueMat = new THREE.MeshStandardMaterial({ color: 0x9a2030, roughness: 0.2, emissive: 0x300008, emissiveIntensity: 0.5 });
-    const tongue = new THREE.Mesh(new THREE.SphereGeometry(0.45, 24, 12), tongueMat);
-    tongue.scale.set(1.1, 0.28, 1.5); tongue.position.set(0, -0.12, 0.25);
-    const teethMat = new THREE.MeshStandardMaterial({ color: 0xe6d8a8, roughness: 0.35, emissive: 0x2a2010, emissiveIntensity: 0.35 });
-    const tr = U.rng(17);
-    const addTeeth = (jaw, down) => {
-      for (const row of [0, 1]) for (let k = -7; k <= 7; k++) {
-        if (tr() < 0.08) continue;
-        const a = (k + (row ? 0.5 : 0)) / 7 * 1.35, rr = R * (0.93 - row * 0.1);
-        const len = tr.range(0.12, 0.34) * (row ? 0.7 : 1), wdt = tr.range(0.04, 0.085);
-        const tooth = new THREE.Mesh(new THREE.ConeGeometry(wdt, len, 5), teethMat);
-        tooth.position.set(Math.sin(a) * rr, (down ? 1 : -1) * (len / 2 - 0.02), Math.cos(a) * rr);
-        tooth.rotation.set(down ? 0 : Math.PI, 0, (tr() - 0.5) * 0.35);
-        tooth.rotation.x += (down ? -1 : 1) * (tr() - 0.5) * 0.3;
-        jaw.add(tooth);
-      }
-    };
-    const up = new THREE.Group(), lo = new THREE.Group();
-    up.add(upper, innerU); lo.add(lower, innerL, tongue);
-    addTeeth(up, false); addTeeth(lo, true);
-    // Saliva strands stretched between the jaws
-    const spit = new THREE.MeshStandardMaterial({ color: 0xd8e0d0, roughness: 0.05, transparent: true, opacity: 0.55, depthWrite: false });
-    const strands = [];
-    for (let k = 0; k < 5; k++) {
-      const a = (k - 2) * 0.32 + tr.range(-0.1, 0.1);
-      const sgeo = new THREE.CylinderGeometry(0.008 + tr() * 0.01, 0.006, 1, 5, 4);
-      const pa = sgeo.attributes.position; for (let i = 0; i < pa.count; i++) { const y = pa.getY(i); pa.setX(i, pa.getX(i) * (1 - Math.abs(y) * 0.7)); pa.setZ(i, pa.getZ(i) + (0.25 - y * y) * 0.2); }
-      sgeo.computeVertexNormals();
-      const m = new THREE.Mesh(sgeo, spit);
-      m.position.set(Math.sin(a) * R * 0.78, 0, Math.cos(a) * R * 0.78);
-      m.userData.a = a;
-      g.add(m); strands.push(m);
-    }
-    g.add(up, lo, throat);
-    const light = new THREE.PointLight(0xffc830, 30, 20, 1.6);
-    light.position.set(0, 0.2, 0.6);
-    g.add(light);
-    return { group: g, up, lo, light, mat, R, uT, uBreath, strands, tongue };
-  }
+  // The Eater (sculpted in monsters.js): swollen sick hide, gums and human teeth, a tongue, one eye
+  function pacmanMesh() { return PB.Monsters.eater(); }
 
-  const GHOST_VERT = `
-    uniform float uTime; varying vec3 vN; varying vec3 vV; varying float vY; varying vec3 vP;
-    void main(){
-      vec3 p = position;
-      vP = position;
-      float skirt = smoothstep(0.35, -0.95, p.y);
-      float a = atan(p.z, p.x);
-      p.y += sin(a * 6.0 + uTime * 5.0) * 0.12 * skirt;
-      p.xz *= 1.0 + sin(a * 3.0 - uTime * 2.0) * 0.05 * skirt;
-      vY = p.y;
-      vec4 mv = modelViewMatrix * vec4(p, 1.0);
-      vN = normalize(normalMatrix * normal); vV = -mv.xyz;
-      gl_Position = projectionMatrix * mv;
-    }`;
-  const GHOST_FRAG = `
-    uniform vec3 uColor; uniform float uAlpha; uniform float uTime; uniform float uFlee; uniform float uFriendly;
-    varying vec3 vN; varying vec3 vV; varying float vY; varying vec3 vP;
-    float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453); }
-    float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
-    float n3(vec3 p){ vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
-      return mix(mix(mix(h3(i), h3(i + vec3(1,0,0)), f.x), mix(h3(i + vec3(0,1,0)), h3(i + vec3(1,1,0)), f.x), f.y),
-                 mix(mix(h3(i + vec3(0,0,1)), h3(i + vec3(1,0,1)), f.x), mix(h3(i + vec3(0,1,1)), h3(i + vec3(1,1,1)), f.x), f.y), f.z); }
-    void main(){
-      float fres = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.2);
-      float wisp = n3(vP * 3.0 + vec3(0.0, -uTime * 0.9, uTime * 0.3)) * 0.6 + n3(vP * 7.0 + vec3(uTime * 0.5, -uTime * 1.6, 0.0)) * 0.4;
-      vec3 flee = mix(vec3(0.08, 0.12, 1.3), vec3(1.4), step(0.5, fract(uTime * 3.5)) * step(1.5, uFlee));
-      vec3 base = mix(uColor, flee, step(0.5, uFlee));
-      vec3 col = base * (0.55 + fres * 2.4);
-      col = mix(col, base * 0.8 + vec3(0.3), uFriendly * 0.3);
-      float n = hash(floor(gl_FragCoord.xy * 0.5) + floor(uTime * 20.0));
-      col *= 0.75 + wisp * 0.5;
-      float a = uAlpha * (0.45 + fres * 0.55) * smoothstep(-1.1, -0.45 - wisp * 0.4, vY) * (0.6 + wisp * 0.55) * (0.88 + n * 0.12);
-      gl_FragColor = vec4(col, a);
-    }`;
-  function ghostMesh(color) {
+  // The four kids under wet, torn bedsheets (monsters.js). The cloth hangs and sways from the head and
+  // shoulders, the hem drags, the eye holes are black with a wet glint deep inside that follows you.
+  // Uniform names are the old glowing ghost's, so the AI code drives it the same way.
+  function ghostMesh(color, key) {
     const g = new THREE.Group();
-    const pts = [];
-    for (let k = 0; k <= 12; k++) { const a = k / 12 * Math.PI / 2; pts.push(new THREE.Vector2(Math.cos(a) * 0.72 + 0.001, 0.35 + Math.sin(a) * 0.72)); }
-    pts.reverse();
-    pts.push(new THREE.Vector2(0.74, -0.2), new THREE.Vector2(0.76, -0.9), new THREE.Vector2(0.7, -1.0));
-    const geo = new THREE.LatheGeometry(pts, 40);
-    const uniforms = { uColor: { value: new THREE.Color(color).multiplyScalar(1.2) }, uAlpha: { value: 0.85 }, uTime: { value: 0 }, uFlee: { value: 0 }, uFriendly: { value: 0 } };
-    const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: GHOST_VERT, fragmentShader: GHOST_FRAG, transparent: true, depthWrite: false, side: THREE.DoubleSide });
+    const geo = PB.Monsters.sheetGeo();
+    const uniforms = { uColor: { value: new THREE.Color(color) }, uAlpha: { value: 1 }, uTime: { value: 0 }, uFlee: { value: 0 }, uFriendly: { value: 0 }, uSeed: { value: Math.random() * 10 } };
+    const mat = new THREE.MeshStandardMaterial({ map: PB.Monsters.sheetTex(key || 'g', color), roughness: 0.88, metalness: 0, alphaHash: true, vertexColors: true });
+    mat.onBeforeCompile = sh => {
+      Object.assign(sh.uniforms, uniforms);
+      sh.vertexShader = 'uniform float uTime; uniform float uSeed; varying float vLy;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+        // Heavy wet cloth: slow sway growing toward the hem, a ripple running round it, the chest rising
+        float hang = pow(clamp((1.3 - position.y) / 1.3, 0.0, 1.0), 1.6);
+        float ang = atan(position.z, position.x);
+        vec2 sway = vec2(sin(uTime * 0.9 + uSeed), cos(uTime * 0.7 + uSeed * 1.3)) * 0.05;
+        transformed.xz += sway * hang;
+        transformed.y += sin(ang * 5.0 + uTime * 2.2 + uSeed) * 0.02 * hang;
+        transformed.xz += normalize(position.xz + 1e-4) * sin(ang * 3.0 - uTime * 1.4) * 0.025 * hang;
+        transformed += normal * sin(uTime * 1.6 + uSeed) * 0.008 * smoothstep(0.9, 1.3, position.y) * (1.0 - smoothstep(1.3, 1.5, position.y));
+        vLy = position.y;`);
+      sh.fragmentShader = 'uniform vec3 uColor; uniform float uAlpha; uniform float uTime; uniform float uFlee; uniform float uFriendly; varying float vLy;\n' + sh.fragmentShader
+        .replace('#include <color_fragment>', `#include <color_fragment>
+          // Power pellet: the soaked cloth goes a drowned blue, flashing white when it is about to wear off
+          float flash = step(1.5, uFlee) * step(0.5, fract(uTime * 3.5));
+          diffuseColor.rgb = mix(diffuseColor.rgb, mix(vec3(0.12, 0.2, 0.62), vec3(0.9), flash), step(0.5, uFlee) * 0.8);
+          diffuseColor.a *= uAlpha;`)
+        .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+          // A faint glow of their color soaked into the hem, so they are never quite invisible in the dark
+          totalEmissiveRadiance += mix(uColor, vec3(0.2, 0.3, 1.0), step(0.5, uFlee)) * (0.05 + uFriendly * 0.05) * (1.0 - smoothstep(0.0, 0.9, vLy));`);
+    };
+    mat.customProgramCacheKey = () => 'sheet-ghost-v1';
     const body = new THREE.Mesh(geo, mat);
+    body.castShadow = true; body.receiveShadow = true;
     g.add(body);
-    const eyeW = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.01, 0.01, 0.015), transparent: true, opacity: 0.92 });
-    const eyeP = new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(2.6).add(new THREE.Color(0.6, 0.6, 0.6)) });
+    // Pupils: wet pinpoints deep in the torn eye holes
+    const eyeP = new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(1.6).add(new THREE.Color(0.5, 0.5, 0.45)) });
     const eyes = [];
-    for (const sx of [-0.26, 0.26]) {
-      const e = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 12), eyeW);
-      e.scale.set(0.8, 1.3, 0.45);
-      e.position.set(sx, 0.6, 0.6);
-      e.rotation.z = sx * 0.5;
-      const p = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 8), eyeP);
-      p.position.set(0, -0.02, 0.1);
+    for (const sx of [-0.036, 0.036]) {
+      const e = new THREE.Group(); e.position.set(sx, 1.392, 0.082); g.add(e);
+      const p = new THREE.Mesh(new THREE.SphereGeometry(0.0075, 8, 6), eyeP);
       e.add(p);
-      g.add(e);
       eyes.push({ e, p });
     }
-    const light = new THREE.PointLight(color, 6, 9, 2);
-    light.position.set(0, 0.4, 0);
+    const light = new THREE.PointLight(color, 1.5, 6, 2);
+    light.position.set(0, 0.5, 0.25);
     g.add(light);
     return { group: g, body, mat, uniforms, eyes, light };
   }
-  function grinnerMesh() {
-    const g = new THREE.Group();
-    const m = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.6, 2.5, 2.2), transparent: true, opacity: 1, depthWrite: false });
-    const curve = new THREE.QuadraticBezierCurve3(new THREE.Vector3(-0.45, 0.1, 0), new THREE.Vector3(0, -0.28, 0.08), new THREE.Vector3(0.45, 0.1, 0));
-    const smile = new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.035, 6, false), m);
-    g.add(smile);
-    for (let k = 0; k < 11; k++) {
-      const p = curve.getPoint(0.05 + k * 0.09);
-      const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.1, 0.02), m);
-      tooth.position.set(p.x, p.y + 0.05, p.z);
-      g.add(tooth);
-    }
-    const eyeM = new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 3, 2.6), transparent: true, depthWrite: false });
-    for (const sx of [-0.22, 0.22]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), eyeM); e.position.set(sx, 0.42, 0); g.add(e); }
-    return { group: g, mats: [m, eyeM] };
-  }
-  // The Counter: too tall, too thin, long hanging fingers, head tilted; skin like wet tar
-  function watcherMesh() {
-    const g = new THREE.Group();
-    const m = new THREE.MeshStandardMaterial({ color: 0x040404, roughness: 0.38, metalness: 0.1 });
-    m.userData.refl = 0.1;
-    const part = (geo, x, y, z, rx = 0, rz = 0, ry = 0) => { const p = new THREE.Mesh(geo, m); p.position.set(x, y, z); p.rotation.set(rx, ry, rz); p.castShadow = true; g.add(p); return p; };
-    part(new THREE.CapsuleGeometry(0.17, 1.2, 6, 12), 0, 2.15, 0).scale.set(1, 1, 0.7);
-    const ribs = new THREE.CapsuleGeometry(0.2, 0.35, 4, 12); part(ribs, 0, 2.45, 0.02).scale.set(1.05, 1, 0.75);
-    part(new THREE.CapsuleGeometry(0.05, 0.12, 4, 8), 0, 2.98, 0.02);
-    const head = part(new THREE.SphereGeometry(0.17, 20, 14), 0.06, 3.18, 0.04, 0.1, 0.35);
-    head.scale.set(0.85, 1.35, 0.95);
-    const jaw = part(new THREE.SphereGeometry(0.1, 12, 8), 0.1, 3.02, 0.1, 0.4, 0.35); jaw.scale.set(0.9, 0.7, 1);
-    const arms = [];
-    for (const sx of [-1, 1]) {
-      const sh = sx * 0.27;
-      part(new THREE.SphereGeometry(0.07, 10, 8), sh, 2.72, 0);
-      const up = part(new THREE.CapsuleGeometry(0.045, 0.8, 4, 8), sh + sx * 0.03, 2.25, 0.02, 0, -sx * 0.05);
-      const lo = part(new THREE.CapsuleGeometry(0.038, 0.85, 4, 8), sh + sx * 0.07, 1.4, 0.06, 0.08, -sx * 0.04);
-      const hand = new THREE.Group(); hand.position.set(sh + sx * 0.09, 0.9, 0.09); g.add(hand);
-      for (let f = 0; f < 4; f++) { const fg = new THREE.Mesh(new THREE.CapsuleGeometry(0.011, 0.28 + f % 2 * 0.06, 3, 6), m); fg.position.set((f - 1.5) * 0.022, -0.18, (f % 2) * 0.01); fg.rotation.z = (f - 1.5) * 0.06; hand.add(fg); }
-      arms.push({ up, lo, hand });
-    }
-    for (const sx of [-1, 1]) {
-      part(new THREE.CapsuleGeometry(0.065, 0.9, 4, 8), sx * 0.11, 1.05, 0);
-      part(new THREE.CapsuleGeometry(0.05, 0.9, 4, 8), sx * 0.12, 0.45, -0.02);
-      part(new THREE.SphereGeometry(0.06, 8, 6), sx * 0.12, 0.03, 0.06).scale.set(0.8, 0.4, 1.8);
-    }
-    return { group: g, mat: m, head, arms };
+  // Grinners and the Counter are sculpted in monsters2.js
+  function grinnerMesh() { return PB.Monsters.grinner(); }
+  function watcherMesh() { return PB.Monsters.counter(); }
+  // Creatures take the level's baked light like everything else in it
+  function lit(game, group) {
+    if (!game.world) return;
+    const seen = new Set();
+    group.traverse(o => { if (!o.isMesh) return; for (const m of Array.isArray(o.material) ? o.material : [o.material]) if (m && !seen.has(m) && !m.isMeshBasicMaterial && !m.isShaderMaterial) { seen.add(m); game.world.patch(m); } });
   }
 
   // ------------------------------------------------------------ temel sınıf
@@ -428,7 +298,7 @@
     constructor(game, o) {
       super(game, 'pacman', o);
       const m = pacmanMesh(game);
-      this.vis = m; this.mesh.add(m.group);
+      this.vis = m; this.mesh.add(m.group); lit(game, m.group);
       this.catchR = 1.55;
       this.turnSlow = 0; this.chomp = 0; this.chompRate = 2; this.lastChompSide = 0;
       this.state = o.dormant ? 'dormant' : 'patrol';
@@ -471,12 +341,23 @@
       const sniff = this.state === 'investigate' || this.state === 'search';
       let open = Math.abs(Math.sin(this.chomp * Math.PI)) * (this.state === 'chase' ? 0.68 : 0.4);
       if (sniff) open = 0.12 + Math.abs(Math.sin(g.time * 7)) * 0.05;
-      this.vis.up.rotation.x = -open; this.vis.lo.rotation.x = open * 0.35;
-      // Breathing skin, drooling strands that stretch with the jaw, tongue working
-      this.vis.uT.value = g.time; this.vis.uBreath.value = Math.sin(g.time * (this.state === 'chase' ? 5 : 1.6)) * (this.state === 'chase' ? 1.2 : 0.6);
-      const gap = Math.sin(open) * this.vis.R * 0.95 + 0.02;
-      for (const st of this.vis.strands) { const vis = open > 0.08 && open < 0.62; st.visible = vis; if (vis) { st.scale.y = gap; st.position.y = gap * 0.5 - Math.sin(open * 0.35) * 0.2; } }
-      this.vis.tongue.position.y = -0.12 + Math.sin(g.time * 3.1) * 0.03; this.vis.tongue.rotation.y = Math.sin(g.time * 1.7) * 0.2;
+      const V = this.vis;
+      V.up.rotation.x = -open; V.lo.rotation.x = open * 0.35;
+      // Breathing, crawling hide that twitches when it hunts; drool stretched between the jaws; the tongue working
+      const chasing = this.state === 'chase';
+      this.rage = U.damp(this.rage || 0, chasing ? 1 : 0, 2, dt);
+      V.uT.value = g.time; V.uRage.value = this.rage;
+      V.uBreath.value = Math.sin(g.time * (chasing ? 5 : 1.6)) * (chasing ? 1.2 : 0.6);
+      const gap = Math.sin(open) * V.R * 0.95 + 0.02;
+      for (const st of V.strands) { const vis = open > 0.08 && open < 0.62; st.visible = vis; if (vis) { st.scale.y = gap; st.position.y = gap * 0.5 - Math.sin(open * 0.35) * 0.2; } }
+      V.tongue.position.y = Math.sin(g.time * 3.1) * 0.03 - open * 0.08; V.tongue.rotation.y = Math.sin(g.time * 1.7) * 0.2; V.tongue.rotation.x = open * 0.4;
+      // The eye: rolls and searches when it has lost you, fixes on you when it can see you
+      if (V.eyeHolder) {
+        const pl = g.player.pos;
+        if (this.losToPlayer() && this.distToPlayer() < 30) V.eyeHolder.lookAt(pl.x, pl.y + 1.55, pl.z);
+        else V.eyeHolder.rotation.set(Math.sin(g.time * 0.9) * 0.4, Math.sin(g.time * 0.6 + 1) * 0.8, 0);
+        V.eye.rotation.z = Math.sin(g.time * 23) * 0.02 * this.rage;
+      }
       // Lean into the chase, weave while sniffing
       this.lean = U.damp(this.lean || 0, this.state === 'chase' ? 0.22 : 0, 3, dt);
       this.vis.group.rotation.x = this.lean;
@@ -487,10 +368,11 @@
         if (g.audio && side % 2 === 0) { const d = this.distToPlayer(); if (d < 45) g.audio.waka({ x: this.pos.x, y: 1.2, z: this.pos.z }, !this.losToPlayer(), U.clamp(1.4 - d / 40, 0.2, 1.4)); }
       }
       const fleeing = this.state === 'flee';
-      this.vis.mat.emissive.setHex(fleeing ? 0x2040ff : 0xffa800);
-      this.vis.mat.color.setHex(fleeing ? 0x8fb0ff : 0xffffff);
-      this.vis.light.color.setHex(fleeing ? 0x4060ff : 0xffc830);
-      this.vis.light.intensity = (this.state === 'chase' ? 45 : 28) * (0.85 + Math.sin(this.chomp * 3) * 0.15);
+      // Power pellet: the hide goes a sick, bruised blue and its glow dies down
+      V.mat.emissive.setHex(fleeing ? 0x0a1840 : 0x3a2400);
+      V.mat.color.setHex(fleeing ? 0x7a90c0 : 0xffffff);
+      V.light.color.setHex(fleeing ? 0x4060ff : 0xd8a040);
+      V.light.intensity = (chasing ? 16 : 10) * (0.85 + Math.sin(this.chomp * 3) * 0.15) * (fleeing ? 0.5 : 1);
       this.mesh.position.set(this.pos.x, 1.2 + Math.sin(this.chomp * 2 * Math.PI) * 0.04, this.pos.z);
       this.mesh.rotation.y = this.heading;
       // Pelletleri ye (labirent)
@@ -515,8 +397,8 @@
       super(game, 'ghost', o);
       this.type = o.ghost;
       this.cfg = GHOST[o.ghost];
-      const m = ghostMesh(this.cfg.color);
-      this.vis = m; this.mesh.add(m.group);
+      const m = ghostMesh(this.cfg.color, this.type);
+      this.vis = m; this.mesh.add(m.group); lit(game, m.group);
       this.ghostly = true;
       this.catchR = 1.1;
       this.friendly = !!o.friendly;
@@ -598,11 +480,11 @@
       if (this.state === 'eaten') {
         u.uAlpha.value = 0.12;
         this.eatenT -= dt;
-        if (this.eatenT <= 0) { this.setState('patrol'); u.uAlpha.value = 0.85; }
+        if (this.eatenT <= 0) { this.setState('patrol'); u.uAlpha.value = 1; }
         this.pose(dt);
         return;
       }
-      u.uAlpha.value = 0.85;
+      u.uAlpha.value = 1;
       if (this.type === 'clyde') this.clydeAI(dt, dm);
       else {
         const sp = { sight: this.cfg.sight, fov: 2.6, speed: this.cfg.speed * dm, patrol: this.cfg.patrol * dm, lose: this.cfg.lose, hunt: this.maze || this.type === 'blinky', notice: 2.4 };
@@ -627,14 +509,15 @@
     }
     pose(dt) {
       const g = this.g;
-      this.mesh.position.set(this.pos.x, 1.05 + Math.sin(g.time * 2 + this.pos.x) * 0.08, this.pos.z);
+      // The hem drags on the floor; the body rises and settles a little as it moves
+      this.mesh.position.set(this.pos.x, 0.015 + Math.abs(Math.sin(g.time * 1.3 + this.pos.x)) * 0.03, this.pos.z);
       this.mesh.rotation.y = this.heading;
-      // Gözler oyuncuya bakar
+      // The glint in the eye holes turns to follow you
       const p = g.player.pos;
       const local = new THREE.Vector3(p.x, 1.6, p.z);
       this.mesh.worldToLocal(local);
-      local.normalize();
-      for (const e of this.vis.eyes) e.p.position.set(local.x * 0.1, local.y * 0.08 + 0.01, 0.1);
+      local.sub(new THREE.Vector3(0, 1.39, 0)).normalize();
+      for (const e of this.vis.eyes) e.p.position.set(local.x * 0.008, local.y * 0.006, Math.max(0, local.z) * 0.006);
     }
     inkyTeleport(dt) {
       this.teleT -= dt;
@@ -696,7 +579,7 @@
     constructor(game, o) {
       super(game, 'grinner', o);
       const m = grinnerMesh();
-      this.vis = m; this.mesh.add(m.group);
+      this.vis = m; this.mesh.add(m.group); lit(game, m.group);
       this.catchR = 1.0;
       this.state = 'lurk';
       this.fade = 1;
@@ -751,7 +634,7 @@
     constructor(game, o) {
       super(game, 'watcher', o);
       const m = watcherMesh();
-      this.vis = m; this.mesh.add(m.group);
+      this.vis = m; this.mesh.add(m.group); lit(game, m.group);
       this.catchR = 2.2;
       this.state = 'wait';
       this.unseenT = 0; this.jumps = 0;
@@ -850,5 +733,5 @@
     }
   }
 
-  PB.Entities = { Pacman, Ghost, Grinner, Watcher, Nav, GHOST };
+  PB.Entities = { Pacman, Ghost, Grinner, Watcher, Nav, GHOST, lit };
 })(typeof window !== 'undefined' ? window : globalThis);

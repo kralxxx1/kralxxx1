@@ -11,7 +11,7 @@
     docs: {
       p_workorder: { title: 'Tri-County Nakliyat iş emri', from: 'Tri-County Nakliyat', date: 'İş emri #4471', body:
 `TESLİM ALMA: Starlight Arcade, Front Caddesi 114, Harlow
-TARİH: Perşembe, 1 Aralık 1994 — 06:00
+TARİH: Çarşamba, 30 Kasım 1994 — 06:00
 İÇERİK: 23 jetonlu oyun kabini, 1 hediye tezgâhı, çeşitli demirbaş
 GİRİŞ: anahtar paspasın altında (First Harlow Tasarruf)
 EKİP: 3 kişi
@@ -125,7 +125,7 @@ DÜNYANIN EN İYİ ÇOMPİSİ.
 
 WALT: Bunu dinliyorsan içerideyim. Frank’i arama. Nora’yı arama. Sadece dinle.
 
-WALT: Onlar içeride. Billy, Penny, Ivy ve Clyde. Beş yıldır izliyorum. On altı Nisan’dan önce o tahtada hiç olmayan dört hayalet.
+WALT: Onlar içeride. Billy, Penny, Ivy ve Clyde. Tanıtım ekranını yeterince uzun izlersen hayaletlerin isimlerini gösterir. Eskiden Blinky, Pinky, Inky ve Clyde yazardı. On altı Nisan’dan beri BILLY, PENNY, IVY... ve Clyde yazıyor. Bizim Clyde. Ve artık hayalet gibi hareket etmiyorlar. Çocuk gibi hareket ediyorlar. Beş yıldır izliyorum.
 
 WALT: Masamdaki altın jeton. Üstünde 0256 yazan. Makine onu DEVAM olarak alıyor. Onlar böyle girdi. Ben de böyle gireceğim.
 

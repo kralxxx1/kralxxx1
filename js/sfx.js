@@ -391,6 +391,93 @@
     return normalize(out, 0.8);
   };
 
+  // --- Drawers and safes
+  // Wood on wood: a dry, grainy friction rumble through the drawer box's resonances; the stop knocks
+  function slideWood(n, sr, r, t0, dur, amp) {
+    const fr = crackle(n, sr, r, 900, null), x = new Float32Array(n);
+    const i0 = S(t0 * sr), i1 = Math.min(n, S((t0 + dur) * sr));
+    for (let i = i0; i < i1; i++) { const k = (i - i0) / (i1 - i0); x[i] = fr[i] * Math.pow(Math.sin(Math.PI * Math.min(1, k * 1.15)), 0.5) * (0.7 + 0.3 * Math.sin(k * 31)); }
+    const out = new Float32Array(n);
+    add(out, biquad(x, 'bp', 520 + r() * 120, 2.5, sr), 1.2); add(out, biquad(x, 'bp', 1250 + r() * 200, 3, sr), 0.8); add(out, biquad(x, 'bp', 2900, 2, sr), 0.35);
+    const hum = biquad(pink(n, r), 'bp', 380, 1.2, sr);
+    for (let i = i0; i < i1; i++) out[i] += hum[i] * 0.25 * Math.sin(Math.PI * (i - i0) / (i1 - i0));
+    for (let i = 0; i < n; i++) out[i] *= amp;
+    return out;
+  }
+  // Steel on ball bearings: a fast metallic roll with a ringing body
+  function slideMetal(n, sr, r, t0, dur, amp) {
+    const x = new Float32Array(n), i0 = S(t0 * sr), i1 = Math.min(n, S((t0 + dur) * sr));
+    const bump = crackle(n, sr, r, 2600, null);
+    for (let i = i0; i < i1; i++) { const k = (i - i0) / (i1 - i0); x[i] = bump[i] * Math.sin(Math.PI * k); }
+    const out = new Float32Array(n);
+    for (const [f, q, g] of [[1850 + r() * 200, 14, 0.6], [3100 + r() * 300, 16, 0.5], [4700, 12, 0.3], [820, 8, 0.4]]) add(out, biquad(x, 'bp', f, q, sr), g);
+    add(out, biquad(x, 'hp', 5000, 0.7, sr), 0.2);
+    for (let i = 0; i < n; i++) out[i] *= amp;
+    return out;
+  }
+  // Loose things in the drawer sliding and knocking together
+  function rattle(n, sr, r, t0, count, amp) {
+    const out = new Float32Array(n);
+    for (let k = 0; k < count; k++) {
+      const t = t0 + r() * 0.12;
+      if (r() < 0.5) add(out, modes(n, sr, [[1900 + r() * 2600, 0.012 + r() * 0.02, amp], [4200 + r() * 2400, 0.008, amp * 0.5]], t, r));
+      else add(out, hit(n, sr, r, t, amp * 0.8, 'bp', 700 + r() * 900, 1.5, 0.012));
+    }
+    return out;
+  }
+  R.drawerWoodOpen = (sr, r) => {
+    const n = S(sr * 0.75), out = new Float32Array(n), d = 0.32 + r() * 0.12;
+    add(out, hit(n, sr, r, 0, 0.35, 'bp', 1600, 2, 0.01));
+    add(out, slideWood(n, sr, r, 0.02, d, 1));
+    add(out, hit(n, sr, r, 0.02 + d, 0.6, 'lp', 300, 0.8, 0.04));
+    add(out, modes(n, sr, [[210, 0.05, 0.4], [470, 0.03, 0.25], [1150, 0.015, 0.15]], 0.02 + d, r));
+    add(out, rattle(n, sr, r, 0.03 + d, 4, 0.18));
+    return normalize(out, 0.85);
+  };
+  R.drawerWoodSlide = (sr, r) => { const n = S(sr * 0.5); return normalize(slideWood(n, sr, r, 0, 0.3 + r() * 0.1, 1), 0.6); };
+  R.drawerWoodShut = (sr, r) => {
+    const n = S(sr * 0.5), out = new Float32Array(n);
+    add(out, hit(n, sr, r, 0, 1, 'lp', 220, 0.8, 0.05));
+    add(out, modes(n, sr, [[140, 0.07, 0.6], [320, 0.05, 0.4], [760, 0.025, 0.25], [1900, 0.01, 0.12]], 0, r));
+    add(out, rattle(n, sr, r, 0.01, 3, 0.15));
+    return normalize(out, 0.9);
+  };
+  R.drawerMetalOpen = (sr, r) => {
+    const n = S(sr * 1.0), out = new Float32Array(n), d = 0.35 + r() * 0.1;
+    add(out, modes(n, sr, [[2600, 0.01, 0.4], [5100, 0.006, 0.25]], 0, r));
+    add(out, slideMetal(n, sr, r, 0.02, d, 1));
+    add(out, hit(n, sr, r, 0.02 + d, 0.7, 'bp', 900, 1.2, 0.02));
+    add(out, modes(n, sr, [[420, 0.12, 0.4], [1130, 0.09, 0.3], [2380, 0.06, 0.2], [3900, 0.04, 0.1]], 0.02 + d, r));
+    add(out, rattle(n, sr, r, 0.03 + d, 3, 0.12));
+    return normalize(out, 0.85);
+  };
+  R.drawerMetalSlide = (sr, r) => { const n = S(sr * 0.5); return normalize(slideMetal(n, sr, r, 0, 0.3 + r() * 0.08, 1), 0.55); };
+  R.drawerMetalShut = (sr, r) => {
+    const n = S(sr * 1.2), out = new Float32Array(n);
+    add(out, hit(n, sr, r, 0, 1, 'lp', 400, 0.8, 0.03));
+    add(out, modes(n, sr, [[180, 0.25, 0.5], [390, 0.2, 0.45], [960, 0.14, 0.35], [2150, 0.09, 0.25], [3600, 0.05, 0.12]], 0, r));
+    add(out, modes(n, sr, [[2900, 0.012, 0.3], [4700, 0.008, 0.2]], 0.004, r));
+    return normalize(out, 0.9);
+  };
+  // Safe: the handle turns and the bolts draw back, then the heavy door swings on stiff hinges
+  R.safeOpen = (sr, r) => {
+    const n = S(sr * 2.2), out = new Float32Array(n);
+    add(out, modes(n, sr, [[600, 0.06, 0.5], [1500, 0.04, 0.35], [3200, 0.02, 0.2]], 0, r));
+    add(out, hit(n, sr, r, 0, 0.5, 'bp', 1100, 1.5, 0.02));
+    for (const t of [0.16, 0.2, 0.24]) add(out, modes(n, sr, [[900 + r() * 200, 0.05, 0.35], [2300, 0.03, 0.2]], t, r));
+    add(out, creak(n, sr, r, 0.4, 1.4, 25, 55, [[240, 8, 0.8], [610, 10, 0.5], [1300, 9, 0.25]], 0.8));
+    add(out, biquad(brown(n, r), 'lp', 180, 0.7, sr), 0.2);
+    return normalize(out, 0.85);
+  };
+  R.safeClose = (sr, r) => {
+    const n = S(sr * 1.8), out = new Float32Array(n);
+    add(out, creak(n, sr, r, 0, 0.6, 50, 30, [[260, 8, 0.7], [640, 10, 0.4]], 0.5));
+    add(out, hit(n, sr, r, 0.62, 1, 'lp', 160, 0.8, 0.12));
+    add(out, modes(n, sr, [[75, 0.35, 0.6], [150, 0.25, 0.45], [340, 0.18, 0.3], [820, 0.1, 0.18]], 0.62, r));
+    for (const t of [0.85, 0.9]) add(out, modes(n, sr, [[1000 + r() * 200, 0.04, 0.3]], t, r));
+    return normalize(out, 0.9);
+  };
+
   // --- Foley
   R.paper = (sr, r) => {
     const n = S(sr * (0.35 + r() * 0.25));
@@ -666,6 +753,87 @@
     return normalize(softclip(out, 1.2), 0.95);
   };
 
+  // --- Creature voices: a glottal pulse train with jitter and vocal fry through a throat of formants,
+  // with breath noise and saturation. o.f0(t), o.env(t) over 0..1; formants [[f, q, gain], ...]
+  function throat(n, sr, r, o) {
+    const x = new Float32Array(n), br = pink(n, r);
+    let ph = 0, jit = 0;
+    for (let i = 0; i < n; i++) {
+      const t = i / n;
+      jit += ((r() - 0.5) * 0.4 - jit) * 0.02;
+      const f = o.f0(t) * (1 + jit * (o.jitter || 0.1));
+      ph += f / sr;
+      const saw = 1 - 2 * (ph % 1);
+      const fry = 1 - (o.fry || 0) * (Math.floor(ph) % 2);          // every other pulse weaker: a rattling growl
+      const e = o.env(t);
+      x[i] = (saw * fry * (1 - (o.breath || 0.2)) + br[i] * (o.breath || 0.2) * 2) * e;
+    }
+    const out = new Float32Array(n);
+    for (const [f, q, g] of o.formants) add(out, biquad(x, 'bp', f, q, sr), g);
+    if (o.low) add(out, biquad(x, 'lp', o.low, 0.7, sr), 0.6);
+    return softclip(out, o.drive || 1.5);
+  }
+  // The Eater: a wet, gargling roar out of a wide throat, the jaw snapping shut at the end
+  R.roarEater = (sr, r) => {
+    const d = 1.9, n = S(sr * d), out = new Float32Array(n);
+    add(out, throat(n, sr, r, { f0: t => 88 - 30 * t + 14 * Math.sin(t * 9) + (t < 0.1 ? 40 * (0.1 - t) * 10 : 0), env: t => Math.min(1, t / 0.06) * Math.pow(1 - t, 0.7), formants: [[330, 3, 1], [780, 4, 0.8], [1850, 5, 0.35], [2900, 6, 0.12]], low: 180, fry: 0.45, breath: 0.35, drive: 3 }));
+    const gur = biquad(crackle(n, sr, r, 55, t => Math.sin(Math.PI * Math.min(1, t * 1.2))), 'bp', 520, 2, sr);
+    add(out, gur, 3);
+    add(out, modes(n, sr, [[1150, 0.03, 0.5], [2300, 0.02, 0.35], [180, 0.08, 0.6]], d - 0.28, r));
+    add(out, hit(n, sr, r, d - 0.28, 0.8, 'lp', 250, 0.8, 0.06));
+    return normalize(out, 0.95);
+  };
+  // Ghosts: a child's wail under wet cloth, bent out of tune
+  R.screechGhost = (sr, r) => {
+    const n = S(sr * 1.7);
+    const out = throat(n, sr, r, { f0: t => (360 + 180 * Math.sin(Math.PI * t) - 90 * t) * (1 + 0.035 * Math.sin(t * 1.7 * TAU * 6)), env: t => Math.pow(Math.min(1, t / 0.3), 1.5) * Math.pow(1 - t, 0.8), formants: [[900, 6, 1], [1350, 7, 0.7], [2750, 8, 0.25]], fry: 0.1, breath: 0.45, drive: 2, jitter: 0.25 });
+    // muffled by the sheet
+    return normalize(biquad(out, 'lp', 2600, 0.7, sr), 0.85);
+  };
+  // Crawlers: a breathy hiss with a rattle of clicks from the mouth
+  R.hissCrawler = (sr, r) => {
+    const n = S(sr * 0.9), out = new Float32Array(n);
+    const h = biquad(white(n, r), 'bp', 4200, 0.9, sr);
+    for (let i = 0; i < n; i++) { const t = i / n; h[i] *= Math.min(1, t / 0.05) * Math.pow(1 - t, 1.2); }
+    add(out, h, 1);
+    add(out, biquad(crackle(n, sr, r, 45, t => 1 - t), 'bp', 2400, 3, sr), 4);
+    return normalize(out, 0.8);
+  };
+  // The Counter: very low, slow, a crack of joints first
+  R.groanCounter = (sr, r) => {
+    const n = S(sr * 2.8), out = new Float32Array(n);
+    for (const t of [0, 0.07, 0.11]) add(out, hit(n, sr, r, t, 0.6, 'bp', 1800 + r() * 800, 2, 0.008));
+    add(out, throat(n, sr, r, { f0: t => 48 + 8 * Math.sin(t * 5), env: t => Math.min(1, Math.max(0, t - 0.05) / 0.2) * Math.pow(1 - t, 0.6), formants: [[240, 3, 1], [590, 4, 0.6], [1400, 5, 0.2]], low: 120, fry: 0.6, breath: 0.3, drive: 2.5 }), 1);
+    return normalize(out, 0.9);
+  };
+  // The Neighbor: a man's long, tired groan that ends in a word you almost catch
+  R.moanNeighbor = (sr, r) => {
+    const n = S(sr * 2.2);
+    const out = throat(n, sr, r, { f0: t => 112 - 28 * t + 6 * Math.sin(t * 11), env: t => Math.min(1, t / 0.15) * Math.pow(1 - t, 0.7), formants: [[470, 6, 1], [830, 6, 0.55], [2500, 7, 0.15]], fry: 0.3, breath: 0.3, drive: 1.6 });
+    return normalize(out, 0.8);
+  };
+  // Chompy: the costume's laugh through the foam head, four muffled barks
+  R.laughChompy = (sr, r) => {
+    const n = S(sr * 1.5), out = new Float32Array(n);
+    for (let k = 0; k < 4; k++) {
+      const t0 = k * 0.27, seg = throat(n, sr, r, { f0: t => 190 - k * 12 - 40 * t, env: t => { const u = (t * 1.5 - t0) / 0.2; return u > 0 && u < 1 ? Math.sin(Math.PI * u) : 0; }, formants: [[700, 5, 1], [1150, 6, 0.6]], fry: 0.2, breath: 0.4, drive: 1.8 });
+      add(out, seg, 1);
+    }
+    return normalize(biquad(out, 'lp', 1300, 0.7, sr), 0.85);
+  };
+  // The Hall Monitor's whistle: two shrill blasts with a pea rattling in it
+  R.whistle = (sr, r) => {
+    const n = S(sr * 1.3), out = new Float32Array(n);
+    let ph = 0;
+    for (let i = 0; i < n; i++) {
+      const t = i / sr, blast = (t < 0.45 ? Math.min(1, t / 0.02) * Math.min(1, (0.45 - t) / 0.03) : 0) + (t > 0.6 && t < 1.25 ? Math.min(1, (t - 0.6) / 0.02) * Math.min(1, (1.25 - t) / 0.05) : 0);
+      const f = 2950 * (1 + 0.045 * Math.sign(Math.sin(t * TAU * 38)));
+      ph += TAU * f / sr;
+      out[i] = (Math.sin(ph) * 0.8 + (r() - 0.5) * 0.3) * blast;
+    }
+    return normalize(biquad(out, 'bp', 3000, 1.2, sr), 0.8);
+  };
+
   // --- Radio / tape voice: formant-synthesized babble with intonation (no words)
   const VOWELS = [[730, 1090, 2440], [530, 1840, 2480], [270, 2290, 3010], [570, 840, 2410], [300, 870, 2240], [660, 1720, 2410], [490, 1350, 1690]];
   function voice(sr, r, dur, o) {
@@ -728,7 +896,7 @@
   // AudioContext (one only exists after the first click), at a fixed rate the context resamples.
   const SR = 44100;
   // How many takes of each effect are used (footsteps and doors vary the most)
-  const TAKES = { paper: 6, cloth: 4, chew: 4, plasticTap: 4, flashClick: 3, doorLocked: 3, squelch: 3, thunder: 3, stingSpot: 3, rustle: 6, breathIn: 4, breathOut: 4, breathInHeavy: 4, breathOutHeavy: 4, breathCalmIn: 3, breathCalmOut: 3, breathFearIn: 4, breathFearOut: 4, gasp: 2, dropMetal: 2, dropWood: 2, dropDebris: 2, farSteps: 3 };
+  const TAKES = { paper: 6, cloth: 4, chew: 4, plasticTap: 4, flashClick: 3, doorLocked: 3, squelch: 3, thunder: 3, stingSpot: 3, rustle: 6, breathIn: 4, breathOut: 4, breathInHeavy: 4, breathOutHeavy: 4, breathCalmIn: 3, breathCalmOut: 3, breathFearIn: 4, breathFearOut: 4, gasp: 2, dropMetal: 2, dropWood: 2, dropDebris: 2, farSteps: 3, roarEater: 3, screechGhost: 3, hissCrawler: 3, groanCounter: 2, moanNeighbor: 2, laughChompy: 2, whistle: 1, drawerWoodOpen: 3, drawerWoodShut: 3, drawerMetalOpen: 3, drawerMetalShut: 3 };
   const LOOPS = /^(rain|gutter|fluorescent|hvac|poolRoom|warehouse|darkRoom|tunnel|schoolHall|mallAtrium|motelHall|hospitalHall|workshop|carPass|radioStatic)/;
   class Sfx {
     constructor(ctx) { this.ctx = ctx || null; this.cache = new Map(); this.voices = new Map(); this.rng = U.rng(1234); this.sr = SR; }

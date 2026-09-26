@@ -1,5 +1,5 @@
-/* Chapter scripts for the new chapters: Pipe Dreams, Harlow Middle School, Harlow Mall,
-   Starlite Motor Inn, St. Agnes Hospital, Maple Street and the Workshop. */
+/* Chapter scripts for the new chapters: Pipe Dreams, Harlow Junior High, Harlow Mall,
+   Blue Moon Motor Inn, St. Agnes Hospital, Maple Street and the Workshop. */
 (function (root) {
   'use strict';
   const PB = root.PB;
@@ -48,7 +48,7 @@
     },
   };
 
-  // ================================================================ HARLOW MIDDLE SCHOOL (April 16, 1987)
+  // ================================================================ HARLOW JUNIOR HIGH (April 16, 1987)
   C.school = {
     start(g) { g.flags.digits = 0; g.setObj('school_code', { n: 0 }); },
     afterCard(g) { g.mono('school_start', 4); g.radio('school_start', { delay: 5 }); },
@@ -138,7 +138,7 @@
     },
   };
 
-  // ================================================================ STARLITE MOTOR INN (Eddie)
+  // ================================================================ BLUE MOON MOTOR INN (Eddie)
   C.motel = {
     start(g) { g.setObj('motel_find12'); },
     afterCard(g) { g.mono('motel_start', 4); g.radio('motel_start', { delay: 5 }); },

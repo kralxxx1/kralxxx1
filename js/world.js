@@ -24,6 +24,8 @@
     street: { floorRefl: 0.05, wall: 'wallpaper', wallTint: 0xd8c8b0, floor: 'planks', ceil: 'ceiling', trim: 'darkWood', pillar: 'siding', ambient: [0.01, 0.011, 0.016], bounce: 0.3, env: [0.05, 0.06, 0.08], envPanel: [1.2, 1.1, 1.0], trimH: 0.1 },
     workshop: { floorRefl: 0.1, wall: 'cinderblock', wallTint: 0xa8aca4, floor: 'concreteFloor', ceil: 'concreteWall', ceilTint: 0x6a6a68, trim: null, pillar: 'cinderblock', ambient: [0.01, 0.01, 0.009], bounce: 0.35, env: [0.08, 0.08, 0.07], envPanel: [2, 1.8, 1.4], trimH: 0 },
   };
+  // How dusty the furniture is in each place
+  for (const [k, v] of Object.entries({ arcade: 0.25, yellow: 0.35, concrete: 0.4, pool: 0.08, office: 0.35, dark: 0.3, maze: 0.15, glitch: 0.1, school: 0.3, mall: 0.3, motel: 0.3, hospital: 0.25, street: 0.12, workshop: 0.4 })) if (THEMES[k]) THEMES[k].dust = v;
   PB.THEMES = THEMES;
 
   const LM_K = 20;
@@ -62,9 +64,28 @@ float pbM = pbNoise(vPbWorld * 0.37) * 0.6 + pbNoise(vPbWorld * 1.3 + 17.0) * 0.
 float pbM = 0.5;
 #endif
 `;
+  // Furniture and clutter: a slight color drift so repeated pieces differ, dust settled on whatever faces up,
+  // and grime creeping up from the floor. PB_DUST is the amount (a dusty office more than a wet pool).
+  const FRAG_DUST = `
+float pbDust = 0.0;
+#ifdef PB_DUST
+{
+  vec3 Nd = normalize(vPbNormal);
+  float nz = pbNoise(vPbWorld * 2.3 + 7.0) * 0.65 + pbNoise(vPbWorld * 11.0) * 0.35;
+  diffuseColor.rgb *= 0.92 + 0.16 * pbNoise(vPbWorld * 0.8 + 3.0);
+  pbDust = smoothstep(0.55, 0.95, Nd.y) * smoothstep(0.25, 0.75, nz) * PB_DUST;
+  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.44, 0.42, 0.38) * (0.8 + 0.4 * nz), pbDust);
+  float low = 1.0 - smoothstep(0.0, 0.18 + nz * 0.2, vPbWorld.y);
+  diffuseColor.rgb *= 1.0 - low * 0.45 * min(1.0, PB_DUST * 2.5) * (1.0 - abs(Nd.y));
+}
+#endif
+`;
   const FRAG_ROUGH = `
 #ifdef PB_MACRO
 roughnessFactor = clamp(roughnessFactor * mix(0.86, 1.12, pbM), 0.04, 1.0);
+#endif
+#ifdef PB_DUST
+roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
 #endif
 `;
   // Plaster and drywall are never perfectly flat: a slow undulation in the shading normal
@@ -156,9 +177,19 @@ roughnessFactor = clamp(roughnessFactor * mix(0.86, 1.12, pbM), 0.04, 1.0);
     }
 
     // ------------------------------------------------------------ MALZEMELER
+    // Baked light for any material: world-space varyings and the light volume. A material that already has its
+    // own shader hook (creatures: breathing skin, cloth sway) keeps it; it runs first.
     patch(mat) {
-      const Uu = this.U;
-      mat.onBeforeCompile = sh => {
+      const Uu = this.U, ud = mat.userData;
+      // Remember the material's own hook the first time (patching again for a new level rebinds the uniforms)
+      if (!('pbBase' in ud)) {
+        const cur = mat.onBeforeCompile;
+        ud.pbBase = cur && cur !== THREE.Material.prototype.onBeforeCompile ? cur : null;
+        ud.pbBaseKey = ud.pbBase && mat.customProgramCacheKey !== THREE.Material.prototype.customProgramCacheKey ? mat.customProgramCacheKey() : '';
+      }
+      const prev = ud.pbBase, prevKey = ud.pbBaseKey;
+      mat.onBeforeCompile = (sh, r) => {
+        if (prev) prev(sh, r);
         Object.assign(sh.uniforms, Uu);
         sh.vertexShader = 'varying vec3 vPbWorld;\nvarying vec3 vPbNormal;\n' + sh.vertexShader.replace('#include <worldpos_vertex>', `#include <worldpos_vertex>
   vec4 pbW = vec4(transformed, 1.0);
@@ -173,11 +204,11 @@ roughnessFactor = clamp(roughnessFactor * mix(0.86, 1.12, pbM), 0.04, 1.0);
   vPbNormal = normalize(mat3(modelMatrix) * pbN);`);
         sh.fragmentShader = FRAG_HEAD + sh.fragmentShader
           .replace('#include <lights_fragment_maps>', '#include <lights_fragment_maps>\n' + FRAG_LM)
-          .replace('#include <color_fragment>', '#include <color_fragment>\n' + FRAG_MACRO)
+          .replace('#include <color_fragment>', '#include <color_fragment>\n' + FRAG_MACRO + FRAG_DUST)
           .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n' + FRAG_ROUGH)
           .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + FRAG_WAVE);
       };
-      mat.customProgramCacheKey = () => 'pb-baked-v3';
+      mat.customProgramCacheKey = () => 'pb-baked-v4' + prevKey;
       return mat;
     }
     pbr(name, o = {}) {
@@ -194,6 +225,15 @@ roughnessFactor = clamp(roughnessFactor * mix(0.86, 1.12, pbM), 0.04, 1.0);
       return this.patch(m);
     }
     // World-space variation on a patched material (see FRAG_MACRO / FRAG_WAVE)
+    // Dust and grime for a prop material (once; not for glows, glass, screens or the architecture's own)
+    dusty(m) {
+      if (!m || m.userData.dustDone || m.isMeshBasicMaterial || m.isShaderMaterial || m.transparent || (m.defines && m.defines.PB_MACRO)) return m;
+      m.userData.dustDone = true;
+      const k = this.theme.dust != null ? this.theme.dust : 0.3;
+      if (k <= 0 || !m.userData.pbBase && m.onBeforeCompile === THREE.Material.prototype.onBeforeCompile) return m;
+      m.defines = Object.assign({}, m.defines || {}, { PB_DUST: k.toFixed(3) });
+      return m;
+    }
     macro(m, k, damp, wave) {
       m.defines = Object.assign({}, m.defines || {}, { PB_MACRO: k.toFixed(3), PB_DAMP: damp.toFixed(3) });
       if (wave > 0) m.defines.PB_WAVE = wave.toFixed(3);
@@ -393,6 +433,7 @@ roughnessFactor = clamp(roughnessFactor * mix(0.86, 1.12, pbM), 0.04, 1.0);
         await step(0.02 + 0.33 * (k + 1) / uniq.length, PB.t('load.textures', { n: k + 1, m: uniq.length }));
       }
       await step(0.36, PB.t('load.walls'));
+      PB.Placement.fitProps(this.L, type => this.footprint(type));
       this.buildArchitecture();
       await step(0.42, PB.t('load.bake'));
       await this.bake(p => progress(0.42 + p * 0.38, PB.t('load.bake')));
@@ -1028,6 +1069,7 @@ roughnessFactor = clamp(roughnessFactor * mix(0.86, 1.12, pbM), 0.04, 1.0);
       const meshes = [];
       for (const part of parts) {
         const mat = opts.matFn ? opts.matFn(part.mat) : this.mat(part.mat);
+        this.dusty(mat);
         const im = new THREE.InstancedMesh(part.geo, mat, list.length);
         list.forEach((p, k) => {
           dummy.position.set(p.x, p.y || 0, p.z);
@@ -1039,14 +1081,35 @@ roughnessFactor = clamp(roughnessFactor * mix(0.86, 1.12, pbM), 0.04, 1.0);
         im.castShadow = opts.cast !== false && !(mat.transparent);
         im.receiveShadow = true;
         im.userData.def = defKey;
+        if (list.length && list.every(p => p.wall)) im.userData.wallMounted = true;
         im.computeBoundingSphere();
         this.group.add(im);
         meshes.push(im);
       }
       return meshes;
     }
+    // Floor footprint of a prop model in its own space (x0..x1, z0..z1), ignoring parts well above the floor
+    footprint(type) {
+      const cache = this._fp || (this._fp = new Map());
+      if (cache.has(type)) return cache.get(type);
+      const def = P.DEFS[type];
+      let f = null;
+      if (def) {
+        const b = new THREE.Box3(), pb = new THREE.Box3();
+        for (const part of P.build(type, def)) {
+          if (!part.geo.boundingBox) part.geo.computeBoundingBox();
+          pb.copy(part.geo.boundingBox);
+          if (pb.min.y > 2.2) continue;
+          b.union(pb);
+        }
+        if (!b.isEmpty()) f = { x0: b.min.x, x1: b.max.x, z0: b.min.z, z1: b.max.z };
+      }
+      cache.set(type, f);
+      return f;
+    }
     buildProps() {
       const L = this.L, C = this.C;
+      this.instMap = new Map();
       const byType = new Map();
       const add = (type, p) => { if (!byType.has(type)) byType.set(type, []); byType.get(type).push(p); };
       for (const p of L.props) {
@@ -1054,6 +1117,9 @@ roughnessFactor = clamp(roughnessFactor * mix(0.86, 1.12, pbM), 0.04, 1.0);
         if (p.type === 'collider') continue;
         if (p.type === 'cabinet') { add('cabinet:' + p.game, p); continue; }
         add(p.type, p);
+        // Drawer fronts and doors of furniture that opens: one instanced model per slot
+        const furn = PB.Containers && PB.Containers.FURN[p.type];
+        if (furn && !p.noDrawers) for (const sl of furn.slots) add(sl.def, p);
         if (p.type === 'desk' && p.lamp) add('deskLamp', { x: p.x - 0.6, z: p.z - 0.1, rot: 0 });
         if ((p.type === 'cubicleDesk' || p.type === 'desk') && p.monitor) {
           if (p.type === 'desk') add('cubicleMonitor', { x: p.x, z: p.z, rot: p.rot });
@@ -1101,7 +1167,8 @@ roughnessFactor = clamp(roughnessFactor * mix(0.86, 1.12, pbM), 0.04, 1.0);
         }
         const def = P.DEFS[type];
         if (!def) continue;
-        this.instanced(type, def, list, { cast: type !== 'chairPile' });
+        const meshes = this.instanced(type, def, list, { cast: type !== 'chairPile' });
+        this.instMap.set(type, { meshes, list });
       }
     }
     buildCabinets(game, list) {

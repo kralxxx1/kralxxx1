@@ -547,8 +547,8 @@
     L.meta.houses = houses;
     // Street lights along the sidewalk
     for (let x = 3; x < W; x += 8) L.addLight({ x: L.cx(x), z: 6 * C + 0.4, y: 6.8, kind: 'street', color: [1, 0.72, 0.4], intensity: 0.8, range: 12, outside: true });
-    // The missing-kids flyer, stapled to a lamp post
-    spotAt(L, 'poleFlyer', L.cx(11), 6 * C + 0.4 + 0.13, 1.5, 0);
+    // The missing-kids flyer, stapled to the street side of a lamp post (the post stands 1.9 m behind its lamp head)
+    spotAt(L, 'poleFlyer', L.cx(11), 6 * C + 0.4 - 1.9 + 0.094, 1.5, 0);
     for (let x = 7; x < W; x += 8) L.addLight({ x: L.cx(x), z: 9 * C - 0.4, y: 6.8, kind: 'street', color: [1, 0.72, 0.4], intensity: 0.8, range: 12, outside: true, flicker: x === 23 ? 0.5 : 0 });
     L.meta.streetLamps = L.lights.filter(l => l.kind === 'street');
     // Spawn at the west end of the street; exit: the arcade's back alley at the east end

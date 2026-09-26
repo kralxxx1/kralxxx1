@@ -81,9 +81,9 @@ Ivy wouldn't go near the pool after '85. Is this hers?
 
 Every room here belongs to somebody.` },
       lobby_lily2: { kind: 'drawing', drawing: 2, title: 'A child\'s drawing stuck behind a vent', from: 'Lily, age 8', body:
-`Crayon. A big man and a small girl in front of a machine with a yellow circle on the screen. The girl has her arms up.
+`Crayon. A big man and a small girl in a bed, both holding a little arcade machine with a yellow circle on the screen. The girl has her arms up.
 
-ME AND DADDY AT THE ARCADE.
+ME AND DADDY AND THE LITTLE MACHINE.
 I GOT 3190 POINTS!!!
 DADDY SAID IT GOES ON THE TABLE FOREVER.` },
       lobby_tape: { kind: 'tape', title: 'Tape: "Test, test"', from: 'Eddie', date: 'Inside', body:

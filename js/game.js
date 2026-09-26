@@ -327,6 +327,8 @@
       this.audio.setMusic('none');
       await U.nextFrame();
       this.unloadLevel();
+      this.ui.clearSubtitles();
+      this.talkQ = []; this.talkCur = null;
       const L = PB.LevelGen.generate(def);
       this.level = L; this.levelDef = def;
       if (opts.menu) L.meta.zonesOn = [0, 1];
@@ -361,6 +363,8 @@
       this.player.flashOn = false;
       this.cpPos = { x: this.player.pos.x, z: this.player.pos.z, yaw: this.player.yaw };
       this.createItems();
+      this.containers = PB.Containers.create(this);
+      this.containers.distribute();
       PB.Placement.settle(this);
       this.createDoorInteractions();
       this.createHideSpots();
@@ -463,14 +467,16 @@
     // Items no longer glow: the on-screen ring (updateMarks) shows what can be used.
     glowSprite() { return new THREE.Object3D(); }
     createItems() {
-      const L = this.level;
-      for (const it of L.items) {
-        const o = { item: it, id: it.id, type: it.type, pos: new THREE.Vector3(it.wx, it.wy || 0, it.wz), taken: false, mesh: null, marker: null, spin: false };
-        this.buildItem(o);
-        if (o.mesh) { o.mesh.position.copy(o.pos); if (o.baseY == null) o.baseY = o.pos.y; this.scene.add(o.mesh); }
-        this.items.push(o);
-        this.interactables.push({ kind: 'item', ref: o, pos: o.interactPos || o.pos, reach: o.reach || 2.5, prompt: () => (o.taken ? null : this.itemPrompt(o)), act: () => this.useItem(o), hold: () => o.hold });
-      }
+      for (const it of this.level.items) this.spawnItem(it);
+    }
+    spawnItem(it) {
+      const o = { item: it, id: it.id, type: it.type, pos: new THREE.Vector3(it.wx, it.wy || 0, it.wz), taken: false, mesh: null, marker: null, spin: false };
+      this.buildItem(o);
+      if (o.mesh) { o.mesh.position.copy(o.pos); if (o.baseY == null) o.baseY = o.pos.y; this.scene.add(o.mesh); }
+      this.items.push(o);
+      // Shut in a drawer or a safe: nothing to see or take until it is opened
+      this.interactables.push({ kind: 'item', ref: o, pos: o.interactPos || o.pos, reach: o.reach || 2.5, prompt: () => (o.taken || (this.containers && this.containers.hidden(o)) ? null : this.itemPrompt(o)), act: () => this.useItem(o), hold: () => o.hold });
+      return o;
     }
     buildItem(o) {
       const it = o.item, ty = o.type, w = this.world;
@@ -964,6 +970,13 @@
       // A sharp intake of breath when you realise it has seen you
       if (!this.lastGasp || now - this.lastGasp > 8) { this.lastGasp = now; this.audio.breathe('gasp', 0.6); this.player.breathT = 0.5; this.player.breathIn = true; }
       this.player.fear = Math.min(100, this.player.fear + 22);
+      // It lets you know it has you: a roar, a wail, a whistle, and your view jolts
+      if (!ent.lastVoice || now - ent.lastVoice > 6) {
+        ent.lastVoice = now;
+        this.audio.creature(ent.kind, { x: ent.pos.x, y: ent.kind === 'crawler' ? 0.4 : 1.4, z: ent.pos.z }, !ent.losToPlayer(), { rate: ent.kind === 'ghost' && ent.cfg ? ent.cfg.pitch / 330 : 1 });
+      }
+      this.player.addTrauma(ent.kind === 'pacman' ? 0.45 : 0.3);
+      this.fx.punch = 1;
       if (!this.spottedOnce[key]) {
         this.spottedOnce[key] = true;
         if (this.script.onSpotted) this.script.onSpotted(this, ent);
@@ -974,6 +987,8 @@
     }
     onWatcherSeen() {
       if (!this.spottedOnce.watcher) { this.spottedOnce.watcher = true; this.mono('watcherSeen', 5); }
+      const w = this.entities.find(e => e.kind === 'watcher');
+      if (w && (!w.lastVoice || this.time - w.lastVoice > 20)) { w.lastVoice = this.time; this.audio.creature('watcher', { x: w.pos.x, y: 2.8, z: w.pos.z }, false); }
       this.audio.stinger('spot');
     }
     onGhostEaten(g) {
@@ -1418,6 +1433,7 @@
       if (this.state !== 'play') return;
       this.updateScares(dt);
       this.updateItems(dt);
+      if (this.containers) this.containers.update(dt);
       this.updateInteraction(dt);
       this.updatePortals();
       this.updateExits();
@@ -1443,7 +1459,7 @@
     updateItems(dt) {
       const t = this.time, pl = this.player;
       for (const o of this.items) {
-        if (o.taken || !o.mesh) continue;
+        if (o.taken || !o.mesh || o.container) continue;
         if (o.hiddenUntil) o.mesh.visible = !!this.flags[o.hiddenUntil];
         if (o.spin) o.mesh.rotation.y += dt * 1.2;
         if (o.spinSlow) o.mesh.rotation.y += dt * 0.4;
@@ -1521,6 +1537,8 @@
         if (!e.hostile || ['dormant', 'wait', 'gone', 'eaten', 'flee', 'friendly', 'lurk'].includes(e.state)) continue;
         const d = e.distToPlayer();
         if (d < 24) f += (24 - d) / 24 * (e.state === 'chase' ? 26 : 9);
+        // Something heavy on your heels shakes the floor under you
+        if (e.state === 'chase' && d < 9) pl.addTrauma(dt * (1 - d / 9) * (e.kind === 'pacman' || e.kind === 'chompy' ? 0.55 : 0.2));
       }
       if (this.levelDef.theme === 'dark' && !pl.flashOn) f += 6;
       if (this.world.lightAt(pl.pos.x, pl.pos.z) < 0.15 && !pl.flashOn) f += 3;
@@ -1546,7 +1564,8 @@
       const tint = def.grade ? def.grade.tint : [1, 1, 1];
       p.tint.value.set(tint[0], tint[1], tint[2]);
       fx.fear = U.damp(fx.fear, (this.state === 'play' || this.state === 'dying' ? this.player.fear / 100 : 0), 3, dt);
-      p.fear.value = fx.fear * (d.reduceFlicker ? 0.5 : 1);
+      fx.punch = Math.max(0, (fx.punch || 0) - dt * 1.4);
+      p.fear.value = Math.min(1, fx.fear + fx.punch * 0.5) * (d.reduceFlicker ? 0.5 : 1);
       fx.damage = Math.max(0, fx.damage - dt * 1.2);
       p.damage.value = fx.damage;
       fx.flash = Math.max(0, fx.flash - dt * 1.5);

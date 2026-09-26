@@ -117,7 +117,7 @@ CLYDE: O korkak değil.
     },
     mono: {
       mill_start: 'Bir saatin tik takı. Hep aynı saniyeye takılı.',
-      mill_redSeen: 'Kırmızı... bir çarşaf gibi. İki beyaz göz. Bana bakıyor.',
+      mill_redSeen: 'Kırmızı... sırılsıklam bir çarşaf. Kumaşın altından bir yüz bastırıyor. Gözlerin olduğu yerde iki yırtık delik. Bana bakıyor.',
       mill_fuse: 'Bir sigorta daha.',
       mill_elevator: 'Asansör geliyor. Yavaş. Çok yavaş.',
       mill_watch: '3:17. Saatle aynı.',

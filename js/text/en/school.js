@@ -1,10 +1,10 @@
-/* English — Chapter 5: Harlow Middle School (April 16, 1987). */
+/* English — Chapter 5: Harlow Junior High (grades 7–9, April 16, 1987). */
 (function (root) {
   'use strict';
   root.PB.I18N.register('en', 'story', {
     chapters: {
       school: {
-        name: 'LEVEL 5', title: 'Harlow Middle School', place: 'Thursday, April 16, 1987, 3:05 PM',
+        name: 'LEVEL 5', title: 'Harlow Junior High', place: 'Thursday, April 16, 1987, 3:05 PM',
         intro: 'The last day anyone saw all five of them together. The bell has just rung, and it will keep ringing. Somebody is walking the halls with a flashlight, checking for hall passes. You do not have one.',
       },
     },
@@ -29,8 +29,8 @@ Teachers ask the office.
 first digit = 3
 like 3 lives in pacman
 —P.` },
-      school_clue2: { kind: 'note', title: 'Detention slip, pink carbon copy', from: 'Harlow Middle School', date: 'April 14, 1987', body:
-`STUDENT: Billy — grade 9
+      school_clue2: { kind: 'note', title: 'Detention slip, pink carbon copy', from: 'Harlow Junior High', date: 'April 14, 1987', body:
+`STUDENT: Billy — grade 9 (repeating)
 OFFENSE: Found inside the custodian's closet during 4th period. Claims he was "doing inventory."
 DETENTION: Thursday 4/16, 3:15–4:00 PM
 
@@ -72,8 +72,9 @@ She drew on everything.
 She laughed at everything.
 She was our friend.
 
-— The 4th grade, Room 104` },
-      school_paper: { kind: 'note', title: 'The Harlow Hornet, school paper', from: 'Harlow Middle School', date: 'April 1987', body:
+— Her 4th grade class, Room 104, Harlow Elementary.
+We brought this with us when we moved up. (1985)` },
+      school_paper: { kind: 'note', title: 'The Harlow Hornet, school paper', from: 'Harlow Junior High', date: 'April 1987', body:
 `RADIO CLUB WANTS YOU!
 Do you like music? Do you like talking? Do you want to be on the air?
 Penny (grade 9) is starting a radio club. First meeting Tuesday.
@@ -82,8 +83,8 @@ Penny (grade 9) is starting a radio club. First meeting Tuesday.
 ARCADE HIGH SCORES (from the Starlight)
 1. BLY 921,450 2. PNY 887,300 3. IVY 640,120 4. CLY 512,890 5. SAM 498,770
 
-LOST: one walkman, blue, "S" scratched on the back. Kind of broken. Reward: forgiveness.` },
-      school_samlocker: { kind: 'note', title: 'Taped to the door of locker 217', from: 'Sam', date: 'April 16, 1987', body:
+FOUND: one walkman, blue, "S" scratched on the back. Kind of broken. Owner, please forgive whoever sat on it. —C.` },
+      school_samlocker: { kind: 'note', title: 'Taped inside the door of locker 217 (yours)', from: 'Sam', date: 'April 16, 1987', body:
 `Clyde,
 
 It's just a walkman. I don't even care about the walkman. I was mad because you always do stuff first and I always have to catch up.
@@ -96,7 +97,7 @@ We're a team.
 
 — Sam
 
-(You wrote this. You never gave it to him. You forgot it here on the last day of school, and you never came back for it.)` },
+(You wrote this at lunch and taped it inside your locker to give him after school. That night at the arcade you had the second fight instead. You never gave it to him. It stayed there until they cleaned out the lockers in June.)` },
       school_attendance: { kind: 'note', title: 'Attendance sheet, Room 112', from: 'Homeroom', date: 'Friday, April 17, 1987', body:
 `ABSENT:
 Billy
@@ -112,7 +113,7 @@ Sam — PRESENT. Came in early. Sat at Clyde's desk. Would not move. Sent to the
       school_walt: { kind: 'diary', title: "Walt's journal, in pencil", from: 'W', date: '—', body:
 `A school gym. Streamers for a dance that never happened.
 
-I came to this school once, in 1983, to talk to Lily's class. They asked me what a radar does. I said: it finds things that are lost.
+This isn't Lily's school, but it smells the same. I went to hers once, in 1983, to talk to her class. They asked me what a radar does. I said: it finds things that are lost.
 
 They laughed. She didn't. She was already too tired to laugh.
 
@@ -139,7 +140,7 @@ PRINCIPAL: ...The spring dance is postponed.
       school_leave: 'Unchain the fire exit in the east hall',
     },
     mono: {
-      school_start: 'Harlow Middle School. The clock above the door says 3:05. It said 3:05 the whole year.',
+      school_start: 'Harlow Junior High. The clock above the door says 3:05. It said 3:05 the whole year.',
       school_code: '3... 1... 7. Of course it is.',
       school_keys: "Mr. Gus's keys. He used to let us carry them to the gym. It made us feel important.",
       school_gym: 'The gym. SPRING DANCE \'87. Clyde was going to ask Penny. He practiced on me.',

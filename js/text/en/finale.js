@@ -55,9 +55,9 @@ NEXT PLAYER: —` },
 
 The plug is here. Pulled from the inside it isn't murder, it's an ending. GAME OVER. Everyone who is still themselves goes home.
 
-But only if the four of them remember who they are. If you pull it while they are still ghosts, the game just picks new ghosts. And a new player.
+But only if the four of them remember who they are. While they are still ghosts, it will not move for one pair of hands. It needs five.
 
-I tried it that way once. I am the new player.
+I tried it alone, my first night in here. The game took it as a move and made me its player. That is what I am now.
 
 Tell Nora I'm sorry. Tell Ruth she was right. Tell Lily's table to keep her score.
 
@@ -65,7 +65,7 @@ Tell Nora I'm sorry. Tell Ruth she was right. Tell Lily's table to keep her scor
       ks_eddie: { kind: 'note', title: 'A note pinned beside the EXIT', from: 'Eddie', body:
 `One in, one out. The score has to be kept.
 
-I found this door in my first month. I've been standing next to it for a year and a half.
+I found this door in my first week. Out there it's been a year and a half. In here it has felt like one very long night.
 
 I'm sorry, kid.` },
     },
@@ -105,11 +105,11 @@ I'm sorry, kid.` },
       ],
       ks_plea: [
         ['eddie', 'That\'s the real one. Wind, rain, Front Street. Home.'],
-        ['eddie', 'It lets one out and keeps one in. I found that out my first month. I\'ve been standing next to it ever since.'],
+        ['eddie', 'It lets one out and keeps one in. I found that out my first week. I\'ve been standing next to it ever since.'],
         ['sam', 'You were going to let me open it and walk through yourself.'],
         ['eddie', 'Hope is a year old, Sam. I have never held her. [His voice breaks.] I\'m not asking you to forgive me. I\'m asking you to hold the door.'],
       ],
-      // If Sam heard him out at the Starlite, Eddie keeps the promise he made there
+      // If Sam heard him out at the motel, Eddie keeps the promise he made there
       ks_pleaTrust: [
         ['eddie', 'That\'s the real one. Wind, rain, Front Street. Home.'],
         ['eddie', 'I told you at the motel I wouldn\'t ask you. So I\'m not asking.'],

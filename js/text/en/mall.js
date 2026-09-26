@@ -91,11 +91,11 @@ The five of them came by every Saturday that winter. The loud one, the one with 
 His friend. I can't remember the friend's name. It starts with S.
 
 It is important. I don't know why it is important.` },
-      mall_lily5: { kind: 'drawing', drawing: 5, title: 'A drawing taped inside an empty store window', from: 'Lily, age 8', body:
-`Crayon. A giant Christmas tree and, at its feet, a yellow circle with legs holding the hand of a small girl. Snow is falling, drawn as blue dots.
+      mall_lily5: { kind: 'drawing', drawing: 5, title: 'A drawing taped inside the Starlight Jr. kiosk', from: 'Lily, age 8', date: 'December 1982', body:
+`Crayon. The big Christmas tree on Front Street and, at its feet, a yellow circle with legs holding the hand of a small girl. Snow is falling, drawn as blue dots.
 
-DADDY IS GOING TO HAVE A SHOP AT THE MALL!!
-CHOMPY GOES TO THE MALL.
+DADDY SAYS ONE DAY THERE WILL BE A STARLIGHT IN EVERY TOWN.
+EVEN A LITTLE ONE IN A MALL.
 (I DREW CHOMPY) (DADDY SAYS I INVENTED HIM)` },
       mall_tape: { kind: 'tape', title: 'Tape: "Christmas message"', from: "Penny's tape recorder", date: 'December 20, 1986', body:
 `[Click. Food court noise, Christmas music, a fountain.]

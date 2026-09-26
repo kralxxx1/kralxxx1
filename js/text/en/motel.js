@@ -1,15 +1,15 @@
-/* English — Chapter 8: Starlite Motor Inn (Eddie's memory). */
+/* English — Chapter 8: Blue Moon Motor Inn (Eddie's memory). */
 (function (root) {
   'use strict';
   root.PB.I18N.register('en', 'story', {
     chapters: {
       motel: {
-        name: 'LEVEL 8', title: 'Starlite Motor Inn', place: "Route 9, the night clerk's shift",
+        name: 'LEVEL 8', title: 'Blue Moon Motor Inn', place: "Route 9, the night clerk's shift",
         intro: 'This one is not yours. A motel off Route 9, vacancy sign buzzing, a night clerk who laughed at a skinny repairman\'s jokes in 1990. Room 12 has been paid for a long time. Somebody keeps knocking on doors.',
       },
     },
     items: {
-      room12Key: { name: 'Key to Room 12', desc: 'A brass key on a green plastic diamond: STARLITE MOTOR INN — 12. Still warm from the dryer.' },
+      room12Key: { name: 'Key to Room 12', desc: 'A brass key on a green plastic diamond: BLUE MOON MOTOR INN — 12. Still warm from the dryer.' },
     },
     docs: {
       motel_intro: { kind: 'note', title: 'A sticky note on the vacancy sign switch', from: 'June', date: '1991', body:
@@ -18,7 +18,7 @@ If you're reading this you're late again.
 Coffee's on. Pie's in the fridge. Don't eat all of it.
 I love you. Fix the ice machine.
 — J.` },
-      motel_register: { kind: 'note', title: 'The registration book on the front desk', from: 'Starlite Motor Inn', date: '1990–1993', body:
+      motel_register: { kind: 'note', title: 'The registration book on the front desk', from: 'Blue Moon Motor Inn', date: '1990–1993', body:
 `...
 Rm 7 — traveling salesman — 1 night
 Rm 3 — the Hendersons (again)
@@ -38,7 +38,7 @@ Also the man in Room 12 talks to his walkie-talkie all night. There is nobody on
 
 — A guest` },
       motel_postcard: { kind: 'note', title: 'A postcard on a nightstand', from: 'Eddie', date: 'Postmarked Harlow, 1990', body:
-`(Front: "GREETINGS FROM THE STARLITE — Route 9, Harlow". A drawing of a swimming pool that the motel does not have.)
+`(Front: "GREETINGS FROM THE BLUE MOON — Route 9, Harlow". A drawing of a swimming pool that the motel does not have.)
 
 June,
 You laughed at the joke about the ice machine. Nobody laughs at that joke. I'm going to keep telling it until you marry me.
@@ -129,7 +129,7 @@ EDDIE: Okay. Okay. Your dad loves you. Tell your mom the ice machine joke. She'l
     },
     radio: {
       motel_start: [
-        ['eddie', '...Oh. Oh, this is the Starlite.'],
+        ['eddie', '...Oh. Oh, this is the Blue Moon.'],
         ['sam', 'You know it?'],
         ['eddie', 'I met my wife here. She worked nights. Just... just keep moving, okay? Don\'t go in Room 12.'],
         ['sam', 'Why not?'],
