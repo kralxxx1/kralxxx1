@@ -73,8 +73,9 @@ float pbDust = 0.0;
   vec3 Nd = normalize(vPbNormal);
   float nz = pbNoise(vPbWorld * 2.3 + 7.0) * 0.65 + pbNoise(vPbWorld * 11.0) * 0.35;
   diffuseColor.rgb *= 0.92 + 0.16 * pbNoise(vPbWorld * 0.8 + 3.0);
-  pbDust = smoothstep(0.55, 0.95, Nd.y) * smoothstep(0.25, 0.75, nz) * PB_DUST;
-  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.44, 0.42, 0.38) * (0.8 + 0.4 * nz), pbDust);
+  // an even film on everything that faces up, a little thicker in places (not blotches)
+  pbDust = smoothstep(0.55, 0.95, Nd.y) * (0.55 + 0.45 * smoothstep(0.2, 0.8, nz)) * PB_DUST;
+  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.5, 0.48, 0.44) * (0.9 + 0.2 * nz), pbDust * 0.55);
   float low = 1.0 - smoothstep(0.0, 0.18 + nz * 0.2, vPbWorld.y);
   diffuseColor.rgb *= 1.0 - low * 0.45 * min(1.0, PB_DUST * 2.5) * (1.0 - abs(Nd.y));
 }
@@ -1113,7 +1114,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       const byType = new Map();
       const add = (type, p) => { if (!byType.has(type)) byType.set(type, []); byType.get(type).push(p); };
       for (const p of L.props) {
-        if (p.collider) this.addCollider({ minX: p.x - p.collider.hw, maxX: p.x + p.collider.hw, minZ: p.z - p.collider.hd, maxZ: p.z + p.collider.hd, maxY: 2.2, hide: p.hide ? p : null });
+        if (p.collider) p.colBox = this.addCollider({ minX: p.x - p.collider.hw, maxX: p.x + p.collider.hw, minZ: p.z - p.collider.hd, maxZ: p.z + p.collider.hd, maxY: 2.2, hide: p.hide ? p : null });
         if (p.type === 'collider') continue;
         if (p.type === 'cabinet') { add('cabinet:' + p.game, p); continue; }
         add(p.type, p);

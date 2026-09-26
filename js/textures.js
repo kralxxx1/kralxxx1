@@ -304,19 +304,25 @@
     img.normalStrength = 0.6;
     return img;
   };
+  // Wood: growth rings stretched along the grain with dark latewood bands, fine fibre streaks and pores,
+  // and a slow tone drift across the board
   R.wood = (n, s) => {
     const img = new FImg(n);
-    const warp = field(n, 4, 4, s);
+    const warp = field(n, 3, 4, s), tone = field(n, 2, 2, s + 2), knot = field(n, 5, 2, s + 5);
+    const fib = (x, y) => { const X = x / 24, xi = Math.floor(X), t = X - xi; const a = h32(xi, y, s + 9), b = h32(xi + 1, y, s + 9); return a + (b - a) * (t * t * (3 - 2 * t)); };
     for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
       const i = y * n + x;
-      const g = Math.sin((y / n * 22 + warp[i] * 6) * Math.PI);
-      const ring = g * 0.5 + 0.5;
-      const k = 0.8 + ring * 0.25 + (h32(x >> 1, y, s) - 0.5) * 0.06;
-      img.set(i, 0.48 * k, 0.32 * k, 0.19 * k);
-      img.h[i] = ring * 0.4;
-      img.r[i] = 0.55 + ring * 0.15;
+      const rc = y / n * 11 + warp[i] * 3.2 + Math.sin(x / n * 6.2832 + s) * 0.35 + sm(0.7, 1, knot[i]) * 1.5;
+      const ring = rc - Math.floor(rc);
+      const late = sm(0.55, 0.92, ring) * (1 - sm(0.92, 1, ring));
+      const fibre = fib(x, y) * 0.6 + fib(x * 3.1, y * 2 + 7) * 0.4;
+      const pore = h32(x >> 2, y, s + 3) > 0.985 ? 1 : 0;
+      const k = (0.8 + (tone[i] - 0.5) * 0.3) * (1 - late * 0.26) * (0.94 + fibre * 0.12) * (1 - pore * 0.25);
+      img.set(i, 0.5 * k, 0.33 * k, 0.2 * k);
+      img.h[i] = 0.5 - late * 0.25 + fibre * 0.15 - pore * 0.3;
+      img.r[i] = 0.5 + late * 0.08 + pore * 0.2;
     }
-    img.normalStrength = 0.8;
+    img.normalStrength = 0.6;
     return img;
   };
   // Floor planks: staggered joints, per-board tone, grain, dark gaps and a worn walking path

@@ -116,10 +116,10 @@
     const slots = [];
     for (const x of [-0.64, 0.64]) for (const [y, h, lock] of [[0.6275, 0.19, true], [0.4275, 0.19, false], [0.1975, 0.25, false]]) {
       body.push(cav(0.41, h, x, y, 0.39));
-      slots.push({ c: [x, y, 0.39], w: 0.41, h, depth: 0.7, kind: 'wood', box: 'drawerBox', junk: 'office', front: front('drawer', 0.41, h - 0.012, x, y, 0.39, 'bar', { lock }) });
+      slots.push({ c: [x, y, 0.39], w: 0.41, h, depth: 0.7, kind: 'wood', box: 'drawerBox', junk: 'office', front: front('drawerWood', 0.41, h - 0.012, x, y, 0.39, 'bar', { lock }) });
     }
     body.push(cav(0.6, 0.075, 0, 0.6925, 0.39));
-    slots.push({ c: [0, 0.6925, 0.39], w: 0.6, h: 0.075, depth: 0.5, kind: 'wood', box: 'drawerBox', junk: 'pencil', front: front('drawer', 0.6, 0.065, 0, 0.6925, 0.39, 'knob') });
+    slots.push({ c: [0, 0.6925, 0.39], w: 0.6, h: 0.075, depth: 0.5, kind: 'wood', box: 'drawerBox', junk: 'pencil', front: front('drawerWood', 0.6, 0.065, 0, 0.6925, 0.39, 'knob') });
     define('desk', body, slots);
   }
 
@@ -135,7 +135,7 @@
       ['lathe', 'lampShade', [[0.12, 0], [0.07, 0.14], [0.001, 0.14]], 20, 0.1, 0.77, -0.06],
       ['lathe', 'mug', [[0.036, 0], [0.04, 0.005], [0.04, 0.095], [0.037, 0.098], [0.034, 0.01], [0, 0.01]], 16, -0.12, 0.615, 0.08],
     ];
-    const slots = [{ c: [0, 0.495, 0.2], w: 0.4, h: 0.17, depth: 0.34, kind: 'wood', box: 'drawerBox', junk: 'bedside', front: front('drawer', 0.4, 0.16, 0, 0.495, 0.2, 'knob') }];
+    const slots = [{ c: [0, 0.495, 0.2], w: 0.4, h: 0.17, depth: 0.34, kind: 'wood', box: 'drawerBox', junk: 'bedside', front: front('drawerWood', 0.4, 0.16, 0, 0.495, 0.2, 'knob') }];
     body.push(cav(0.4, 0.17, 0, 0.495, 0.2));
     define('nightstand', body, slots);
   }

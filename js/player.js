@@ -8,7 +8,7 @@
   const MAP = {
     forward: ['KeyW', 'ArrowUp'], back: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
     sprint: ['ShiftLeft', 'ShiftRight'], crouch: ['KeyC'], interact: ['KeyE', 'Enter'],
-    flash: ['KeyF'], map: ['KeyM', 'Tab'], journal: ['KeyJ'], pause: ['Escape', 'KeyP'], throw: ['KeyG'], inventory: ['KeyI'], drink: ['KeyQ'], leanL: ['KeyZ'], leanR: ['KeyX'], reload: ['KeyR'], lookBack: ['KeyV', 'Mouse1'],
+    flash: ['KeyF'], map: ['KeyM', 'Tab'], journal: ['KeyJ'], pause: ['Escape', 'KeyP'], throw: ['KeyG'], inventory: ['KeyI'], drink: ['KeyQ'], leanL: ['KeyZ'], leanR: ['KeyX'], reload: ['KeyR'], lookBack: ['KeyV', 'Mouse1'], attack: ['Mouse0'],
   };
 
   class Input {
@@ -42,8 +42,8 @@
         if (this.locked || this.dragging) { this.dx += e.movementX || 0; this.dy += e.movementY || 0; }
       });
       // Mouse buttons count as keys too (the middle one looks back)
-      root.addEventListener('mousedown', e => { if (e.button === 1) { this.keys.add('Mouse1'); this.edges.add('Mouse1'); if (game.state === 'play') e.preventDefault(); } });
-      root.addEventListener('mouseup', e => { if (e.button === 1) this.keys.delete('Mouse1'); });
+      root.addEventListener('mousedown', e => { if (e.button === 1 || (e.button === 0 && this.locked)) { const k = 'Mouse' + e.button; this.keys.add(k); this.edges.add(k); if (game.state === 'play' && e.button === 1) e.preventDefault(); } });
+      root.addEventListener('mouseup', e => { if (e.button === 1 || e.button === 0) this.keys.delete('Mouse' + e.button); });
       canvas.addEventListener('mousedown', e => {
         if (e.button !== 0 && e.button !== 2) return;
         if (game.state !== 'play') return;

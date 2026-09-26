@@ -394,6 +394,12 @@
       if (!name) return;
       this.play(name, name === 'whistle' ? 1 : name === 'groanCounter' || name === 'moanNeighbor' || name === 'laughChompy' ? 2 : 3, 'ent', pos, { rev: 0.5, occl: true, occluded, gain: o.gain != null ? o.gain : 1, rate: o.rate || 1, jitter: 0.06 });
     }
+    // Something landing: the right sound for what it is, louder the harder it hit
+    impact(kind, pos, gain = 1) {
+      if (!this.ctx) return;
+      const name = { cardboard: 'impactCardboard', bottle: 'impactBottle', bag: 'impactSoft', plastic: 'plasticTap', metal: 'dropMetal', tile: 'dropDebris', wood: 'dropWood' }[kind] || 'dropWood';
+      this.play(name, name === 'plasticTap' ? 4 : name.startsWith('drop') ? 2 : 3, 'sfx', pos, { rev: 0.35, gain: 0.25 + 0.75 * gain, rate: 0.9 + Math.random() * 0.2 });
+    }
     drawerShut(kind, pos) {
       if (!this.ctx) return;
       this.play(kind === 'metal' ? 'drawerMetalShut' : 'drawerWoodShut', 3, 'sfx', pos, { rev: 0.3, gain: 0.75 });

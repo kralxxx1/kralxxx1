@@ -55,7 +55,10 @@
       this.resize();
       this.bindUI();
       this.ui.loading(0.02, t('boot.fonts'), ST.tip());
+      // The physics engine comes from the CDN alongside three.js; the game runs without it if it cannot load
+      const phys = PB.Physics ? Promise.race([PB.Physics.load(), new Promise(res => setTimeout(res, 8000))]) : null;
       await this.loadFonts();
+      await phys;
       // Every sound effect and voice is rendered now, so none is computed during play
       await PB.sfxLib.prerender(PB.sfxLib.effects(), p => this.ui.loading(0.05 + p * 0.3, t('boot.sounds')));
       await PB.sfxLib.prerenderVoices(PB.Audio.VOICE.all(), p => this.ui.loading(0.35 + p * 0.1, t('boot.voices')));
@@ -366,6 +369,7 @@
       this.containers = PB.Containers.create(this);
       this.containers.distribute();
       PB.Placement.settle(this);
+      this.physics = PB.Physics ? PB.Physics.create(this) : null;
       this.createDoorInteractions();
       this.createHideSpots();
       this.menuWorld = !!opts.menu;
@@ -865,6 +869,8 @@
     }
     updateInteraction(dt) {
       const pl = this.player;
+      // carrying something: E puts it down, G or a click throws it (handled by the physics)
+      if (this.physics && this.physics.held) { this.target = null; this.ui.prompt(t('pr.drop')); return; }
       const tgt = this.findTarget();
       this.target = tgt;
       const holdLen = tgt && tgt.it.hold ? tgt.it.hold() : 0;
@@ -1420,7 +1426,7 @@
       if (inp.pressed('map')) { this.openMap(); return; }
       if (inp.pressed('inventory')) { this.openBag('items'); return; }
       if (inp.pressed('journal')) { this.openBag('journal'); return; }
-      if (inp.pressed('throw')) this.throwGlowstick();
+      if (inp.pressed('throw') && !(this.physics && this.physics.held)) this.throwGlowstick();
       if (inp.pressed('drink')) this.drinkAlmond();
       pl.update(dt);
       // Keşfedilen hücreler (harita)
@@ -1434,6 +1440,7 @@
       this.updateScares(dt);
       this.updateItems(dt);
       if (this.containers) this.containers.update(dt);
+      if (this.physics) this.physics.update(dt);
       this.updateInteraction(dt);
       this.updatePortals();
       this.updateExits();

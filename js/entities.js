@@ -38,10 +38,12 @@
         transformed.xz += normalize(position.xz + 1e-4) * sin(ang * 3.0 - uTime * 1.4) * 0.025 * hang;
         transformed += normal * sin(uTime * 1.6 + uSeed) * 0.008 * smoothstep(0.9, 1.3, position.y) * (1.0 - smoothstep(1.3, 1.5, position.y));
         vLy = position.y;`);
-      sh.fragmentShader = 'uniform vec3 uColor; uniform float uAlpha; uniform float uTime; uniform float uFlee; uniform float uFriendly; varying float vLy;\n' + sh.fragmentShader
+      // (the fragment side calls its clock uGhostT: the baked-light patch already declares a uTime there)
+      sh.uniforms.uGhostT = uniforms.uTime;
+      sh.fragmentShader = 'uniform vec3 uColor; uniform float uAlpha; uniform float uGhostT; uniform float uFlee; uniform float uFriendly; varying float vLy;\n' + sh.fragmentShader
         .replace('#include <color_fragment>', `#include <color_fragment>
           // Power pellet: the soaked cloth goes a drowned blue, flashing white when it is about to wear off
-          float flash = step(1.5, uFlee) * step(0.5, fract(uTime * 3.5));
+          float flash = step(1.5, uFlee) * step(0.5, fract(uGhostT * 3.5));
           diffuseColor.rgb = mix(diffuseColor.rgb, mix(vec3(0.12, 0.2, 0.62), vec3(0.9), flash), step(0.5, uFlee) * 0.8);
           diffuseColor.a *= uAlpha;`)
         .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>

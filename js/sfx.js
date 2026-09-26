@@ -391,6 +391,34 @@
     return normalize(out, 0.8);
   };
 
+  // --- Things hitting the floor
+  // Cardboard: a hollow box thump with a papery rattle inside
+  R.impactCardboard = (sr, r) => {
+    const n = S(sr * 0.45), out = new Float32Array(n);
+    add(out, hit(n, sr, r, 0, 1, 'lp', 260 + r() * 80, 0.9, 0.05));
+    add(out, modes(n, sr, [[140 + r() * 30, 0.06, 0.5], [330 + r() * 60, 0.04, 0.35], [720, 0.02, 0.2]], 0, r));
+    add(out, biquad(crackle(n, sr, r, 300, t => Math.exp(-t * 9)), 'bp', 2600, 1, sr), 0.6);
+    return normalize(out, 0.85);
+  };
+  // Empty plastic bottle: a couple of hollow tocks as it bounces and rolls
+  R.impactBottle = (sr, r) => {
+    const n = S(sr * 0.7), out = new Float32Array(n);
+    let t = 0, a = 1;
+    for (let k = 0; k < 4; k++) { add(out, modes(n, sr, [[780 + r() * 120, 0.03, a], [1650 + r() * 200, 0.02, a * 0.6], [3100, 0.01, a * 0.3]], t, r)); add(out, hit(n, sr, r, t, a * 0.3, 'bp', 2400, 1.5, 0.006)); t += 0.09 + r() * 0.08 * (1 - k * 0.2); a *= 0.55; }
+    const roll = biquad(white(n, r), 'bp', 1400, 2, sr);
+    for (let i = 0; i < n; i++) { const tt = i / sr; out[i] += roll[i] * 0.05 * Math.max(0, Math.min(1, (tt - 0.15) / 0.05)) * Math.exp(-(tt - 0.15) * 5) * (tt > 0.15 ? 1 : 0); }
+    return normalize(out, 0.75);
+  };
+  // A soft heavy thing (a bag, a coil of cable) flopping down
+  R.impactSoft = (sr, r) => {
+    const n = S(sr * 0.4), out = new Float32Array(n);
+    add(out, hit(n, sr, r, 0, 1, 'lp', 180, 0.8, 0.07));
+    const cr = biquad(pink(n, r), 'bp', 900 + r() * 400, 0.8, sr);
+    for (let i = 0; i < n; i++) cr[i] *= Math.exp(-i / sr * 12);
+    add(out, cr, 0.4);
+    return normalize(out, 0.8);
+  };
+
   // --- Drawers and safes
   // Wood on wood: a dry, grainy friction rumble through the drawer box's resonances; the stop knocks
   function slideWood(n, sr, r, t0, dur, amp) {
@@ -896,7 +924,7 @@
   // AudioContext (one only exists after the first click), at a fixed rate the context resamples.
   const SR = 44100;
   // How many takes of each effect are used (footsteps and doors vary the most)
-  const TAKES = { paper: 6, cloth: 4, chew: 4, plasticTap: 4, flashClick: 3, doorLocked: 3, squelch: 3, thunder: 3, stingSpot: 3, rustle: 6, breathIn: 4, breathOut: 4, breathInHeavy: 4, breathOutHeavy: 4, breathCalmIn: 3, breathCalmOut: 3, breathFearIn: 4, breathFearOut: 4, gasp: 2, dropMetal: 2, dropWood: 2, dropDebris: 2, farSteps: 3, roarEater: 3, screechGhost: 3, hissCrawler: 3, groanCounter: 2, moanNeighbor: 2, laughChompy: 2, whistle: 1, drawerWoodOpen: 3, drawerWoodShut: 3, drawerMetalOpen: 3, drawerMetalShut: 3 };
+  const TAKES = { paper: 6, cloth: 4, chew: 4, plasticTap: 4, flashClick: 3, doorLocked: 3, squelch: 3, thunder: 3, stingSpot: 3, rustle: 6, breathIn: 4, breathOut: 4, breathInHeavy: 4, breathOutHeavy: 4, breathCalmIn: 3, breathCalmOut: 3, breathFearIn: 4, breathFearOut: 4, gasp: 2, dropMetal: 2, dropWood: 2, dropDebris: 2, farSteps: 3, roarEater: 3, screechGhost: 3, hissCrawler: 3, groanCounter: 2, moanNeighbor: 2, laughChompy: 2, whistle: 1, impactCardboard: 3, impactBottle: 3, impactSoft: 3, drawerWoodOpen: 3, drawerWoodShut: 3, drawerMetalOpen: 3, drawerMetalShut: 3 };
   const LOOPS = /^(rain|gutter|fluorescent|hvac|poolRoom|warehouse|darkRoom|tunnel|schoolHall|mallAtrium|motelHall|hospitalHall|workshop|carPass|radioStatic)/;
   class Sfx {
     constructor(ctx) { this.ctx = ctx || null; this.cache = new Map(); this.voices = new Map(); this.rng = U.rng(1234); this.sr = SR; }

@@ -112,6 +112,27 @@
       ['boxClosed', 'floor', 0.02], ['boxOpen', 'floor', 0.01], ['cableCoil', 'floor', 0.01], ['bottleDown', 'floor', 0.008], ['trashBag', 'floor', 0.005], ['paperScatter', 'floor', 0.01]],
     dark: [['trashBag', 'floor', 0.01], ['bottleDown', 'floor', 0.01], ['paperScatter', 'floor', 0.01], ['cone', 'floor', 0.005], ['wallVentLow', 'wall', 0.01]],
   };
+  // Little scenes left in corners of rooms (not corridors): [type, u, v, facing, collider [hw, hd], y]
+  // u runs along the first wall away from the corner, v away from that wall; facing 0 = away from it
+  const VIGNETTES = {
+    officeCorner: [['desk', 1.15, 0.52, 0, [0.9, 0.45]], ['officeChair', 1.2, 1.35, Math.PI + 0.5, null], ['filing', 0.34, 0.4, 0, [0.3, 0.33]]],
+    boxPile: [['boxClosed', 0.36, 0.33, 0.1, null], ['boxClosed', 0.9, 0.3, -0.15, null], ['boxOpen', 0.4, 0.82, 0.4, null], ['boxClosed', 0.38, 0.33, 0.25, null, 0.36]],
+    vendingNook: [['vending', 0.62, 0.48, 0, [0.45, 0.4]], ['trashCan', 1.35, 0.3, 0, [0.18, 0.18]]],
+    coolerSpot: [['waterCooler', 0.4, 0.35, 0, [0.2, 0.2]], ['bottleDown', 0.9, 0.7, 1.2, null]],
+    chairStack: [['chairPile', 0.95, 0.95, 0.3, [0.8, 0.8]]],
+    filingRow: [['filing', 0.4, 0.4, 0, [0.3, 0.33]], ['filing', 1.02, 0.4, 0, [0.3, 0.33]], ['boxOpen', 1.7, 0.4, 0.2, null]],
+  };
+  const THEME_VIG = {
+    yellow: [['officeCorner', 3], ['boxPile', 3], ['chairStack', 1], ['coolerSpot', 1], ['vendingNook', 1], ['filingRow', 1]],
+    office: [['boxPile', 2], ['coolerSpot', 2], ['filingRow', 2]],
+    school: [['boxPile', 2], ['chairStack', 1]],
+    hospital: [['boxPile', 2], ['coolerSpot', 1]],
+    mall: [['boxPile', 3], ['vendingNook', 1]],
+    dark: [['boxPile', 2], ['officeCorner', 1], ['chairStack', 1]],
+    workshop: [['boxPile', 3]],
+    concrete: [['boxPile', 2]],
+  };
+  const VIG_DENSITY = { yellow: 1 / 40, office: 1 / 80, school: 1 / 70, hospital: 1 / 80, mall: 1 / 60, dark: 1 / 45, workshop: 1 / 40, concrete: 1 / 70 };
   // Footprints (half sizes) of the floor pieces for their colliders; smaller things you just walk over
   const COL = { boxClosed: [0.26, 0.21], boxOpen: [0.26, 0.21], officeChair: [0.3, 0.3], wetFloorSign: [0.16, 0.2], cone: [0.18, 0.18], trashBag: [0.24, 0.22] };
   const DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0];
@@ -173,6 +194,44 @@
           L.addProp(model, x, z, rot, Object.assign({ dressing: true }, col ? { collider: { hw: col[0], hd: col[1] } } : {}));
           n++;
         }
+      }
+    }
+    // Corner scenes: only in room-like corners (both open neighbours open onto more space), clear of spots
+    const vig = THEME_VIG[L.theme];
+    if (vig) {
+      const bag = vig.flatMap(([k, w]) => Array(w).fill(k));
+      const target = Math.round(L.w * L.h * (VIG_DENSITY[L.theme] || 0));
+      const openN = (x, y) => [0, 1, 2, 3].filter(d => L.passable(x + DX[d], y + DY[d]) && !L.edgeKind(x, y, d) && !(L.doorAt && L.doorAt(x, y, d))).length;
+      let placed = 0;
+      for (let t = 0; t < target * 12 && placed < target; t++) {
+        const cx = r.int(1, L.w - 2), cy = r.int(1, L.h - 2);
+        if (!L.passable(cx, cy) || inExit(cx, cy) || doorNear(cx, cy) || used.has('v' + cx + ',' + cy) || (L.floorType && L.floorType[L.i(cx, cy)])) continue;
+        if (L.reserved && L.reserved[L.i(cx, cy)]) continue;
+        const walls = L.wallSides(cx, cy);
+        const pairs = [];
+        for (const a of walls) for (const b of walls) if ((a + 1) % 4 === b || (b + 1) % 4 === a) pairs.push([a, b]);
+        if (!pairs.length || walls.length > 2) continue;
+        const open = [0, 1, 2, 3].filter(d => !walls.includes(d));
+        if (open.some(d => !L.passable(cx + DX[d], cy + DY[d]) || openN(cx + DX[d], cy + DY[d]) < 3)) continue;
+        const [a, b] = r.pick(pairs);
+        const off = C / 2 - 0.1;
+        const corner = [L.cx(cx) + DX[a] * off + DX[b] * off, L.cz(cy) + DY[a] * off + DY[b] * off];
+        const ia = [-DX[a], -DY[a]], ib = [-DX[b], -DY[b]];
+        if (!clear(L.cx(cx), L.cz(cy), 1.8)) continue;
+        const kind = r.pick(bag), base = Math.atan2(ia[0], ia[1]);
+        for (const [type, u, v, face, col, y] of VIGNETTES[kind]) {
+          const x = corner[0] + ib[0] * u + ia[0] * v, z = corner[1] + ib[1] * u + ia[1] * v;
+          const rot = base + face;
+          const sw = Math.abs(Math.sin(rot)) > 0.7;
+          const o = { dressing: true };
+          if (col) o.collider = sw ? { hw: col[1], hd: col[0] } : { hw: col[0], hd: col[1] };
+          if (y) { o.y = y; o.stacked = true; }
+          L.addProp(type, x, z, rot, o);
+          n++;
+        }
+        used.add('v' + cx + ',' + cy);
+        used.add('f' + cx + ',' + cy);
+        placed++;
       }
     }
     L.dressCount = n;
