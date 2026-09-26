@@ -8,7 +8,7 @@
   const MAP = {
     forward: ['KeyW', 'ArrowUp'], back: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
     sprint: ['ShiftLeft', 'ShiftRight'], crouch: ['KeyC'], interact: ['KeyE', 'Enter'],
-    flash: ['KeyF'], map: ['KeyM', 'Tab'], journal: ['KeyJ'], pause: ['Escape', 'KeyP'], throw: ['KeyG'], inventory: ['KeyI'], drink: ['KeyQ'], leanL: ['KeyZ'], leanR: ['KeyX'],
+    flash: ['KeyF'], map: ['KeyM', 'Tab'], journal: ['KeyJ'], pause: ['Escape', 'KeyP'], throw: ['KeyG'], inventory: ['KeyI'], drink: ['KeyQ'], leanL: ['KeyZ'], leanR: ['KeyX'], reload: ['KeyR'],
   };
 
   class Input {
@@ -94,6 +94,7 @@
       const btn = (id, fn) => { const b = ui.el(id); if (b) b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(b); }); };
       btn('tb-interact', () => this.tap('interact'));
       btn('tb-flash', () => this.tap('flash'));
+      btn('tb-reload', () => this.tap('reload'));
       btn('tb-map', () => this.tap('map'));
       btn('tb-bag', () => this.tap('inventory'));
       btn('tb-pause', () => this.tap('pause'));
@@ -151,8 +152,56 @@
       // Yakın dolgu ışığı: tamamen zifiri karanlıkta bile fener halkasının etrafı okunabilsin
       this.fill = new THREE.PointLight(0xffe8c8, 0, 6, 2);
       game.scene.add(this.fill);
+      this.beam = this.makeBeam();
+      game.scene.add(this.beam);
+      this.reloadT = 0;
       // First-person hands
       this.vm = new PB.ViewModel(game, this.cam);
+    }
+    // Visible beam: light scattered by the dust in front of the lens. Seen from behind its apex,
+    // the inside of a cone: rays near the axis travel far through lit air, rays at the rim barely.
+    makeBeam() {
+      const geo = new THREE.CylinderGeometry(1, 0.02, 1, 40, 12, true);
+      geo.translate(0, 0.5, 0);
+      const m = new THREE.ShaderMaterial({
+        uniforms: { uCol: { value: new THREE.Color(1, 0.93, 0.82) }, uK: { value: 0 }, uTime: { value: 0 } },
+        vertexShader: `varying float vT; varying vec3 vW;
+          void main(){ vT = position.y; vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
+        fragmentShader: `uniform vec3 uCol; uniform float uK; uniform float uTime; varying float vT; varying vec3 vW;
+          void main(){
+            float dust = 0.75 + 0.25 * sin(vW.x * 3.1 + uTime * 0.4) * sin(vW.z * 2.7 - uTime * 0.3) * sin(vW.y * 3.7 + uTime * 0.2);
+            float a = uK * pow(vT, 0.75) * pow(1.0 - vT, 1.7) * smoothstep(0.0, 0.06, vT) * dust;
+            gl_FragColor = vec4(uCol * a, 1.0);
+          }`,
+        transparent: true, depthWrite: false, side: THREE.BackSide, blending: THREE.AdditiveBlending, fog: false,
+      });
+      const mesh = new THREE.Mesh(geo, m);
+      mesh.frustumCulled = false;
+      mesh.renderOrder = 4;
+      mesh.visible = false;
+      mesh.name = 'flashBeam';
+      return mesh;
+    }
+    // Change batteries: the light goes out while the hand swaps the cells
+    reload() {
+      const g = this.game;
+      if (!this.hasFlashlight || this.reloadT > 0 || this.hidden) return false;
+      if (!g.inv || g.inv.batteries <= 0) { g.ui.hint(PB.t('n.noSpare')); return false; }
+      if (this.battery > 97) { g.ui.hint(PB.t('n.batteryFull')); return false; }
+      this.reloadT = 1.3; this.reloadOn = this.flashOn || this.battery <= 0;
+      this.flashOn = false;
+      if (g.audio) g.audio.batterySwap();
+      return true;
+    }
+    updateReload(dt) {
+      if (this.reloadT <= 0) return;
+      this.reloadT -= dt;
+      if (this.reloadT <= 0) {
+        const g = this.game;
+        this.reloadT = 0;
+        if (g.inv && g.inv.batteries > 0) { g.inv.batteries--; this.battery = 100; g.ui.notify(PB.t('n.batterySwap')); g.updateInventoryUI(); }
+        if (this.reloadOn) this.toggleFlash(true);
+      }
     }
     applyShadowSetting() {
       const q = PB.Settings.data.shadows;
@@ -259,7 +308,9 @@
       this.heartT -= dt;
       if (this.fear > 35 && this.heartT <= 0) { this.heartT = U.lerp(1.1, 0.42, (this.fear - 35) / 65); if (g.audio) g.audio.heartbeat(U.clamp((this.fear - 30) / 70, 0.2, 1)); }
       // Fener
-      if (inp.pressed('flash') && !this.frozen) this.toggleFlash();
+      if (inp.pressed('flash') && !this.frozen && this.reloadT <= 0) this.toggleFlash();
+      if (inp.pressed('reload') && !this.frozen) this.reload();
+      this.updateReload(dt);
       this.updateCamera(dt, ml * speed);
     }
     toggleFlash(force) {
@@ -287,8 +338,13 @@
         this.flashNear = U.damp(this.flashNear == null ? 1 : this.flashNear, 0.42 + 0.58 * U.smoothstep(0.4, 3.2, hit), 6, dt);
         k *= this.flashNear;
       }
-      this.flash.intensity = U.damp(this.flash.intensity, k * 95, 25, dt);
+      // Brighter where the chapter's exposure is low, so the beam always reads on screen
+      const expo = g.post && g.post.p ? g.post.p.exposure.value : 1;
+      const base = 110 * U.clamp(1 / Math.max(expo, 0.05), 1, 2.6);
+      this.flash.intensity = U.damp(this.flash.intensity, k * base, 25, dt);
       this.fill.intensity = this.flash.intensity * 0.012;
+      // No shadow pass for a light that is off
+      if (this.flash.castShadow) this.flash.shadow.autoUpdate = this.flash.intensity > 0.5;
       const cam = this.cam;
       const want = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
       this.flashDir.lerp(want, 1 - Math.exp(-14 * dt)).normalize();
@@ -300,6 +356,29 @@
       } else this.flash.position.copy(cam.position).addScaledVector(right, 0.16).add(new THREE.Vector3(0, -0.14, 0));
       this.flashTarget.position.copy(this.flash.position).addScaledVector(this.flashDir, 10);
       this.fill.position.copy(cam.position).addScaledVector(this.flashDir, 1.2);
+      this.updateBeam(dt, base);
+    }
+    updateBeam(dt, base) {
+      const b = this.beam, g = this.game, L = g.level;
+      const k = this.flash.intensity / base;
+      // The volumetric pass ray-marches the beam itself (with shadows); this cone stands in when it is off
+      b.visible = k > 0.02 && g.state !== 'menu' && PB.Settings.data.volumetric === 'off';
+      if (!b.visible) return;
+      // Length: up to the first wall, floor or ceiling along the beam
+      const p = this.flash.position, d = this.flashDir, ceil = (L && L.ceil) || 3;
+      let len = 9;
+      if (L) for (let s = 0.25; s <= 9; s += 0.25) {
+        const x = p.x + d.x * s, y = p.y + d.y * s, z = p.z + d.z * s;
+        if (y < 0 || y > ceil || !L.los(p.x, p.z, x, z)) { len = s; break; }
+      }
+      this.beamLen = U.damp(this.beamLen || len, len, 12, dt);
+      const r = this.beamLen * Math.tan(this.flash.angle * 0.8);
+      b.position.copy(p).addScaledVector(d, 0.02);
+      b.quaternion.setFromUnitVectors(this._up || (this._up = new THREE.Vector3(0, 1, 0)), d);
+      b.scale.set(r, this.beamLen, r);
+      const haze = g.levelDef && g.levelDef.haze != null ? g.levelDef.haze : 1;
+      b.material.uniforms.uK.value = 0.16 * k * haze;
+      b.material.uniforms.uTime.value = g.time;
     }
     updateCamera(dt, speed) {
       const S = PB.Settings.data, cam = this.cam;

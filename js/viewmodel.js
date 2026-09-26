@@ -134,12 +134,14 @@
       // Reach when using something
       if (this.reachT > 0) this.reachT -= dt;
       const rk = this.reachT > 0 ? Math.sin((0.45 - this.reachT) / 0.45 * Math.PI) : 0;
+      // Battery change: the torch comes down and tips up, tail toward the other hand
+      const rl = pl.reloadT > 0 ? Math.sin(Math.min(1, (1.3 - pl.reloadT) / 1.3) * Math.PI) : 0;
       const sprint = pl.sprinting ? 1 : 0;
       this.spr = U.damp(this.spr || 0, sprint, 6, dt);
       const breathe = Math.sin(performance.now() / 1000 * 1.6) * 0.003;
       const lower = (1 - this.show) * 0.35;
-      this.right.position.set(0.19 + bx + this.sway.x + this.spr * 0.03, -0.2 + by + this.sway.y + breathe - this.pull * 0.08 - this.spr * 0.05 - lower, -0.4 + this.pull * 0.14 - rk * 0.08);
-      this.right.rotation.set(-this.spr * 0.35 - this.pull * 0.3 + this.sway.y * 2, this.sway.x * 3 + this.spr * 0.4 + rk * 0.25, -this.spr * 0.3);
+      this.right.position.set(0.19 + bx + this.sway.x + this.spr * 0.03 - rl * 0.08, -0.2 + by + this.sway.y + breathe - this.pull * 0.08 - this.spr * 0.05 - lower - rl * 0.1, -0.4 + this.pull * 0.14 - rk * 0.08 + rl * 0.06);
+      this.right.rotation.set(-this.spr * 0.35 - this.pull * 0.3 + this.sway.y * 2 + rl * 1.1, this.sway.x * 3 + this.spr * 0.4 + rk * 0.25 + rl * 0.5, -this.spr * 0.3 + rl * 0.3);
       // Walkie comes up while Eddie is talking
       const talking = !!(g.talkCur && g.talkCur.seq && g.talkCur.seq[Math.max(0, g.talkCur.i - 1)] && ['eddie', 'radio'].includes(g.talkCur.seq[Math.max(0, g.talkCur.i - 1)][0])) && g.save && g.save.world && g.save.world.radio;
       this.talk = U.damp(this.talk, talking && !pl.hidden ? 1 : 0, 5, dt);

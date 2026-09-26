@@ -6,7 +6,23 @@
   const U = PB.U;
 
   const pct = v => Math.round(v * 100) + '%';
+  const RES = ['3840x2160', '3440x1440', '2560x1440', '2560x1080', '1920x1200', '1920x1080', '1680x1050', '1600x900', '1440x900', '1366x768', '1280x720', '1024x576', '960x540', '640x360'];
   const SCHEMA = [
+    // ---------------- SCREEN ----------------
+    { key: 'displayMode', tab: 'screen', type: 'select', def: 'windowed', transient: true,
+      options: [['windowed', 'opt.windowed'], ['fullscreen', 'opt.fullscreen']] },
+    { key: 'resolution', tab: 'screen', type: 'select', def: 'native',
+      options: [['native', 'opt.native']].concat(RES.map(r => [r, r.replace('x', ' × ')])) },
+    { key: 'scaleMode', tab: 'screen', type: 'select', def: 'fit',
+      options: [['fit', 'opt.fit'], ['stretch', 'opt.stretch'], ['fill', 'opt.fill']] },
+    { key: 'upscale', tab: 'screen', type: 'select', def: 'smooth',
+      options: [['smooth', 'opt.smooth'], ['pixel', 'opt.pixel']] },
+    { key: 'sharpen', tab: 'screen', type: 'range', def: 0.2, min: 0, max: 1, step: 0.05, fmt: pct },
+    { key: 'fpsLimit', tab: 'screen', type: 'select', def: 0,
+      options: [[0, 'opt.unlimited'], [30, '30'], [45, '45'], [60, '60'], [75, '75'], [90, '90'], [100, '100'], [120, '120'], [144, '144'], [165, '165'], [200, '200'], [240, '240'], [300, '300'], [360, '360']] },
+    { key: 'vsync', tab: 'screen', type: 'toggle', def: true },
+    { key: 'showFps', tab: 'screen', type: 'toggle', def: false },
+
     // ---------------- GRAPHICS ----------------
     { key: 'preset', tab: 'graphics', type: 'select', def: 'high',
       options: ['low', 'medium', 'high', 'ultra', 'extreme', 'custom'].map(v => [v, 'preset.' + v]) },
@@ -34,7 +50,6 @@
     { key: 'viewDist', tab: 'graphics', type: 'range', def: 90, min: 30, max: 160, step: 5, fmt: v => v + ' m' },
     { key: 'anisotropy', tab: 'graphics', type: 'select', def: 8, reload: true,
       options: [[1, 'opt.off'], [2, '2x'], [4, '4x'], [8, '8x'], [16, '16x']] },
-    { key: 'showFps', tab: 'graphics', type: 'toggle', def: false },
 
     // ---------------- DISPLAY ----------------
     { key: 'brightness', tab: 'display', type: 'range', def: 1, min: 0.5, max: 1.8, step: 0.05, fmt: pct },
@@ -90,7 +105,7 @@
 
   const S = PB.Settings = {
     SCHEMA, PRESETS, PRESET_KEYS,
-    TABS: ['graphics', 'display', 'audio', 'controls', 'gameplay'],
+    TABS: ['screen', 'graphics', 'display', 'audio', 'controls', 'gameplay'],
     data: {},
     events: new U.Emitter(),
     fresh: false,
@@ -129,7 +144,7 @@
       for (const s of SCHEMA) this.data[s.key] = s.def;
       const saved = U.store.get(STORE_KEY, null);
       this.fresh = !saved;
-      if (saved) for (const s of SCHEMA) if (saved[s.key] !== undefined) this.data[s.key] = this.valid(s, saved[s.key]);
+      if (saved) for (const s of SCHEMA) if (saved[s.key] !== undefined && !s.transient) this.data[s.key] = this.valid(s, saved[s.key]);
       if (this.fresh) this.autoDetect();
       return this.data;
     },

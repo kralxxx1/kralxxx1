@@ -295,7 +295,7 @@
       gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
     }`;
   const FXAA = `
-    uniform sampler2D tIn; uniform vec2 rcp; varying vec2 vUv;
+    uniform sampler2D tIn; uniform vec2 rcp; uniform float uFx; uniform float uSharp; varying vec2 vUv;
     void main(){
       vec3 nw = texture2D(tIn, vUv + vec2(-1.0, -1.0) * rcp).rgb;
       vec3 ne = texture2D(tIn, vUv + vec2(1.0, -1.0) * rcp).rgb;
@@ -313,7 +313,17 @@
       vec3 a = 0.5 * (texture2D(tIn, vUv + dir * (1.0 / 3.0 - 0.5)).rgb + texture2D(tIn, vUv + dir * (2.0 / 3.0 - 0.5)).rgb);
       vec3 b = a * 0.5 + 0.25 * (texture2D(tIn, vUv - dir * 0.5).rgb + texture2D(tIn, vUv + dir * 0.5).rgb);
       float lb = dot(b, L);
-      gl_FragColor = vec4((lb < lmin || lb > lmax) ? a : b, 1.0);
+      vec3 col = uFx > 0.5 ? ((lb < lmin || lb > lmax) ? a : b) : m;
+      // Contrast-adaptive sharpening: a negative lobe from the 4 neighbours, weaker where contrast is high
+      if (uSharp > 0.001) {
+        vec3 n = texture2D(tIn, vUv + vec2(0.0, -1.0) * rcp).rgb, s = texture2D(tIn, vUv + vec2(0.0, 1.0) * rcp).rgb;
+        vec3 e = texture2D(tIn, vUv + vec2(1.0, 0.0) * rcp).rgb, w = texture2D(tIn, vUv + vec2(-1.0, 0.0) * rcp).rgb;
+        vec3 mn = min(m, min(min(n, s), min(e, w))), mx = max(m, max(max(n, s), max(e, w)));
+        vec3 amp = sqrt(clamp(min(mn, 1.0 - mx) / max(mx, vec3(1e-4)), 0.0, 1.0));
+        vec3 wg = -amp * mix(0.08, 0.2, uSharp);
+        col = clamp((col + (n + s + e + w) * wg) / (1.0 + 4.0 * wg), 0.0, 1.0);
+      }
+      gl_FragColor = vec4(col, 1.0);
     }`;
 
   // Quality tables
@@ -360,7 +370,8 @@
         brightness: { value: 1 }, contrast: { value: 1 }, saturation: { value: 1 }, fear: { value: 0 }, damage: { value: 0 }, flash: { value: 0 },
         blackout: { value: 0 }, glitch: { value: 0 }, vhs: { value: 0 }, blur: { value: 0 }, tint: { value: new THREE.Vector3(1, 1, 1) }, fadeColor: { value: new THREE.Vector3(0, 0, 0) },
       });
-      this.mFxaa = mk(FXAA, { tIn: { value: null }, rcp: V2() });
+      this.mFxaa = mk(FXAA, { tIn: { value: null }, rcp: V2(), uFx: { value: 1 }, uSharp: { value: 0 } });
+      this.sharpen = 0;
       this.black = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1); this.black.needsUpdate = true;
       this.white = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1); this.white.needsUpdate = true;
       this.bloom = [];
@@ -527,6 +538,32 @@
       for (const [o, m] of swapped) o.material = m;
       for (const o of hidden) o.visible = true;
     }
+    // Compile every material for the targets it is really drawn into: the HDR scene target (its
+    // color space changes the shader) and the G-buffer override. Without this, anything out of view
+    // at load compiles the first time it is seen, which is a visible hitch.
+    warm(scene, camera) {
+      const r = this.r, prev = r.getRenderTarget();
+      r.setRenderTarget(this.sceneRT);
+      r.compile(scene, camera);
+      if (this.gRT) {
+        const swapped = [];
+        scene.traverse(o => {
+          if (!o.isMesh) return;
+          const m = o.material;
+          if (!m || Array.isArray(m) || (m.transparent && !(m.userData && m.userData.prepass)) || o.userData.noPrepass) return;
+          swapped.push([o, m]);
+          o.material = this.prepassMat(m);
+        });
+        const fog = scene.fog, bg = scene.background;
+        scene.fog = null; scene.background = null;
+        r.setRenderTarget(this.gRT);
+        try { r.compile(scene, camera); } finally {
+          scene.fog = fog; scene.background = bg;
+          for (const [o, m] of swapped) o.material = m;
+        }
+      }
+      r.setRenderTarget(prev);
+    }
     // Per-frame volumetric light inputs (flashlight + nearby fixtures)
     setLights(flash, fixtures) {
       const v = this.vol;
@@ -631,7 +668,9 @@
       this.p.tScene.value = hdr;
       this.p.tBloom.value = bloomTex;
       this.p.time.value = time;
-      if (this.enabled.fxaa) {
+      if (this.enabled.fxaa || this.sharpen > 0.001) {
+        this.mFxaa.uniforms.uFx.value = this.enabled.fxaa ? 1 : 0;
+        this.mFxaa.uniforms.uSharp.value = this.sharpen || 0;
         this.pass(this.mComp, this.ldrRT);
         this.mFxaa.uniforms.tIn.value = this.ldrRT.texture;
         this.pass(this.mFxaa, null);

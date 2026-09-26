@@ -127,7 +127,7 @@
     buildSettings(onBack) {
       const tabs = this.$('set-tabs'), body = this.$('set-body');
       tabs.innerHTML = '';
-      let cur = this.setTab || 'graphics';
+      let cur = this.setTab || 'screen';
       const render = (relabel) => {
         if (relabel) for (const b of tabs.children) b.textContent = t('tab.' + b.dataset.tab);
         body.innerHTML = '';
@@ -235,6 +235,9 @@
       bt.classList.toggle('hide', !p.hasFlashlight);
       bt.classList.toggle('low', p.battery < 15);
       bt.classList.toggle('on', p.flashOn);
+      const spare = this.g.inv ? this.g.inv.batteries : 0;
+      if (spare !== this.lastSpare) { this.lastSpare = spare; const b = this.$('m-spare'); if (b) b.textContent = spare ? '×' + spare : ''; }
+      bt.classList.toggle('swap', p.reloadT > 0);
     }
     setInventory(inv) {
       const box = this.$('inv');

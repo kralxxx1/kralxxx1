@@ -32,6 +32,7 @@
       this.scene = new THREE.Scene();
       this.camera = new THREE.PerspectiveCamera(S.data.fov, 1, 0.05, S.data.viewDist);
       this.scene.add(this.camera);
+      this.keeper = new PB.LightKeeper(this.scene);
       this.post = new PB.Post(r);
       this.configurePost();
       T.init(r, S.data.anisotropy);
@@ -43,16 +44,25 @@
       this.save = U.store.get(SAVE_KEY, null);
       if (this.save) this.migrateSave(this.save);
       root.addEventListener('resize', () => this.resize());
+      document.addEventListener('fullscreenchange', () => {
+        const fs = document.fullscreenElement ? 'fullscreen' : 'windowed';
+        if (S.data.displayMode !== fs) { S.data.displayMode = fs; if (this.ui && this.ui.isOpen('scr-settings') && this.ui.renderSettings) this.ui.renderSettings(); }
+        this.resize();
+      });
+      document.addEventListener('keydown', e => { if (e.code === 'Enter' && e.altKey) { e.preventDefault(); S.set('displayMode', document.fullscreenElement ? 'windowed' : 'fullscreen'); } });
       S.events.on('change', key => this.applySetting(key));
       document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'play') this.pause(); });
       this.resize();
       this.bindUI();
       this.ui.loading(0.02, t('boot.fonts'), ST.tip());
       await this.loadFonts();
+      // Every sound effect and voice is rendered now, so none is computed during play
+      await PB.sfxLib.prerender(PB.sfxLib.effects(), p => this.ui.loading(0.05 + p * 0.3, t('boot.sounds')));
+      await PB.sfxLib.prerenderVoices(PB.Audio.VOICE.all(), p => this.ui.loading(0.35 + p * 0.1, t('boot.voices')));
       await this.loadMenuScene();
       this.last = performance.now();
       this.state = 'menu';
-      r.setAnimationLoop(() => this.frame());
+      this.startLoop();
       if (!PB.I18N.stored()) await this.firstRun();
       this.toMenu();
     }
@@ -84,16 +94,67 @@
       const sample = 'PACMAN ÇIKIŞ İŞĞÜÖÇ ğüşıöç 0123';
       try { await Promise.race([Promise.all(list.map(f => document.fonts.load(f, sample))), U.sleep(3000)]); } catch (e) { /* yazı tipleri isteğe bağlı */ }
     }
+    // Output resolution: native (window x device pixels) or a fixed size scaled to the window
     resize() {
-      const w = root.innerWidth, h = root.innerHeight;
-      this.renderer.setSize(w, h, false);
-      this.camera.aspect = w / h;
+      const W = root.innerWidth, H = root.innerHeight, d = S.data;
+      const dpr = Math.min(root.devicePixelRatio || 1, 2);
+      let bw = Math.round(W * dpr), bh = Math.round(H * dpr), cw = W, ch = H;
+      if (d.resolution && d.resolution !== 'native') {
+        const m = String(d.resolution).split('x');
+        bw = +m[0] || bw; bh = +m[1] || bh;
+        const ar = bw / bh, war = W / H;
+        if (d.scaleMode === 'fit') { if (ar > war) ch = W / ar; else cw = H * ar; }
+        else if (d.scaleMode === 'fill') { if (ar > war) cw = H * ar; else ch = W / ar; }
+      }
+      this.renderer.setPixelRatio(1);
+      this.renderer.setSize(bw, bh, false);
+      const cs = this.canvas.style;
+      cs.width = cw + 'px'; cs.height = ch + 'px';
+      cs.left = Math.round((W - cw) / 2) + 'px'; cs.top = Math.round((H - ch) / 2) + 'px';
+      cs.imageRendering = d.upscale === 'pixel' ? 'pixelated' : 'auto';
+      this.camera.aspect = bw / bh;
       this.camera.updateProjectionMatrix();
-      const v = this.renderer.getDrawingBufferSize(new THREE.Vector2());
-      const aa = S.data.antialias;
-      this.post.setSize(v.x, v.y, S.data.renderScale, aa === 'msaa' || aa === 'both' ? 4 : 0);
+      const aa = d.antialias;
+      this.post.setSize(bw, bh, d.renderScale, aa === 'msaa' || aa === 'both' ? 4 : 0);
       this.post.enabled.fxaa = aa === 'fxaa' || aa === 'both';
+      this.post.sharpen = d.sharpen || 0;
+      this.outSize = [bw, bh];
       if (this.ui && this.ui.isOpen('scr-map')) this.ui.drawMap(this);
+    }
+    // Frame pacing. V-Sync on: animation frames (the monitor's refresh), skipping frames above the
+    // limit. V-Sync off: a message-loop that draws as fast as possible, or on a timer up to the limit.
+    startLoop() {
+      const mc = new MessageChannel();
+      let gen = 0;
+      this.lastDraw = 0;
+      const tick = g => {
+        if (g !== gen) return;
+        const now = performance.now(), lim = +S.data.fpsLimit || 0;
+        if (!lim || now - this.lastDraw >= 1000 / lim - (S.data.vsync ? 1.2 : 0.2)) {
+          this.lastDraw = lim ? Math.max(this.lastDraw + 1000 / lim, now - 1000 / lim) : now;
+          try { this.frame(); } catch (e) { console.error(e); }
+        }
+        schedule(g);
+      };
+      const schedule = g => {
+        if (S.data.vsync || document.hidden) { requestAnimationFrame(() => tick(g)); return; }
+        const lim = +S.data.fpsLimit || 0;
+        const wait = lim ? this.lastDraw + 1000 / lim - performance.now() : 0;
+        if (wait > 4) setTimeout(() => tick(g), wait - 3);
+        else { mc.port1.onmessage = () => tick(g); mc.port2.postMessage(0); }
+      };
+      this.restartLoop = () => { gen++; schedule(gen); };
+      this.restartLoop();
+    }
+    // Fullscreen follows the setting; leaving it with Esc or F11 updates the setting
+    setFullscreen(on) {
+      const el = document.documentElement;
+      try {
+        if (on && !document.fullscreenElement && el.requestFullscreen) {
+          const p = el.requestFullscreen({ navigationUI: 'hide' });
+          if (p && p.catch) p.catch(() => { S.data.displayMode = 'windowed'; if (this.ui.renderSettings) this.ui.renderSettings(); });
+        } else if (!on && document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+      } catch (e) { /* not allowed here */ }
     }
     configurePost() {
       const d = S.data;
@@ -113,6 +174,9 @@
       this.postLvK = def.volK != null ? def.volK : 0.03;
     }
     applySetting(key) {
+      if (['resolution', 'scaleMode', 'upscale', 'sharpen'].includes(key)) this.resize();
+      if (key === 'displayMode') this.setFullscreen(S.data.displayMode === 'fullscreen');
+      if ((key === 'vsync' || key === 'fpsLimit') && this.restartLoop) this.restartLoop();
       if (key === 'lang' || key === '*') { PB.I18N.set(S.data.lang); this.onLanguage(); }
       if (['ao', 'ssr', 'volumetric', 'motionBlur', 'lensDirt', 'preset', '*'].includes(key)) this.postDirty = true;
       if (['viewDist', 'preset', '*'].includes(key)) this.syncPostWorld();
@@ -307,6 +371,11 @@
       this.talkQ = []; this.talkCur = null;
       if (!opts.menu && this.script.start) this.script.start(this);
       if (opts.restore) this.applySnapshot(opts.restore);
+      if (!opts.menu) {
+        this.ui.loading(0.975, t('boot.sounds'));
+        await PB.sfxLib.prerender(PB.sfxLib.loops());
+        await this.audio.warmMusic(def.music || 'default');
+      }
       this.ui.loading(0.98, t('load.shaders'));
       await U.nextFrame();
       this.warmup();
@@ -320,7 +389,6 @@
       this.audio.init();
       this.audio.ambience(L.theme);
       this.audio.music.flavor = L.def.music || 'default';
-      this.audio.warmMusic();
       if (this.world.street && this.world.street.spout) { const zF = L.h * L.cell; this.audio.streetSounds({ x: 6, y: 1.6, z: zF - 0.2 }, { x: this.world.street.spout.x, y: 0.3, z: zF + 0.4 }); }
       this.audio.setMusic('explore');
       this.ui.buildTouch();
@@ -343,8 +411,10 @@
       // Gizli yaratıkları geçici olarak görünür yapıp gölgelendiricileri önceden derle
       const hidden = [];
       this.scene.traverse(o => { if (!o.visible) { hidden.push(o); o.visible = true; } });
-      try { this.renderer.compile(this.scene, this.camera); this.post.render(this.scene, this.camera, 0); } catch (e) { console.warn(e); }
+      this.keeper.reset();
+      try { this.post.warm(this.scene, this.camera); this.post.render(this.scene, this.camera, 0); } catch (e) { console.warn(e); }
       for (const o of hidden) o.visible = false;
+      this.programsWarm = this.renderer.info.programs ? this.renderer.info.programs.length : 0;
     }
     unloadLevel() {
       for (const e of this.entities) e.remove();
@@ -572,10 +642,13 @@
           break;
         }
         case 'battery':
+          // Batteries go in the pocket; a nearly dead flashlight gets them straight away
           this.takeItem(o);
-          if (this.player.battery < 70) { this.player.battery = Math.min(100, this.player.battery + 50); this.ui.notify(t('n.batteryIn')); }
-          else { this.inv.batteries = Math.min(4, this.inv.batteries + 1); this.ui.notify(t('n.batterySpare')); }
+          this.inv.batteries = Math.min(6, this.inv.batteries + 1);
           this.audio.pickup();
+          if (this.player.hasFlashlight && this.player.battery < 30 && this.player.reload()) break;
+          this.ui.notify(t('n.batterySpare'));
+          if (!this.flags.reloadTip) { this.flags.reloadTip = true; this.ui.hint(t('hint.reload'), true); }
           break;
         case 'almond': this.takeItem(o); this.inv.almond = Math.min(3, this.inv.almond + 1); this.audio.pickup(); this.ui.notify(t('n.almond')); break;
         case 'glowstick': this.takeItem(o); this.inv.glow = Math.min(6, this.inv.glow + 1); this.audio.pickup(); this.ui.notify(t('n.glow')); break;
@@ -1297,8 +1370,19 @@
       if (this.state !== 'play' && this.markList && this.markList.length) { this.markList.length = 0; this.ui.marks(this.markList); }
       this.updatePost(dt);
       if (this.postDirty) this.configurePost();
-      this.post.render(this.scene, this.camera, this.time);
+      this.keeper.tick(dt);
+      this.keeper.render(() => this.post.render(this.scene, this.camera, this.time));
+      if (PB.debug) this.watchPrograms();
       inp.endFrame();
+    }
+    // Debug: report shaders compiled during play (each one is a hitch)
+    watchPrograms() {
+      const list = this.renderer.info.programs || [];
+      if (this.progSeen == null || this.state === 'loading') { this.progSeen = list.length; return; }
+      if (list.length > this.progSeen) {
+        console.warn('[shaders] ' + (list.length - this.progSeen) + ' compiled during ' + this.state + ': ' + list.slice(this.progSeen).map(p => p.name).join(', '));
+        this.progSeen = list.length;
+      }
     }
     updateMenu(dt) {
       this.menuT += dt;
@@ -1335,7 +1419,9 @@
       this.updatePortals();
       this.updateExits();
       this.updateGlowsticks(dt);
-      if (pl.battery <= 0 && this.inv.batteries > 0) { this.inv.batteries--; pl.battery = 100; this.ui.notify(t('n.batterySwap')); this.updateInventoryUI(); }
+      if (pl.battery <= 0 && this.inv.batteries > 0 && pl.reloadT <= 0) pl.reload();
+      if (pl.battery < 15 && pl.battery > 0 && this.inv.batteries > 0 && !this.flags.lowTip) { this.flags.lowTip = true; this.ui.hint(t('hint.reload'), true); }
+      if (pl.battery > 50) this.flags.lowTip = false;
       if (this.script.update) this.script.update(this, dt);
       this.updateFear(dt);
       this.updateMusic();

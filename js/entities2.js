@@ -236,10 +236,7 @@
         this.nextCall = 20 + Math.random() * 25;
         // On Maple Street it borrows Clyde's voice; in Eddie's motel it calls for him in June's
         const june = g.levelDef && g.levelDef.id === 'motel';
-        const buf = g.audio.sfx.voice(1.1, { pitch: june ? 205 : 262, echo: true, breathy: true, fscale: june ? 1.12 : 1.2, seed: 256 + Math.floor(Math.random() * 3) });
-        const src = g.audio.ctx.createBufferSource(); src.buffer = buf;
-        const o = g.audio.out('ent', { x: this.pos.x, y: 1.8, z: this.pos.z }, { rev: 0.6, gain: 0.55, occl: true, occluded: !this.losToPlayer(), ref: 3 });
-        src.connect(o.input); src.start();
+        g.audio.calloutVoice(june, { x: this.pos.x, y: 1.8, z: this.pos.z }, !this.losToPlayer());
         g.audio.caption('neighbor', PB.t(june ? 'cap.callJune' : 'cap.callName'), this.pos, 10);
       }
     }

@@ -25,7 +25,7 @@
     <div id="prompt" hidden><kbd id="prompt-key">E</kbd><span id="prompt-text"></span><div id="hold" hidden></div></div>
     <div id="status">
       <div class="meter" id="m-stamina"><span data-t="hud.stamina">BREATH</span><i></i></div>
-      <div class="meter" id="m-battery"><span data-t="hud.battery">LIGHT</span><i></i></div>
+      <div class="meter" id="m-battery"><span data-t="hud.battery">LIGHT</span><i></i><b id="m-spare"></b></div>
     </div>
     <div id="inv"></div>
     <div id="talk">
@@ -48,6 +48,7 @@
       <button type="button" id="tb-crouch" class="tb" data-t="touch.crouch">CROUCH</button>
       <button type="button" id="tb-sprint" class="tb" data-t="touch.sprint">RUN</button>
       <button type="button" id="tb-flash" class="tb" data-t="touch.flash">LIGHT</button>
+      <button type="button" id="tb-reload" class="tb small" data-t="touch.reload">BATT</button>
       <button type="button" id="tb-interact" class="tb big">E</button>
     </div>
   </div>
@@ -158,6 +159,7 @@
             <dt><kbd>Q</kbd></dt><dd data-t="help.drink"></dd>
             <dt><kbd>G</kbd></dt><dd data-t="help.throw"></dd>
             <dt><kbd>Z</kbd> / <kbd>X</kbd></dt><dd data-t="help.lean"></dd>
+            <dt><kbd>R</kbd></dt><dd data-t="help.reload"></dd>
             <dt><kbd>M</kbd> / <kbd>Tab</kbd></dt><dd data-t="help.map"></dd>
             <dt><kbd>I</kbd> / <kbd>J</kbd></dt><dd data-t="help.bag"></dd>
             <dt><kbd>Esc</kbd> / <kbd>P</kbd></dt><dd data-t="help.pause"></dd>
@@ -333,6 +335,7 @@
 <script defer src="js/textures.js"></script>
 <script defer src="js/art.js"></script>
 <script defer src="js/post.js"></script>
+<script defer src="js/lights.js"></script>
 <script defer src="js/props.js"></script>
 <script defer src="js/models.js"></script>
 <script defer src="js/models2.js"></script>

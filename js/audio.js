@@ -51,6 +51,21 @@
     workshop: { chords: [[55, 58.3, 82.4], [51.9, 55, 77.8], [55, 61.7, 82.4], [49, 51.9, 73.4]], scale: [220, 233.1, 277.2, 293.7], piano: 0.15, lp: [160, 420], pulse: true },
   };
 
+  // Speaker voices: pitch and style. Kids get smaller formants.
+  const RADIO_PITCH = { eddie: 118, walt: 96, radio: 110, penny: 205, ivy: 190 };
+  const ECHO_PITCH = { clyde: 262, billy: 180, penny: 236, ivy: 244, lily: 300, walt: 98, voice: 140, june: 205, sam: 150 };
+  const VOICE = {
+    radio: who => { const pitch = RADIO_PITCH[who] || 115; return ['radio:' + pitch, { pitch, radio: true }]; },
+    echo: who => { const pitch = ECHO_PITCH[who] || 220; return ['echo:' + pitch, { pitch, echo: true, breathy: true, fscale: pitch > 170 ? (who === 'june' ? 1.12 : 1.2) : 1 }]; },
+    tape: ['tape:98', { pitch: 98, tape: true }],
+    all() {
+      const out = [VOICE.tape];
+      for (const w of Object.keys(RADIO_PITCH)) out.push(VOICE.radio(w));
+      for (const w of Object.keys(ECHO_PITCH)) out.push(VOICE.echo(w));
+      const seen = new Set();
+      return out.filter(v => !seen.has(v[0]) && seen.add(v[0]));
+    },
+  };
   class Audio {
     constructor() {
       this.ctx = null;
@@ -88,9 +103,8 @@
       for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; b[i] = last * 3.5; }
       this.distCurve = new Float32Array(1024);
       for (let i = 0; i < 1024; i++) { const x = i / 512 - 1; this.distCurve[i] = Math.tanh(x * 4); }
-      this.sfx = new PB.Sfx(c);
-      this.sfx.warm(['step_carpet', 'step_wetCarpet', 'rainInside', 'rainGlass', 'gutter', 'fluorescent', 'hvac', 'paper', 'doorWoodOpen', 'breathIn', 'breathOut', 'heartbeat', 'squelch', 'radioStatic',
-        'thunder', 'carPass', 'stingSpot', 'stingJump', 'chew', 'keys', 'clink', 'plasticTap', 'flashClick', 'doorMetalOpen', 'doorLocked', 'poolRoom', 'warehouse', 'darkRoom']);
+      this.sfx = PB.sfxLib;
+      this.sfx.attach(c);
       this.duck = c.createGain(); this.duck.gain.value = 1;
       this.setReverb('menu');
       this.applyVolumes();
@@ -278,17 +292,26 @@
       if (!this.ctx) return;
       this.play('paper', 6, 'ui', null, { rev: 0.08, gain: 0.8 });
     }
+    batterySwap() { if (this.ctx) this.play('batterySwap', 2, 'sfx', null, { rev: 0.05, gain: 0.6, jitter: 0.03 }); }
     flashClick() { if (this.ctx) this.play('flashClick', 3, 'sfx', null, { rev: 0.05, gain: 0.5 }); }
     // Walkie-talkie line: squelch, a voice made of formants, static under it; music and ambience duck
+    // A line cut from the speaker's pre-rendered take, with short fades so the cut never clicks
+    voiceLine(spec, dur, dest, at) {
+      const c = this.sfx.voiceClip(spec[0], spec[1], dur);
+      const src = this.ctx.createBufferSource(); src.buffer = c.buf;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(1, at + 0.04);
+      g.gain.setValueAtTime(1, at + Math.max(0.05, c.dur - 0.15)); g.gain.linearRampToValueAtTime(0, at + c.dur);
+      src.connect(g).connect(dest);
+      src.start(at, c.offset, c.dur + 0.02);
+      return src;
+    }
     radioVoice(dur, who) {
       if (!this.ctx || !this.sfx) return;
       const t = this.t;
       this.play('squelch', 3, 'sfx', null, { rev: 0, gain: 0.5 });
-      const pitch = { eddie: 118, walt: 96, radio: 110, penny: 205, ivy: 190 }[who] || 115;
-      const buf = this.sfx.voice(Math.min(9, dur), { pitch, radio: true, seed: (this.voiceSeed = (this.voiceSeed || 0) + 1) });
-      const src = this.ctx.createBufferSource(); src.buffer = buf;
       const o = this.out('sfx', null, { rev: 0.05, gain: 0.32 });
-      src.connect(o.input); src.start(t + 0.12);
+      this.voiceLine(VOICE.radio(who), Math.min(9, dur), o.input, t + 0.12);
       const st = this.play('radioStatic', 2, 'sfx', null, { rev: 0, gain: 0.07 });
       if (st) { st.loop = true; st.stop(t + dur + 0.2); }
       this.play('squelch', 3, 'sfx', null, { rev: 0, gain: 0.4, delay: Math.min(9, dur) + 0.15 });
@@ -298,25 +321,26 @@
     // Breathy, far away, drifting from one side; children get higher pitch and smaller formants.
     echoVoice(dur, who) {
       if (!this.ctx || !this.sfx) return;
-      const pitch = { clyde: 262, billy: 180, penny: 236, ivy: 244, lily: 300, walt: 98, voice: 140 }[who] || 220;
-      const kid = pitch > 170;
-      const buf = this.sfx.voice(Math.min(9, dur), { pitch, echo: true, breathy: true, fscale: kid ? 1.2 : 1, seed: (this.voiceSeed = (this.voiceSeed || 0) + 1) });
-      const src = this.ctx.createBufferSource(); src.buffer = buf;
       const pan = this.ctx.createStereoPanner(), side = Math.random() < 0.5 ? -1 : 1;
       pan.pan.setValueAtTime(side * 0.7, this.t); pan.pan.linearRampToValueAtTime(-side * 0.3, this.t + dur);
       const o = this.out('sfx', null, { rev: 0.9, gain: 0.26 });
-      src.connect(pan).connect(o.input); src.start(this.t + 0.1);
+      pan.connect(o.input);
+      this.voiceLine(VOICE.echo(who), Math.min(9, dur), pan, this.t + 0.1);
       this.duckFor(dur + 0.3);
     }
     // Old tape recorder voice (lo-fi, wow and flutter)
     tapeVoice(dur) {
       if (!this.ctx || !this.sfx) return;
-      const buf = this.sfx.voice(Math.min(12, dur), { pitch: 98, tape: true, seed: 77 });
-      const src = this.ctx.createBufferSource(); src.buffer = buf;
-      const lfo = this.osc('sine', 0.7), lg = this.ctx.createGain(); lg.gain.value = 0.006; lfo.connect(lg).connect(src.playbackRate); lfo.start(); lfo.stop(this.t + dur + 1);
       const o = this.out('sfx', null, { rev: 0.1, gain: 0.35 });
-      src.connect(o.input); src.start(this.t + 0.3);
+      const src = this.voiceLine(VOICE.tape, Math.min(12, dur), o.input, this.t + 0.3);
+      const lfo = this.osc('sine', 0.7), lg = this.ctx.createGain(); lg.gain.value = 0.006; lfo.connect(lg).connect(src.playbackRate); lfo.start(); lfo.stop(this.t + dur + 1);
       this.play('tapeClunk', 2, 'sfx', null, { rev: 0.1, gain: 0.6 });
+    }
+    // The Neighbor calling out, in a voice you know
+    calloutVoice(june, pos, occluded) {
+      if (!this.ctx || !this.sfx) return;
+      const o = this.out('ent', pos, { rev: 0.6, gain: 0.55, occl: true, occluded, ref: 3 });
+      this.voiceLine(june ? VOICE.echo('june') : VOICE.echo('clyde'), 1.1, o.input, this.t);
     }
     duckFor(sec) {
       if (!this.ctx) return;
@@ -604,13 +628,14 @@
 
     // ---------------------------------------------------------- müzik
     // Render this chapter's piano notes ahead of time, one every few frames, so no music tick stalls
-    warmMusic() {
-      if (!this.sfx) return;
-      const F = MUSIC[this.music.flavor] || MUSIC.default, sc = F.scale || [];
+    async warmMusic(flavor) {
+      const lib = PB.sfxLib, F = MUSIC[flavor || this.music.flavor] || MUSIC.default, sc = F.scale || [];
       const fs = sc.concat(sc.map(f => f * 1.5), sc.map(f => f * 1.2), F.inst === 'piano' ? F.melody || [] : []).filter(Boolean);
-      const q = [...new Set(fs.map(f => Math.round(f)))];
-      const next = () => { const f = q.shift(); if (f == null) return; this.sfx.note(f); setTimeout(next, 45); };
-      setTimeout(next, 600);
+      let t0 = performance.now();
+      for (const f of new Set(fs.map(f => Math.round(f)))) {
+        lib.note(f);
+        if (performance.now() - t0 > 25) { await new Promise(r => setTimeout(r, 0)); t0 = performance.now(); }
+      }
     }
     setMusic(mode, intensity = 0) {
       if (this.music.mode !== mode) { this.music.mode = mode; this.music.step = 0; this.music.next = this.t + 0.1; }
@@ -711,4 +736,5 @@
     }
   }
   PB.Audio = Audio;
+  PB.Audio.VOICE = VOICE;
 })(typeof window !== 'undefined' ? window : globalThis);

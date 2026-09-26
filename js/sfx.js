@@ -276,6 +276,20 @@
   };
   R.clink = (sr, r) => { const n = S(sr * 0.35), out = modes(n, sr, [[3100 + r() * 800, 0.05, 0.4], [6200 + r() * 900, 0.03, 0.2], [1200, 0.02, 0.2]], 0, r); add(out, R.cloth(sr, r), 0.5); return normalize(out, 0.6); };
   R.plasticTap = (sr, r) => { const n = S(sr * 0.25), out = modes(n, sr, [[900 + r() * 300, 0.02, 0.4], [2100 + r() * 400, 0.012, 0.3]], 0, r); add(out, hit(n, sr, r, 0, 0.4, 'bp', 1600, 1, 0.008)); add(out, R.cloth(sr, r), 0.5); return normalize(out, 0.6); };
+  // Flashlight batteries: tail cap unscrews (thread friction), old cells slide out and clink,
+  // new ones drop in, cap screws back, the switch clicks
+  R.batterySwap = (sr, r) => {
+    const n = S(sr * 1.3), out = new Float32Array(n);
+    const thread = (t0, len, amp) => { for (let k = 0; k < 5; k++) { const t = t0 + k * len / 5 + r() * 0.01; add(out, hit(n, sr, r, t, amp * (0.6 + r() * 0.4), 'bp', 2600 + r() * 1800, 3, 0.012)); } };
+    const clink = (t0, amp) => { add(out, modes(n, sr, [[2350 + r() * 300, 0.05, amp], [4100 + r() * 400, 0.03, amp * 0.6], [6900 + r() * 500, 0.018, amp * 0.35]], t0, r)); add(out, hit(n, sr, r, t0, amp * 0.5, 'hp', 3500, 0.7, 0.003)); };
+    const slide = (t0, dur, amp) => { const x = biquad(white(n, r), 'bp', 1800, 1.2, sr); const i0 = S(t0 * sr), i1 = Math.min(n, S((t0 + dur) * sr)); for (let i = i0; i < i1; i++) out[i] += x[i] * amp * Math.sin(Math.PI * (i - i0) / (i1 - i0)); };
+    thread(0, 0.22, 0.25);
+    slide(0.3, 0.12, 0.12); clink(0.42, 0.3); clink(0.47, 0.22);
+    slide(0.62, 0.1, 0.1); clink(0.72, 0.28); add(out, hit(n, sr, r, 0.78, 0.35, 'lp', 500, 0.8, 0.02));
+    thread(0.88, 0.2, 0.22);
+    add(out, modes(n, sr, [[3200, 0.004, 0.5], [5400, 0.003, 0.3], [1800, 0.006, 0.3]], 1.18, r)); add(out, hit(n, sr, r, 1.18, 0.4, 'hp', 3000, 0.7, 0.002));
+    return normalize(out, 0.7);
+  };
   R.flashClick = (sr, r) => { const n = S(sr * 0.12), out = new Float32Array(n); for (const t of [0, 0.045 + r() * 0.01]) { add(out, modes(n, sr, [[3200, 0.004, 0.5], [5400, 0.003, 0.3], [1800, 0.006, 0.3]], t, r)); add(out, hit(n, sr, r, t, 0.4, 'hp', 3000, 0.7, 0.002)); } return normalize(out, 0.7); };
   R.tapeClunk = (sr, r) => { const n = S(sr * 0.5), out = new Float32Array(n); add(out, modes(n, sr, [[700, 0.03, 0.5], [1900, 0.02, 0.3], [3300, 0.01, 0.2]], 0, r)); add(out, hit(n, sr, r, 0, 0.6, 'lp', 400, 0.8, 0.03)); add(out, modes(n, sr, [[1100, 0.02, 0.2]], 0.18, r)); return normalize(out, 0.7); };
   R.switchThunk = (sr, r) => { const n = S(sr * 0.8), out = new Float32Array(n); add(out, modes(n, sr, [[160, 0.12, 0.6], [420, 0.06, 0.4], [1300, 0.02, 0.3]], 0, r)); add(out, hit(n, sr, r, 0, 0.8, 'bp', 900, 1, 0.02)); add(out, biquad(crackle(n, sr, r, 3000, t => Math.exp(-t * 6)), 'hp', 3000, 0.7, sr), 0.25); return normalize(out, 0.9); };
@@ -568,30 +582,56 @@
   }
 
   // ------------------------------------------------------------ CACHE
+  // Rendering a sound takes 5-160 ms of main-thread time, too long to happen during play.
+  // Everything is rendered ahead: the effects at boot, the chapter's room tones while it loads,
+  // and a pool of long voice takes that dialogue lines are cut from. Buffers are made without an
+  // AudioContext (one only exists after the first click), at a fixed rate the context resamples.
+  const SR = 44100;
+  // How many takes of each effect are used (footsteps and doors vary the most)
+  const TAKES = { paper: 6, cloth: 4, chew: 4, plasticTap: 4, flashClick: 3, doorLocked: 3, squelch: 3, thunder: 3, stingSpot: 3 };
+  const LOOPS = /^(rain|gutter|fluorescent|hvac|poolRoom|warehouse|darkRoom|tunnel|schoolHall|mallAtrium|motelHall|hospitalHall|workshop|carPass|radioStatic)/;
   class Sfx {
-    constructor(ctx) { this.ctx = ctx; this.cache = new Map(); this.rng = U.rng(1234); }
+    constructor(ctx) { this.ctx = ctx || null; this.cache = new Map(); this.voices = new Map(); this.rng = U.rng(1234); this.sr = SR; }
+    attach(ctx) { this.ctx = ctx; }
     toBuffer(data, rate) {
       const chans = Array.isArray(data) ? data : [data];
-      const b = this.ctx.createBuffer(chans.length, chans[0].length, rate || this.ctx.sampleRate);
-      chans.forEach((c, i) => b.copyToChannel(c, i));
+      const sr = rate || this.sr;
+      let b = null;
+      try { b = new AudioBuffer({ numberOfChannels: chans.length, length: chans[0].length, sampleRate: sr }); }
+      catch (e) { if (this.ctx) b = this.ctx.createBuffer(chans.length, chans[0].length, sr); }
+      if (b) chans.forEach((c, i) => b.copyToChannel(c, i));
       return b;
     }
-    // Random variant of a recipe (rendered on first use)
-    get(name, variants = 1) {
-      let list = this.cache.get(name);
-      if (!list) { list = []; this.cache.set(name, list); }
-      const k = Math.floor(Math.random() * variants);
-      const fn = R[name];
-      if (!fn) return null;
-      const render = i => { if (!list[i]) list[i] = this.toBuffer(fn(this.ctx.sampleRate, U.rng(U.hashStr(name) + i * 7919), i)); };
-      if (!list[k]) {
-        // Render new variants in the background once one exists, so a frame never waits for it
-        const have = list.find(b => b);
-        if (have) { if (!list['p' + k]) { list['p' + k] = true; setTimeout(() => render(k), 0); } return have; }
-        render(k);
-      }
-      return list[k];
+    takes(name) { return /^step_/.test(name) ? 8 : TAKES[name] || (LOOPS.test(name) ? 1 : 2); }
+    render(name, i) {
+      const list = this.cache.get(name) || [];
+      this.cache.set(name, list);
+      if (!list[i]) list[i] = this.toBuffer(R[name](this.sr, U.rng(U.hashStr(name) + i * 7919), i));
+      return list[i];
     }
+    // Random take of a recipe. A take that was not rendered ahead is replaced by one that was.
+    get(name, variants = 1) {
+      if (!R[name]) return null;
+      const list = this.cache.get(name);
+      const k = Math.floor(Math.random() * variants);
+      if (list && list[k]) return list[k];
+      const have = list && list.find(b => b);
+      if (have) return have;
+      return this.render(name, 0);
+    }
+    // Render in slices of ~25 ms between frames
+    async prerender(names, onProgress) {
+      const jobs = [];
+      for (const n of names) if (R[n]) for (let i = 0; i < this.takes(n); i++) { const l = this.cache.get(n); if (!l || !l[i]) jobs.push([n, i]); }
+      let t0 = performance.now();
+      for (let j = 0; j < jobs.length; j++) {
+        this.render(jobs[j][0], jobs[j][1]);
+        if (performance.now() - t0 > 25) { if (onProgress) onProgress((j + 1) / jobs.length); await new Promise(r => setTimeout(r, 0)); t0 = performance.now(); }
+      }
+      if (onProgress) onProgress(1);
+    }
+    effects() { return Object.keys(R).filter(n => !LOOPS.test(n)); }
+    loops() { return Object.keys(R).filter(n => LOOPS.test(n)); }
     // Felt piano note (modal, slightly inharmonic, hammer thump), cached per pitch
     note(freq) {
       const key = 'note:' + Math.round(freq);
@@ -610,15 +650,32 @@
       this.cache.set(key, b);
       return b;
     }
-    // Voices are band-limited anyway: render them at a low rate to keep it quick
-    voice(dur, o) { const sr = o.radio ? 16000 : 22050; return this.toBuffer(voice(sr, U.rng((o.seed || 1) * 131 + Math.floor(dur * 100)), dur, o), sr); }
-    // Render a few heavy loops ahead of time without blocking a frame for long
-    warm(names) {
-      const q = names.slice();
-      const next = () => { const n = q.shift(); if (!n) return; this.get(n); setTimeout(next, 30); };
-      setTimeout(next, 50);
+    // Voices: one long take per speaker and style; each line is cut from it at a random point
+    voiceTake(key, o) {
+      let b = this.voices.get(key);
+      if (!b) {
+        const sr = o.radio ? 16000 : 22050, len = o.tape ? 14 : 12;
+        b = this.toBuffer(voice(sr, U.rng(U.hashStr(key) * 131 + 7), len, o), sr);
+        this.voices.set(key, b);
+      }
+      return b;
     }
+    voiceClip(key, o, dur) {
+      const b = this.voiceTake(key, o);
+      const max = Math.max(0, b.duration - dur - 0.05);
+      return { buf: b, offset: Math.random() * max, dur: Math.min(dur, b.duration) };
+    }
+    async prerenderVoices(list, onProgress) {
+      for (let k = 0; k < list.length; k++) {
+        this.voiceTake(list[k][0], list[k][1]);
+        if (onProgress) onProgress((k + 1) / list.length);
+        await new Promise(r => setTimeout(r, 0));
+      }
+    }
+    // Kept for callers that only warm a few names
+    warm(names) { this.prerender(names); }
   }
+  PB.sfxLib = new Sfx(null);
   PB.Sfx = Sfx;
   PB.SfxRecipes = R;
   PB.SfxVoice = voice;
