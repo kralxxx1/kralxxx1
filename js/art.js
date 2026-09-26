@@ -363,19 +363,20 @@
     g.fillStyle = '#1a1714'; g.fillRect(0, 0, w, h);
     // the print, slightly rotated on a dark surface
     g.save(); g.translate(w / 2, h / 2); g.rotate(r.range(-0.03, 0.03));
-    const pw = w - 30, ph = h - 16;
+    const k = w / 320;
+    const pw = w - 30 * k, ph = h - 16 * k;
     g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 10; g.shadowOffsetY = 3;
     g.fillStyle = '#f2efe6'; g.fillRect(-pw / 2, -ph / 2, pw, ph); g.shadowColor = 'transparent';
     g.restore();
-    const ix = 26, iy = 16, iw = w - 52, ih = h - 62;
+    const ix = Math.round(26 * k), iy = Math.round(16 * k), iw = Math.round(w - 52 * k), ih = Math.round(h - 62 * k);
     g.save(); g.beginPath(); g.rect(ix, iy, iw, ih); g.clip();
     draw(g, ix, iy, iw, ih);
     g.restore();
     if (g.filter !== undefined) { const tmp = g.getImageData(ix, iy, iw, ih); const c2 = document.createElement('canvas'); c2.width = iw; c2.height = ih; c2.getContext('2d').putImageData(tmp, 0, 0); g.save(); g.filter = 'blur(0.7px)'; g.drawImage(c2, ix, iy); g.restore(); }
     filmFinish(g, ix, iy, iw, ih, r, opts);
-    if (label) { g.fillStyle = '#23305a'; g.font = `20px ${FONT_HAND}`; g.fillText(label, ix + 4, h - 22); }
+    if (label) { g.fillStyle = '#23305a'; g.font = `${Math.round(20 * k)}px ${FONT_HAND}`; g.fillText(label, ix + 4 * k, h - 22 * k); }
     // fingerprints and wear
-    g.fillStyle = 'rgba(255,255,255,0.05)'; g.beginPath(); g.ellipse(w * 0.72, h * 0.3, 18, 24, 0.5, 0, 6.283); g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.05)'; g.beginPath(); g.ellipse(w * 0.72, h * 0.3, 18 * k, 24 * k, 0.5, 0, 6.283); g.fill();
   }
 
   const PHOTOS = {
@@ -454,10 +455,26 @@
     fg.addColorStop(0, 'rgba(255,255,255,0.18)'); fg.addColorStop(1, 'rgba(0,0,0,0.25)'); g.fillStyle = fg; g.fillRect(x, y, w, h);
   }
   const LABELS = { five: '4/11/87', fort: 'THE FORT. OPENING DAY.', chompy: 'LIL & CHOMPY', frame: '', strip: '', ultrasound: '' };
-  T.photo = (key, id) => T.canvas('photo:' + key + ':' + (id || ''), 320, 240, (g, w, h) => {
+  // Real photographs come from the darkroom (photos.js: small 3D scenes); the painted ones are the fallback
+  T.photo = (key, id) => T.canvas('photo:' + key + ':' + (id || ''), 640, 480, (g, w, h) => {
     const r = U.rng(U.hashStr(key + (id || '')));
     const k = PHOTOS[key] ? key : key === 'frame' ? 'booth' : 'five';
-    polaroid(g, w, h, r, (g2, x, y, iw, ih) => PHOTOS[k](g2, x, y, iw, ih, r, id), LABELS[key] || '',
+    const shot = (g2, x, y, iw, ih) => {
+      let img = null;
+      try { img = PB.Photos && k !== 'ultrasound' && k !== 'strip' ? PB.Photos.render(k === 'arch' ? 'five' : k, id, iw, ih) : null; } catch (e) { img = null; }
+      if (img) g2.drawImage(img, x, y, iw, ih);
+      else if (k === 'strip' && PB.Photos) {
+        // four booth frames printed down a strip, laid on its side
+        g2.fillStyle = '#2a2420'; g2.fillRect(x, y, iw, ih);
+        for (let f = 0; f < 4; f++) {
+          const fw = (iw - 20) / 4 - 8, fx = x + 10 + f * (iw - 20) / 4, fh = ih - 32;
+          g2.fillStyle = '#f4f2ec'; g2.fillRect(fx - 3, y + 12, fw + 6, ih - 24);
+          let fr = null; try { fr = PB.Photos.render('booth', 'f' + (f + 1), Math.round(fw * 2), Math.round(fh * 2)); } catch (e) { fr = null; }
+          if (fr) g2.drawImage(fr, fx, y + 16, fw, fh); else { g2.save(); g2.beginPath(); g2.rect(fx, y + 16, fw, fh); g2.clip(); g2.translate(fx, y + 16); g2.scale(fw / 280, fh / 180); PHOTOS.booth(g2, 0, 0, 280, 180, r, 'f' + (f + 1)); g2.restore(); }
+        }
+      } else PHOTOS[k](g2, x, y, iw, ih, r, id);
+    };
+    polaroid(g, w, h, r, shot, LABELS[key] || '',
       k === 'booth' || k === 'strip' ? { mono: true, cast: [1, 1, 1], grain: 34, vig: 1.0 } : k === 'ultrasound' ? { mono: true, cast: [1, 1, 1.02], lift: 0, grain: 18, vig: 0.4 } : {});
   }, { readback: true });
 })(typeof window !== 'undefined' ? window : globalThis);

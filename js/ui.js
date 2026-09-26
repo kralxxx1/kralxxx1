@@ -270,12 +270,23 @@
       const n = ST.note(id);
       if (!n) { onClose && onClose(); return; }
       const box = this.$('note-paper');
-      box.className = 'paper kind-' + n.kind;
+      // Who wrote it decides the hand and the ink; how it was kept decides the paper (tape, folds, stains)
+      const hand = handOf(n), rr = PB.U.rng(PB.U.hashStr(n.id || n.title || 'doc'));
+      const deco = [];
+      box.className = 'paper kind-' + n.kind + (hand ? ' hand-' + hand : '');
+      box.style.setProperty('--tilt', ((rr() - 0.5) * 2.2).toFixed(2) + 'deg');
+      if (/^(note|diary|drawing|card)$/.test(n.kind) && /tape|bant|taped|stuck|yapıştır/i.test(n.title)) deco.push('<i class="tape t1"></i><i class="tape t2"></i>');
+      if (/^(letter|notice|report|printout)$/.test(n.kind)) deco.push('<i class="fold f1"></i><i class="fold f2"></i>');
+      if (/^(note|letter|diary|card|report|notice|printout)$/.test(n.kind) && rr() < 0.55) deco.push(`<i class="stain" style="left:${(55 + rr() * 30).toFixed(0)}%;top:${(8 + rr() * 60).toFixed(0)}%"></i>`);
+      if (n.kind === 'tape') deco.push('<div class="cassette"><i class="reel l"></i><i class="reel r"></i><b class="clabel"></b></div>');
+      if (n.kind === 'phone') deco.push('<div class="lcd"><b>1</b><span>MSG</span></div>');
       const meta = [n.from, n.date].filter(Boolean).map(esc).join(' · ');
-      box.innerHTML = `<header><span class="nk">${esc(kindLabel(n.kind))}</span><h2>${esc(n.title)}</h2>${meta ? `<p class="meta">${meta}</p>` : ''}</header><div class="nb">${esc(n.body).replace(/\n/g, '<br>')}</div>`;
+      if (/^(note|card)$/.test(n.kind) && /yellow|sticky|sarı|yapışkan/i.test(n.title)) box.classList.add('sticky');
+      box.innerHTML = deco.join('') + `<header><span class="nk">${esc(kindLabel(n.kind))}</span><h2>${esc(n.title)}</h2>${meta ? `<p class="meta">${meta}</p>` : ''}</header><div class="nb">${bodyHTML(n)}</div>`;
+      const cl = box.querySelector('.clabel'); if (cl) cl.textContent = n.title.replace(/^[^:]*:\s*/, '').replace(/"/g, '');
       if (n.kind === 'photo') {
-        box.insertAdjacentHTML('afterbegin', `<canvas class="photo" width="320" height="240"></canvas>`);
-        const c = box.querySelector('canvas'); c.getContext('2d').drawImage(PB.Tex.photo(n.photo || 'arch', n.id).userData.canvas, 0, 0);
+        box.insertAdjacentHTML('afterbegin', `<canvas class="photo" width="640" height="480"></canvas>`);
+        const c = box.querySelector('canvas'); c.getContext('2d').drawImage(PB.Tex.photo(n.photo || 'arch', n.id).userData.canvas, 0, 0, 640, 480);
       }
       if (n.kind === 'drawing' && PB.Tex.drawing) {
         box.insertAdjacentHTML('afterbegin', `<canvas class="drawing" width="400" height="300"></canvas>`);
@@ -491,6 +502,33 @@
       if (this.touch && !this.touchBound) { this.g.input.bindTouch(this); this.touchBound = true; }
     }
   }
+  // Narration inside a document (what you see rather than what is written: "(It was never mailed.)",
+  // "Written on the back in pencil:", a drawing's description) is set apart from the writing itself
+  const NARR = /^(handwritten|written|someone|somebody|underneath|under it|on the back|in the margin|across|stapled|clipped|a jar|the (next|tape|letter|printout|page)|el yazısı|yazılmış|birisi|biri |altına|altında|arkasında|kenarında|üstüne|zımbala|iliştiril|raftaki|sonraki sayfa|kaset|mektup)/i;
+  function bodyHTML(n) {
+    const paras = String(n.body || '').split(/\n\s*\n/);
+    return paras.map((p, i) => {
+      const t = p.trim();
+      const narr = (n.kind === 'drawing' && i === 0) || (/^\(.*\)$/s.test(t) && /^\((you|the|it|he|she|they|someone|a |sen|bu|o |onu|biri)/i.test(t)) || (NARR.test(t) && /:\s*$/.test(t.split('\n')[0]));
+      return `<p class="${narr ? 'narr' : 'w'}">${esc(p).replace(/\n/g, '<br>')}</p>`;
+    }).join('');
+  }
+  // Handwriting by author (the "from" line, in any language)
+  function handOf(n) {
+    if (!/^(note|letter|diary|card|drawing|wall|flyer)$/.test(n.kind)) return null;
+    const f = String(n.from || '');
+    if (/lily/i.test(f)) return 'lily';
+    if (/eddie|^e\.?$/i.test(f)) return 'eddie';
+    if (/^w\b|^w\.|walt/i.test(f)) return 'walt';
+    if (/penny/i.test(f)) return 'penny';
+    if (/clyde/i.test(f)) return 'clyde';
+    if (/billy/i.test(f)) return 'billy';
+    if (/theo/i.test(f)) return 'theo';
+    if (/^sam\b/i.test(f)) return 'sam';
+    if (/june|maggie|carol|nora|ruth|ray/i.test(f)) return 'adult';
+    return n.kind === 'wall' ? 'wall' : null;
+  }
   function kindLabel(k) { const s = t('kind.' + k); return s === 'kind.' + k ? t('kind.doc') : s; }
+  UI.handOf = handOf;
   PB.UI = UI;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -520,7 +520,7 @@
           } else {
             // Drawings show Lily's actual picture, photos the actual print; everything else is handwriting or type
             const loc = ST.note(it.data);
-            const map = n.kind === 'drawing' ? T.drawing(n.drawing || 1, T.drawingCaption(loc.body)) : n.kind === 'photo' ? T.photo(n.photo || 'arch', it.data) : T.paper(it.id, !['letter', 'printout', 'notice', 'report', 'card', 'flyer'].includes(n.kind));
+            const map = n.kind === 'drawing' ? T.drawing(n.drawing || 1, T.drawingCaption(loc.body)) : n.kind === 'photo' ? T.photo(n.photo || 'arch', it.data) : T.docPaper(it.id, loc, PB.UI.handOf(loc));
             const geo = n.kind === 'drawing' ? new THREE.PlaneGeometry(0.29, 0.22) : n.kind === 'photo' ? new THREE.PlaneGeometry(0.13, 0.1) : new THREE.PlaneGeometry(0.21, 0.29);
             const paper = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map, roughness: n.kind === 'photo' ? 0.35 : 0.9, side: THREE.DoubleSide }));
             w.patch(paper.material);

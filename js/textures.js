@@ -897,6 +897,47 @@
     }
     g.fillStyle = 'rgba(120,90,50,0.15)'; g.beginPath(); g.arc(w * 0.8, h * 0.85, 30, 0, 6.28); g.fill();
   });
+  // A document as it lies in the world: its real paper and its real text, in the writer's hand, so what
+  // you read up close is what you then read in the viewer
+  const HAND_FONT = {
+    walt: ['700 {s}px "Caveat", cursive', '#1d2c5e', 1.25], eddie: ['400 {s}px "Kalam", cursive', '#37373a', 0.95], lily: ['600 {s}px "Mali", cursive', '#6a2aa8', 0.95],
+    penny: ['400 {s}px "Sriracha", cursive', '#a82a64', 0.95], clyde: ['400 {s}px "Patrick Hand", cursive', '#1d4a90', 1.05], billy: ['700 {s}px "Kalam", cursive', '#141414', 0.95],
+    theo: ['500 {s}px "Mali", cursive', '#2a5aa8', 0.95], sam: ['400 {s}px "Patrick Hand", cursive', '#262626', 1.05], adult: ['500 {s}px "Caveat", cursive', '#243a6a', 1.25],
+    wall: ['700 {s}px "Kalam", cursive', '#1b120a', 1], type: ['400 {s}px "Courier Prime", "Courier New", monospace', '#222', 0.8], dot: ['400 {s}px "VT323", monospace', '#2a2a3a', 1.05],
+  };
+  T.docPaper = (key, n, hand) => T.canvas('doc:' + key + ':' + (PB.I18N && PB.I18N.lang || ''), 384, 512, (g, w, h) => {
+    const r = U.rng(U.hashStr(key));
+    const kind = n.kind, sticky = /yellow|sticky|sarı|yapışkan/i.test(n.title || '');
+    const base = sticky ? '#f1df72' : kind === 'flyer' ? '#f4e46a' : kind === 'diary' ? '#efe6cf' : ['letter', 'notice', 'printout', 'report', 'card'].includes(kind) ? '#f3f0e6' : '#efe6cf';
+    g.fillStyle = base; g.fillRect(0, 0, w, h);
+    // ruled or banded paper
+    if (kind === 'diary' || kind === 'card') { g.fillStyle = 'rgba(120,150,200,0.45)'; for (let y = 70; y < h; y += 26) g.fillRect(0, y, w, 1.5); g.fillStyle = 'rgba(200,90,90,0.5)'; g.fillRect(kind === 'diary' ? 40 : 0, kind === 'diary' ? 0 : 56, kind === 'diary' ? 1.5 : w, kind === 'diary' ? h : 1.5); }
+    if (kind === 'printout') { g.fillStyle = 'rgba(150,190,140,0.25)'; for (let y = 0; y < h; y += 48) g.fillRect(0, y, w, 24); g.fillStyle = 'rgba(20,20,20,0.7)'; for (let y = 12; y < h; y += 24) { g.beginPath(); g.arc(10, y, 4, 0, 6.28); g.arc(w - 10, y, 4, 0, 6.28); g.fill(); } }
+    if (kind === 'notice') { g.fillStyle = '#7a1a14'; g.fillRect(0, 0, w, 14); }
+    // fibres, age, edges
+    for (let k = 0; k < 1600; k++) { g.fillStyle = `rgba(90,70,40,${r() * 0.07})`; g.fillRect(r() * w, r() * h, 1 + r() * 2, 1 + r() * 2); }
+    const edge = g.createRadialGradient(w / 2, h / 2, w * 0.3, w / 2, h / 2, w * 0.8); edge.addColorStop(0, 'rgba(0,0,0,0)'); edge.addColorStop(1, 'rgba(100,70,30,0.22)'); g.fillStyle = edge; g.fillRect(0, 0, w, h);
+    if (['letter', 'notice', 'report', 'printout'].includes(kind)) for (const fy of [h / 3, h * 2 / 3]) { const fg = g.createLinearGradient(0, fy - 6, 0, fy + 6); fg.addColorStop(0, 'rgba(0,0,0,0)'); fg.addColorStop(0.5, 'rgba(0,0,0,0.12)'); fg.addColorStop(0.55, 'rgba(255,255,255,0.4)'); fg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = fg; g.fillRect(0, fy - 6, w, 12); }
+    // the words
+    const typed = !hand;
+    const [fontT, ink, scale] = HAND_FONT[hand || (kind === 'printout' ? 'dot' : 'type')];
+    const size = Math.round((typed ? 17 : 24) * scale);
+    let y = kind === 'diary' || kind === 'card' ? 64 : 44;
+    const x0 = kind === 'diary' ? 52 : kind === 'printout' ? 28 : 24, maxW = w - x0 - 22;
+    if (typed && n.title) { g.fillStyle = '#1a1a1a'; g.font = `700 ${size + 2}px "Courier Prime", "Courier New", monospace`; y += wrapText(g, n.title.toUpperCase(), x0, y, maxW, size + 6) * (size + 6) + 10; }
+    g.fillStyle = ink; g.font = fontT.replace('{s}', size);
+    const lh = kind === 'diary' || kind === 'card' ? 26 : Math.round(size * (typed ? 1.35 : 1.22));
+    const body = String(n.body || '').replace(/\n\s*\n/g, '\n\n');
+    for (const line of body.split('\n')) {
+      if (y > h - 24) break;
+      if (!line.trim()) { y += lh * 0.6; continue; }
+      if (/^\(.*\)$/.test(line.trim())) continue;   // narration, not on the paper
+      g.fillStyle = ink; g.font = fontT.replace('{s}', size);
+      y += wrapText(g, line, x0 + (typed ? 0 : r.range(-2, 2)), y, maxW, lh) * lh;
+    }
+    // a coffee ring now and then
+    if (r() < 0.4) { g.strokeStyle = 'rgba(120,72,28,0.22)'; g.lineWidth = 5; g.beginPath(); g.arc(w * r.range(0.55, 0.85), h * r.range(0.15, 0.8), 34, 0, 6.28); g.stroke(); }
+  }, { readback: false });
   T.photo = key => T.canvas('photo:' + key, 320, 240, (g, w, h) => {
     g.fillStyle = '#f4f1e8'; g.fillRect(0, 0, w, h);
     const grd = g.createLinearGradient(0, 0, 0, h); grd.addColorStop(0, '#3a2a40'); grd.addColorStop(1, '#1a1216');
