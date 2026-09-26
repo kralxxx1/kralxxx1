@@ -35,6 +35,49 @@ uniform highp sampler3D uLvUp; uniform highp sampler3D uLvSide; uniform sampler2
 uniform vec3 uLvSize; uniform float uLvLayers; uniform float uLmIntensity; uniform float uDownK;
 uniform vec4 uPac; uniform vec2 uPacR; uniform float uTime; uniform float uEnvK;
 float pbHash(float n){ return fract(sin(n) * 43758.5453); }
+float pbH3(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+float pbNoise(vec3 x){
+  vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(mix(pbH3(i), pbH3(i + vec3(1.0, 0.0, 0.0)), f.x), mix(pbH3(i + vec3(0.0, 1.0, 0.0)), pbH3(i + vec3(1.0, 1.0, 0.0)), f.x), f.y),
+             mix(mix(pbH3(i + vec3(0.0, 0.0, 1.0)), pbH3(i + vec3(1.0, 0.0, 1.0)), f.x), mix(pbH3(i + vec3(0.0, 1.0, 1.0)), pbH3(i + vec3(1.0, 1.0, 1.0)), f.x), f.y), f.z);
+}
+`;
+  // Large-scale variation in world space, so no two walls or floors look stamped from one tile:
+  // tint drift, moisture wicking up from the floor, water damage near the ceiling, blotchy stains
+  const FRAG_MACRO = `
+#ifdef PB_MACRO
+float pbM = pbNoise(vPbWorld * 0.37) * 0.6 + pbNoise(vPbWorld * 1.3 + 17.0) * 0.3 + pbNoise(vPbWorld * 4.3 + 3.0) * 0.1;
+{
+  float vert = 1.0 - abs(normalize(vPbNormal).y);
+  diffuseColor.rgb *= mix(1.0 - PB_MACRO, 1.0 + PB_MACRO * 0.6, pbM);
+  float n2 = pbNoise(vPbWorld * vec3(0.9, 0.45, 0.9) + 31.0);
+  float low = (1.0 - smoothstep(0.0, 0.25 + n2 * 0.4, vPbWorld.y)) * vert;
+  diffuseColor.rgb *= 1.0 - low * PB_DAMP;
+  float high = smoothstep(uLvSize.y - 0.8 - n2 * 0.6, uLvSize.y, vPbWorld.y) * vert * smoothstep(0.45, 0.7, n2);
+  diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.8, 0.68, 0.5), high * PB_DAMP * 2.2);
+  float st = smoothstep(0.64, 0.76, pbNoise(vPbWorld * vec3(0.55, 0.22, 0.55) + 5.0));
+  diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.78, 0.66, 0.5), st * PB_DAMP * 1.6);
+}
+#else
+float pbM = 0.5;
+#endif
+`;
+  const FRAG_ROUGH = `
+#ifdef PB_MACRO
+roughnessFactor = clamp(roughnessFactor * mix(0.86, 1.12, pbM), 0.04, 1.0);
+#endif
+`;
+  // Plaster and drywall are never perfectly flat: a slow undulation in the shading normal
+  const FRAG_WAVE = `
+#ifdef PB_WAVE
+{
+  vec3 wq = vPbWorld * 0.8;
+  float c0 = pbNoise(wq);
+  vec3 grad = vec3(pbNoise(wq + vec3(0.1, 0.0, 0.0)) - c0, pbNoise(wq + vec3(0.0, 0.1, 0.0)) - c0, pbNoise(wq + vec3(0.0, 0.0, 0.1)) - c0) * 10.0;
+  vec3 Nw = normalize(vPbNormal); grad -= Nw * dot(grad, Nw);
+  normal = normalize(normal - (viewMatrix * vec4(grad * PB_WAVE, 0.0)).xyz);
+}
+#endif
 `;
   // Baked light volume: irradiance for up-facing and vertical surfaces, bounce for down-facing ones.
   // The shading normal (with normal maps) picks the blend, so bumps catch the light from above.
@@ -128,9 +171,13 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
     pbN = mat3(instanceMatrix) * pbN;
   #endif
   vPbNormal = normalize(mat3(modelMatrix) * pbN);`);
-        sh.fragmentShader = FRAG_HEAD + sh.fragmentShader.replace('#include <lights_fragment_maps>', '#include <lights_fragment_maps>\n' + FRAG_LM);
+        sh.fragmentShader = FRAG_HEAD + sh.fragmentShader
+          .replace('#include <lights_fragment_maps>', '#include <lights_fragment_maps>\n' + FRAG_LM)
+          .replace('#include <color_fragment>', '#include <color_fragment>\n' + FRAG_MACRO)
+          .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n' + FRAG_ROUGH)
+          .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + FRAG_WAVE);
       };
-      mat.customProgramCacheKey = () => 'pb-baked-v2';
+      mat.customProgramCacheKey = () => 'pb-baked-v3';
       return mat;
     }
     pbr(name, o = {}) {
@@ -145,6 +192,12 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       m.normalScale.set(o.normalScale || 1, o.normalScale || 1);
       m.userData.scale = set.scale;
       return this.patch(m);
+    }
+    // World-space variation on a patched material (see FRAG_MACRO / FRAG_WAVE)
+    macro(m, k, damp, wave) {
+      m.defines = Object.assign({}, m.defines || {}, { PB_MACRO: k.toFixed(3), PB_DAMP: damp.toFixed(3) });
+      if (wave > 0) m.defines.PB_WAVE = wave.toFixed(3);
+      return m;
     }
     // Wet outdoor ground: puddles and rain ripples layered on top of the baked light patch
     wetten(m, wet) {
@@ -168,13 +221,13 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       const E = (color, k = 1, extra = {}) => { const c = new THREE.Color(color).multiplyScalar(k); return new THREE.MeshBasicMaterial(Object.assign({ color: c }, extra)); };
       let m;
       switch (key) {
-        case 'wall': m = this.pbr(th.wall, { vertexColors: true, color: th.wallTint }); m.userData.refl = th.wallRefl || 0; break;
-        case 'floor': m = this.pbr(th.floor, { vertexColors: true, color: th.floorTint, emissiveIntensity: 0.35 }); m.userData.refl = th.floorRefl || 0; break;
-        case 'ceil': m = this.pbr(th.ceil || th.wall, { vertexColors: true, color: th.ceilTint }); break;
+        case 'wall': m = this.macro(this.pbr(th.wall, { vertexColors: true, color: th.wallTint }), th.macro != null ? th.macro : 0.12, th.damp != null ? th.damp : 0.22, th.wave != null ? th.wave : 0.025); m.userData.refl = th.wallRefl || 0; break;
+        case 'floor': m = this.macro(this.pbr(th.floor, { vertexColors: true, color: th.floorTint, emissiveIntensity: 0.35 }), 0.1, 0.1, 0); m.userData.refl = th.floorRefl || 0; break;
+        case 'ceil': m = this.macro(this.pbr(th.ceil || th.wall, { vertexColors: true, color: th.ceilTint }), 0.07, 0.15, 0); break;
         case 'block': m = this.pbr(th.block || th.wall, { vertexColors: true }); break;
         case 'low': m = this.pbr('fabric', { vertexColors: true }); break;
         case 'pool': m = this.pbr('tile', { vertexColors: true }); m.userData.refl = 0.4; break;
-        case 'pillar': m = this.pbr(th.pillar || th.wall, { color: th.wallTint }); break;
+        case 'pillar': m = this.macro(this.pbr(th.pillar || th.wall, { color: th.wallTint }), th.macro != null ? th.macro : 0.12, th.damp != null ? th.damp : 0.22, th.wave != null ? th.wave : 0.025); break;
         case 'trimPaint': m = S(0xa89c74, 0.5); break;
         case 'trim': m = th.trim === 'trimPaint' ? S(0xa89c74, 0.5) : th.trim === 'rubber' ? S(0x2a2a2c, 0.8) : th.trim === 'darkWood' ? this.pbr('wood', { color: 0x5a4030 }) : S(0x333333, 0.6); break;
         case 'wood': m = this.pbr('wood'); break;
@@ -198,7 +251,8 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         case 'chrome': m = S(0xdddddd, 0.15, 1); break;
         case 'brass': m = S(0xc8a040, 0.3, 1); break;
         case 'mirror': m = S(0xffffff, 0.03, 1, { refl: 1 }); break;
-        case 'glass': m = S(0x9ab8d0, 0.05, 0, { transparent: true, opacity: 0.22, depthWrite: false }); break;
+        // Clear glass: almost no diffuse, only a thin reflective sheen (a light tint would read as frost)
+        case 'glass': m = S(0x05070a, 0.03, 0, { transparent: true, opacity: 0.16, depthWrite: false }); m.userData.refl = 0.25; break;
         case 'waterJug': m = S(0x7ab0e0, 0.08, 0, { transparent: true, opacity: 0.5 }); break;
         case 'ceramic': m = S(0xf2f2ee, 0.15); break;
         case 'paper': m = S(0xf0ebdc, 0.9); break;
@@ -590,6 +644,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
       }
       // Kapı yanı duvar parçaları ve lentolar
       for (const door of L.doors) this.doorWall(bufs, door);
+      this.buildCorners(bufs);
 
       // Birleştir
       this.archMeshes = [];
@@ -608,6 +663,70 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         this.group.add(mesh);
         this.archMeshes.push(mesh);
       }
+    }
+    // Finished corners: every outward corner of the walls (free ends and the outside of L joints)
+    // gets a slim rounded corner bead, and the baseboard wraps around free ends. Without them the
+    // wall ends read as cut blocks.
+    buildCorners(bufs) {
+      const L = this.L, C = this.C, th = this.theme, H = L.ceil, w = L.w, h = L.h, half = 0.1;
+      const outdoor = L.meta.outdoor;
+      const vis = (x, y) => L.inb(x, y) && (L.solid[L.i(x, y)] === 0 || L.solid[L.i(x, y)] === SOLID.RACK) && !(outdoor && outdoor[L.i(x, y)]);
+      const kindH = (x, y) => (x < 0 || x >= w || y < 0 || y > h) ? 0 : (L.hW[y * w + x] || (L.doorMap.get((y * w + x) * 2) ? EDGE.WALL : 0));
+      const kindV = (x, y) => (x < 0 || x > w || y < 0 || y >= h) ? 0 : (L.vW[y * (w + 1) + x] || (L.doorMap.get((y * (w + 1) + x) * 2 + 1) ? EDGE.WALL : 0));
+      const full = k => k === EDGE.WALL || k === EDGE.GLASS;
+      const beads = { full: [], low: [] };
+      const trimB = th.trim && th.trimH > 0;
+      for (let vy = 0; vy <= h; vy++) for (let vx = 0; vx <= w; vx++) {
+        const E = kindH(vx, vy), Wk = kindH(vx - 1, vy), S = kindV(vx, vy), N = kindV(vx, vy - 1);
+        for (const cls of ['full', 'low']) {
+          const has = k => cls === 'full' ? full(k) : k === EDGE.LOW;
+          const e = has(E), wv = has(Wk), s = has(S), n = has(N);
+          const cnt = e + wv + s + n;
+          const X = vx * C, Z = vy * C;
+          const corners = [];
+          if (cnt === 1) {
+            // Free end: the cap faces away from the one wall
+            const dx = e ? -1 : wv ? 1 : 0, dz = s ? -1 : n ? 1 : 0;
+            if (dx) { corners.push([X + dx * half, Z - half, dx, -1], [X + dx * half, Z + half, dx, 1]); }
+            else { corners.push([X - half, Z + dz * half, -1, dz], [X + half, Z + dz * half, 1, dz]); }
+            // Baseboard across the end cap
+            if (cls === 'full' && trimB && vis(vx + (dx < 0 ? -1 : 0), vy + (dz < 0 ? -1 : 0))) {
+              const tb = this.chunkBuf(bufs, 'trim', X, Z), o = half + 0.016, hh = th.trimH;
+              if (dx) { const cx = X + dx * o; this.vface(tb, cx, Z - o, cx, Z + o, 0, hh, dx, 0, 1); this.hface(tb, Math.min(cx, X + dx * half), Z - o, Math.max(cx, X + dx * half), Z + o, hh, true, 1); }
+              else { const cz = Z + dz * o; this.vface(tb, X - o, cz, X + o, cz, 0, hh, 0, dz, 1); this.hface(tb, X - o, Math.min(cz, Z + dz * half), X + o, Math.max(cz, Z + dz * half), hh, true, 1); }
+            }
+          } else if (cnt === 2 && !(e && wv) && !(n && s)) {
+            // L joint: the outside corner is opposite both walls
+            const dx = e ? -1 : 1, dz = s ? -1 : 1;
+            corners.push([X + dx * half, Z + dz * half, dx, dz]);
+          }
+          for (const [cx, cz, sx, sz] of corners) {
+            // Visible only from the cell on the outside of the corner
+            const qx = vx + (sx < 0 ? -1 : 0), qy = vy + (sz < 0 ? -1 : 0);
+            if (!vis(qx, qy)) continue;
+            beads[cls].push({ x: cx - sx * 0.014, z: cz - sz * 0.014 });
+          }
+        }
+      }
+      const r = 0.022;
+      for (const cls of ['full', 'low']) {
+        const list = beads[cls];
+        if (!list.length) continue;
+        const hh = cls === 'full' ? H : 1.35;
+        const geo = new THREE.CylinderGeometry(r, r, hh, 10, 1, true);
+        geo.translate(0, hh / 2, 0);
+        // Texture scale follows the wall so the bead blends into it
+        const bm = this.mat(cls === 'full' ? 'pillar' : 'trim'), sc = bm.userData.scale || 2;
+        const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 0.14 / sc, uv.getY(i) * hh / sc);
+        const im = new THREE.InstancedMesh(geo, bm, list.length);
+        const dummy = new THREE.Object3D();
+        list.forEach((b, k) => { dummy.position.set(b.x, 0, b.z); dummy.updateMatrix(); im.setMatrixAt(k, dummy.matrix); });
+        im.castShadow = false; im.receiveShadow = true;
+        im.userData.def = 'bead';
+        im.computeBoundingSphere();
+        this.group.add(im);
+      }
+      this.beadCount = beads.full.length + beads.low.length;
     }
     doorGeom(door) {
       const L = this.L, C = this.C, d = door.d, x = door.x, y = door.y;
@@ -919,6 +1038,7 @@ float pbHash(float n){ return fract(sin(n) * 43758.5453); }
         });
         im.castShadow = opts.cast !== false && !(mat.transparent);
         im.receiveShadow = true;
+        im.userData.def = defKey;
         im.computeBoundingSphere();
         this.group.add(im);
         meshes.push(im);

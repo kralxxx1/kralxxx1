@@ -439,6 +439,7 @@
     'cap.phone': '[bir telefon çalıyor]',
     'cap.drag': '[yakında sürüklenen ayak sesleri]',
     'cap.moan': '[bir inleme]',
+    'cap.farSteps': '[binada başka bir yerde ayak sesleri]',
     'cap.thud': '[uzakta bir şey düştü]',
     'cap.buzz': '[bir floresan çıtırdıyor]',
     'cap.whisper': '[fısıltı]',

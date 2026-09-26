@@ -301,10 +301,10 @@
         g.noise(this.pos.x, this.pos.z, radius, 'step');
       }
       this.bob += moved * (this.sprinting ? 2.3 : 2.8);
-      // Nefes ve kalp
-      this.breathT -= dt;
+      // Breathing and heartbeat
+      this.updateBreathing(dt);
       const exert = (100 - this.stamina) / 100;
-      if (this.breathT <= 0 && (exert > 0.45 || this.fear > 60)) { this.breathT = U.lerp(1.4, 0.6, Math.max(exert, this.fear / 100)); if (g.audio) g.audio.breath(Math.max(exert, this.fear / 120)); }
+      void exert;
       this.heartT -= dt;
       if (this.fear > 35 && this.heartT <= 0) { this.heartT = U.lerp(1.1, 0.42, (this.fear - 35) / 65); if (g.audio) g.audio.heartbeat(U.clamp((this.fear - 30) / 70, 0.2, 1)); }
       // Fener
@@ -430,6 +430,24 @@
       this.hidden = null;
       document.body.classList.remove('in-locker');
     }
+    // You always hear yourself breathe: slow through the nose when calm, through the mouth when
+    // moving hard, panting after a sprint, shaky when afraid. Each breath is scheduled after the
+    // previous one ends, in and out in turn, so the rhythm is continuous and follows your state.
+    updateBreathing(dt) {
+      const g = this.game;
+      if (!g.audio || !g.audio.ctx) return;
+      this.breathT -= dt;
+      if (this.breathT > 0) return;
+      const exert = (100 - this.stamina) / 100, fear = this.fear / 100;
+      this.breathIn = !this.breathIn;
+      let kind, gain, pause;
+      if (exert > 0.55 || this.exhausted) { kind = this.breathIn ? 'heavyIn' : 'heavyOut'; gain = 0.25 + 0.3 * exert; pause = 0.05; }
+      else if (fear > 0.55) { kind = this.breathIn ? 'fearIn' : 'fearOut'; gain = 0.18 + 0.2 * fear; pause = 0.1; }
+      else if (exert > 0.25 || this.sprinting) { kind = this.breathIn ? 'in' : 'out'; gain = 0.12 + 0.2 * exert; pause = 0.25; }
+      else { kind = this.breathIn ? 'calmIn' : 'calmOut'; gain = 0.06; pause = this.breathIn ? 0.2 : 1.1; }
+      const dur = g.audio.breathe(kind, gain * (this.crouching ? 0.8 : 1));
+      this.breathT = Math.max(0.25, dur * 0.95 + pause * (0.8 + Math.random() * 0.4));
+    }
     updateHidden(dt) {
       const h = this.hidden, g = this.game, inp = g.input;
       h.t += dt;
@@ -438,14 +456,17 @@
       // Hold your breath (Shift) when something comes close. Run out and you gasp; breathe hard and it hears you.
       const near = (g.entities || []).filter(e => e.hostile && !e.friendly && e.mesh && e.distToPlayer && e.distToPlayer() < 4.2);
       if (near.length && !this.breathHinted) { this.breathHinted = true; g.ui.hint(PB.t('n.holdBreath')); }
+      const was = this.holdingBreath;
       this.holdingBreath = (inp.down('sprint') || inp.touchSprint) && this.stamina > 0 && !this.gaspLock;
+      if (was && !this.holdingBreath && !this.gaspLock && g.audio) { g.audio.breathe('release', 0.35); this.breathT = 1.6; }
+      if (!this.holdingBreath && !this.gaspLock) this.updateBreathing(dt * (near.length ? 0.6 : 1)); else this.breathT = Math.max(this.breathT, 0.4);
       if (this.holdingBreath) {
         this.stamina = Math.max(0, this.stamina - 12.5 * dt);
         this.fear = Math.min(100, this.fear + 3 * dt);
         if (this.stamina <= 0) {
           // Gasp: loud, and anything close enough knows exactly where you are
           this.gaspLock = true;
-          if (g.audio) { g.audio.breath(1.3); g.audio.breath(1.3); }
+          if (g.audio) { g.audio.breathe('gasp', 0.8); g.audio.breathe('heavyOut', 0.6); }
           g.noise(this.pos.x, this.pos.z, 9, 'gasp');
           if (near.some(e => e.distToPlayer() < 3.5)) { this.discovered(); return; }
         }

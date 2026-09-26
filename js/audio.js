@@ -265,15 +265,18 @@
     footstep(surface, loud = 1, pos) {
       if (!this.ctx) return;
       const surf = ['carpet', 'wetCarpet', 'concrete', 'tile', 'lino', 'wood', 'metal', 'water', 'puddle'].includes(surface) ? surface : 'carpet';
-      this.play('step_' + surf, 8, 'sfx', pos, { rev: 0.22, gain: 0.55 * loud, jitter: 0.1 });
-      if (loud > 0.8 && Math.random() < 0.3) this.play('cloth', 4, 'sfx', null, { rev: 0, gain: 0.12 });
+      this.play('step_' + surf, 8, 'sfx', pos, { rev: 0.22, gain: 0.75 * loud, jitter: 0.07 });
+      // clothes move with every stride; louder when running
+      this.play('rustle', 6, 'sfx', null, { rev: 0.02, gain: 0.05 + 0.14 * loud, jitter: 0.12, delay: 0.02 });
     }
-    breath(k) {
-      if (!this.ctx) return;
-      this.breathIn = !this.breathIn;
-      const heavy = k > 0.6;
-      this.play((this.breathIn ? 'breathIn' : 'breathOut') + (heavy ? 'Heavy' : ''), 4, 'sfx', null, { rev: 0.04, gain: 0.3 + 0.35 * k, jitter: 0.06 });
+    // One breath: calmIn/calmOut (nose), in/out, heavyIn/heavyOut, fearIn/fearOut, gasp, release
+    breathe(kind, gain) {
+      if (!this.ctx) return 0;
+      const name = { calmIn: 'breathCalmIn', calmOut: 'breathCalmOut', in: 'breathIn', out: 'breathOut', heavyIn: 'breathInHeavy', heavyOut: 'breathOutHeavy', fearIn: 'breathFearIn', fearOut: 'breathFearOut', gasp: 'gasp', release: 'breathRelease' }[kind] || 'breathIn';
+      const src = this.play(name, 4, 'sfx', null, { rev: 0.03, gain, jitter: 0.04 });
+      return src && src.buffer ? src.buffer.duration / src.playbackRate.value : 0.6;
     }
+    breath(k) { this.breathIn = !this.breathIn; return this.breathe((k > 0.6 ? 'heavy' : '') + (this.breathIn ? (k > 0.6 ? 'In' : 'in') : (k > 0.6 ? 'Out' : 'out')), 0.3 + 0.35 * k); }
     heartbeat(k) {
       if (!this.ctx) return;
       this.play('heartbeat', 2, 'sfx', null, { rev: 0, gain: 0.9 * k, jitter: 0.03 });
@@ -599,31 +602,52 @@
       this.bufLoop('amb:glass', 'rainGlass', glassPos, { bus: 'amb', gain: 0.5, rev: 0.05, ref: 3, roll: 1.1 });
       this.bufLoop('amb:gutter', 'gutter', gutterPos, { bus: 'amb', gain: 0.35, rev: 0.05, ref: 2, roll: 1.2, lowpass: 2500 });
     }
+    // Something happens somewhere else in the building. Recorded-quality events (falls, far steps,
+    // a door) are placed 7-22 m away; the caption only shows if the sound is actually loud enough.
+    ambEvent(name, takes, pos, gain, capKey, gap) {
+      const L = this.listenerPos || pos;
+      const d = Math.hypot(pos.x - L.x, pos.z - L.z), ref = 6, roll = 1.1;
+      const occluded = this.los ? !this.los(L.x, L.z, pos.x, pos.z) : false;
+      this.play(name, takes, 'amb', pos, { rev: 0.65, gain, ref, roll, occl: true, occluded, jitter: 0.06 });
+      const heard = gain * ref / (ref + roll * Math.max(0, d - ref)) * (occluded ? 0.55 : 1);
+      if (capKey && heard > 0.12) this.caption(capKey, PB.t('cap.' + capKey), pos, gap || 25);
+    }
     ambienceTick(cam) {
       if (!this.ctx || !this.ambTheme || this.t < this.nextAmb) return;
-      this.nextAmb = this.t + 5 + Math.random() * 9;
+      this.nextAmb = this.t + 6 + Math.random() * 10;
       const th = this.ambTheme;
-      const a = Math.random() * Math.PI * 2, d = 12 + Math.random() * 25;
-      const pos = { x: cam.position.x + Math.cos(a) * d, y: 2, z: cam.position.z + Math.sin(a) * d };
+      const a = Math.random() * Math.PI * 2, d = 7 + Math.random() * 15;
+      const pos = { x: cam.position.x + Math.cos(a) * d, y: 1.2, z: cam.position.z + Math.sin(a) * d };
       const t = this.t, o = this.out('amb', pos, { rev: 0.7, ref: 4 });
-      if (th === 'concrete' || th === 'pool') { for (let k = 0; k < 3; k++) this.tone(o.input, 'sine', 1800 + Math.random() * 1500, 1200, t + k * 0.7, 0.06, 0.25); this.caption('drip', PB.t('cap.drip'), pos, 30); }
-      else if (th === 'yellow' || th === 'dark') { if (Math.random() < 0.5) { this.burst(o.input, 'lowpass', 200, 1, t, 0.5, 0.5, 0.02, this.brown); this.caption('thud', PB.t('cap.thud'), pos, 25); } else { this.burst(o.input, 'bandpass', 3000, 8, t, 0.05, 0.3); this.burst(o.input, 'bandpass', 3000, 8, t + 0.07, 0.05, 0.2); this.caption('buzz', PB.t('cap.buzz'), pos, 40); } }
-      else if (th === 'office') { this.tone(o.input, 'square', 1300, 1300, t, 0.08, 0.06); this.tone(o.input, 'square', 1300, 1300, t + 0.15, 0.08, 0.06); }
+      const r = Math.random();
+      if (th === 'concrete' || th === 'pool') {
+        if (r < 0.6) { for (let k = 0; k < 3; k++) this.tone(o.input, 'sine', 1800 + Math.random() * 1500, 1200, t + k * 0.7, 0.06, 0.25); this.caption('drip', PB.t('cap.drip'), pos, 30); }
+        else this.ambEvent(r < 0.8 ? 'dropMetal' : 'dropWood', 2, pos, 1.1, 'thud');
+      }
+      else if (th === 'yellow' || th === 'dark') {
+        if (r < 0.3) this.ambEvent(r < 0.15 ? 'dropMetal' : 'dropWood', 2, pos, 1.2, 'thud');
+        else if (r < 0.45) this.ambEvent('dropDebris', 2, pos, 1.0, 'thud');
+        else if (r < 0.65) this.ambEvent('farSteps', 3, pos, 1.0, 'farSteps', 60);
+        else { this.burst(o.input, 'bandpass', 3000, 8, t, 0.05, 0.3); this.burst(o.input, 'bandpass', 3000, 8, t + 0.07, 0.05, 0.2); this.caption('buzz', PB.t('cap.buzz'), pos, 40); }
+      }
+      else if (th === 'office') { if (r < 0.5) { this.tone(o.input, 'square', 1300, 1300, t, 0.08, 0.06); this.tone(o.input, 'square', 1300, 1300, t + 0.15, 0.08, 0.06); } else this.ambEvent(r < 0.75 ? 'dropWood' : 'farSteps', 2, pos, 1.0, r < 0.75 ? 'thud' : 'farSteps', 40); }
       else if (th === 'glitch') this.glitchBurst(pos);
       else if (th === 'maze') { this.tone(o.input, 'triangle', 300, 150, t, 0.1, 0.12); this.tone(o.input, 'triangle', 150, 300, t + 0.12, 0.1, 0.12); }
       else if (th === 'tunnel') {
-        if (Math.random() < 0.6) { for (let k = 0; k < 2; k++) this.tone(o.input, 'sine', 900 + Math.random() * 700, 1900, t + k * 0.9, 0.05, 0.3); this.caption('drip', PB.t('cap.drip'), pos, 30); }
+        if (r < 0.5) { for (let k = 0; k < 2; k++) this.tone(o.input, 'sine', 900 + Math.random() * 700, 1900, t + k * 0.9, 0.05, 0.3); this.caption('drip', PB.t('cap.drip'), pos, 30); }
+        else if (r < 0.75) this.ambEvent('dropMetal', 2, pos, 1.1, 'pipe', 35);
         else { const f = 180 + Math.random() * 120; this.tone(o.input, 'triangle', f, f * 0.98, t, 1.6, 0.18, 0.002); this.tone(o.input, 'sine', f * 2.76, f * 2.7, t, 1.1, 0.08, 0.002); this.burst(o.input, 'bandpass', 700, 6, t, 0.08, 0.3); this.caption('thud', PB.t('cap.pipe'), pos, 35); }
       }
       else if (th === 'school') {
-        if (Math.random() < 0.5) { this.burst(o.input, 'lowpass', 500, 1, t, 0.25, 0.5, 0.002); this.tone(o.input, 'square', 190, 170, t, 0.35, 0.05, 0.002); this.caption('door', PB.t('cap.locker'), pos, 35); }
+        if (r < 0.4) { this.play('doorMetalClose', 2, 'amb', pos, { rev: 0.7, gain: 0.9, ref: 6 }); this.caption('door', PB.t('cap.locker'), pos, 35); }
+        else if (r < 0.65) this.ambEvent('farSteps', 3, pos, 0.9, 'farSteps', 50);
         else { this.tone(o.input, 'sine', 988, 988, t, 0.25, 0.04, 0.01); this.tone(o.input, 'sine', 784, 784, t + 0.35, 0.4, 0.04, 0.01); }
       }
-      else if (th === 'mall') { if (Math.random() < 0.5) { this.burst(o.input, 'bandpass', 900, 3, t, 0.4, 0.12, 0.05); this.caption('plastic', PB.t('cap.plastic'), pos, 30); } else { this.tone(o.input, 'sine', 1318, 1318, t, 0.9, 0.035, 0.01); this.tone(o.input, 'sine', 1046, 1046, t + 0.5, 1.2, 0.035, 0.01); } }
-      else if (th === 'motel') { for (let k = 0; k < 3; k++) { this.burst(o.input, 'lowpass', 380, 1.5, t + k * 0.32, 0.09, 0.8, 0.001); this.tone(o.input, 'sine', 110, 80, t + k * 0.32, 0.08, 0.2, 0.001); } this.caption('knock', PB.t('cap.knock'), pos, 40); }
-      else if (th === 'hospital') { for (let k = 0; k < (Math.random() < 0.5 ? 2 : 3); k++) this.tone(o.input, 'sine', 960, 960, t + k * 0.8, 0.12, 0.08, 0.004); this.caption('beep', PB.t('cap.beep'), pos, 30); }
-      else if (th === 'street') { if (Math.random() < 0.35) { this.burst(o.input, 'lowpass', 110, 0.8, t, 3.5, 0.8, 0.4, this.brown); this.caption('thunder', PB.t('cap.thunder'), pos, 200); } }
-      else if (th === 'workshop') { this.burst(o.input, 'highpass', 3500, 1, t, 0.04, 0.3); this.burst(o.input, 'highpass', 3500, 1, t + 0.06, 0.03, 0.25); this.burst(o.input, 'highpass', 4000, 1, t + 0.15, 0.05, 0.2); this.caption('buzz', PB.t('cap.arc'), pos, 30); }
+      else if (th === 'mall') { if (r < 0.5) { this.burst(o.input, 'bandpass', 900, 3, t, 0.4, 0.12, 0.05); this.caption('plastic', PB.t('cap.plastic'), pos, 30); } else if (r < 0.75) this.ambEvent('dropWood', 2, pos, 1.0, 'thud'); else { this.tone(o.input, 'sine', 1318, 1318, t, 0.9, 0.035, 0.01); this.tone(o.input, 'sine', 1046, 1046, t + 0.5, 1.2, 0.035, 0.01); } }
+      else if (th === 'motel') { if (r < 0.6) { for (let k = 0; k < 3; k++) { this.burst(o.input, 'lowpass', 380, 1.5, t + k * 0.32, 0.09, 0.8, 0.001); this.tone(o.input, 'sine', 110, 80, t + k * 0.32, 0.08, 0.2, 0.001); } this.caption('knock', PB.t('cap.knock'), pos, 40); } else this.ambEvent('farSteps', 3, pos, 0.9, 'farSteps', 50); }
+      else if (th === 'hospital') { if (r < 0.6) { for (let k = 0; k < (Math.random() < 0.5 ? 2 : 3); k++) this.tone(o.input, 'sine', 960, 960, t + k * 0.8, 0.12, 0.08, 0.004); this.caption('beep', PB.t('cap.beep'), pos, 30); } else this.ambEvent(r < 0.8 ? 'dropMetal' : 'farSteps', 2, pos, 1.0, r < 0.8 ? 'thud' : 'farSteps', 40); }
+      else if (th === 'street') { if (r < 0.35) { this.burst(o.input, 'lowpass', 110, 0.8, t, 3.5, 0.8, 0.4, this.brown); this.caption('thunder', PB.t('cap.thunder'), pos, 200); } }
+      else if (th === 'workshop') { if (r < 0.6) { this.burst(o.input, 'highpass', 3500, 1, t, 0.04, 0.3); this.burst(o.input, 'highpass', 3500, 1, t + 0.06, 0.03, 0.25); this.burst(o.input, 'highpass', 4000, 1, t + 0.15, 0.05, 0.2); this.caption('buzz', PB.t('cap.arc'), pos, 30); } else this.ambEvent('dropMetal', 2, pos, 1.0, 'thud'); }
     }
 
     // ---------------------------------------------------------- müzik

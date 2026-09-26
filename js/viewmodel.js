@@ -20,18 +20,6 @@
     const lcd = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.3, 1.2, 0.5) });
     return { skin, sleeve, cuff, black, chrome, rubber, lens, red, lcd };
   }
-  // Fingers curled around a cylinder along -z (radius rr, centered at cx, cy)
-  function grip(side, cx, cy, z0, rr) {
-    const s = [];
-    for (let k = 0; k < 4; k++) {
-      const z = z0 - k * 0.022, r = rr + 0.012;
-      for (let j = 0; j < 3; j++) {
-        const a = -H * side + (j + 0.5) * 0.75 * side;
-        s.push(['cap', 'skin', 0.0105 - j * 0.0008, 0.018, cx + Math.sin(a) * r * side * -1, cy - Math.cos(a) * r, z, 0, 0, a]);
-      }
-    }
-    return s;
-  }
   class ViewModel {
     constructor(game, cam) {
       this.g = game; this.cam = cam;
@@ -55,15 +43,10 @@
       this.tip = new THREE.Object3D(); this.tip.position.z = -0.14; this.torch.add(this.tip);
       this.torch.rotation.z = -0.25;
       this.right.add(this.torch);
-      const hand = [
-        ['rbox', 'skin', 0.05, 0.075, 0.09, 0.02, 0.028, -0.012, 0.012, 0, 0, -0.2],
-        ...grip(1, 0, 0, -0.005, 0.021),
-        ['cap', 'skin', 0.011, 0.045, -0.012, 0.028, -0.01, H - 0.2, 0, 0.3],
-        ['cap', 'skin', 0.03, 0.2, 0.045, -0.02, 0.13, H + 0.15, 0.1, 0],
-        ['lathe', 'sleeve', [[0.045, 0], [0.047, 0.08], [0.052, 0.3], [0.001, 0.3]], 14, 0.05, -0.025, 0.09, H + 0.15, 0.1, 0],
-        ['torus', 'cuff', 0.046, 0.007, 14, 0, 0.05, -0.024, 0.088, 0.15, 0.1, 0],
-      ];
-      this.addParts(this.right, 'vm:rhand', hand);
+      // Gloved hand and jacket sleeve, sculpted in the flashlight's own frame
+      const HB = PB.Hands.build();
+      this.M.glove = HB.gloveMat; this.M.sleeveC = HB.sleeveMat;
+      this.torch.add(new THREE.Mesh(HB.right, HB.gloveMat), new THREE.Mesh(HB.sleeveR, HB.sleeveMat));
       this.root.add(this.right);
       // Left hand + walkie-talkie
       this.left = new THREE.Group();
@@ -78,14 +61,7 @@
       this.walkie = new THREE.Group();
       this.addParts(this.walkie, 'vm:walkie', walkie);
       this.left.add(this.walkie);
-      const lhand = [
-        ['rbox', 'skin', 0.075, 0.07, 0.03, 0.014, 0, -0.03, -0.028],
-        ...[0, 1, 2, 3].map(k => ['cap', 'skin', 0.009, 0.03, 0.03, -0.06 + k * 0.024, 0.0, 0, 0, H]),
-        ['cap', 'skin', 0.01, 0.035, -0.036, -0.02, 0.012, 0.3, 0, 0.3],
-        ['cap', 'skin', 0.028, 0.18, 0.0, -0.13, -0.05, 0.2, 0, 0],
-        ['lathe', 'sleeve', [[0.043, 0], [0.047, 0.08], [0.05, 0.28], [0.001, 0.28]], 14, 0, -0.16, -0.06, Math.PI + 0.2, 0, 0],
-      ];
-      this.addParts(this.left, 'vm:lhand', lhand);
+      this.walkie.add(new THREE.Mesh(HB.left, HB.gloveMat), new THREE.Mesh(HB.sleeveL, HB.sleeveMat));
       this.root.add(this.left);
       this.root.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; o.frustumCulled = false; o.renderOrder = 5; } });
       // State
@@ -102,7 +78,7 @@
     }
     // Hands take the level's baked light like everything else
     onWorld(world) {
-      for (const k of ['skin', 'sleeve', 'cuff', 'black', 'chrome', 'rubber', 'red']) { const m = this.M[k]; world.patch(m); m.needsUpdate = true; }
+      for (const k of ['skin', 'sleeve', 'cuff', 'black', 'chrome', 'rubber', 'red', 'glove', 'sleeveC']) { const m = this.M[k]; if (!m) continue; world.patch(m); m.needsUpdate = true; }
     }
     doReach() { this.reachT = 0.45; }
     update(dt, pl) {

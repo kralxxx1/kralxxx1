@@ -361,6 +361,7 @@
       this.player.flashOn = false;
       this.cpPos = { x: this.player.pos.x, z: this.player.pos.z, yaw: this.player.yaw };
       this.createItems();
+      PB.Placement.settle(this);
       this.createDoorInteractions();
       this.createHideSpots();
       this.menuWorld = !!opts.menu;
@@ -960,6 +961,8 @@
       const key = ent.kind === 'ghost' ? ent.type : ent.kind;
       const now = this.time;
       if (!this.lastStinger || now - this.lastStinger > 22) { this.audio.stinger('spot'); this.lastStinger = now; }
+      // A sharp intake of breath when you realise it has seen you
+      if (!this.lastGasp || now - this.lastGasp > 8) { this.lastGasp = now; this.audio.breathe('gasp', 0.6); this.player.breathT = 0.5; this.player.breathIn = true; }
       this.player.fear = Math.min(100, this.player.fear + 22);
       if (!this.spottedOnce[key]) {
         this.spottedOnce[key] = true;
@@ -1366,7 +1369,7 @@
       }
       this.player.updateFlash(dt);
       this.flashInterference = Math.max(0, this.flashInterference - dt);
-      if (this.audio.ctx) { this.audio.camYaw = this.player.yaw; this.audio.listen(this.camera); if (this.state === 'play') this.audio.ambienceTick(this.camera); }
+      if (this.audio.ctx) { this.audio.camYaw = this.player.yaw; this.audio.los = this.level ? (ax, az, bx, bz) => this.level.los(ax, az, bx, bz) : null; this.audio.listen(this.camera); if (this.state === 'play') this.audio.ambienceTick(this.camera); }
       if (this.state !== 'play' && this.markList && this.markList.length) { this.markList.length = 0; this.ui.marks(this.markList); }
       this.updatePost(dt);
       if (this.postDirty) this.configurePost();

@@ -98,32 +98,46 @@
 
   // ------------------------------------------------------------ TARİFLER
   const R = {};
+  // Level-0 wallpaper: four 53 cm rolls per tile, each printed with two pale pinstripes and a column
+  // of small chevrons, hung a little out of register (every roll starts at a different height, and
+  // comes from a slightly different dye lot). Butt seams, a bubble or two, a seam lifting at the bottom.
   R.wallpaper = (n, s) => {
     const img = new FImg(n);
-    const low = field(n, 3, 4, s), mid = field(n, 12, 3, s + 1), fine = field(n, 48, 2, s + 2);
+    const low = field(n, 3, 4, s), mid = field(n, 12, 3, s + 1), fine = field(n, 64, 2, s + 2), paper = field(n, 160, 1, s + 5);
+    const rolls = 4, rollOff = [0, 0.37, 0.71, 0.19], lot = [1, 0.965, 1.02, 0.985];
+    const bubbles = [];
+    for (let k = 0; k < 5; k++) bubbles.push([h32(k, 1, s), h32(k, 2, s), 0.012 + h32(k, 3, s) * 0.02]);
+    const peelRoll = Math.floor(h32(7, 7, s) * rolls);
     for (let y = 0; y < n; y++) {
       const v = y / n;
       for (let x = 0; x < n; x++) {
         const u = x / n, i = y * n + x;
-        const cu = u * 8, col = Math.floor(cu), fu = cu - col;
-        const stripe = 1 - sm(0, 0.035, Math.min(fu, 1 - fu));
-        const fv = fr(v * 9 + (col & 1) * 0.5);
-        let pat = 0;
-        if (fu > 0.16 && fu < 0.84) {
-          const y0 = 0.3 + Math.abs(fu - 0.5) * 0.6;
-          pat = 1 - sm(0.01, 0.028, Math.abs(fv - y0));
-        }
-        const su = fr(u * 2), seam = 1 - sm(0, 0.004, Math.min(su, 1 - su));
+        const ru = u * rolls, roll = Math.floor(ru), fu = ru - roll;
+        // Pattern inside the roll: stripes at 1/4 and 3/4, chevrons down the middle
+        const pv = fr(v * 20 + rollOff[roll]);
+        const stripe = Math.max(1 - sm(0.004, 0.012, Math.abs(fu - 0.25)), 1 - sm(0.004, 0.012, Math.abs(fu - 0.75)));
+        const cx = Math.abs(fu - 0.5);
+        const chev = cx < 0.14 ? 1 - sm(0.01, 0.024, Math.abs(pv - (0.3 + cx * 2.2))) : 0;
+        const dot = (1 - sm(0.012, 0.022, Math.hypot((fu - 0.5) * 0.53, (fr(v * 20 + rollOff[roll] + 0.5) - 0.5) * 0.106))) * 0.6;
+        // Butt seam between rolls: a hairline gap, the paper edges slightly raised
+        const se = Math.min(fu, 1 - fu);
+        const seam = 1 - sm(0, 0.0035, se), lip = (1 - sm(0.0035, 0.012, se)) * (1 - seam);
+        // Bubbles
+        let bub = 0;
+        for (const [bx, by, br] of bubbles) { const d = Math.hypot((u - bx) * 1, (v - by) * 1); bub = Math.max(bub, 1 - sm(br * 0.5, br, d)); }
+        // The bottom of one seam is lifting
+        const peel = roll === peelRoll || roll === (peelRoll + 1) % rolls ? (1 - sm(0, 0.03, se)) * sm(0.86, 0.97, v) : 0;
         const w = h32(x, y, s);
-        const shade = 1 + (low[i] - 0.5) * 0.18 + (mid[i] - 0.5) * 0.07 + (w - 0.5) * 0.045 + (fine[i] - 0.5) * 0.05;
-        const k = shade * (1 - pat * 0.09) * (1 - stripe * 0.07) * (1 - seam * 0.32);
-        const age = sm(0.55, 0.85, 1 - low[i]) * 0.6;
-        img.set(i, (0.80 - age * 0.07) * k, (0.705 - age * 0.1) * k, (0.40 - age * 0.1) * k);
-        img.h[i] = 0.5 + pat * 0.22 - seam * 0.55 - stripe * 0.06 + (w - 0.5) * 0.07 + (fine[i] - 0.5) * 0.14;
-        img.r[i] = 0.82 + (mid[i] - 0.5) * 0.14 - pat * 0.07;
+        const shade = (1 + (low[i] - 0.5) * 0.14 + (mid[i] - 0.5) * 0.06 + (w - 0.5) * 0.035 + (fine[i] - 0.5) * 0.05 + (paper[i] - 0.5) * 0.04) * lot[roll];
+        const print = stripe * 0.075 + chev * 0.06 + dot * 0.05;
+        const k = shade * (1 + print) * (1 - seam * 0.45) * (1 + lip * 0.04) * (1 - peel * 0.25);
+        const age = sm(0.55, 0.85, 1 - low[i]) * 0.5;
+        img.set(i, (0.79 - age * 0.06) * k, (0.70 - age * 0.09) * k, (0.40 - age * 0.1) * k);
+        img.h[i] = 0.5 + print * 1.2 - seam * 0.6 + lip * 0.18 + bub * 0.35 + peel * 0.5 + (w - 0.5) * 0.05 + (fine[i] - 0.5) * 0.1 + (paper[i] - 0.5) * 0.12;
+        img.r[i] = 0.84 + (mid[i] - 0.5) * 0.12 - print * 0.35 - bub * 0.1;
       }
     }
-    img.normalStrength = 1.6; img.aoStrength = 1.4;
+    img.normalStrength = 1.8; img.aoStrength = 1.2;
     return img;
   };
   R.carpet = (n, s) => {
@@ -626,7 +640,7 @@
   };
 
   // Her dokunun dünyadaki tekrar boyu (metre)
-  T.SCALE = { brick: 2.4, cinderblock: 1.6, vinyl: 1.2, hospitalWall: 2, motelWallpaper: 1.6, motelCarpet: 2.4, terrazzo: 2.4, siding: 2.4, grass: 2, asphalt: 3, shingles: 2, planks: 2.4, hexTile: 0.7, subway: 0.9, linoleum: 1.2, wallpaper: 1.5, carpet: 2, ceiling: 1.2, concreteWall: 3, concreteFloor: 3, tile: 1.2, drywall: 2, officeCarpet: 2, fabric: 1, metal: 1.2, wood: 1.2, arcadeWall: 2, mazeWall: 3, mazeFloor: 3, arcadeCarpet: 2.5 };
+  T.SCALE = { brick: 2.4, cinderblock: 1.6, vinyl: 1.2, hospitalWall: 2, motelWallpaper: 1.6, motelCarpet: 2.4, terrazzo: 2.4, siding: 2.4, grass: 2, asphalt: 3, shingles: 2, planks: 2.4, hexTile: 0.7, subway: 0.9, linoleum: 1.2, wallpaper: 2.12, carpet: 2, ceiling: 1.2, concreteWall: 3, concreteFloor: 3, tile: 1.2, drywall: 2, officeCarpet: 2, fabric: 1, metal: 1.2, wood: 1.2, arcadeWall: 2, mazeWall: 3, mazeFloor: 3, arcadeCarpet: 2.5 };
 
   T.init = function (renderer, aniso) {
     T.maxAniso = renderer.capabilities.getMaxAnisotropy();

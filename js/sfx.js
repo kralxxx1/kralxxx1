@@ -106,74 +106,214 @@
   const R = {};
   const S = s => Math.floor(s);
 
-  // --- Footsteps: heel + toe, per surface
+  // ------------------------------------------------------------ FOOTSTEPS (work boots)
+  // A step is a contact, not a click. The boot hits the floor as a force pulse (a half-sine whose
+  // width is set by how soft the pair is: rubber on carpet is slow, on tile fast); that force rings
+  // the floor (modes for wood and metal, a damped noise burst for concrete, fibre rustle for carpet);
+  // the sole scuffs while it rolls from heel to ball, then the ball lands, softer. A low body thump
+  // carries the weight. Every take varies all of it.
+  function pulse(n, sr, t0, width, amp) {
+    const x = new Float32Array(n), i0 = S(t0 * sr), L = Math.max(2, S(width * sr));
+    for (let i = 0; i < L && i0 + i < n; i++) x[i0 + i] = Math.sin(Math.PI * i / L) * amp;
+    return x;
+  }
+  // Convolve a sparse excitation with a decaying noise "floor response" (fast: short kernel)
+  function ringNoise(ex, sr, r, tau, len, colorF) {
+    const K = S(len * sr), ker = new Float32Array(K);
+    let lp = 0;
+    for (let i = 0; i < K; i++) { lp = lp * colorF + (r() * 2 - 1) * (1 - colorF); ker[i] = lp * Math.exp(-i / sr / tau); }
+    const y = new Float32Array(ex.length);
+    for (let i = 0; i < ex.length; i++) { const e = ex[i]; if (e === 0) continue; for (let k = 0; k < K && i + k < y.length; k++) y[i + k] += e * ker[k]; }
+    return y;
+  }
+  function scuff(n, sr, r, t0, dur, f, q, amp) {
+    const x = biquad(white(n, r), 'bp', f, q, sr), i0 = S(t0 * sr), i1 = Math.min(n, S((t0 + dur) * sr));
+    const y = new Float32Array(n);
+    for (let i = i0; i < i1; i++) { const k = (i - i0) / (i1 - i0); y[i] = x[i] * Math.sin(Math.PI * k) * Math.pow(1 - k, 0.6) * amp * (0.7 + 0.3 * Math.sin(k * 40 + r() * 0.3)); }
+    return y;
+  }
+  function grit(n, sr, r, t0, dur, rate, amp) {
+    const y = new Float32Array(n);
+    let i = S(t0 * sr); const end = Math.min(n, S((t0 + dur) * sr));
+    while (i < end) { const k = (i / sr - t0) / dur; y[i] += (r() * 2 - 1) * amp * Math.pow(1 - k, 1.5); i += Math.max(1, Math.floor(-Math.log(1 - r()) / rate * sr)); }
+    return biquad(biquad(y, 'hp', 2500, 0.7, sr), 'lp', 9000, 0.7, sr);
+  }
+  const STEP = {
+    // width of the heel pulse (s), level, room for a relative loudness scale
+    carpet: { w: 0.009, lvl: 0.45 }, wetCarpet: { w: 0.008, lvl: 0.55 }, concrete: { w: 0.0022, lvl: 0.9 }, tile: { w: 0.0014, lvl: 0.85 },
+    lino: { w: 0.0022, lvl: 0.7 }, wood: { w: 0.0026, lvl: 0.85 }, metal: { w: 0.0012, lvl: 1 }, water: { w: 0.006, lvl: 0.8 }, puddle: { w: 0.005, lvl: 0.65 },
+  };
   function step(sr, r, surf) {
-    const n = S(sr * (surf === 'water' || surf === 'puddle' ? 0.5 : surf === 'metal' ? 0.6 : 0.3));
+    const P = STEP[surf] || STEP.carpet;
+    const n = S(sr * (surf === 'metal' ? 0.7 : surf === 'water' || surf === 'puddle' ? 0.55 : 0.42));
     const out = new Float32Array(n);
-    const toe = 0.045 + r() * 0.035, v = 0.85 + r() * 0.3;
-    const heel = (t0, amp) => {
-      switch (surf) {
-        case 'carpet': case 'wetCarpet':
-          add(out, hit(n, sr, r, t0, amp, 'lp', 260 * v, 0.8, 0.028));
-          add(out, modes(n, sr, [[62 * v, 0.03, amp * 0.7]], t0));
-          add(out, hit(n, sr, r, t0 + 0.012, amp * 0.1, 'bp', 3200 * v, 0.8, 0.05));
-          if (surf === 'wetCarpet') {
-            add(out, decay(biquad(white(n, r), 'bp', 900 * v, 2, sr), sr, 0.07, t0 + 0.01, 0.02), amp * 0.35);
-            for (let k = 0; k < 3; k++) { const t = t0 + 0.03 + r() * 0.08, f0 = 700 + r() * 600; const b = new Float32Array(n); const i0 = S(t * sr); for (let i = i0; i < Math.min(n, i0 + S(0.025 * sr)); i++) { const tt = (i - i0) / sr; b[i] = Math.sin(TAU * (f0 * tt + 9000 * tt * tt)) * Math.exp(-tt / 0.008); } add(out, b, amp * 0.12); }
-          }
-          break;
-        case 'concrete':
-          add(out, hit(n, sr, r, t0, amp * 0.8, 'hp', 2800 * v, 0.7, 0.004));
-          add(out, hit(n, sr, r, t0, amp, 'lp', 900 * v, 0.8, 0.018));
-          add(out, decay(biquad(crackle(n, sr, r, 700), 'hp', 4000, 0.7, sr), sr, 0.03, t0), amp * 0.5);
-          break;
-        case 'tile': case 'lino':
-          add(out, hit(n, sr, r, t0, amp * 0.7, 'hp', 2500 * v, 0.7, 0.003));
-          add(out, modes(n, sr, surf === 'tile' ? [[2100 * v, 0.012, amp * 0.25], [3400 * v, 0.009, amp * 0.2], [5200 * v, 0.006, amp * 0.12]] : [[1200 * v, 0.01, amp * 0.15]], t0, r));
-          add(out, hit(n, sr, r, t0, amp * 0.8, 'lp', 650 * v, 0.8, 0.016));
-          if (surf === 'lino' && r() < 0.18) { const b = new Float32Array(n), i0 = S((t0 + 0.02) * sr), f0 = 1700 + r() * 700; for (let i = i0; i < Math.min(n, i0 + S(0.08 * sr)); i++) { const tt = (i - i0) / sr; b[i] = Math.sin(TAU * (f0 * tt + 2500 * tt * tt)) * Math.sin(Math.PI * tt / 0.08) * 0.5; } add(out, b, amp * 0.18); }
-          break;
-        case 'wood':
-          add(out, modes(n, sr, [[150 * v, 0.05, amp * 0.6], [340 * v, 0.035, amp * 0.4], [720 * v, 0.022, amp * 0.25], [1500 * v, 0.012, amp * 0.15]], t0, r));
-          add(out, hit(n, sr, r, t0, amp * 0.6, 'lp', 1400, 0.8, 0.01));
-          break;
-        case 'metal': case 'grate':
-          add(out, modes(n, sr, [[310 * v, 0.22, amp * 0.3], [780 * v, 0.16, amp * 0.25], [1450 * v, 0.1, amp * 0.18], [2380 * v, 0.07, amp * 0.12], [3700 * v, 0.05, amp * 0.08]], t0, r));
-          add(out, hit(n, sr, r, t0, amp * 0.8, 'bp', 2400, 1, 0.006));
-          add(out, hit(n, sr, r, t0, amp * 0.7, 'lp', 400, 0.8, 0.02));
-          break;
-        case 'water': case 'puddle': {
-          const k = surf === 'puddle' ? 0.6 : 1;
-          add(out, decay(sweep(white(n, r), 'bp', t => 3200 - 2600 * Math.min(1, t * 3), 1.2, sr), sr, 0.09 * k + 0.03, t0, 0.008), amp * 0.9);
-          add(out, hit(n, sr, r, t0, amp * 0.5, 'lp', 300, 0.8, 0.05));
-          for (let q = 0; q < 6 * k; q++) { const b = new Float32Array(n), i0 = S((t0 + 0.02 + r() * 0.2) * sr), f0 = 400 + r() * 900, L = S((0.015 + r() * 0.03) * sr); for (let i = i0; i < Math.min(n, i0 + L); i++) { const tt = (i - i0) / sr; b[i] = Math.sin(TAU * (f0 * tt + 14000 * tt * tt)) * Math.exp(-tt / 0.012); } add(out, b, amp * 0.15); }
-          break;
+    const v = 0.88 + r() * 0.24, toe = 0.055 + r() * 0.045, heelA = 0.85 + r() * 0.3, toeA = 0.35 + r() * 0.25;
+    const wH = P.w * (0.85 + r() * 0.3), wT = P.w * (1.1 + r() * 0.3);
+    // Body weight thump (the whole leg decelerating)
+    add(out, modes(n, sr, [[58 * v + r() * 10, 0.028, 0.5 * heelA], [95 * v, 0.018, 0.2 * heelA]], 0.001, r));
+    const ex = pulse(n, sr, 0, wH, heelA);
+    add(ex, pulse(n, sr, toe, wT, toeA));
+    switch (surf) {
+      case 'carpet': case 'wetCarpet': {
+        add(out, biquad(ringNoise(ex, sr, r, 0.012, 0.05, 0.6), 'lp', 900 * v, 0.7, sr), 0.9);
+        add(out, biquad(ex, 'lp', 220, 0.7, sr), 0.9);
+        // fibres crushing: a soft, short hiss
+        add(out, scuff(n, sr, r, 0.004, 0.05 + r() * 0.03, 2600 * v, 0.8, 0.07));
+        add(out, scuff(n, sr, r, toe + 0.004, 0.05, 2200 * v, 0.8, 0.05));
+        if (surf === 'wetCarpet') {
+          // water squeezed out of the pile
+          add(out, decay(biquad(white(n, r), 'bp', 1100 * v, 1.5, sr), sr, 0.06, 0.012, 0.01), 0.2);
+          for (let k = 0; k < 4; k++) { const t = 0.02 + r() * 0.12, f0 = 500 + r() * 700, b = new Float32Array(n), i0 = S(t * sr); for (let i = i0; i < Math.min(n, i0 + S(0.02 * sr)); i++) { const tt = (i - i0) / sr; b[i] = Math.sin(TAU * (f0 * tt + 8000 * tt * tt)) * Math.exp(-tt / 0.006); } add(out, b, 0.05); }
         }
-        default: add(out, hit(n, sr, r, t0, amp, 'lp', 900, 0.8, 0.02));
+        break;
       }
-    };
-    heel(0, 1);
-    heel(toe, 0.55);
-    return normalize(out, 0.85);
+      case 'concrete': {
+        add(out, biquad(ringNoise(ex, sr, r, 0.005, 0.03, 0.2), 'hp', 180, 0.7, sr), 0.8);
+        add(out, biquad(ex, 'lp', 700, 0.7, sr), 0.5);
+        // grit under the sole and the heel's rubber slap
+        add(out, grit(n, sr, r, 0.001, 0.035, 900, 0.35));
+        add(out, grit(n, sr, r, toe, 0.03, 700, 0.25));
+        add(out, scuff(n, sr, r, 0.012, 0.045 + r() * 0.03, 1700 * v, 1.1, 0.12));
+        break;
+      }
+      case 'tile': case 'lino': {
+        const tile = surf === 'tile';
+        add(out, biquad(ringNoise(ex, sr, r, tile ? 0.004 : 0.006, 0.02, 0.1), 'hp', 900, 0.7, sr), tile ? 0.7 : 0.45);
+        if (tile) add(out, modes(n, sr, [[2150 * v, 0.014, 0.12], [3480 * v, 0.01, 0.09], [5300 * v, 0.007, 0.05]], 0, r));
+        add(out, biquad(ex, 'lp', 600, 0.7, sr), 0.6);
+        add(out, scuff(n, sr, r, 0.01, 0.04, 2200, 1.4, 0.06));
+        // rubber squeak on a polished floor now and then
+        if (r() < (tile ? 0.08 : 0.16)) { const b = new Float32Array(n), i0 = S((toe - 0.02) * sr), f0 = 1500 + r() * 800, L = S(0.07 * sr); for (let i = i0; i < Math.min(n, i0 + L); i++) { const k = (i - i0) / L; b[i] = Math.sin(TAU * (f0 * (i - i0) / sr + 900 * k * k * 0.05)) * Math.sin(Math.PI * k) * 0.5; } add(out, b, 0.12); }
+        break;
+      }
+      case 'wood': {
+        // hollow planks over joists: low modes, a boomy body, sometimes a creak as the plank flexes
+        const m = modes(n, sr, [[118 * v, 0.06, 0.5], [236 * v, 0.045, 0.35], [415 * v, 0.03, 0.22], [790 * v, 0.018, 0.14], [1480 * v, 0.01, 0.08]], 0, r);
+        const exl = biquad(ex, 'lp', 1200, 0.7, sr);
+        const y = new Float32Array(n); for (let i = 0; i < n; i++) y[i] = m[i] * 0.4;
+        add(out, y); add(out, exl, 0.9);
+        add(out, biquad(ringNoise(ex, sr, r, 0.008, 0.03, 0.3), 'hp', 300, 0.7, sr), 0.4);
+        if (r() < 0.35) add(out, creakPlank(n, sr, r, 0.03 + r() * 0.05), 0.35 + r() * 0.25);
+        break;
+      }
+      case 'metal': case 'grate': {
+        add(out, modes(n, sr, [[312 * v, 0.25, 0.28], [701 * v, 0.2, 0.22], [1283 * v, 0.14, 0.18], [2210 * v, 0.09, 0.12], [3690 * v, 0.06, 0.08], [5120 * v, 0.04, 0.05]], 0, r));
+        add(out, biquad(ringNoise(ex, sr, r, 0.01, 0.04, 0.1), 'hp', 1500, 0.7, sr), 0.4);
+        add(out, biquad(ex, 'lp', 400, 0.7, sr), 0.6);
+        // the grate rattles in its frame a moment later
+        add(out, modes(n, sr, [[1800 * v, 0.02, 0.1], [2700 * v, 0.015, 0.07]], 0.03 + r() * 0.02, r));
+        break;
+      }
+      case 'water': case 'puddle': {
+        const k = surf === 'puddle' ? 0.6 : 1;
+        add(out, decay(sweep(white(n, r), 'bp', t => 3000 - 2500 * Math.min(1, t * 2.5), 1.3, sr), sr, 0.08 * k + 0.03, 0, 0.006), 0.7);
+        add(out, biquad(ex, 'lp', 350, 0.7, sr), 0.6);
+        for (let q = 0; q < 8 * k; q++) { const b = new Float32Array(n), i0 = S((0.015 + r() * 0.22) * sr), f0 = 350 + r() * 900, L = S((0.012 + r() * 0.03) * sr); for (let i = i0; i < Math.min(n, i0 + L); i++) { const tt = (i - i0) / sr; b[i] = Math.sin(TAU * (f0 * tt + 12000 * tt * tt)) * Math.exp(-tt / 0.01); } add(out, b, 0.12); }
+        break;
+      }
+      default: add(out, biquad(ex, 'lp', 900, 0.8, sr), 0.9);
+    }
+    const y = normalize(biquad(out, 'hp', 35, 0.7, sr), 0.85);
+    for (let i = 0; i < y.length; i++) y[i] *= P.lvl;
+    return y;
+  }
+  // A floorboard creak: stick-slip pulses through the plank's resonances
+  function creakPlank(n, sr, r, t0) {
+    const x = new Float32Array(n), dur = 0.12 + r() * 0.12;
+    let i = S(t0 * sr); const end = Math.min(n, S((t0 + dur) * sr)), rate0 = 90 + r() * 80, rate1 = rate0 * (0.6 + r() * 0.5);
+    while (i < end) { const k = (i / sr - t0) / dur; x[i] = (0.6 + r() * 0.8) * Math.sin(Math.PI * k); i += Math.max(1, Math.floor(sr / (rate0 + (rate1 - rate0) * k) * (0.85 + r() * 0.3))); }
+    const y = new Float32Array(n);
+    for (const [f, q, g] of [[520, 12, 0.6], [1150, 14, 0.4], [2300, 10, 0.2]]) add(y, biquad(x, 'bp', f * (0.9 + r() * 0.2), q, sr), g);
+    return y;
   }
   for (const s of ['carpet', 'wetCarpet', 'concrete', 'tile', 'lino', 'wood', 'metal', 'water', 'puddle']) R['step_' + s] = (sr, r) => step(sr, r, s);
+  // Jacket and jeans moving with the stride (plays under the steps)
+  R.rustle = (sr, r) => {
+    const d = 0.18 + r() * 0.16, n = S(sr * d), out = new Float32Array(n);
+    const src = biquad(biquad(pink(n, r), 'hp', 500, 0.7, sr), 'lp', 3800, 0.7, sr);
+    for (let i = 0; i < n; i++) { const k = i / n; out[i] = src[i] * Math.pow(Math.sin(Math.PI * Math.pow(k, 0.7)), 1.5) * (0.8 + 0.2 * Math.sin(k * 60 + r())); }
+    add(out, crackle(n, sr, r, 60, k => Math.sin(Math.PI * k) * 0.3));
+    return normalize(out, 0.5);
+  };
 
-  // --- Breathing through formants
-  function breathe(sr, r, inhale, heavy) {
-    const d = inhale ? 0.55 + r() * 0.2 : 0.7 + r() * 0.3, n = S(sr * d);
-    const src = pink(n, r);
+  // ------------------------------------------------------------ BREATHING
+  // Air through the throat and mouth: turbulent noise shaped by the vocal tract (formants of an open
+  // "hah" on the way out, a narrower "hih" on the way in), a nasal variant for calm breathing, a
+  // weak voiced catch on hard exhales, and a tremor when afraid. Inhale and exhale have their own
+  // envelopes (an inhale starts sharper, an exhale lets go).
+  function breath(sr, r, o) {
+    const d = o.dur * (0.9 + r() * 0.2), n = S(sr * d);
+    const noise = new Float32Array(n);
+    const pn = pink(n, r), bn = brown(n, r);
+    for (let i = 0; i < n; i++) noise[i] = pn[i] * 0.8 + bn[i] * 0.2;
     let out = new Float32Array(n);
-    const F = inhale ? [[650, 4, 0.6], [1350, 5, 0.5], [2600, 6, 0.3]] : [[520, 4, 0.7], [1100, 5, 0.45], [2300, 6, 0.25]];
-    for (const [f, q, g] of F) add(out, biquad(src, 'bp', f * (0.9 + r() * 0.2), q, sr), g);
-    out = biquad(out, 'hp', 180, 0.7, sr);
-    for (let i = 0; i < n; i++) { const t = i / n; out[i] *= Math.pow(Math.sin(Math.PI * Math.pow(t, inhale ? 0.7 : 0.45)), heavy ? 1.2 : 1.8); }
-    if (heavy && !inhale) { const v = modes(n, sr, [[140 + r() * 30, 0.2, 0.02]], 0.05); add(out, v, 1); }
-    return normalize(out, 0.7);
+    const F = o.nose ? [[1150, 2.2, 0.55], [2300, 3, 0.4], [3400, 3.5, 0.15]]
+      : o.inhale ? [[520, 2.5, 0.5], [1650, 3.5, 0.6], [2600, 4.5, 0.35]]
+        : [[700, 2.5, 0.9], [1180, 3, 0.6], [2450, 4, 0.22]];
+    for (const [f, q, g] of F) add(out, biquad(noise, 'bp', f * (0.93 + r() * 0.14), q, sr), g);
+    // breathy aspiration, kept soft and low
+    add(out, biquad(biquad(noise, 'hp', 900, 0.7, sr), 'lp', o.inhale ? 4200 : 3000, 0.7, sr), o.inhale ? 0.12 : 0.07);
+    out = biquad(biquad(out, 'hp', o.nose ? 450 : 140, 0.7, sr), 'lp', o.nose ? 4200 : o.inhale ? 5200 : 3800, 0.7, sr);
+    // voiced catch (fear, exhaustion): glottal pulses through the same formants
+    if (o.voice) {
+      const g = new Float32Array(n); let ph = 0; const f0 = o.voiceF || (100 + r() * 25);
+      for (let i = 0; i < n; i++) { const k = i / n; ph += (f0 * (1 + 0.03 * Math.sin(i / sr * 7))) / sr; const pr = ph % 1; g[i] = (pr < 0.4 ? Math.sin(Math.PI * pr / 0.4) : 0) * Math.sin(Math.PI * k) * (0.7 + r() * 0.3); }
+      let gv = new Float32Array(n);
+      for (const [f, q, gg] of F) add(gv, biquad(g, 'bp', f, q * 2, sr), gg);
+      add(out, gv, o.voice);
+    }
+    // envelope
+    const atk = o.inhale ? 0.18 : 0.12, rel = o.inhale ? 0.3 : 0.55;
+    for (let i = 0; i < n; i++) {
+      const k = i / n;
+      let e = k < atk ? Math.pow(k / atk, o.inhale ? 1.2 : 0.8) : k > 1 - rel ? Math.pow((1 - k) / rel, o.inhale ? 1.6 : 1.1) : 1;
+      if (o.shake) e *= 1 - o.shake * (0.5 + 0.5 * Math.sin(TAU * (6.5 + r() * 0.2) * i / sr + r()));
+      e *= 1 + 0.12 * Math.sin(TAU * 2.3 * i / sr);
+      out[i] *= e;
+    }
+    // a lip smack or tongue click before some inhales
+    if (o.inhale && !o.nose && r() < 0.3) add(out, hit(n, sr, r, 0.005, 0.25, 'bp', 2800, 2, 0.004));
+    return normalize(out, o.level || 0.7);
   }
-  R.breathIn = (sr, r) => breathe(sr, r, true, false);
-  R.breathOut = (sr, r) => breathe(sr, r, false, false);
-  R.breathInHeavy = (sr, r) => breathe(sr, r, true, true);
-  R.breathOutHeavy = (sr, r) => breathe(sr, r, false, true);
+  R.breathCalmIn = (sr, r) => breath(sr, r, { inhale: true, nose: true, dur: 1.2, level: 0.35 });
+  R.breathCalmOut = (sr, r) => breath(sr, r, { inhale: false, nose: true, dur: 1.5, level: 0.3 });
+  R.breathIn = (sr, r) => breath(sr, r, { inhale: true, dur: 0.55, level: 0.6 });
+  R.breathOut = (sr, r) => breath(sr, r, { inhale: false, dur: 0.7, level: 0.6 });
+  R.breathInHeavy = (sr, r) => breath(sr, r, { inhale: true, dur: 0.36, level: 0.8, voice: 0.04 });
+  R.breathOutHeavy = (sr, r) => breath(sr, r, { inhale: false, dur: 0.42, level: 0.8, voice: 0.12, voiceF: 115 });
+  R.breathFearIn = (sr, r) => breath(sr, r, { inhale: true, dur: 0.6, level: 0.65, shake: 0.35, voice: 0.03 });
+  R.breathFearOut = (sr, r) => breath(sr, r, { inhale: false, dur: 0.9, level: 0.6, shake: 0.5, voice: 0.1, voiceF: 125 });
+  R.gasp = (sr, r) => breath(sr, r, { inhale: true, dur: 0.32, level: 0.9, voice: 0.12, voiceF: 160 });
+  R.breathRelease = (sr, r) => breath(sr, r, { inhale: false, dur: 1.5, level: 0.75, shake: 0.4, voice: 0.08 });
+
+  // ------------------------------------------------------------ THINGS FALLING SOMEWHERE ELSE
+  // An impact, the object's own ring, and the bounces that follow at shrinking intervals
+  function dropped(sr, r, kind) {
+    const n = S(sr * (kind === 'metal' ? 2.4 : 1.4)), out = new Float32Array(n);
+    let t = 0, a = 1, gap = kind === 'metal' ? 0.22 : 0.14;
+    const bounces = kind === 'debris' ? 1 : 3 + (r() * 3 | 0);
+    for (let b = 0; b < bounces; b++) {
+      if (kind === 'metal') add(out, modes(n, sr, [[410, 0.6, 0.5 * a], [1130, 0.45, 0.35 * a], [2210, 0.3, 0.25 * a], [3570, 0.2, 0.15 * a], [5090, 0.12, 0.08 * a]].map(m => [m[0] * (1 + (r() - 0.5) * 0.004), m[1], m[2]]), t, r));
+      else if (kind === 'wood') add(out, modes(n, sr, [[180, 0.05, 0.6 * a], [420, 0.04, 0.4 * a], [860, 0.025, 0.25 * a]], t, r));
+      add(out, hit(n, sr, r, t, 0.6 * a, 'lp', kind === 'metal' ? 3000 : 1400, 0.7, 0.012));
+      t += gap * (0.8 + r() * 0.4); gap *= 0.6; a *= 0.55;
+    }
+    if (kind === 'debris') { add(out, hit(n, sr, r, 0, 0.8, 'lp', 800, 0.7, 0.05)); add(out, grit(n, sr, r, 0.02, 0.9, 260, 0.35)); for (let k = 0; k < 7; k++) add(out, hit(n, sr, r, 0.05 + r() * 0.6, 0.15 + r() * 0.2, 'bp', 1500 + r() * 2500, 2, 0.01)); }
+    if (kind === 'wood' || kind === 'box') { add(out, scuff(n, sr, r, t, 0.25, 900, 1, 0.08)); }
+    return normalize(out, 0.9);
+  }
+  R.dropMetal = (sr, r) => dropped(sr, r, 'metal');
+  R.dropWood = (sr, r) => dropped(sr, r, 'wood');
+  R.dropDebris = (sr, r) => dropped(sr, r, 'debris');
+  // Somebody else walking, a few rooms away, then stopping
+  R.farSteps = (sr, r) => {
+    const count = 4 + (r() * 4 | 0), per = 0.52 + r() * 0.1, n = S(sr * (count * per + 0.6)), out = new Float32Array(n);
+    for (let k = 0; k < count; k++) {
+      const st = step(sr, r, r() < 0.5 ? 'carpet' : 'wetCarpet');
+      add(out, st, 0.8 * (k === count - 1 ? 0.6 : 1), S((k * per + (r() - 0.5) * 0.04) * sr));
+    }
+    return normalize(biquad(out, 'lp', 1800, 0.7, sr), 0.8);
+  };
   R.heartbeat = (sr, r) => {
     const n = S(sr * 0.5), out = new Float32Array(n);
     for (const [t0, a] of [[0, 1], [0.17, 0.65]]) {
@@ -588,7 +728,7 @@
   // AudioContext (one only exists after the first click), at a fixed rate the context resamples.
   const SR = 44100;
   // How many takes of each effect are used (footsteps and doors vary the most)
-  const TAKES = { paper: 6, cloth: 4, chew: 4, plasticTap: 4, flashClick: 3, doorLocked: 3, squelch: 3, thunder: 3, stingSpot: 3 };
+  const TAKES = { paper: 6, cloth: 4, chew: 4, plasticTap: 4, flashClick: 3, doorLocked: 3, squelch: 3, thunder: 3, stingSpot: 3, rustle: 6, breathIn: 4, breathOut: 4, breathInHeavy: 4, breathOutHeavy: 4, breathCalmIn: 3, breathCalmOut: 3, breathFearIn: 4, breathFearOut: 4, gasp: 2, dropMetal: 2, dropWood: 2, dropDebris: 2, farSteps: 3 };
   const LOOPS = /^(rain|gutter|fluorescent|hvac|poolRoom|warehouse|darkRoom|tunnel|schoolHall|mallAtrium|motelHall|hospitalHall|workshop|carPass|radioStatic)/;
   class Sfx {
     constructor(ctx) { this.ctx = ctx || null; this.cache = new Map(); this.voices = new Map(); this.rng = U.rng(1234); this.sr = SR; }

@@ -439,6 +439,7 @@
     'cap.phone': '[a phone is ringing]',
     'cap.drag': '[footsteps dragging nearby]',
     'cap.moan': '[a moan]',
+    'cap.farSteps': '[footsteps somewhere else in the building]',
     'cap.thud': '[something fell, far away]',
     'cap.buzz': '[a fluorescent tube crackles]',
     'cap.whisper': '[whispering]',
