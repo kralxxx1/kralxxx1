@@ -328,12 +328,12 @@
   function mannequin() {
     const plastic = T.canvas('mq:plastic', 512, 512, (g, w, h) => {
       const r = U.rng(41);
-      g.fillStyle = '#e6e0d4'; g.fillRect(0, 0, w, h);
+      g.fillStyle = '#d2cabb'; g.fillRect(0, 0, w, h);
       for (let k = 0; k < 90; k++) { const x = r() * w, y = r() * h, rr = r.range(10, 60); const gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, `rgba(${r() < 0.6 ? '120,105,85' : '80,70,60'},${r.range(0.12, 0.35)})`); gr.addColorStop(1, 'rgba(120,105,85,0)'); g.fillStyle = gr; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); }
       g.strokeStyle = 'rgba(60,50,40,0.5)'; for (let k = 0; k < 60; k++) { let x = r() * w, y = r() * h; g.lineWidth = r.range(0.5, 1.5); g.beginPath(); g.moveTo(x, y); x += r.range(-30, 30); y += r.range(-30, 30); g.lineTo(x, y); g.stroke(); }
       for (let k = 0; k < 25; k++) { g.fillStyle = 'rgba(150,140,125,0.8)'; g.beginPath(); g.ellipse(r() * w, r() * h, r.range(2, 6), r.range(1, 3), r() * 3, 0, 6.28); g.fill(); }
     }, { repeat: true });
-    const mat = new THREE.MeshPhysicalMaterial({ map: plastic, roughness: 0.3, clearcoat: 0.5, clearcoatRoughness: 0.35, vertexColors: true, emissive: 0x080706 });
+    const mat = new THREE.MeshPhysicalMaterial({ map: plastic, roughness: 0.38, clearcoat: 0.3, clearcoatRoughness: 0.4, vertexColors: true });
     plastic.repeat.set(3, 3);
     mat.userData.refl = 0.12;
     const mk = key => { const m = new THREE.Mesh(mqGeo(key), mat); m.castShadow = true; return m; };

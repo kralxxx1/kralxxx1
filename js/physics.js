@@ -27,7 +27,7 @@
     trashBag: { m: 3, shape: 'sphere', snd: 'bag', damp: 0.6 }, cone: { m: 1.2, shape: 'cyl', snd: 'plastic' }, wetFloorSign: { m: 1.4, shape: 'box', snd: 'plastic' },
     bottle: { m: 0.25, shape: 'cyl', snd: 'bottle' }, bottleDown: { m: 0.25, shape: 'cyl', snd: 'bottle' }, cableCoil: { m: 1.5, shape: 'cyl', snd: 'bag' },
     fallenTile: { m: 0.8, shape: 'box', snd: 'tile' }, trashCan: { m: 4, shape: 'cyl', snd: 'metal' }, mopBucket: { m: 5, shape: 'box', snd: 'plastic' },
-    chair: { m: 6, shape: 'box', snd: 'wood' }, officeChair: { m: 9, shape: 'box', snd: 'metal' }, planter: { m: 12, shape: 'cyl', snd: 'wood' },
+    chair: { m: 6, shape: 'box', snd: 'wood' }, officeChair: { m: 9, shape: 'box', snd: 'metal' },
   };
   const GRAB_MAX = 6.5;
   const tmpM = new THREE.Matrix4(), tmpQ = new THREE.Quaternion(), tmpV = new THREE.Vector3(), tmpS = new THREE.Vector3(1, 1, 1), up = new THREE.Vector3(0, 1, 0);

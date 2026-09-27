@@ -164,7 +164,7 @@
     washerWhite: { color: 0xe8e8e2, rough: 0.3, refl: 0.2 }, glassDoor: { color: 0x202428, rough: 0.05, refl: 0.5 },
     vendingFront: { tex: 'vendingFront', emissive: 0xffffff, ei: 0.35, rough: 0.3 }, iceWhite: { color: 0xd8dcd8, rough: 0.35, metal: 0.3 },
     records: { tex: 'records', rough: 0.6 }, comics: { tex: 'comics', rough: 0.7 }, toys: { tex: 'toys', rough: 0.5 },
-    clothes: { color: 0x6a3a5a, rough: 0.95 }, clothes2: { color: 0x2a4a6a, rough: 0.95 }, clothes3: { color: 0x8a8272, rough: 0.95 }, clothes4: { color: 0x3a3a38, rough: 0.95 }, soil: { color: 0x241a12, rough: 1 }, bark: { color: 0x5a4a38, rough: 0.9 }, plant2: { color: 0x44702c, rough: 0.7, double: true }, mannequin: { color: 0xe8e4dc, rough: 0.3, refl: 0.12 },
+    clothes: { color: 0x6a3a5a, rough: 0.95 }, clothes2: { color: 0x2a4a6a, rough: 0.95 }, clothes3: { color: 0x8a8272, rough: 0.95 }, clothes4: { color: 0x3a3a38, rough: 0.95 }, soil: { color: 0x241a12, rough: 1 }, bark: { color: 0x5a4a38, rough: 0.9 }, plant2: { color: 0x44702c, rough: 0.7, double: true }, mannequin: { color: 0xcfc8ba, rough: 0.38, refl: 0.1 },
     boothBody: { color: 0x1a4a8a, rough: 0.35, metal: 0.3, refl: 0.2 }, boothCurtain: { tex: 'boothCurtain', rough: 0.95, double: true },
     mailboxBlack: { color: 0x151515, rough: 0.4, metal: 0.6 }, pegboard: { tex: 'pegboard', rough: 0.8 }, tools: { color: 0x707378, rough: 0.35, metal: 0.9 },
     toolRed: { color: 0xa01818, rough: 0.4 }, kernel: { tex: 'kernel', rough: 0.4, refl: 0.1 }, chompyFur: { color: 0xf0c020, rough: 1 }, chompyDark: { color: 0x151010, rough: 0.9 },
