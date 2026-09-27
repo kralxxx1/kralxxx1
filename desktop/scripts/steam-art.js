@@ -97,7 +97,8 @@ app.on('browser-window-created', (e, win) => {
       })()`);
       await sleep(6000);
       const shots = {};
-      shots.menu = await wc.executeJavaScript(GRAB);
+      // the menu keeps the hall dimmed behind its buttons; the art wants it at full brightness
+      shots.menu = await wc.executeJavaScript("(() => { PB.game.fx.blackout = 0; PB.game.updateMenu = function (dt) { const f = PB.game.constructor.prototype.updateMenu; f.call(this, dt); this.fx.blackout = 0; }; return 1; })()").then(() => sleep(1500)).then(() => wc.executeJavaScript(GRAB));
       save('screenshots/00_menu.png', shots.menu);
       console.log('menu');
       let n = 1;
