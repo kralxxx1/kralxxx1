@@ -22,7 +22,7 @@ L’ambré… garde ta lumière sur lui. Ne lui tourne jamais le dos longtemps.
 
 Danny dit que c’est moi le chef de la lampe torche. Rosie a fait une cassette. Nell a fait une carte des trajets des Spectres et elle est vraiment super bien.
 
-Je me suis assis sur le walkman de Sam aujourd’hui. Ça a fait crac. Sam ne sait pas encore. Je vais donner à Sam mon argent de poche de mars ET d’avril.
+Je me suis assis sur le baladeur de Sam aujourd’hui. Ça a fait crac. Sam ne sait pas encore. Je vais donner à Sam mon argent de poche de mars ET d’avril.
 
 Danny dit que le Spectre ambré de la n° 7 c’est moi parce que c’est le trouillard. Walt dit que c’est le plus malin. De toute façon c’est MON Spectre.` },
       dark_diary2: { kind: 'diary', title: 'La dernière page', from: 'Toby', date: '17 avril 1987, 0 h 50 — à l’arcade', body:

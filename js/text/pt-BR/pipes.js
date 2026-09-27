@@ -68,7 +68,7 @@ Estas não são as minhas lembranças. Estou andando pelo verão de outra pessoa
 Três crianças. Uma lanterna. Uma regra sobre ninguém voltar para casa sem companhia.
 
 Eu queria dizer a elas que é uma boa regra. Não lembro mais como se fala com crianças. Eu era bom nisso.` },
-      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Uma Polaroid presa na parede do forte', from: 'Desconhecido', date: 'Julho de 1985', body:
+      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Uma foto instantânea presa na parede do forte', from: 'Desconhecido', date: 'Julho de 1985', body:
 `Três crianças num túnel de tijolo, iluminadas por baixo por uma única lanterna, todas tentando parecer assustadoras e falhando. O alto (Danny) está fazendo chifrinhos no pequeno (Toby). No meio, sorrindo, é você.
 
 Na tira branca, a caneta: “O FORTE. DIA DA INAUGURAÇÃO.”` },

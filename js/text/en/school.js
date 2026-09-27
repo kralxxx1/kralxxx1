@@ -62,7 +62,7 @@ We are going to be the first people in the WORLD to see level 256.
 
 (pass this to Nell, NOT Toby, he will lose it)
 
-P.S. Sam. Talk to Toby. He feels awful about the walkman.` },
+P.S. Sam. Talk to Toby. He feels awful about the tape player.` },
       school_pact: { kind: 'note', title: 'A sheet of notebook paper folded into eighths', from: "Rosie's handwriting", date: 'April 16, 1987, 3:30 PM', body:
 `OPERATION 256 — THE PACT
 
@@ -98,11 +98,11 @@ Rosie Alvarez (grade 9) is starting a radio club. First meeting Tuesday.
 HIGH SCORES FROM THE STARLIGHT (Hungry House, #7)
 1. DAN 921,450  2. ROS 887,300  3. NEL 640,120  4. TOB 512,890  5. SAM 498,770
 
-FOUND: one walkman, blue, "S" scratched on the back. Kind of broken. Owner, please forgive whoever sat on it. —T.` },
+FOUND: one tape player, blue, "S" scratched on the back. Kind of broken. Owner, please forgive whoever sat on it. —T.` },
       school_samlocker: { kind: 'note', title: 'Taped inside locker 217 (yours)', from: 'Sam', date: 'April 16, 1987', body:
 `Toby,
 
-It's just a walkman. I don't even care about the walkman. I was mad because you always get to do everything first and I always have to catch up.
+It's just a tape player. I don't even care about the tape player. I was mad because you always get to do everything first and I always have to catch up.
 
 Sorry I yelled in the cafeteria.
 

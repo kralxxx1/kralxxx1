@@ -45,7 +45,7 @@
     },
     memento: {
       danny: { name: 'O relógio do Danny', line: 'Um relógio de aço com o vidro trincado, parado às 3h17. Gravado atrás: “RAY KOWALSKI — 25 ANOS — HARLOW MILL”.' },
-      rosie: { name: 'A fita da Rosie', line: 'Um walkman violeta com uma fita dentro. A etiqueta diz LADO B: PARA DEPOIS. O lado B está vazio.' },
+      rosie: { name: 'A fita da Rosie', line: 'Um toca-fitas violeta com uma fita dentro. A etiqueta diz LADO B: PARA DEPOIS. O lado B está vazio.' },
       nell: { name: 'Os óculos da Nell', line: 'Óculos pesados, uma lente trincada. Embaçam na sua mão, como se alguém tivesse acabado de bafejar neles.' },
       toby: { name: 'O isqueiro do Toby', line: 'Um velho isqueiro de latão. Gravado: “TOBY — PARA VOCÊ NUNCA FICAR NO ESCURO. VOVÔ”.' },
     },

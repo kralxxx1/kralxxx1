@@ -107,7 +107,7 @@ The truth is revealed in stages (see Foreshadowing) and stated fully by the 3:17
   Front Street storm tunnels (D+T+S WERE HERE). September: Ruth leaves Walt.
 - 1986, March: Harlow Mall opens. May 30: Ray is laid off (effective June 30). November: Walt and Eddie
   begin the Kernel. December 13: the five's best Saturday at the mall (photo booth strip).
-- 1987, April 16 (Thursday): Operation 256. Lunch: Sam yells at Toby for sitting on Sam's walkman, then
+- 1987, April 16 (Thursday): Operation 256. Lunch: Sam yells at Toby for sitting on Sam's tape player, then
   writes an apology and tapes it inside locker 217 to give him later. 3:30 PM: all five sign the pact.
   9:40 PM: the second fight, at the arcade ("Fine. Disappear then."). Sam leaves. 10 PM: Walt closes;
   11 PM: he goes upstairs. 11:20 PM: Danny lets Rosie, Nell and Toby in with the spare key. 11:52 PM:
@@ -203,7 +203,7 @@ ambushes, Nell shows hidden doors, Toby's lighter pushes back the dark.
   1983. In 1987 all five go to Harlow Junior High (grades 7–9): Sam and Toby in 7th grade, Rosie and
   Nell in 9th, Danny in 9th for the second time.
 - **Lily died on October 29, 1983.** Everything she drew is from before that date.
-- **The two fights.** Lunch (the walkman, the apology in locker 217, never given) and 9:40 PM at the
+- **The two fights.** Lunch (the tape player, the apology in locker 217, never given) and 9:40 PM at the
   arcade ("Fine. Disappear then.").
 - **That night.** Back door unlocked by Eddie; front key with Danny. Rosie's recorder: 11:52 PM,
   11:58 PM, 12:40 AM, 3:14–3:42 AM (it kept running after the four were gone; Walt's voice is on it at 3:20).

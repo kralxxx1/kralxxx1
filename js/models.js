@@ -170,7 +170,7 @@
 
   // ------------------------------------------------------------ TEXTURES
   const T = PB.Tex;
-  const SIDE_NAMES = { galaksi: 'GALAXY', kurbaga: 'FROG ROAD', tugla: 'BRICKS', yilan: 'SNAKE', uzay: 'ORBIT RAID', yaris: 'RACER', dovus: 'BRAWL', tetris: 'GEMS', classic: 'HUNGRY HOUSE', special: '???' };
+  const SIDE_NAMES = { galaksi: 'GALAXY', kurbaga: 'FROG ROAD', tugla: 'BRICK BASH', yilan: 'SERPENT', uzay: 'ORBIT RAID', yaris: 'MIDNIGHT', dovus: 'BRAWL', gems: 'GEMS', classic: 'HUNGRY HOUSE', special: '???' };
   M.tex = {
     // Speaker grille: perforated black steel
     grille: () => T.canvas('m:grille', 128, 128, (g, w, h) => {

@@ -22,7 +22,7 @@ O âmbar… mantenha a luz nele. Não dê as costas para ele por muito tempo.
 
 O Danny disse que eu sou o responsável pela lanterna. A Rosie fez uma fita. A Nell fez um mapa dos caminhos das Assombrações e ficou muito bom mesmo.
 
-Hoje eu sentei em cima do walkman de Sam. Fez crec. Sam ainda não sabe. Vou dar para Sam a minha mesada de março E de abril.
+Hoje eu sentei em cima do toca-fitas de Sam. Fez crec. Sam ainda não sabe. Vou dar para Sam a minha mesada de março E de abril.
 
 O Danny diz que a Assombração âmbar da nº 7 sou eu porque é a medrosa. O Walt diz que é a esperta. De qualquer jeito é a MINHA Assombração.` },
       dark_diary2: { kind: 'diary', title: 'A última página', from: 'Toby', date: '17 de abril de 1987, 0h50 — no fliperama', body:

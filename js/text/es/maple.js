@@ -53,12 +53,12 @@ ME FUI A CASA A LAS 21:40` },
 `MAMÁ: Duermo en casa de Sam. (Mentira, estoy en el salón, pero Sam me cubre). (No leas esta parte).
 
 SAM, si lees esto primero:
-Siento lo de tu walkman. Te voy a comprar uno nuevo con el dinero de repartir periódicos. Ya está en el bote.
+Siento lo de tu reproductor de casete. Te voy a comprar uno nuevo con el dinero de repartir periódicos. Ya está en el bote.
 Esta noche va a ser la mejor noche de la historia.
 Nadie me importa tanto como tú. Incluso cuando eres insoportable. Sobre todo entonces.
 — T.
 
-(Un bote en la estantería. Dentro: 31,40 $ en monedas y un recibo doblado de pago a plazos por un walkman azul, pagado del todo).` },
+(Un bote en la estantería. Dentro: 31,40 $ en monedas y un recibo doblado de pago a plazos por un reproductor de casete azul, pagado del todo).` },
       maple_porch: { kind: 'note', title: 'Pegado en la puerta mosquitera de Toby', from: 'Maggie', date: '1987 — 1994', body:
 `Toby:
 
@@ -126,8 +126,8 @@ TOBY Y TÚ SOIS LOS MEJORES AMIGOS QUE HE VISTO NUNCA.` },
         ['eddie', '…Tómate tu tiempo. No me voy a ir a ninguna parte. Evidentemente.'],
       ],
       maple_echo: [
-        ['toby', '¡Sam, espera! Espera un momento, ¿vale? ¡Ya te he dicho que siento lo del walkman!'],
-        ['sam', '¡No es por el estúpido walkman!'],
+        ['toby', '¡Sam, espera! Espera un momento, ¿vale? ¡Ya te he dicho que siento lo del reproductor!'],
+        ['sam', '¡No es por el estúpido reproductor!'],
         ['toby', '¿Entonces qué? ¡Te vas a perder el 256! ¡Lo planeamos durante un mes!'],
         ['sam', 'Tú siempre puedes hacerlo todo primero. Ni siquiera me necesitas allí.'],
         ['toby', '¡No es verdad! ¡Sam! Quédate. Por favor. No quiero ir sin ti.'],

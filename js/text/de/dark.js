@@ -22,7 +22,7 @@ Der Bernsteinfarbene … behalt ihn im Licht. Dreh ihm nie lange den Rücken zu.
 
 Danny sagt, ich bin für die Taschenlampe zuständig. Rosie hat eine Kassette gemacht. Nell hat eine Karte von den Spuk-Mustern gezeichnet und die ist echt richtig gut.
 
-Ich hab mich heute auf Sams Walkman gesetzt. Es hat geknirscht. Sam weiß es noch nicht. Ich geb Sam mein Taschengeld für März UND April.
+Ich hab mich heute auf Sams Kassettenspieler gesetzt. Es hat geknirscht. Sam weiß es noch nicht. Ich geb Sam mein Taschengeld für März UND April.
 
 Danny sagt, der bernsteinfarbene Spuk auf der Nr. 7 bin ich, weil das der Angsthase ist. Walt sagt, das ist der Schlaue. So oder so ist es MEIN Spuk.` },
       dark_diary2: { kind: 'diary', title: 'Die letzte Seite', from: 'Toby', date: '17. April 1987, 0:50 Uhr — in der Spielhalle', body:

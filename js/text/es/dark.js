@@ -22,7 +22,7 @@ El ámbar… mantén la luz sobre él. No le des la espalda mucho rato.
 
 Danny dice que yo soy el encargado de la linterna. Rosie ha hecho una cinta. Nell ha hecho un mapa de los recorridos de los Espectros y de verdad está superbién.
 
-Hoy me he sentado encima del walkman de Sam. Ha hecho crac. Sam todavía no lo sabe. Le voy a dar a Sam mi paga de marzo Y de abril.
+Hoy me he sentado encima del reproductor de Sam. Ha hecho crac. Sam todavía no lo sabe. Le voy a dar a Sam mi paga de marzo Y de abril.
 
 Danny dice que el Espectro ámbar de la n.º 7 soy yo porque es el miedica. Walt dice que es el listo. Da igual, es MI Espectro.` },
       dark_diary2: { kind: 'diary', title: 'La última página', from: 'Toby', date: '17 de abril de 1987, 0:50 — en el salón', body:

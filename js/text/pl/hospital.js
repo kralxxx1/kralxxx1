@@ -99,7 +99,7 @@ Tęsknimy za tobą na plastyce. Pani K mówi, że kredkom jest smutno.
 — i jeszcze 22 imiona starannymi drukowanymi literami
 
 (Pamiętasz tę kartkę. Pamiętasz tamtą niewiedzę: że to nic nie da.)` },
-      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Polaroid przyklejony nad łóżkiem', from: 'Pielęgniarka Donna', date: '27 października 1983', body:
+      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Natychmiastowe zdjęcie przyklejone nad łóżkiem', from: 'Pielęgniarka Donna', date: '27 października 1983', body:
 `Mężczyzna w ogromnym okrągłym pomarańczowym kostiumie, z filcowymi rogami i uśmiechem pełnym zębów z gąbki, klęczy przy szpitalnym łóżku. Bardzo mała dziewczynka w imprezowej czapeczce obejmuje obiema rękami głowę kostiumu.
 
 Na białym pasku: „LIL & CHOMPY”` },

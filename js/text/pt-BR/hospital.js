@@ -99,7 +99,7 @@ A gente sente sua falta na aula de artes. A professora K diz que os gizes de cer
 — e mais 22 nomes em letra de forma caprichada
 
 (Você lembra de ter escrito isto. Você lembra de não saber que não ia adiantar.)` },
-      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Uma Polaroid colada em cima da cama', from: 'Enfermeira Donna', date: '27 de outubro de 1983', body:
+      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Uma foto instantânea colada em cima da cama', from: 'Enfermeira Donna', date: '27 de outubro de 1983', body:
 `Um homem numa enorme fantasia laranja e redonda, com chifres de feltro e um sorriso cheio de dentes de espuma, ajoelhado ao lado de uma cama de hospital. Uma menina bem pequena de chapéu de festa abraça a cabeça da fantasia com os dois braços.
 
 Na tira branca: “LIL & CHOMPY”` },

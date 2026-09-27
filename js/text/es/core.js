@@ -45,7 +45,7 @@
     },
     memento: {
       danny: { name: 'El reloj de Danny', line: 'Un reloj de acero con el cristal rajado, parado a las 3:17. Grabado en el dorso: «RAY KOWALSKI — 25 AÑOS — HARLOW MILL».' },
-      rosie: { name: 'La cinta de Rosie', line: 'Un walkman violeta con una cinta dentro. La etiqueta dice CARA B: PARA DESPUÉS. La cara B está vacía.' },
+      rosie: { name: 'La cinta de Rosie', line: 'Un reproductor de casete violeta con una cinta dentro. La etiqueta dice CARA B: PARA DESPUÉS. La cara B está vacía.' },
       nell: { name: 'Las gafas de Nell', line: 'Unas gafas pesadas, con un cristal rajado. Se empañan en tu mano, como si alguien acabara de echarles el aliento.' },
       toby: { name: 'El mechero de Toby', line: 'Un viejo mechero de latón. Grabado: «TOBY — PARA QUE NUNCA ESTÉS A OSCURAS. EL ABUELO».' },
     },

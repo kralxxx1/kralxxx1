@@ -45,7 +45,7 @@
     },
     memento: {
       danny: { name: 'La montre de Danny', line: 'Une montre en acier au verre fêlé, arrêtée à 3 h 17. Gravé au dos : « RAY KOWALSKI — 25 ANS — HARLOW MILL ».' },
-      rosie: { name: 'La cassette de Rosie', line: 'Un walkman violet avec une cassette dedans. L’étiquette dit FACE B : POUR APRÈS. La face B est vierge.' },
+      rosie: { name: 'La cassette de Rosie', line: 'Un baladeur violet avec une cassette dedans. L’étiquette dit FACE B : POUR APRÈS. La face B est vierge.' },
       nell: { name: 'Les lunettes de Nell', line: 'De lourdes lunettes, un verre fêlé. Elles s’embuent dans votre main, comme si quelqu’un venait de souffler dessus.' },
       toby: { name: 'Le briquet de Toby', line: 'Un vieux briquet en laiton. Gravé : « TOBY — POUR QUE TU NE RESTES JAMAIS DANS LE NOIR. PAPI ».' },
     },

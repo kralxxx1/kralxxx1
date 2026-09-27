@@ -99,7 +99,7 @@ Wir vermissen dich in Kunst. Frau K. sagt, die Wachsmalstifte sind einsam.
 — und 22 weitere Namen in sorgfältigen Großbuchstaben
 
 (Du weißt noch, wie du das geschrieben hast. Du weißt noch, dass du nicht wusstest, dass es nicht helfen würde.)` },
-      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Ein Polaroid über dem Bett', from: 'Schwester Donna', date: '27. Oktober 1983', body:
+      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Ein Sofortbild über dem Bett', from: 'Schwester Donna', date: '27. Oktober 1983', body:
 `Ein Mann in einem riesigen runden orangen Kostüm, mit Filzhörnern und einem Grinsen voller Schaumstoffzähne, kniet neben einem Krankenhausbett. Ein sehr kleines Mädchen mit Partyhut umarmt den Kopf des Kostüms mit beiden Armen.
 
 Auf dem weißen Streifen: „LIL & CHOMPY“` },

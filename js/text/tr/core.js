@@ -46,7 +46,7 @@
     },
     memento: {
       danny: { name: 'Danny’nin saati', line: 'Camı çatlak çelik bir kol saati, 3:17’de durmuş. Arkasına kazınmış: "RAY KOWALSKI — 25 YIL — HARLOW DEĞİRMENİ".' },
-      rosie: { name: 'Rosie’nin kaseti', line: 'İçinde kaset olan mor bir walkman. Etiketinde: B YÜZÜ: SONRASI İÇİN. B yüzü boş.' },
+      rosie: { name: 'Rosie’nin kaseti', line: 'İçinde kaset olan mor bir kasetçalar. Etiketinde: B YÜZÜ: SONRASI İÇİN. B yüzü boş.' },
       nell: { name: 'Nell’in gözlüğü', line: 'Kalın bir gözlük, bir camı çatlak. Elinde buğulanıyor, sanki biri az önce üstüne nefes vermiş.' },
       toby: { name: 'Toby’nin çakmağı', line: 'Eski pirinç bir çakmak. Üstüne kazınmış: "TOBY — HİÇ KARANLIKTA KALMAYASIN DİYE. DEDEN".' },
     },

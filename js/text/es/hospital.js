@@ -99,7 +99,7 @@ Te echamos de menos en plástica. La señora K dice que las ceras se sienten sol
 — y 22 nombres más en mayúsculas muy cuidadas
 
 (Recuerdas haberla escrito. Recuerdas no saber que no iba a servir de nada).` },
-      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Una Polaroid pegada encima de la cama', from: 'Enfermera Donna', date: '27 de octubre de 1983', body:
+      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Una foto instantánea pegada encima de la cama', from: 'Enfermera Donna', date: '27 de octubre de 1983', body:
 `Un hombre con un enorme disfraz naranja y redondo, con cuernos de fieltro y una sonrisa llena de dientes de gomaespuma, arrodillado junto a una cama de hospital. Una niña muy pequeña con un gorro de fiesta abraza la cabeza del disfraz con los dos brazos.
 
 En la franja blanca: «LIL & CHOMPY»` },

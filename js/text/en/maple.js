@@ -53,12 +53,12 @@ I WENT HOME AT 9:40` },
 `MOM — I'm sleeping at Sam's. (I'm not, I'm at the arcade, but Sam will cover for me.) (Don't read this part.)
 
 SAM — if you read this first:
-I'm sorry about your walkman. I'm buying you a new one with my paper route money. It's already in the jar.
+I'm sorry about your tape player. I'm buying you a new one with my paper route money. It's already in the jar.
 Tonight's gonna be the best night ever.
 You're my best friend. Even when you're a jerk. Especially then.
 — T.
 
-(A jar on the shelf. Inside: $31.40 in coins and a folded layaway receipt for a blue walkman, paid in full.)` },
+(A jar on the shelf. Inside: $31.40 in coins and a folded layaway receipt for a blue tape player, paid in full.)` },
       maple_porch: { kind: 'note', title: "Taped to Toby's screen door", from: 'Maggie', date: '1987 — 1994', body:
 `Toby —
 
@@ -126,8 +126,8 @@ YOU AND TOBY ARE THE BEST FRIENDS I EVER SAW.` },
         ['eddie', '...Take your time. I\'m not going anywhere. Obviously.'],
       ],
       maple_echo: [
-        ['toby', 'Sam, wait! Just wait, okay? I said I\'m sorry about the walkman!'],
-        ['sam', 'It\'s not about the stupid walkman!'],
+        ['toby', 'Sam, wait! Just wait, okay? I said I\'m sorry about the tape player!'],
+        ['sam', 'It\'s not about the stupid tape player!'],
         ['toby', 'Then what? You\'re gonna miss 256! We planned it for a month!'],
         ['sam', 'You always get to do everything first. You don\'t even need me there.'],
         ['toby', 'That\'s not true! Sam! Stay. Please. I don\'t want to go without you.'],

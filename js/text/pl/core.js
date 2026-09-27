@@ -47,7 +47,7 @@
     },
     memento: {
       danny: { name: 'Zegarek Danny’ego', line: 'Stalowy zegarek z pękniętym szkiełkiem, stanął o 3:17. Na odwrocie grawer: „RAY KOWALSKI — 25 LAT — HARLOW MILL”.' },
-      rosie: { name: 'Kaseta Rosie', line: 'Fioletowy walkman z kasetą w środku. Na naklejce: STRONA B: NA POTEM. Strona B jest pusta.' },
+      rosie: { name: 'Kaseta Rosie', line: 'Fioletowy odtwarzacz z kasetą w środku. Na naklejce: STRONA B: NA POTEM. Strona B jest pusta.' },
       nell: { name: 'Okulary Nell', line: 'Ciężkie okulary, jedno szkło pęknięte. Parują ci w dłoni, jakby ktoś przed chwilą na nie chuchnął.' },
       toby: { name: 'Zapalniczka Toby’ego', line: 'Stara mosiężna zapalniczka. Grawer: „TOBY — ŻEBYŚ NIGDY NIE SIEDZIAŁ PO CIEMKU. DZIADEK”.' },
     },

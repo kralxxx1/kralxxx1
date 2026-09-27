@@ -99,7 +99,7 @@ Tu nous manques en arts plastiques. Mme K dit que les crayons se sentent seuls.
 — et 22 autres noms en majuscules soignées
 
 (Tu te souviens de l’avoir écrite. Tu te souviens de ne pas savoir que ça ne servirait à rien.)` },
-      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Un Polaroid scotché au-dessus du lit', from: 'Infirmière Donna', date: '27 octobre 1983', body:
+      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Une photo instantanée scotchée au-dessus du lit', from: 'Infirmière Donna', date: '27 octobre 1983', body:
 `Un homme dans un énorme costume orange tout rond, avec des cornes en feutrine et un sourire plein de dents en mousse, agenouillé près d’un lit d’hôpital. Une toute petite fille avec un chapeau de fête serre la tête du costume dans ses deux bras.
 
 Sur la bande blanche : « LIL & CHOMPY »` },

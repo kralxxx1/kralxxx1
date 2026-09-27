@@ -99,7 +99,7 @@ Ci manchi a disegno. La maestra K dice che i pastelli si sentono soli.
 — e altri 22 nomi in stampatello accurato
 
 (Ti ricordi di averlo scritto. Ti ricordi di non sapere che non sarebbe servito.)` },
-      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Una Polaroid attaccata sopra il letto', from: 'Infermiera Donna', date: '27 ottobre 1983', body:
+      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Una foto istantanea attaccata sopra il letto', from: 'Infermiera Donna', date: '27 ottobre 1983', body:
 `Un uomo in un enorme costume arancione tondo, con corna di feltro e un sorriso pieno di denti di gommapiuma, inginocchiato accanto a un letto d’ospedale. Una bambina piccolissima con un cappellino da festa abbraccia la testa del costume con tutte e due le braccia.
 
 Sulla striscia bianca: «LIL & CHOMPY»` },

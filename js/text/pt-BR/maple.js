@@ -53,12 +53,12 @@ EU FUI PRA CASA ÀS 21H40` },
 `MÃE — Vou dormir na casa de Sam. (Mentira, estou no fliperama, mas Sam me cobre.) (Não lê essa parte.)
 
 SAM — se você ler isto primeiro:
-Desculpa pelo seu walkman. Vou te comprar um novo com o dinheiro da entrega de jornal. Já está no pote.
+Desculpa pelo seu toca-fitas. Vou te comprar um novo com o dinheiro da entrega de jornal. Já está no pote.
 Hoje vai ser a melhor noite de todas.
 Você é a pessoa que eu mais gosto no mundo. Mesmo quando é insuportável. Principalmente aí.
 — T.
 
-(Um pote na estante. Dentro: $31,40 em moedas e um recibo dobrado de crediário de um walkman azul, quitado.)` },
+(Um pote na estante. Dentro: $31,40 em moedas e um recibo dobrado de crediário de um toca-fitas azul, quitado.)` },
       maple_porch: { kind: 'note', title: 'Colado na porta de tela do Toby', from: 'Maggie', date: '1987 — 1994', body:
 `Toby —
 
@@ -126,8 +126,8 @@ VOCÊ E O TOBY SÃO OS MELHORES AMIGOS QUE EU JÁ VI.` },
         ['eddie', '…Vai no seu tempo. Eu não vou a lugar nenhum. Obviamente.'],
       ],
       maple_echo: [
-        ['toby', 'Sam, espera! Só espera, tá? Eu já pedi desculpa pelo walkman!'],
-        ['sam', 'Não é por causa daquele walkman idiota!'],
+        ['toby', 'Sam, espera! Só espera, tá? Eu já pedi desculpa pelo toca-fitas!'],
+        ['sam', 'Não é por causa daquele toca-fitas idiota!'],
         ['toby', 'Então é o quê? Você vai perder o 256! A gente planejou isso por um mês!'],
         ['sam', 'Você sempre pode fazer tudo primeiro. Nem precisa de mim lá.'],
         ['toby', 'Não é verdade! Sam! Fica. Por favor. Eu não quero ir sem você.'],

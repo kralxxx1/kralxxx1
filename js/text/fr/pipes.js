@@ -68,7 +68,7 @@ Ce ne sont pas mes souvenirs. Je me promène dans l’été de quelqu’un d’a
 Trois gamins. Une lampe torche. Une règle qui dit que personne ne rentre seul.
 
 J’aimerais leur dire que c’est une bonne règle. Je ne sais plus comment on parle aux enfants. Avant, j’étais doué pour ça.` },
-      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Un Polaroid épinglé au mur du fort', from: 'Inconnu', date: 'Juillet 1985', body:
+      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Une photo instantanée épinglée au mur du fort', from: 'Inconnu', date: 'Juillet 1985', body:
 `Trois gamins dans un tunnel de brique, éclairés par en dessous par une seule lampe torche, qui essaient tous d’avoir l’air effrayants et qui n’y arrivent pas. Le grand (Danny) fait des cornes au petit (Toby). Au milieu, avec le sourire : toi.
 
 Sur la bande blanche, au stylo : « LE FORT. JOUR D’OUVERTURE. »` },

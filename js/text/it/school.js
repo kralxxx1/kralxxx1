@@ -62,7 +62,7 @@ Saremo i primi al MONDO a vedere il livello 256.
 
 (passalo a Nell, NON a Toby, lo perde)
 
-P.S. Sam. Parla con Toby. Si sente malissimo per il walkman.` },
+P.S. Sam. Parla con Toby. Si sente malissimo per il mangianastri.` },
       school_pact: { kind: 'note', title: 'Un foglio di quaderno piegato in otto', from: 'La scrittura di Rosie', date: '16 aprile 1987, 15:30', body:
 `OPERAZIONE 256 — IL PATTO
 
@@ -98,11 +98,11 @@ Rosie Alvarez (3ª media) fonda un club radio. Primo incontro martedì.
 RECORD DELLO STARLIGHT (Hungry House, n. 7)
 1. DAN 921.450  2. ROS 887.300  3. NEL 640.120  4. TOB 512.890  5. SAM 498.770
 
-TROVATO: un walkman blu, con una «S» incisa sul retro. Un po’ rotto. Al proprietario: per favore perdona chi ci si è seduto sopra. —T.` },
+TROVATO: un mangianastri blu, con una «S» incisa sul retro. Un po’ rotto. Al proprietario: per favore perdona chi ci si è seduto sopra. —T.` },
       school_samlocker: { kind: 'note', title: 'Attaccato dentro l’armadietto 217 (il tuo)', from: 'Sam', date: '16 aprile 1987', body:
 `Toby,
 
-è solo un walkman. Del walkman non m’importa nemmeno. Mi dava fastidio che tu puoi sempre fare tutto per primo e io devo sempre rincorrerti.
+è solo un mangianastri. Del mangianastri non m’importa nemmeno. Mi dava fastidio che tu puoi sempre fare tutto per primo e io devo sempre rincorrerti.
 
 Scusa se ho urlato in mensa.
 

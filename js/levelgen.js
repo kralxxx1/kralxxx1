@@ -516,7 +516,7 @@
 
     const C = L.cell;
     // Kabin sıraları (sırt sırta)
-    const games = ['galaksi', 'kurbaga', 'tugla', 'yilan', 'uzay', 'yaris', 'dovus', 'tetris'];
+    const games = ['galaksi', 'kurbaga', 'tugla', 'yilan', 'uzay', 'yaris', 'dovus', 'gems'];
     let gi = 0;
     for (const row of [2, 4]) {
       const z = L.cz(row);

@@ -68,7 +68,7 @@ To nie są moje wspomnienia. Chodzę po cudzym lecie.
 Trójka dzieciaków. Jedna latarka. Zasada, że nikt nie wraca do domu sam.
 
 Chciałbym im powiedzieć, że to dobra zasada. Nie pamiętam, jak się rozmawia z dziećmi. Kiedyś byłem w tym dobry.` },
-      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Polaroid przypięty do ściany twierdzy', from: 'Nieznany autor', date: 'Lipiec 1985', body:
+      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Natychmiastowe zdjęcie przypięte do ściany twierdzy', from: 'Nieznany autor', date: 'Lipiec 1985', body:
 `Trójka dzieciaków w ceglanym tunelu, oświetlona od dołu jedną latarką, wszyscy próbują wyglądać strasznie i nic z tego nie wychodzi. Wysoki (Danny) robi rogi małemu (Toby’emu). Pośrodku, z uśmiechem — ty.
 
 Na białym pasku, długopisem: „TWIERDZA. DZIEŃ OTWARCIA.”` },

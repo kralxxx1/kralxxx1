@@ -62,7 +62,7 @@ On va être les premiers au MONDE à voir le niveau 256.
 
 (fais passer à Nell, PAS à Toby, il va le perdre)
 
-P.-S. Sam. Parle à Toby. Il s’en veut à mort pour le walkman.` },
+P.-S. Sam. Parle à Toby. Il s’en veut à mort pour le baladeur.` },
       school_pact: { kind: 'note', title: 'Une feuille de cahier pliée en huit', from: 'L’écriture de Rosie', date: '16 avril 1987, 15 h 30', body:
 `OPÉRATION 256 — LE PACTE
 
@@ -98,11 +98,11 @@ Rosie Alvarez (3e) lance un club radio. Première réunion mardi.
 MEILLEURS SCORES DU STARLIGHT (Hungry House, n° 7)
 1. DAN 921 450  2. ROS 887 300  3. NEL 640 120  4. TOB 512 890  5. SAM 498 770
 
-TROUVÉ : un walkman, bleu, un « S » gravé au dos. Un peu cassé. À son propriétaire : pardonne à celui qui s’est assis dessus, s’il te plaît. —T.` },
+TROUVÉ : un baladeur, bleu, un « S » gravé au dos. Un peu cassé. À son propriétaire : pardonne à celui qui s’est assis dessus, s’il te plaît. —T.` },
       school_samlocker: { kind: 'note', title: 'Scotché dans le casier 217 (le tien)', from: 'Sam', date: '16 avril 1987', body:
 `Toby,
 
-C’est juste un walkman. Je m’en fiche même, du walkman. Ce qui m’énervait, c’est que toi, t’as toujours le droit de tout faire en premier, et moi il faut toujours que je rattrape.
+C’est juste un baladeur. Je m’en fiche même, du baladeur. Ce qui m’énervait, c’est que toi, t’as toujours le droit de tout faire en premier, et moi il faut toujours que je rattrape.
 
 Pardon d’avoir crié à la cantine.
 

@@ -22,7 +22,7 @@ Kehribar olan... ışığını onun üstünde tut. Ona uzun süre sırtını dö
 
 Danny fenerden ben sorumluyum dedi. Rosie kaset yaptı. Nell hayalet hareketlerinin haritasını çıkardı, gerçekten çok iyi olmuş.
 
-Bugün Sam’in walkman’inin üstüne oturdum. Çatır diye ses çıktı. Henüz bilmiyor. Ona mart VE nisan harçlığımı vereceğim.
+Bugün Sam’in kasetçalarının üstüne oturdum. Çatır diye ses çıktı. Henüz bilmiyor. Ona mart VE nisan harçlığımı vereceğim.
 
 Danny, #7’deki kehribar hayalet benim çünkü korkak olan o diyor. Walt akıllı olan o diyor. Her iki durumda da o BENİM hayaletim.` },
       dark_diary2: { kind: 'diary', title: 'Son sayfa', from: 'Toby', date: '17 Nisan 1987, 00:50 — salonda', body:

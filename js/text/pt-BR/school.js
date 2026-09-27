@@ -62,7 +62,7 @@ A gente vai ser os primeiros do MUNDO a ver a fase 256.
 
 (passa pra Nell, NÃO pro Toby, ele vai perder)
 
-P.S. Sam. Conversa com o Toby. Ele está se sentindo péssimo por causa do walkman.` },
+P.S. Sam. Conversa com o Toby. Ele está se sentindo péssimo por causa do toca-fitas.` },
       school_pact: { kind: 'note', title: 'Uma folha de caderno dobrada em oito', from: 'A letra da Rosie', date: '16 de abril de 1987, 15h30', body:
 `OPERAÇÃO 256 — O PACTO
 
@@ -98,11 +98,11 @@ Rosie Alvarez (9º ano) está criando um clube de rádio. Primeira reunião na t
 RECORDES DO STARLIGHT (Hungry House, nº 7)
 1. DAN 921.450  2. ROS 887.300  3. NEL 640.120  4. TOB 512.890  5. SAM 498.770
 
-ACHADO: um walkman azul, com um “S” riscado atrás. Meio quebrado. Pra quem é o walkman: por favor, perdoe quem sentou em cima. —T.` },
+ACHADO: um toca-fitas azul, com um “S” riscado atrás. Meio quebrado. Pra quem é o toca-fitas: por favor, perdoe quem sentou em cima. —T.` },
       school_samlocker: { kind: 'note', title: 'Colado dentro do armário 217 (o seu)', from: 'Sam', date: '16 de abril de 1987', body:
 `Toby,
 
-É só um walkman. Eu nem ligo pro walkman. O que me irritou foi que você sempre pode fazer tudo primeiro e eu sempre tenho que correr atrás.
+É só um toca-fitas. Eu nem ligo pro toca-fitas. O que me irritou foi que você sempre pode fazer tudo primeiro e eu sempre tenho que correr atrás.
 
 Desculpa por ter gritado no refeitório.
 

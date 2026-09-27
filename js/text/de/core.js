@@ -45,7 +45,7 @@
     },
     memento: {
       danny: { name: 'Dannys Uhr', line: 'Eine stählerne Armbanduhr mit gesprungenem Glas, stehen geblieben um 3:17. Auf der Rückseite eingraviert: „RAY KOWALSKI — 25 JAHRE — HARLOW MILL“.' },
-      rosie: { name: 'Rosies Mixtape', line: 'Ein violetter Walkman mit einer Kassette. Auf dem Etikett steht SEITE B: FÜR DANACH. Seite B ist leer.' },
+      rosie: { name: 'Rosies Mixtape', line: 'Ein violetter Kassettenspieler mit einer Kassette. Auf dem Etikett steht SEITE B: FÜR DANACH. Seite B ist leer.' },
       nell: { name: 'Nells Brille', line: 'Eine schwere Brille, ein Glas gesprungen. Sie beschlägt in deiner Hand, als hätte gerade jemand darauf gehaucht.' },
       toby: { name: 'Tobys Feuerzeug', line: 'Ein altes Messingfeuerzeug. Eingraviert: „TOBY — DAMIT DU NIE IM DUNKELN SITZT. OPA“.' },
     },

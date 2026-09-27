@@ -62,7 +62,7 @@ Wir werden die ersten Menschen der WELT sein, die Level 256 sehen.
 
 (gib das an Nell weiter, NICHT an Toby, der verliert es)
 
-PS: Sam. Red mit Toby. Er fühlt sich mies wegen dem Walkman.` },
+PS: Sam. Red mit Toby. Er fühlt sich mies wegen dem Kassettenspieler.` },
       school_pact: { kind: 'note', title: 'Ein Blatt Heftpapier, auf ein Achtel gefaltet', from: 'Rosies Handschrift', date: '16. April 1987, 15:30 Uhr', body:
 `OPERATION 256 — DER PAKT
 
@@ -98,11 +98,11 @@ Rosie Alvarez (9. Klasse) gründet einen Radio-Club. Erstes Treffen am Dienstag.
 HIGHSCORES AUS DEM STARLIGHT (Hungry House, Nr. 7)
 1. DAN 921.450  2. ROS 887.300  3. NEL 640.120  4. TOB 512.890  5. SAM 498.770
 
-GEFUNDEN: ein Walkman, blau, hinten ein „S“ eingeritzt. Irgendwie kaputt. An den Besitzer: Bitte verzeih, wer auch immer sich draufgesetzt hat. —T.` },
+GEFUNDEN: ein Kassettenspieler, blau, hinten ein „S“ eingeritzt. Irgendwie kaputt. An den Besitzer: Bitte verzeih, wer auch immer sich draufgesetzt hat. —T.` },
       school_samlocker: { kind: 'note', title: 'Innen in Spind 217 geklebt (deinen)', from: 'Sam', date: '16. April 1987', body:
 `Toby,
 
-es ist nur ein Walkman. Der Walkman ist mir sogar egal. Ich war sauer, weil du immer alles zuerst machen darfst und ich immer hinterherrennen muss.
+es ist nur ein Kassettenspieler. Der Kassettenspieler ist mir sogar egal. Ich war sauer, weil du immer alles zuerst machen darfst und ich immer hinterherrennen muss.
 
 Tut mir leid, dass ich in der Cafeteria rumgeschrien hab.
 

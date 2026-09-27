@@ -68,7 +68,7 @@ Das sind nicht meine Erinnerungen. Ich laufe im Sommer von jemand anderem herum.
 Drei Kinder. Eine Taschenlampe. Eine Regel, dass niemand allein nach Hause geht.
 
 Ich würde ihnen gern sagen, dass das eine gute Regel ist. Ich weiß nicht mehr, wie man mit Kindern redet. Früher konnte ich das gut.` },
-      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Ein Polaroid, an die Festungswand gepinnt', from: 'Unbekannt', date: 'Juli 1985', body:
+      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Ein Sofortbild, an die Festungswand gepinnt', from: 'Unbekannt', date: 'Juli 1985', body:
 `Drei Kinder in einem Backsteintunnel, von unten von einer einzigen Taschenlampe beleuchtet, alle versuchen gruselig auszusehen, und es klappt nicht. Der Große (Danny) macht dem Kleinen (Toby) Teufelshörner. Das Kind in der Mitte, das lächelt, bist du.
 
 Auf dem weißen Streifen, mit Kuli: „DIE FESTUNG. ERÖFFNUNGSTAG.“` },

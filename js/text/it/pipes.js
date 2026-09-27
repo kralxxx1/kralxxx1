@@ -68,7 +68,7 @@ Questi non sono ricordi miei. Sto camminando nell’estate di qualcun altro.
 Tre ragazzini. Una torcia. Una regola che dice che nessuno torna a casa da solo.
 
 Vorrei dirgli che è una bella regola. Non ricordo più come si parla ai bambini. Una volta ero bravo.` },
-      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Una Polaroid appuntata al muro del forte', from: 'Sconosciuto', date: 'Luglio 1985', body:
+      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Una foto istantanea appuntata al muro del forte', from: 'Sconosciuto', date: 'Luglio 1985', body:
 `Tre ragazzini in una galleria di mattoni, illuminati dal basso da un’unica torcia, che cercano di sembrare spaventosi senza riuscirci. Quello alto (Danny) fa le corna a quello piccolo (Toby). In mezzo, sorridente, ci sei tu.
 
 Sulla striscia bianca, a penna: «IL FORTE. GIORNO DELL’INAUGURAZIONE.»` },

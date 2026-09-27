@@ -68,7 +68,7 @@ Estos no son mis recuerdos. Estoy paseando por el verano de otra persona.
 Tres críos. Una linterna. Una norma sobre que nadie vuelve a casa sin compañía.
 
 Me gustaría decirles que es una buena norma. No recuerdo cómo se habla con los niños. Antes se me daba bien.` },
-      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Una Polaroid clavada en la pared del fuerte', from: 'Desconocido', date: 'Julio de 1985', body:
+      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Una foto instantánea clavada en la pared del fuerte', from: 'Desconocido', date: 'Julio de 1985', body:
 `Tres críos en un túnel de ladrillo, iluminados desde abajo por una sola linterna, intentando parecer terroríficos sin conseguirlo. El alto (Danny) le hace cuernos al pequeño (Toby). En el medio, sonriendo, estás tú.
 
 En la franja blanca, a boli: «EL FUERTE. DÍA DE LA INAUGURACIÓN».` },

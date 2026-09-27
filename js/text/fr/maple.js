@@ -53,12 +53,12 @@ Sur le bureau, un cahier. Ton écriture de cette nuit-là, appuyée si fort qu�
 `MAMAN — Je dors chez Sam. (C’est faux, je suis à l’arcade, mais Sam va me couvrir.) (Lis pas ce passage.)
 
 SAM — si tu lis ça en premier :
-Pardon pour ton walkman. Je t’en achète un neuf avec l’argent de ma tournée de journaux. Il est déjà dans le bocal.
+Pardon pour ton baladeur. Je t’en achète un neuf avec l’argent de ma tournée de journaux. Il est déjà dans le bocal.
 Ce soir ça va être la meilleure nuit de tous les temps.
 T’es la personne que je préfère au monde. Même quand t’es insupportable. Surtout là.
 — T.
 
-(Un bocal sur l’étagère. Dedans : 31,40 $ en pièces et un reçu plié de paiement échelonné pour un walkman bleu, entièrement réglé.)` },
+(Un bocal sur l’étagère. Dedans : 31,40 $ en pièces et un reçu plié de paiement échelonné pour un baladeur bleu, entièrement réglé.)` },
       maple_porch: { kind: 'note', title: 'Scotché sur la porte moustiquaire de Toby', from: 'Maggie', date: '1987 — 1994', body:
 `Toby —
 
@@ -126,8 +126,8 @@ TOI ET TOBY VOUS ÊTES LES MEILLEURS AMIS QUE J’AI JAMAIS VU.` },
         ['eddie', '…Prends ton temps. Je ne vais nulle part. Évidemment.'],
       ],
       maple_echo: [
-        ['toby', 'Sam, attends ! Attends juste, d’accord ? J’ai dit que j’étais désolé pour le walkman !'],
-        ['sam', 'C’est pas à cause de ce walkman débile !'],
+        ['toby', 'Sam, attends ! Attends juste, d’accord ? J’ai dit que j’étais désolé pour le baladeur !'],
+        ['sam', 'C’est pas à cause de ce baladeur débile !'],
         ['toby', 'Alors quoi ? Tu vas rater le 256 ! On l’a préparé pendant un mois !'],
         ['sam', 'T’as toujours le droit de tout faire en premier. T’as même pas besoin de moi.'],
         ['toby', 'C’est pas vrai ! Sam ! Reste. S’il te plaît. Je veux pas y aller sans toi.'],

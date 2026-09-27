@@ -62,7 +62,7 @@ Będziemy pierwszymi ludźmi na ŚWIECIE, którzy zobaczą poziom 256.
 
 (podaj to Nell, NIE Toby’emu, zgubi)
 
-PS Sam. Pogadaj z Tobym. Strasznie mu głupio przez ten walkman.` },
+PS Sam. Pogadaj z Tobym. Strasznie mu głupio przez ten odtwarzacz.` },
       school_pact: { kind: 'note', title: 'Kartka z zeszytu złożona na osiem', from: 'Pismo Rosie', date: '16 kwietnia 1987, 15:30', body:
 `OPERACJA 256 — PAKT
 
@@ -98,11 +98,11 @@ Rosie Alvarez (klasa 9) zakłada klub radiowy. Pierwsze spotkanie we wtorek.
 REKORDY ZE STARLIGHT (Hungry House, nr 7)
 1. DAN 921 450  2. ROS 887 300  3. NEL 640 120  4. TOB 512 890  5. SAM 498 770
 
-ZNALEZIONO: walkman, niebieski, z tyłu wydrapane „S”. Trochę zepsuty. Proszę o wybaczenie dla tego, kto na nim usiadł. —T.` },
+ZNALEZIONO: odtwarzacz kasetowy, niebieski, z tyłu wydrapane „S”. Trochę zepsuty. Proszę o wybaczenie dla tego, kto na nim usiadł. —T.` },
       school_samlocker: { kind: 'note', title: 'Przyklejone w szafce 217 (twojej)', from: 'Sam', date: '16 kwietnia 1987', body:
 `Toby,
 
-to tylko walkman. Nawet mi na nim nie zależy. Wkurzało mnie, że ty zawsze możesz wszystko robić pierwszy, a ja zawsze muszę gonić.
+to tylko odtwarzacz. Nawet mi na nim nie zależy. Wkurzało mnie, że ty zawsze możesz wszystko robić pierwszy, a ja zawsze muszę gonić.
 
 Przepraszam za tamten wrzask na stołówce.
 

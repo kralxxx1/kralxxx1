@@ -1,4 +1,4 @@
-/* Yaratıklar ve yapay zekâ: Yutucu (Pacman), dört hayalet, Sırıtkanlar ve Sayaç.
+/* Yaratıklar ve yapay zekâ: Yutucu (the Eater), dört hayalet, Sırıtkanlar ve Sayaç.
    Izgara üzerinde akış alanıyla yol bulma, görme/duyma algısı, durum makineleri. */
 (function (root) {
   'use strict';
@@ -16,7 +16,7 @@
 
   // ------------------------------------------------------------ görseller
   // The Eater (sculpted in monsters.js): swollen raw hide, horns, gums and human teeth, a tongue, two eyes, Walt's arms
-  function pacmanMesh() { return PB.Monsters.eater(); }
+  function eaterMesh() { return PB.Monsters.eater(); }
 
   // The four Haunts (monsters.js): hooded, dyed, soaked cloth over a child. The cloth hangs and sways from
   // the hood, the pointed hem drags, the eye holes are black with a glowing pinpoint deep inside that follows you.
@@ -350,7 +350,7 @@
   class Eater extends Entity {
     constructor(game, o) {
       super(game, 'eater', o);
-      const m = pacmanMesh(game);
+      const m = eaterMesh(game);
       this.vis = m; this.mesh.add(m.group); lit(game, m.group);
       this.catchR = 1.55; this.radius = 0.55;
       this.turnSlow = 0; this.chomp = 0; this.chompRate = 2; this.lastChompSide = 0;
@@ -592,7 +592,7 @@
       if (!c) return;
       this.placeCell(c.x, c.y);
       if (this.state === 'patrol') this.setState('investigate'), this.lastKnown = { x: this.g.player.pos.x, z: this.g.player.pos.z };
-      if (this.g.audio) { this.g.audio.loop('inkyWhisper', 'whisper', { x: this.pos.x, y: 1.5, z: this.pos.z }, { gain: 0.5 }); setTimeout(() => this.g.audio && this.g.audio.stopLoop('inkyWhisper', 1), 2200); this.g.audio.caption('whisper', PB.t('cap.whisper'), { x: this.pos.x, y: 1, z: this.pos.z }, 6); }
+      if (this.g.audio) { this.g.audio.loop('hauntWhisper', 'whisper', { x: this.pos.x, y: 1.5, z: this.pos.z }, { gain: 0.5 }); setTimeout(() => this.g.audio && this.g.audio.stopLoop('hauntWhisper', 1), 2200); this.g.audio.caption('whisper', PB.t('cap.whisper'), { x: this.pos.x, y: 1, z: this.pos.z }, 6); }
     }
     // Turuncu: bakıldığında donar, bakılmadığında hızla yaklaşır, fenere uzun süre tutulursa kaçar
     amberAI(dt, dm) {

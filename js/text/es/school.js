@@ -62,7 +62,7 @@ Vamos a ser los primeros del MUNDO en ver el nivel 256.
 
 (pásasela a Nell, NO a Toby, que la pierde)
 
-P. D.: Sam. Habla con Toby. Se siente fatal por lo del walkman.` },
+P. D.: Sam. Habla con Toby. Se siente fatal por lo del reproductor.` },
       school_pact: { kind: 'note', title: 'Una hoja de cuaderno doblada en ocho', from: 'La letra de Rosie', date: '16 de abril de 1987, 15:30', body:
 `OPERACIÓN 256 — EL PACTO
 
@@ -98,11 +98,11 @@ Rosie Alvarez (9.º) va a montar un club de radio. Primera reunión el martes.
 RÉCORDS DEL STARLIGHT (Hungry House, n.º 7)
 1. DAN 921.450  2. ROS 887.300  3. NEL 640.120  4. TOB 512.890  5. SAM 498.770
 
-ENCONTRADO: un walkman azul, con una «S» rayada en la parte de atrás. Un poco roto. A quien sea su dueño: por favor, perdona al que se sentó encima. —T.` },
+ENCONTRADO: un reproductor de casete azul, con una «S» rayada en la parte de atrás. Un poco roto. A quien sea su dueño: por favor, perdona al que se sentó encima. —T.` },
       school_samlocker: { kind: 'note', title: 'Pegado dentro de la taquilla 217 (la tuya)', from: 'Sam', date: '16 de abril de 1987', body:
 `Toby:
 
-Solo es un walkman. Ni siquiera me importa el walkman. Lo que me fastidiaba es que tú siempre puedes hacerlo todo primero y yo siempre tengo que ir detrás.
+Solo es un reproductor. Ni siquiera me importa el reproductor. Lo que me fastidiaba es que tú siempre puedes hacerlo todo primero y yo siempre tengo que ir detrás.
 
 Perdón por gritarte en el comedor.
 

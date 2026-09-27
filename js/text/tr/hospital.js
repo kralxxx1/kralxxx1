@@ -99,7 +99,7 @@ Resim dersinde seni özlüyoruz. Bayan K. pastel boyalar yalnız kaldı diyor.
 — ve özenli büyük harflerle 22 isim daha
 
 (Bunu yazdığını hatırlıyorsun. İşe yaramayacağını bilmediğini hatırlıyorsun.)` },
-      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Yatağın üstüne bantlanmış bir Polaroid', from: 'Hemşire Donna', date: '27 Ekim 1983', body:
+      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'Yatağın üstüne bantlanmış bir anlık fotoğraf', from: 'Hemşire Donna', date: '27 Ekim 1983', body:
 `Keçe boynuzlu, köpük dişlerle kocaman sırıtan, dev yuvarlak turuncu bir kostüm giymiş bir adam, hastane yatağının yanında diz çökmüş. Parti şapkalı çok küçük bir kız iki koluyla kostümün kafasına sarılmış.
 
 Beyaz şeritte: "LIL & CHOMPY"` },

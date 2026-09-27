@@ -45,7 +45,7 @@
     },
     memento: {
       danny: { name: 'L’orologio di Danny', line: 'Un orologio d’acciaio col vetro incrinato, fermo alle 3:17. Inciso sul retro: «RAY KOWALSKI — 25 ANNI — HARLOW MILL».' },
-      rosie: { name: 'La cassetta di Rosie', line: 'Un walkman viola con una cassetta dentro. L’etichetta dice LATO B: PER DOPO. Il lato B è vuoto.' },
+      rosie: { name: 'La cassetta di Rosie', line: 'Un mangianastri viola con una cassetta dentro. L’etichetta dice LATO B: PER DOPO. Il lato B è vuoto.' },
       nell: { name: 'Gli occhiali di Nell', line: 'Occhiali pesanti, una lente incrinata. Si appannano nella tua mano, come se qualcuno ci avesse appena alitato sopra.' },
       toby: { name: 'L’accendino di Toby', line: 'Un vecchio accendino d’ottone. Inciso: «TOBY — COSÌ NON RESTI MAI AL BUIO. IL NONNO».' },
     },

@@ -1145,7 +1145,7 @@
     tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false;
     const r = U.rng(U.hashStr(game));
     const stars = Array.from({ length: 40 }, () => ({ x: r() * W, y: r() * H, s: r.range(0.3, 1.2) }));
-    const titles = { galaksi: 'GALAXY 2000', kurbaga: 'FROG ROAD', tugla: 'BRICK BREAKER', yilan: 'SNAKE BYTE', uzay: 'ORBIT RAID', yaris: 'NIGHT RACER', dovus: 'STREET BRAWL', tetris: 'GEM DROP', special: '', classic: 'HUNGRY HOUSE' };
+    const titles = { galaksi: 'GALAXY 2000', kurbaga: 'FROG ROAD', tugla: 'BRICK BASH', yilan: 'NEON SERPENT', uzay: 'ORBIT RAID', yaris: 'MIDNIGHT MILE', dovus: 'ALLEY BRAWL', gems: 'GEM CASCADE', special: '', classic: 'HUNGRY HOUSE' };
     const scr = {
       tex, canvas: c, game, on: true, text: null,
       update(t) {
@@ -1189,7 +1189,7 @@
           if (game === 'galaksi' || game === 'uzay') {
             for (let k = 0; k < 5; k++) for (let j = 0; j < 3; j++) g.fillRect(20 + k * 26 + Math.sin(t * 2) * 10, 40 + j * 18, 12, 8);
             g.fillStyle = '#fff'; g.fillRect(W / 2 + Math.sin(t * 1.3) * 50 - 6, H - 40, 12, 8);
-          } else if (game === 'tugla' || game === 'tetris') {
+          } else if (game === 'tugla' || game === 'gems') {
             for (let k = 0; k < 8; k++) for (let j = 0; j < 4; j++) { g.fillStyle = `hsl(${(hue + j * 40) % 360},80%,55%)`; g.fillRect(8 + k * 18, 36 + j * 10, 16, 8); }
             g.fillStyle = '#fff'; g.fillRect(W / 2 + Math.sin(t * 2) * 50 - 14, H - 30, 28, 4);
           } else if (game === 'yilan' || game === 'kurbaga') {
@@ -1210,7 +1210,7 @@
     return scr;
   };
   T.marquee = game => T.canvas('marquee:' + game, 512, 128, (g, w, h) => {
-    const titles = { galaksi: 'GALAXY 2000', kurbaga: 'FROG ROAD', tugla: 'BRICK BREAKER', yilan: 'SNAKE BYTE', uzay: 'ORBIT RAID', yaris: 'NIGHT RACER', dovus: 'STREET BRAWL', tetris: 'GEM DROP', special: 'HUNGRY HOUSE ★ #7', classic: 'HUNGRY HOUSE' };
+    const titles = { galaksi: 'GALAXY 2000', kurbaga: 'FROG ROAD', tugla: 'BRICK BASH', yilan: 'NEON SERPENT', uzay: 'ORBIT RAID', yaris: 'MIDNIGHT MILE', dovus: 'ALLEY BRAWL', gems: 'GEM CASCADE', special: 'HUNGRY HOUSE ★ #7', classic: 'HUNGRY HOUSE' };
     const hue = U.hashStr(game) % 360;
     const grd = g.createLinearGradient(0, 0, w, 0); grd.addColorStop(0, `hsl(${hue},70%,15%)`); grd.addColorStop(1, `hsl(${(hue + 60) % 360},70%,25%)`);
     g.fillStyle = game === 'special' || game === 'classic' ? '#000018' : grd; g.fillRect(0, 0, w, h);

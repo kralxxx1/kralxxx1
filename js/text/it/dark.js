@@ -22,7 +22,7 @@ L’ambra… tienigli la luce addosso. Non voltargli le spalle a lungo.
 
 Danny dice che io sono il responsabile della torcia. Rosie ha fatto una cassetta. Nell ha fatto una mappa dei percorsi degli Spettri ed è davvero bellissima.
 
-Oggi mi sono seduto sul walkman di Sam. Ha fatto crac. Sam non lo sa ancora. Darò a Sam la mia paghetta di marzo E di aprile.
+Oggi mi sono seduto sul mangianastri di Sam. Ha fatto crac. Sam non lo sa ancora. Darò a Sam la mia paghetta di marzo E di aprile.
 
 Danny dice che lo Spettro ambra del n. 7 sono io perché è il fifone. Walt dice che è quello furbo. Comunque è il MIO Spettro.` },
       dark_diary2: { kind: 'diary', title: 'L’ultima pagina', from: 'Toby', date: '17 aprile 1987, 0:50 — alla sala giochi', body:

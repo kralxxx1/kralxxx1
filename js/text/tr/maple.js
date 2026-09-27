@@ -53,12 +53,12 @@ Masanın üstünde bir defter. O geceki el yazın, kâğıdı yırtacak kadar ba
 `ANNE — Sam’lerde yatıyorum. (Yatmıyorum, salondayım ama Sam beni idare eder.) (Bu kısmı okuma.)
 
 SAM — önce sen okursan:
-Walkman’in için özür dilerim. Gazete dağıtmaktan kazandığım parayla sana yenisini alıyorum. Para zaten kavanozda.
+Kasetçaların için özür dilerim. Gazete dağıtmaktan kazandığım parayla sana yenisini alıyorum. Para zaten kavanozda.
 Bu gece gelmiş geçmiş en güzel gece olacak.
 Sen benim en iyi arkadaşımsın. Pislik olduğunda bile. Özellikle o zaman.
 — T.
 
-(Rafta bir kavanoz. İçinde 31,40 dolar bozukluk ve katlanmış bir taksit fişi: mavi bir walkman, tamamı ödenmiş.)` },
+(Rafta bir kavanoz. İçinde 31,40 dolar bozukluk ve katlanmış bir taksit fişi: mavi bir kasetçalar, tamamı ödenmiş.)` },
       maple_porch: { kind: 'note', title: 'Toby’nin sineklik kapısına bantlanmış', from: 'Maggie', date: '1987 — 1994', body:
 `Toby —
 
@@ -126,8 +126,8 @@ SEN VE TOBY GÖRDÜĞÜM EN İYİ ARKADAŞLARSINIZ.` },
         ['eddie', '...Acele etme. Hiçbir yere gitmiyorum. Belli ki.'],
       ],
       maple_echo: [
-        ['toby', 'Sam, bekle! Bir dakika bekle, tamam mı? Walkman için özür diledim ya!'],
-        ['sam', 'Mesele o aptal walkman değil!'],
+        ['toby', 'Sam, bekle! Bir dakika bekle, tamam mı? Kasetçalar için özür diledim ya!'],
+        ['sam', 'Mesele o aptal kasetçalar değil!'],
         ['toby', 'Ne o zaman? 256’yı kaçıracaksın! Bir aydır planlıyoruz!'],
         ['sam', 'Her şeyi hep ilk sen yapıyorsun. Orada bana ihtiyacın bile yok.'],
         ['toby', 'Doğru değil! Sam! Kal. Lütfen. Sensiz gitmek istemiyorum.'],

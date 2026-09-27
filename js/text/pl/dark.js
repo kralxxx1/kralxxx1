@@ -22,7 +22,7 @@ Bursztynowy… trzymaj na nim światło. Nie odwracaj się do niego plecami na d
 
 Danny mówi, że odpowiadam za latarkę. Rosie nagrała kasetę. Nell narysowała mapę tras Zjaw i jest naprawdę super.
 
-Dziś usiadłem na walkmanie. Tym, który Sam wszędzie nosi. Chrup. Sam jeszcze nie wie. Oddam całe kieszonkowe za marzec I kwiecień.
+Dziś usiadłem na odtwarzaczu. Tym, który Sam wszędzie nosi. Chrup. Sam jeszcze nie wie. Oddam całe kieszonkowe za marzec I kwiecień.
 
 Danny mówi, że bursztynowa Zjawa z nr 7 to ja, bo to ta tchórzliwa. Walt mówi, że to ta sprytna. Tak czy siak to MOJA Zjawa.` },
       dark_diary2: { kind: 'diary', title: 'Ostatnia strona', from: 'Toby', date: '17 kwietnia 1987, 0:50 — w salonie gier', body:

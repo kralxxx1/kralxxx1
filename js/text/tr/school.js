@@ -62,7 +62,7 @@ Seviye 256’yı DÜNYADA ilk görenler biz olacağız.
 
 (bunu Nell’e ver, Toby’ye DEĞİL, kaybeder)
 
-Not: Sam. Toby’yle konuş. Walkman için çok kötü hissediyor.` },
+Not: Sam. Toby’yle konuş. Kasetçalar için çok kötü hissediyor.` },
       school_pact: { kind: 'note', title: 'Sekize katlanmış bir defter yaprağı', from: 'Rosie’nin el yazısı', date: '16 Nisan 1987, 15:30', body:
 `OPERASYON 256 — ANLAŞMA
 
@@ -98,11 +98,11 @@ Rosie Alvarez (9. sınıf) bir radyo kulübü kuruyor. İlk toplantı salı.
 STARLIGHT’TAN REKORLAR (Hungry House, #7)
 1. DAN 921.450  2. ROS 887.300  3. NEL 640.120  4. TOB 512.890  5. SAM 498.770
 
-BULUNDU: bir walkman, mavi, arkasına "S" kazınmış. Biraz bozuk. Sahibi, lütfen üstüne oturanı affetsin. —T.` },
+BULUNDU: bir kasetçalar, mavi, arkasına "S" kazınmış. Biraz bozuk. Sahibi, lütfen üstüne oturanı affetsin. —T.` },
       school_samlocker: { kind: 'note', title: '217 numaralı dolabın içine bantlanmış (senin)', from: 'Sam', date: '16 Nisan 1987', body:
 `Toby,
 
-Sadece bir walkman. Walkman umurumda bile değil. Kızdım çünkü her şeyi hep ilk sen yapıyorsun, ben de hep yetişmeye çalışıyorum.
+Sadece bir kasetçalar. Kasetçalar umurumda bile değil. Kızdım çünkü her şeyi hep ilk sen yapıyorsun, ben de hep yetişmeye çalışıyorum.
 
 Yemekhanede bağırdığım için özür dilerim.
 

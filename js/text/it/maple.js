@@ -53,12 +53,12 @@ ALLE 21:40 HO PRESO LA STRADA DI CASA` },
 `MAMMA — Dormo da Sam. (Non è vero, sono alla sala giochi, ma Sam mi copre.) (Non leggere questa parte.)
 
 SAM — se lo leggi prima di tutti:
-Scusa per il walkman. Te ne compro uno nuovo con i soldi del giro dei giornali. Sono già nel barattolo.
+Scusa per il mangianastri. Te ne compro uno nuovo con i soldi del giro dei giornali. Sono già nel barattolo.
 Stanotte sarà la notte più bella di sempre.
 Sei la persona a cui tengo di più. Anche quando sei insopportabile. Soprattutto allora.
 — T.
 
-(Un barattolo sulla mensola. Dentro: 31,40 $ in monete e una ricevuta piegata di acquisto a rate per un walkman blu, saldata per intero.)` },
+(Un barattolo sulla mensola. Dentro: 31,40 $ in monete e una ricevuta piegata di acquisto a rate per un mangianastri blu, saldata per intero.)` },
       maple_porch: { kind: 'note', title: 'Attaccato alla zanzariera di Toby', from: 'Maggie', date: '1987 — 1994', body:
 `Toby,
 
@@ -126,8 +126,8 @@ TU E TOBY SIETE I MIGLIORI AMICI CHE HO MAI VISTO.` },
         ['eddie', '…Prenditi il tuo tempo. Io non vado da nessuna parte. Ovviamente.'],
       ],
       maple_echo: [
-        ['toby', 'Sam, aspetta! Aspetta un attimo, ok? Ti ho detto che mi dispiace per il walkman!'],
-        ['sam', 'Non è per quello stupido walkman!'],
+        ['toby', 'Sam, aspetta! Aspetta un attimo, ok? Ti ho detto che mi dispiace per il mangianastri!'],
+        ['sam', 'Non è per quello stupido mangianastri!'],
         ['toby', 'E allora cosa? Ti perdi il 256! L’abbiamo organizzato per un mese!'],
         ['sam', 'Tu puoi sempre fare tutto per primo. Non hai nemmeno bisogno di me.'],
         ['toby', 'Non è vero! Sam! Resta. Ti prego. Non voglio andarci senza di te.'],

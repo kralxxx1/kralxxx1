@@ -68,7 +68,7 @@ Bunlar benim anılarım değil. Başka birinin yazında dolaşıyorum.
 Üç çocuk. Tek fener. Kimsenin eve yalnız gitmemesiyle ilgili bir kural.
 
 Onlara bunun iyi bir kural olduğunu söylemek isterdim. Çocuklarla nasıl konuşulur, hatırlayamıyorum. Eskiden iyiydim bunda.` },
-      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Kalenin duvarına iğnelenmiş bir Polaroid', from: 'Bilinmiyor', date: 'Temmuz 1985', body:
+      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Kalenin duvarına iğnelenmiş bir anlık fotoğraf', from: 'Bilinmiyor', date: 'Temmuz 1985', body:
 `Tuğla bir tünelde, tek bir fenerle aşağıdan aydınlanmış, korkunç görünmeye çalışıp beceremeyen üç çocuk. Uzun olan (Danny) küçüğün (Toby) başının üstünde şeytan boynuzu yapıyor. Ortadaki, gülümseyen, sensin.
 
 Beyaz şeritte, tükenmezle: "KALE. AÇILIŞ GÜNÜ."` },

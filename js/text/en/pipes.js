@@ -68,7 +68,7 @@ These aren't my memories. I'm walking around in somebody else's summer.
 Three kids. One flashlight. A rule about nobody going home alone.
 
 I'd like to tell them it's a good rule. I can't remember how to talk to kids. I used to be good at it.` },
-      pipes_photo: { kind: 'photo', photo: 'fort', title: 'A Polaroid pinned to the fort wall', from: 'Unknown', date: 'July 1985', body:
+      pipes_photo: { kind: 'photo', photo: 'fort', title: 'An instant photo pinned to the fort wall', from: 'Unknown', date: 'July 1985', body:
 `Three kids in a brick tunnel, lit from below by one flashlight, all trying to look scary and failing. The tall one (Danny) is making devil horns over the little one (Toby). The one in the middle, smiling, is you.
 
 On the white strip, in pen: "THE FORT. OPENING DAY."` },

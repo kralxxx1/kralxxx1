@@ -53,12 +53,12 @@ ICH BIN UM 21:40 NACH HAUSE GEGANGEN` },
 `MAMA — Ich schlafe bei Sam. (Stimmt nicht, ich bin in der Spielhalle, aber Sam deckt mich.) (Diesen Teil nicht lesen.)
 
 SAM — falls du das zuerst liest:
-Das mit deinem Walkman tut mir leid. Ich kauf dir von meinem Zeitungsaustragen-Geld einen neuen. Das Geld ist schon im Glas.
+Das mit deinem Kassettenspieler tut mir leid. Ich kauf dir von meinem Zeitungsaustragen-Geld einen neuen. Das Geld ist schon im Glas.
 Heute Nacht wird die beste Nacht überhaupt.
 Keiner ist mir so wichtig wie du. Auch wenn du total fies bist. Gerade dann.
 — T.
 
-(Ein Glas im Regal. Darin: 31,40 $ in Münzen und ein gefalteter Ratenkauf-Beleg für einen blauen Walkman, vollständig bezahlt.)` },
+(Ein Glas im Regal. Darin: 31,40 $ in Münzen und ein gefalteter Ratenkauf-Beleg für einen blauen Kassettenspieler, vollständig bezahlt.)` },
       maple_porch: { kind: 'note', title: 'An Tobys Fliegengittertür geklebt', from: 'Maggie', date: '1987 — 1994', body:
 `Toby —
 
@@ -126,8 +126,8 @@ DU UND TOBY SEID DIE BESTEN FREUNDE DIE ICH JE GESEHN HAB.` },
         ['eddie', '… Lass dir Zeit. Ich gehe nirgendwohin. Offensichtlich.'],
       ],
       maple_echo: [
-        ['toby', 'Sam, warte! Warte doch mal, okay? Ich hab doch gesagt, das mit dem Walkman tut mir leid!'],
-        ['sam', 'Es geht nicht um den blöden Walkman!'],
+        ['toby', 'Sam, warte! Warte doch mal, okay? Ich hab doch gesagt, das mit dem Kassettenspieler tut mir leid!'],
+        ['sam', 'Es geht nicht um den blöden Kassettenspieler!'],
         ['toby', 'Worum dann? Du verpasst 256! Wir haben das einen Monat lang geplant!'],
         ['sam', 'Du darfst immer alles zuerst. Du brauchst mich da nicht mal.'],
         ['toby', 'Das stimmt nicht! Sam! Bleib. Bitte. Ich will nicht ohne dich gehen.'],

@@ -46,7 +46,7 @@
     },
     memento: {
       danny: { name: "Danny's watch", line: 'A steel wristwatch with a cracked face, stopped at 3:17. Engraved on the back: "RAY KOWALSKI — 25 YEARS — HARLOW MILL".' },
-      rosie: { name: "Rosie's mixtape", line: 'A violet walkman with a tape inside. The label says SIDE B: FOR AFTER. Side B is blank.' },
+      rosie: { name: "Rosie's mixtape", line: 'A violet tape player with a tape inside. The label says SIDE B: FOR AFTER. Side B is blank.' },
       nell: { name: "Nell's glasses", line: 'Heavy glasses, one lens cracked. They fog up in your hand, as if someone just breathed on them.' },
       toby: { name: "Toby's lighter", line: 'An old brass lighter. Engraved: "TOBY — SO YOU NEVER SIT IN THE DARK. GRANDPA".' },
     },

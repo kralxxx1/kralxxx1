@@ -99,7 +99,7 @@ We miss you in art. Mrs. K says the crayons are lonely.
 — and 22 more names in careful capital letters
 
 (You remember writing this. You remember not knowing that it wouldn't work.)` },
-      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'A Polaroid taped above the bed', from: 'Nurse Donna', date: 'October 27, 1983', body:
+      hospital_chompy: { kind: 'photo', photo: 'chompy', title: 'An instant photo taped above the bed', from: 'Nurse Donna', date: 'October 27, 1983', body:
 `A man in a huge round orange costume, with felt horns and a grin full of foam teeth, kneeling beside a hospital bed. A very small girl in a party hat is hugging the costume's head with both arms.
 
 On the white strip: "LIL & CHOMPY"` },

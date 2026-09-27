@@ -53,12 +53,12 @@ O 21:40 JUŻ W DOMU` },
 `MAMO — Nocuję u Kellerów. (Nieprawda, jestem w salonie gier, ale Sam mnie kryje.) (Tego nie czytaj.)
 
 SAM — jeśli czytasz to pierwsze:
-Przepraszam za twój walkman. Kupię ci nowy za pieniądze z roznoszenia gazet. Są już w słoiku.
+Przepraszam za twój odtwarzacz. Kupię ci nowy za pieniądze z roznoszenia gazet. Są już w słoiku.
 Dzisiaj będzie najlepsza noc w historii.
 Nikt nie jest dla mnie tak ważny jak ty. Nawet kiedy jesteś nie do zniesienia. Zwłaszcza wtedy.
 — T.
 
-(Słoik na półce. W środku: 31,40 $ w monetach i złożony dowód zakupu na raty niebieskiego walkmana, spłacony w całości.)` },
+(Słoik na półce. W środku: 31,40 $ w monetach i złożony dowód zakupu na raty niebieskiego odtwarzacza kasetowego, spłacony w całości.)` },
       maple_porch: { kind: 'note', title: 'Przyklejone do drzwi z moskitierą u Toby’ego', from: 'Maggie', date: '1987 — 1994', body:
 `Toby —
 
@@ -126,8 +126,8 @@ TY I TOBY JESTEŚCIE NAJLEPSZYMI PRZYJACIUŁMI JAKICH WIDZIAŁAM.` },
         ['eddie', '…Nie spiesz się. Nigdzie się nie wybieram. Wiadomo.'],
       ],
       maple_echo: [
-        ['toby', 'Sam, czekaj! Poczekaj chwilę, dobra? Przecież przeprosiłem za walkmana!'],
-        ['sam', 'Nie chodzi o ten głupi walkman!'],
+        ['toby', 'Sam, czekaj! Poczekaj chwilę, dobra? Przecież przeprosiłem za odtwarzacz!'],
+        ['sam', 'Nie chodzi o ten głupi odtwarzacz!'],
         ['toby', 'To o co? Przegapisz 256! Planowaliśmy to cały miesiąc!'],
         ['sam', 'Ty zawsze wszystko możesz pierwszy. Nawet mnie tam nie potrzebujesz.'],
         ['toby', 'To nieprawda! Sam! Zostań. Proszę. Nie chcę iść bez ciebie.'],
