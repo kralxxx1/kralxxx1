@@ -523,5 +523,10 @@ body.in-locker #crosshair, body.in-locker #marks { display: none; }
 [dir="rtl"] kbd, [dir="rtl"] input[type="range"], [dir="rtl"] #perf, [dir="rtl"] .lcd { direction: ltr; }
 /* joined letters must not be pulled apart; small caps and letter spacing are Latin habits */
 html[lang="ar"] body * { letter-spacing: 0 !important; }
+/* the tiny pixel-font labels are sized for Latin capitals; other scripts need a few more pixels to stay legible */
+html:is([lang="zh-CN"], [lang="ja"], [lang="ko"], [lang="ar"]) :is(.paper .nk, .obj-label, .kp-label, .end-sub) { font-size: 12px; }
+html:is([lang="zh-CN"], [lang="ja"], [lang="ko"], [lang="ar"]) .meter span { font-size: 11px; }
+/* CJK faces have no italic; a slanted fake reads as a rendering fault */
+html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) :is(.paper .nb p.narr, .paper.kind-memory .nb) { font-style: normal !important; }
 html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) .subtitle, html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) .boot-title span { letter-spacing: 0.12em; }
 [dir="rtl"] .set-row .ctl { direction: ltr; } [dir="rtl"] .set-row .ctl .cyc-val, [dir="rtl"] .set-row .ctl output { direction: rtl; unicode-bidi: plaintext; }

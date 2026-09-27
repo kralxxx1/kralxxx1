@@ -76,7 +76,7 @@ A 面：今晚听
 1. Neon Hearts — The Arcadians
 2. Kill Screen Boogie — DJ Lantern
 3. Midnight at the Starlight — Rosie（休息室现场版）
-4. Don’t Look Back — Harbor Lights
+4. Don't Look Back — Harbor Lights
 
 B 面：以后听
 （空白——等我们赢了再录）` },

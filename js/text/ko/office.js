@@ -76,7 +76,7 @@ A면: 오늘 밤을 위해
 1. Neon Hearts — The Arcadians
 2. Kill Screen Boogie — DJ Lantern
 3. Midnight at the Starlight — Rosie (휴게실 라이브)
-4. Don’t Look Back — Harbor Lights
+4. Don't Look Back — Harbor Lights
 
 B면: 그다음을 위해
 (비어 있음 — 이기고 나서 녹음할 것)` },

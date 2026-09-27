@@ -1,7 +1,7 @@
 # LEVEL 256 — The Starlight Arcade
 
 A first-person story horror game. It runs in the browser with no install, and can be packaged as a
-desktop game. English is the main language; Turkish is included (Settings → Language).
+desktop game. It is fully translated into 13 languages (Settings → Language).
 
 > Harlow, Pennsylvania. November 30, 1994, 2:11 AM, rain. You are Sam, twenty, a night driver for a
 > moving company, and you let yourself into the foreclosed Starlight Arcade four hours before the
@@ -95,12 +95,26 @@ needs all four Haunts, all eight of Lily's drawings and Walt's memory of Room 20
 - **Settings:** graphics, display, audio (separate channels, HRTF), controls, gameplay (three
   difficulties, jump-scare intensity, hints), subtitles, optional sound captions, language.
 
+## Languages
+
+English (the original), Turkish, German, French, Spanish, Italian, Portuguese (Brazil), Polish,
+Russian, Simplified Chinese, Japanese, Korean and Arabic. Every menu, document, objective and radio
+line is translated, and the game asks for a language on first launch. Arabic is laid out right to
+left. Terminal prompts, song titles and similar lines stay left to right inside Arabic text. Each
+language has its own typefaces for the terminal, printed and handwritten documents. Without an
+internet connection, the system fonts take over.
+
+Sam's gender is never stated in English, and the translations keep it that way. That is harder in
+languages whose grammar marks gender. Each pack uses neutral phrasing wherever Sam speaks or is
+spoken to.
+
 ## Development
 
 ```
 index.html           the shell (menus, HUD, overlays)
 css/game.css         interface
-js/i18n.js           language packs; js/text/<lang> holds every string
+js/i18n.js           language packs; js/text/<lang> holds every string (one file per chapter)
+js/fonts.js          per-language typefaces
 js/levels.js         chapter definitions
 js/levelgen*.js      level generators (DOM-free, tested in Node)
 js/story.js          localized access to the story

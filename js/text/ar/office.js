@@ -75,7 +75,7 @@ C:\\> _` },
 الوجه A: لهذه الليلة
 1. Neon Hearts — The Arcadians
 2. Kill Screen Boogie — DJ Lantern
-3. Midnight at the Starlight — Rosie (بثّ مباشر من غرفة الاستراحة)
+3. Midnight at the Starlight — Rosie (مباشرةً من الاستراحة)
 4. Don’t Look Back — Harbor Lights
 
 الوجه B: لما بعد

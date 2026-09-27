@@ -76,7 +76,7 @@ A面：今夜のために
 1. Neon Hearts — The Arcadians
 2. Kill Screen Boogie — DJ Lantern
 3. Midnight at the Starlight — Rosie（休憩室からライブ）
-4. Don’t Look Back — Harbor Lights
+4. Don't Look Back — Harbor Lights
 
 B面：そのあとのために
 （空白 ― 勝ったら録音する）` },
