@@ -514,8 +514,9 @@
           const lil = (g.save.drawings || []).length >= 8 && g.save.world.waltMemory;
           g.later(3500, () => { g.fx.flash = 1; g.audio.stinger('spot'); g.player.frozen = false; g.whenPlaying(() => g.exitLevel(lil ? 'ending-lil' : 'ending-plug')); });
         } else {
-          const missing = ['danny', 'rosie', 'nell', 'toby'].filter(c => !g.save.freed.includes(c)).map(c => ST.char(c).name).join(', ');
-          g.ui.subtitle(ST.mono('ks_plugTry') + ' ' + ST.line('ks_missing', { names: missing }), 6);
+          const missing = ['danny', 'rosie', 'nell', 'toby'].filter(c => !g.save.freed.includes(c)).map(c => ST.char(c).name);
+          const list = root.Intl && Intl.ListFormat ? new Intl.ListFormat(PB.I18N.lang, { type: 'conjunction' }).format(missing) : missing.join(', ');
+          g.ui.subtitle(ST.mono('ks_plugTry') + ' ' + ST.line('ks_missing', { names: list }), 6);
           g.setObj('ks_choice');
         }
         return true;

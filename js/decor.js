@@ -317,7 +317,8 @@
   };
   const MYSTERY_N = { yellow: 5, dark: 4, office: 3, hospital: 3, motel: 3, school: 3, concrete: 3, pool: 2, mall: 2, tunnel: 3, workshop: 2 };
   function mystery(L, seed) {
-    const words = WRITING[L.theme];
+    const loc = PB.I18N && PB.I18N.get('story', 'scrawl.' + L.theme);
+    const words = Array.isArray(loc) && loc.length ? loc : WRITING[L.theme];
     if (!words || !L.wallSides) return 0;
     const r = U.rng((seed || 1) * 97 + 17), C = L.cell, DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0];
     const avoid = [];

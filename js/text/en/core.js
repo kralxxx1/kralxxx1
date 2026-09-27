@@ -159,6 +159,22 @@
         ],
       },
     },
+    // Writing scrawled on the walls, per kind of place
+    scrawl: {
+      yellow: ['WHO WENT HOME?', 'IT IS ALWAYS 3:17', 'DON\'T LET GO', 'FIVE HANDS', 'I HEAR IT CHEWING', 'COUNT THE DOORS'],
+      dark: ['KEEP THE LIGHT ON', 'SAM?', 'IT SMILES WHEN YOU BLINK', 'I\'M NOT SCARED'],
+      office: ['WHERE DID EVERYONE GO', '107.3', 'SIDE B'],
+      hospital: ['QUIET PLEASE', 'SHE DREW ON EVERYTHING', '207'],
+      motel: ['ONE IN ONE OUT', 'DON\'T ANSWER', '3:17'],
+      school: ['NOBODY LETS GO', 'D R N T S', 'SAM WAS HERE'],
+      concrete: ['YOU LET GO', 'DAN #1', '3:17'],
+      pool: ['ONE SECOND', 'I WAS WATCHING'],
+      mall: ['FRIENDS FOREVER', 'EVEN IF'],
+      tunnel: ['NOBODY GOES HOME ALONE', 'D+T+S'],
+      workshop: ['DON\'T PULL THE PLUG', '2 5 6'],
+    },
+    // Captions written on the white border of photographs
+    photoLabels: { fort: 'THE FORT. OPENING DAY.', chompy: 'LIL & CHOMPY' },
     credits: [
       ['LEVEL 256', 'The Starlight Arcade'],
       ['A first-person horror game', ''],

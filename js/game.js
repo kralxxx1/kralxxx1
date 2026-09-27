@@ -77,10 +77,10 @@
         const langs = $('first-langs');
         langs.innerHTML = '';
         const mark = () => { for (const b of langs.children) b.classList.toggle('on', b.dataset.lang === S.data.lang); };
-        for (const [id, label] of PB.I18N.LANGS) {
+        for (const [id, label] of PB.I18N.available()) {
           const b = document.createElement('button');
-          b.type = 'button'; b.textContent = label; b.dataset.lang = id;
-          b.addEventListener('click', () => { S.set('lang', id); mark(); });
+          b.type = 'button'; b.textContent = label; b.dataset.lang = id; b.lang = id;
+          b.addEventListener('click', () => { S.set('lang', id); PB.I18N.set(id, false); mark(); });
           langs.appendChild(b);
         }
         mark();
@@ -98,6 +98,7 @@
       const list = ['16px "Press Start 2P"', '24px "VT323"', '32px "Caveat"', '20px "Courier Prime"', 'bold 20px "Courier Prime"'];
       const sample = 'HUNGRY HOUSE ÇIKIŞ İŞĞÜÖÇ ğüşıöç 0123';
       try { await Promise.race([Promise.all(list.map(f => document.fonts.load(f, sample))), U.sleep(3000)]); } catch (e) { /* yazı tipleri isteğe bağlı */ }
+      if (PB.Fonts) await PB.Fonts.ready(PB.I18N.lang);
     }
     // Output resolution: native (window x device pixels) or a fixed size scaled to the window
     resize() {
@@ -328,6 +329,8 @@
       this.ui.only('scr-boot');
       this.ui.loading(0.01, t('boot.prep'), ST.tip());
       $('boot-level').textContent = opts.menu ? '' : `${def.name} — ${def.title}`;
+      // papers and drawings are painted in the language's own faces
+      if (PB.Fonts) await PB.Fonts.ready(PB.I18N.lang, 2500);
       this.audio.stopAllLoops();
       this.audio.setMusic('none');
       await U.nextFrame();

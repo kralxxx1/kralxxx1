@@ -7,6 +7,7 @@
     'game.aria': 'Oyun görüntüsü',
     'noscript': 'Bu oyun için JavaScript gerekiyor.',
 
+    'boot.tip': 'İPUCU',
     'boot.init': 'Başlatılıyor…',
     'boot.fonts': 'Yazı tipleri yükleniyor…',
     'boot.sounds': 'Sesler kaydediliyor…',

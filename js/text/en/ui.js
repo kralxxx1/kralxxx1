@@ -7,6 +7,7 @@
     'game.aria': 'Game view',
     'noscript': 'This game needs JavaScript.',
 
+    'boot.tip': 'TIP',
     'boot.init': 'Starting…',
     'boot.fonts': 'Loading fonts…',
     'boot.sounds': 'Recording sounds…',

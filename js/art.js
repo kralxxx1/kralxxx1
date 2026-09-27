@@ -4,6 +4,16 @@
   'use strict';
   const PB = root.PB, U = PB.U, T = PB.Tex;
   const { FONT_HAND } = T.FONTS;
+  const F = PB.Fonts;
+  // Crayon and pen writing, in the language's own hand where Caveat has no letters for it
+  const handFont = size => { const f = `700 ${size}px ${FONT_HAND}`; return F ? F.canvas(f, 'hand') : f; };
+  const wrapLines = (g, str, maxW) => {
+    if (F) return F.lines(String(str), maxW ? maxW / 1.04 : 0, t => g.measureText(t).width);
+    const lines = []; let line = '';
+    for (const wd of String(str).split(' ')) { const t = line ? line + ' ' + wd : wd; if (maxW && g.measureText(t).width * 1.04 > maxW && line) { lines.push(line); line = wd; } else line = t; }
+    lines.push(line);
+    return lines;
+  };
 
   // ------------------------------------------------------------------ CRAYON
   // Strokes go on a separate layer; wax gaps are punched out of it before it is
@@ -66,11 +76,18 @@
       dot(x, y, rad, col) { L.fillStyle = col; L.globalAlpha = 0.85; L.beginPath(); L.arc(x + r.range(-1, 1), y + r.range(-1, 1), rad, 0, 6.283); L.fill(); L.globalAlpha = 1; },
       // Wobbly capital letters, each one tilted a little differently
       text(str, x, y, size, col, maxW) {
-        L.font = `700 ${size}px ${FONT_HAND}`; L.textBaseline = 'alphabetic'; L.fillStyle = col;
-        const words = String(str).split(' '); const lines = []; let line = '';
-        for (const wd of words) { const t = line ? line + ' ' + wd : wd; if (maxW && L.measureText(t).width * 1.04 > maxW && line) { lines.push(line); line = wd; } else line = t; }
-        lines.push(line);
+        L.font = handFont(size); L.textBaseline = 'alphabetic'; L.fillStyle = col;
+        const lines = wrapLines(L, str, maxW);
         lines.forEach((ln, li) => {
+          // joined scripts (Arabic) are written a whole line at a time, right to left, with the same wobble
+          if (F && F.joined(ln)) {
+            const rtl = F.isRTL(ln);
+            L.save(); L.translate(rtl ? x + (maxW || 0) : x, y + li * size * 1.12 + r.range(-2, 2)); L.rotate(r.range(-0.03, 0.03));
+            L.direction = rtl ? 'rtl' : 'ltr'; L.textAlign = rtl ? 'right' : 'left';
+            for (let p = 0; p < 2; p++) { L.globalAlpha = 0.55 + r() * 0.3; L.fillText(ln, r.range(-0.8, 0.8), r.range(-0.8, 0.8)); }
+            L.restore();
+            return;
+          }
           let cx = x;
           for (const ch of ln) {
             const cw = L.measureText(ch).width;
@@ -298,7 +315,7 @@
       const cols = [C.purple, C.red, C.blue, C.green];
       // shrink the writing until every wrapped line fits under the picture
       let size = 38;
-      const rows = sz => { lg.font = `700 ${sz}px ${FONT_HAND}`; let n = 0; for (const ln of lines) { let cur = '', c = 1; for (const wd of ln.split(' ')) { const t = cur ? cur + ' ' + wd : wd; if (lg.measureText(t).width * 1.04 > w - 80 && cur) { c++; cur = wd; } else cur = t; } n += c; } return n; };
+      const rows = sz => { lg.font = handFont(sz); let n = 0; for (const ln of lines) n += wrapLines(lg, ln, w - 80).length; return n; };
       while (size > 20 && rows(size) * size * 1.08 > h - 470) size -= 2;
       let y = 470 + size;
       lines.forEach((ln, k) => { const n = K.text(ln, 34 + r.range(-4, 8), y, size, cols[(k + num) % 4], w - 80); y += size * 1.08 * n; });
@@ -382,7 +399,7 @@
     g.restore();
     if (g.filter !== undefined) { const tmp = g.getImageData(ix, iy, iw, ih); const c2 = document.createElement('canvas'); c2.width = iw; c2.height = ih; c2.getContext('2d').putImageData(tmp, 0, 0); g.save(); g.filter = 'blur(0.7px)'; g.drawImage(c2, ix, iy); g.restore(); }
     filmFinish(g, ix, iy, iw, ih, r, opts);
-    if (label) { g.fillStyle = '#23305a'; g.font = `${Math.round(20 * k)}px ${FONT_HAND}`; g.fillText(label, ix + 4 * k, h - 22 * k); }
+    if (label) { g.fillStyle = '#23305a'; g.font = F ? F.canvas(`${Math.round(20 * k)}px ${FONT_HAND}`, 'hand') : `${Math.round(20 * k)}px ${FONT_HAND}`; g.fillText(label, ix + 4 * k, h - 22 * k); }
     // fingerprints and wear
     g.fillStyle = 'rgba(255,255,255,0.05)'; g.beginPath(); g.ellipse(w * 0.72, h * 0.3, 18 * k, 24 * k, 0.5, 0, 6.283); g.fill();
   }
@@ -465,7 +482,9 @@
   }
   const LABELS = { five: '4/11/87', fort: 'THE FORT. OPENING DAY.', chompy: 'LIL & CHOMPY', frame: '', strip: '', ultrasound: '' };
   // Real photographs come from the darkroom (photos.js: small 3D scenes); the painted ones are the fallback
-  T.photo = (key, id) => T.canvas('photo:' + key + ':' + (id || ''), 640, 480, (g, w, h) => {
+  // the caption someone wrote on the border, in the player's language
+  const photoLabel = key => { const l = PB.I18N && PB.I18N.get('story', 'photoLabels.' + key); return typeof l === 'string' ? l : LABELS[key]; };
+  T.photo = (key, id) => T.canvas('photo:' + key + ':' + (id || '') + ':' + (PB.I18N && PB.I18N.lang || ''), 640, 480, (g, w, h) => {
     const r = U.rng(U.hashStr(key + (id || '')));
     const k = PHOTOS[key] ? key : key === 'frame' ? 'booth' : 'five';
     const shot = (g2, x, y, iw, ih) => {
@@ -483,7 +502,7 @@
         }
       } else PHOTOS[k](g2, x, y, iw, ih, r, id);
     };
-    polaroid(g, w, h, r, shot, LABELS[key] || '',
+    polaroid(g, w, h, r, shot, photoLabel(key) || '',
       k === 'booth' || k === 'strip' ? { mono: true, cast: [1, 1, 1], grain: 34, vig: 1.0 } : k === 'ultrasound' ? { mono: true, cast: [1, 1, 1.02], lift: 0, grain: 18, vig: 0.4 } : {});
   }, { readback: true });
 })(typeof window !== 'undefined' ? window : globalThis);

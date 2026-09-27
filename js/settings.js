@@ -94,7 +94,7 @@
     { key: 'toggleSprint', tab: 'controls', type: 'toggle', def: false },
 
     // ---------------- GAMEPLAY ----------------
-    { key: 'lang', tab: 'gameplay', type: 'select', def: 'en', options: [['en', 'English'], ['tr', 'Türkçe']] },
+    { key: 'lang', tab: 'gameplay', type: 'select', def: 'en', get options() { return PB.I18N.available(); } },
     { key: 'difficulty', tab: 'gameplay', type: 'select', def: 'normal',
       options: [['easy', 'diff.easy'], ['normal', 'diff.normal'], ['nightmare', 'diff.nightmare']] },
     { key: 'jumpscare', tab: 'access', type: 'select', def: 'full', options: [['full', 'opt.full'], ['reduced', 'opt.reduced']] },
@@ -154,7 +154,7 @@
       const saved = U.store.get(STORE_KEY, null);
       this.fresh = !saved;
       if (saved) for (const s of SCHEMA) if (saved[s.key] !== undefined && !s.transient) this.data[s.key] = this.valid(s, saved[s.key]);
-      if (this.fresh) this.autoDetect();
+      if (this.fresh) { this.autoDetect(); this.data.lang = PB.I18N.stored() || PB.I18N.detect(); }
       // Changed defaults reach settings saved by older versions once
       const rev = (saved && saved.rev) || 0;
       if (saved && rev < 4) this.data.captions = false;

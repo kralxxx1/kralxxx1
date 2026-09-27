@@ -739,9 +739,12 @@
   const FONT_TYPE = '"Courier Prime", "Courier New", monospace';
   T.FONTS = { FONT_PIX, FONT_TERM, FONT_HAND, FONT_TYPE };
 
+  // Wraps and paints text: words stay whole, Chinese and Japanese break between characters, and
+  // right-to-left writing (Arabic) is set from the right edge of the same box
   function wrapText(g, text, x, y, maxW, lh) {
-    const lines = [];
+    const F = PB.Fonts, lines = [];
     for (const para of String(text).split('\n')) {
+      if (F) { lines.push(...F.lines(para, maxW, s => g.measureText(s).width)); continue; }
       let line = '';
       for (const word of para.split(' ')) {
         const test = line ? line + ' ' + word : word;
@@ -749,7 +752,10 @@
       }
       lines.push(line);
     }
-    lines.forEach((l, k) => g.fillText(l, x, y + k * lh));
+    const rtl = F && F.isRTL(text) && (g.textAlign === 'left' || g.textAlign === 'start');
+    if (rtl) { g.save(); g.direction = 'rtl'; g.textAlign = 'right'; }
+    lines.forEach((l, k) => g.fillText(l, rtl ? x + maxW : x, y + k * lh));
+    if (rtl) g.restore();
     return lines.length;
   }
   T.wrapText = wrapText;
@@ -942,7 +948,7 @@
       }
       case 'graffiti': case 'wallText': {
         const col = type === 'graffiti' ? r.pick(['#c81d1d', '#111111', '#1d3cc8']) : 'rgba(30,20,10,0.9)';
-        g.font = type === 'graffiti' ? `bold 110px Impact, "Arial Black", sans-serif` : `78px ${FONT_HAND}`;
+        g.font = type === 'graffiti' ? `bold 110px Impact, "Arial Black", sans-serif` : PB.Fonts ? PB.Fonts.canvas(`78px ${FONT_HAND}`, 'hand') : `78px ${FONT_HAND}`;
         g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = col;
         const lines = wrapText(g, text || '', W / 2, H / 2 - 50, W - 60, 110);
         void lines;
@@ -1024,7 +1030,9 @@
   };
   T.docPaper = (key, n, hand) => T.canvas('doc:' + key + ':' + (PB.I18N && PB.I18N.lang || ''), 384, 512, (g, w, h) => {
     const r = U.rng(U.hashStr(key));
-    const kind = n.kind, sticky = /yellow|sticky|sarı|yapışkan/i.test(n.title || '');
+    const en = PB.Story && n.id && PB.Story.note(n.id, 'en');
+    const kind = n.kind, sticky = /yellow|sticky/i.test((en && en.title) || n.title || '');
+    const F = PB.Fonts, lang = PB.I18N && PB.I18N.lang;
     const base = sticky ? '#f1df72' : kind === 'flyer' ? '#f4e46a' : kind === 'diary' ? '#efe6cf' : ['letter', 'notice', 'printout', 'report', 'card'].includes(kind) ? '#f3f0e6' : '#efe6cf';
     g.fillStyle = base; g.fillRect(0, 0, w, h);
     // ruled or banded paper
@@ -1041,15 +1049,17 @@
     const size = Math.round((typed ? 17 : 24) * scale);
     let y = kind === 'diary' || kind === 'card' ? 64 : 44;
     const x0 = kind === 'diary' ? 52 : kind === 'printout' ? 28 : 24, maxW = w - x0 - 22;
-    if (typed && n.title) { g.fillStyle = '#1a1a1a'; g.font = `700 ${size + 2}px "Courier Prime", "Courier New", monospace`; y += wrapText(g, n.title.toUpperCase(), x0, y, maxW, size + 6) * (size + 6) + 10; }
-    g.fillStyle = ink; g.font = fontT.replace('{s}', size);
+    const face = (f, role) => F ? F.canvas(f, role) : f;
+    if (typed && n.title) { g.fillStyle = '#1a1a1a'; g.font = face(`700 ${size + 2}px "Courier Prime", "Courier New", monospace`, 'type'); y += wrapText(g, n.title.toLocaleUpperCase(lang || 'en'), x0, y, maxW, size + 6) * (size + 6) + 10; }
+    const role = typed ? 'type' : 'hand';
+    g.fillStyle = ink; g.font = face(fontT.replace('{s}', size), role);
     const lh = kind === 'diary' || kind === 'card' ? 26 : Math.round(size * (typed ? 1.35 : 1.22));
     const body = String(n.body || '').replace(/\n\s*\n/g, '\n\n');
     for (const line of body.split('\n')) {
       if (y > h - 24) break;
       if (!line.trim()) { y += lh * 0.6; continue; }
-      if (/^\(.*\)$/.test(line.trim())) continue;   // narration, not on the paper
-      g.fillStyle = ink; g.font = fontT.replace('{s}', size);
+      if (/^[(（].*[)）]$/.test(line.trim())) continue;   // narration, not on the paper
+      g.fillStyle = ink; g.font = face(fontT.replace('{s}', size), role);
       y += wrapText(g, line, x0 + (typed ? 0 : r.range(-2, 2)), y, maxW, lh) * lh;
     }
     // a coffee ring now and then

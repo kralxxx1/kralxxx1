@@ -70,7 +70,7 @@
     loading(p, label, tip) {
       this.$('boot-bar').style.width = Math.round(p * 100) + '%';
       if (label) this.$('boot-label').textContent = label;
-      if (tip) this.$('boot-tip').textContent = tip;
+      if (tip) { const el = this.$('boot-tip'); el.textContent = tip; el.dataset.label = PB.t('boot.tip'); }
     }
     // ---------------------------------------------------------- ana menü
     buildMenu(save) {
@@ -660,18 +660,24 @@
   // Narration inside a document (what you see rather than what is written: "(It was never mailed.)",
   // "Written on the back in pencil:", a drawing's description) is set apart from the writing itself
   const NARR = /^(handwritten|written|someone|somebody|underneath|under it|on the back|in the margin|across|stapled|clipped|a jar|the (next|tape|letter|printout|page)|el yazısı|yazılmış|birisi|biri |altına|altında|arkasında|kenarında|üstüne|zımbala|iliştiril|raftaki|sonraki sayfa|kaset|mektup)/i;
+  const isNarr = (n, t, i) => (n.kind === 'drawing' && i === 0) || (/^\(.*\)$/s.test(t) && /^\((you|the|it|he|she|they|someone|a |sen|bu|o |onu|biri)/i.test(t)) || (NARR.test(t) && /:\s*$/.test(t.split('\n')[0]));
   function bodyHTML(n) {
     const paras = String(n.body || '').split(/\n\s*\n/);
+    // Which paragraphs are narration is read from the English text: every translation keeps its paragraphs
+    const en = n.id && PB.Story ? PB.Story.note(n.id, 'en') : null;
+    const enParas = en ? String(en.body || '').split(/\n\s*\n/) : null;
+    const same = enParas && enParas.length === paras.length;
     return paras.map((p, i) => {
-      const t = p.trim();
-      const narr = (n.kind === 'drawing' && i === 0) || (/^\(.*\)$/s.test(t) && /^\((you|the|it|he|she|they|someone|a |sen|bu|o |onu|biri)/i.test(t)) || (NARR.test(t) && /:\s*$/.test(t.split('\n')[0]));
+      const narr = same ? isNarr(n, enParas[i].trim(), i) : isNarr(n, p.trim(), i) || /^[(（].*[)）]$/s.test(p.trim());
       return `<p class="${narr ? 'narr' : 'w'}">${esc(p).replace(/\n/g, '<br>')}</p>`;
     }).join('');
   }
   // Handwriting by author (the "from" line, in any language)
   function handOf(n) {
     if (!/^(note|letter|diary|card|drawing|wall|flyer)$/.test(n.kind)) return null;
-    const f = String(n.from || '');
+    // the writer is named in the English text; translations may spell the names in their own script
+    const en = n.id && PB.Story ? PB.Story.note(n.id, 'en') : null;
+    const f = String((en && en.from) || n.from || '');
     if (/lily/i.test(f)) return 'lily';
     if (/eddie|^e\.?$/i.test(f)) return 'eddie';
     if (/^w\b|^w\.|walt/i.test(f)) return 'walt';

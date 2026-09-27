@@ -8,8 +8,30 @@
   const STORE = 'pb.lang';
 
   const I18N = PB.I18N = {
-    LANGS: [['en', 'English'], ['tr', 'Türkçe']],
+    // Every language the game ships with, by its own name. Packs register themselves; a language with no
+    // pack loaded is left out of the menus (see available()).
+    LANGS: [['en', 'English'], ['de', 'Deutsch'], ['fr', 'Français'], ['es', 'Español'], ['it', 'Italiano'], ['pt-BR', 'Português (Brasil)'],
+      ['pl', 'Polski'], ['tr', 'Türkçe'], ['ru', 'Русский'], ['zh-CN', '简体中文'], ['ja', '日本語'], ['ko', '한국어'], ['ar', 'العربية']],
+    RTL: { ar: true },
+    // Scripts written without spaces between words: lines may break between any two characters
+    CJK: { 'zh-CN': true, ja: true, ko: false },
     lang: 'en',
+    available() { return this.LANGS.filter(l => PACKS[l[0]]); },
+    rtl(lang) { return !!this.RTL[lang || this.lang]; },
+    // The player's own language, the first time the game starts
+    detect() {
+      const want = (root.navigator && (root.navigator.languages || [root.navigator.language])) || [];
+      const ids = this.available().map(l => l[0]);
+      for (const w of want) {
+        if (!w) continue;
+        const exact = ids.find(id => id.toLowerCase() === w.toLowerCase());
+        if (exact) return exact;
+        const base = w.split('-')[0].toLowerCase();
+        const near = ids.find(id => id.split('-')[0].toLowerCase() === base);
+        if (near) return near;
+      }
+      return 'en';
+    },
     register(lang, section, obj) {
       const p = PACKS[lang] || (PACKS[lang] = {});
       p[section] = merge(p[section] || {}, obj);
@@ -39,7 +61,12 @@
       if (!PACKS[lang]) lang = 'en';
       this.lang = lang;
       if (persist) { try { root.localStorage && root.localStorage.setItem(STORE, lang); } catch (e) { /* storage optional */ } }
-      if (root.document) { root.document.documentElement.lang = lang; this.apply(root.document); }
+      if (root.document) {
+        const html = root.document.documentElement;
+        html.lang = lang; html.dir = this.rtl(lang) ? 'rtl' : 'ltr';
+        if (PB.Fonts) PB.Fonts.use(lang);
+        this.apply(root.document);
+      }
       for (const fn of listeners) fn(lang);
     },
     onChange(fn) { listeners.push(fn); },
