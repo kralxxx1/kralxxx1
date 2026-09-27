@@ -80,6 +80,12 @@ for (const L of LANGS) if (L !== 'en') {
   });
   for (const k of Object.keys(en.ui)) { const v = I.section('ui', L)[k]; if (v === en.ui[k] && v.length > 12 && !SAME_OK(v) && !/^(game\.|opt\.native|perf\.|archive\.count$)/.test(k)) same.push('ui:' + k); }
   check(same.length === 0, `${L}: ${same.length} strings left in English: ${same.slice(0, 8).join(', ')}`);
+  // Documents keep their paragraphs: narration and drawing captions are found by paragraph
+  for (const [id, d] of Object.entries(en.story.docs || {})) {
+    const t = (I.section('story', L).docs || {})[id];
+    const n = x => String(x).split(/\n\s*\n/).length;
+    if (t && t.body && d.body) check(n(t.body) === n(d.body), `story[${L}] docs.${id}: ${n(t.body)} paragraphs, English has ${n(d.body)}`);
+  }
   for (const [k, seq] of Object.entries(en.story.radio || {})) {
     const loc = (I.section('story', L).radio || {})[k];
     if (!Array.isArray(loc)) continue;
