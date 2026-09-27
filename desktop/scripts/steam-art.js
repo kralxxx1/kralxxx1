@@ -34,8 +34,18 @@ require('../main.js');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const save = (name, dataUrl) => fs.writeFileSync(path.join(OUT, name), Buffer.from(dataUrl.split(',')[1], 'base64'));
 
-// In the page: render one frame and read the canvas in the same task (the buffer is still intact then)
-const GRAB = `(() => { PB.game.frame(); return document.getElementById('view').toDataURL('image/png'); })()`;
+// In the page: render one frame and read the canvas in the same task (the buffer is still intact then).
+// A frame the graphics card could not draw (an all-black one, e.g. 4K on a small GPU) comes back as null.
+const GRAB = `(async () => {
+  PB.game.frame();
+  const url = document.getElementById('view').toDataURL('image/png');
+  const img = new Image(); img.src = url; await img.decode();
+  const c = document.createElement('canvas'); c.width = 64; c.height = 36;
+  const g = c.getContext('2d'); g.drawImage(img, 0, 0, 64, 36);
+  const d = g.getImageData(0, 0, 64, 36).data; let max = 0;
+  for (let i = 0; i < d.length; i += 4) max = Math.max(max, d[i], d[i + 1], d[i + 2]);
+  return max > 12 ? url : null;
+})()`;
 
 // In the page: the capsule composer. bg: a data URL, spec: {w, h, logo: 'left'|'center'|'top'|null, dim}
 const COMPOSE = `(async (bg, spec) => {
@@ -99,6 +109,7 @@ app.on('browser-window-created', (e, win) => {
       const shots = {};
       // the menu keeps the hall dimmed behind its buttons; the art wants it at full brightness
       shots.menu = await wc.executeJavaScript("(() => { PB.game.fx.blackout = 0; PB.game.updateMenu = function (dt) { const f = PB.game.constructor.prototype.updateMenu; f.call(this, dt); this.fx.blackout = 0; }; return 1; })()").then(() => sleep(1500)).then(() => wc.executeJavaScript(GRAB));
+      if (!shots.menu) throw new Error('the graphics card returned a black frame; try --preset high or medium');
       save('screenshots/00_menu.png', shots.menu);
       console.log('menu');
       let n = 1;
@@ -131,6 +142,7 @@ app.on('browser-window-created', (e, win) => {
           await wc.executeJavaScript(`(() => { const p = PB.game.player; p.pos.set(${v.x}, 0, ${v.z}); p.yaw = ${v.yaw}; p.pitch = ${v.pitch}; p.vel && p.vel.set(0, 0, 0); })()`);
           await sleep(2500);
           const shot = await wc.executeJavaScript(GRAB);
+          if (!shot) { console.log('black frame, skipped:', lvl, k ? 'creature' : 'start'); continue; }
           const name = String(n++).padStart(2, '0') + '_' + lvl + (k ? '_creature' : '');
           save('screenshots/' + name + '.png', shot);
           if (lvl === 'pool' && !k) shots.pool = shot;
@@ -140,7 +152,9 @@ app.on('browser-window-created', (e, win) => {
         if (lvl === LEVELS[0] || lvl === 'lobby') {
           // the library hero wants 3840 × 1240 without text: render this view at 4K
           await wc.executeJavaScript("PB.Settings.set('resolution', '3840x2160')"); await sleep(2500);
-          if (!shots.hero || lvl === 'lobby') shots.hero = await wc.executeJavaScript(GRAB);
+          const big = await wc.executeJavaScript(GRAB);
+          if (big && (!shots.hero || lvl === 'lobby')) shots.hero = big;
+          if (!big) console.log('4K frame failed on this graphics card; the hero uses a 1920 frame instead');
           await wc.executeJavaScript("PB.Settings.set('resolution', '1920x1080')"); await sleep(1000);
         }
       }
@@ -152,7 +166,7 @@ app.on('browser-window-created', (e, win) => {
       await compose('vertical_capsule_748x896.png', alt, { w: 748, h: 896, logo: 'top' });
       await compose('library_capsule_600x900.png', alt, { w: 600, h: 900, logo: 'top' });
       await compose('library_header_920x430.png', key, { w: 920, h: 430, logo: 'left', focusX: 0.6 });
-      await compose('library_hero_3840x1240.png', shots.hero || key, { w: 3840, h: 1240, logo: null, dim: 0.05 });
+      await compose('library_hero_3840x1240.png', shots.hero || shots.pool || key, { w: 3840, h: 1240, logo: null, dim: 0.05 });
       await compose('library_logo_1280x720.png', null, { w: 1280, h: 720, logo: 'center' });
       await compose('page_background_1438x810.png', alt, { w: 1438, h: 810, logo: null, dim: 0.55 });
       console.log('done:', OUT);
