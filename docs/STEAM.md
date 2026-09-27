@@ -23,7 +23,9 @@ also runs in any browser from the repository root.
    - Windows: `LEVEL 256.exe`
    - Linux: `level256`, argüman `--no-sandbox`
 6. **Mağaza sayfası:** aşağıdaki "Store page" bölümündeki metinler, içerik anketi cevapları, sistem gereksinimleri
-   ve görsel boyutları hazır. Ekran görüntülerini oyunun kendisinden al (F12 Steam ekran görüntüsü alır).
+   ve görsel boyutları hazır. Ekran kartı olan bilgisayarında `npm run steam-art` çalıştır: oyun her bölümden
+   arayüzsüz 1920×1080 ekran görüntüleri ve Steam'in istediği bütün kapsül görsellerini (logo ile) üretir,
+   hepsi `desktop/steam-art/` klasörüne düşer. En iyilerini seç.
 7. **İnceleme:** Steam, mağaza sayfasını ve derlemeyi ayrı ayrı inceler (birkaç iş günü). Sayfa "Coming Soon"
    olarak en az 2 hafta açık kalmalı; sonra "Release" düğmesiyle yayınla.
 
@@ -62,6 +64,7 @@ Linux. To have Steam Cloud keep them, add that folder under Steamworks → Cloud
 | `npm run smoke` | Starts the real app with a throwaway profile. It checks that the game boots, three.js, physics and the fonts load locally, the native API works and the first chapter plays. Screenshots go to `smoke-out/`. Without a display or GPU: `xvfb-run node scripts/smoke.js --software` |
 | `npm run dist:win` | Builds `dist/win-unpacked/` (x64), the folder that goes into the Windows depot |
 | `npm run dist:linux` | Builds `dist/linux-unpacked/`, the folder that goes into the Linux / SteamOS depot |
+| `npm run steam-art` | Renders store art from the game itself (use a PC with a real graphics card). Every chapter gives clean 1920 × 1080 screenshots without the HUD, one of them facing a creature. It also makes every capsule size with the logo, the 3840 × 1240 library hero and the transparent library logo, all in `steam-art/`. Options: `--levels prolog,pool --preset high` |
 | `npm run dist:mac` | Builds a universal macOS app (run on a Mac; sign and notarize it with an Apple Developer ID) |
 
 A Windows build can be made on Windows, or on Linux with Wine installed. Build each platform on its own
@@ -150,6 +153,9 @@ Use the performance overlay (Settings → Performance) on real hardware to confi
 | Library logo | 1280 × 720, transparent PNG |
 | Screenshots | at least 5, 1920 × 1080, gameplay only |
 | Trailer | recommended, 1080p |
+
+`npm run steam-art` makes all of these except the trailer. Treat them as a starting point: pick the
+strongest frames, and consider commissioning key art for the capsules.
 
 The app icon is in `desktop/build/icon.png`. Steamworks → Community asks for a 184 × 184 icon, which can be
 cut from it.

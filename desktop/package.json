@@ -12,7 +12,8 @@
     "dist:win": "npm run vendor && electron-builder --win --x64",
     "dist:linux": "npm run vendor && electron-builder --linux --x64",
     "dist:mac": "npm run vendor && electron-builder --mac --universal",
-    "dist": "npm run vendor && electron-builder"
+    "dist": "npm run vendor && electron-builder",
+    "steam-art": "npm run vendor && node scripts/steam-art.js"
   },
   "dependencies": {
     "@fontsource/aref-ruqaa": "5.3.0",
