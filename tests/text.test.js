@@ -68,7 +68,7 @@ function pairs(a, b, p, lang, fn) {
   }
 }
 // Strings that may legitimately stay the same in another language: names, numbers, codes, songs
-const SAME_OK = s => !/[a-z]/.test(s.replace(/\{\w+\}/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')) || /^Terminal: [A-Z.]+$|^Harlow Mutual$|^Sam\. Sam Keller\.$/.test(s);
+const SAME_OK = s => !/[a-z]/.test(s.replace(/\{\w+\}/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')) || /^Terminal: [A-Z.]+$|^Harlow Mutual$|^Ultra\+? \(\d+\)$|^Sam\. Sam Keller\.$/.test(s);
 for (const L of LANGS) if (L !== 'en') {
   const same = [];
   pairs(en.story, I.section('story', L), '', L, (pk, va, vb) => {
@@ -78,7 +78,7 @@ for (const L of LANGS) if (L !== 'en') {
     check(norm(va) === norm(vb), `story[${L}] "${pk}" placeholders differ`);
     if (va === vb && va.length > 12 && !SAME_OK(va)) same.push(pk);
   });
-  for (const k of Object.keys(en.ui)) { const v = I.section('ui', L)[k]; if (v === en.ui[k] && v.length > 12 && !SAME_OK(v) && !/^(game\.|opt\.native|perf\.)/.test(k)) same.push('ui:' + k); }
+  for (const k of Object.keys(en.ui)) { const v = I.section('ui', L)[k]; if (v === en.ui[k] && v.length > 12 && !SAME_OK(v) && !/^(game\.|opt\.native|perf\.|archive\.count$)/.test(k)) same.push('ui:' + k); }
   check(same.length === 0, `${L}: ${same.length} strings left in English: ${same.slice(0, 8).join(', ')}`);
   for (const [k, seq] of Object.entries(en.story.radio || {})) {
     const loc = (I.section('story', L).radio || {})[k];

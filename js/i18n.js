@@ -34,7 +34,7 @@
     },
     register(lang, section, obj) {
       const p = PACKS[lang] || (PACKS[lang] = {});
-      p[section] = merge(p[section] || {}, obj);
+      p[section] = merge(p[section] || {}, TYPO[lang] ? deep(obj, TYPO[lang]) : obj);
     },
     section(section, lang) { return (PACKS[lang || this.lang] || {})[section] || {}; },
     // Nested lookup: 'story.docs.p_note.title' style paths inside a section
@@ -79,6 +79,17 @@
       for (const el of scope.querySelectorAll('[data-t-title]')) el.setAttribute('title', this.t(el.dataset.tTitle));
     },
   };
+  // Typography applied as packs register: French keeps ? ! : ; and » on the line of the word before them
+  // (a narrow no-break space), so a line never starts with punctuation
+  const TYPO = {
+    fr: str => str.replace(/ ([?!:;»])/g, '\u202F$1').replace(/« /g, '«\u202F'),
+  };
+  function deep(v, fn) {
+    if (typeof v === 'string') return fn(v);
+    if (Array.isArray(v)) return v.map(x => deep(x, fn));
+    if (v && typeof v === 'object') { const o = {}; for (const k of Object.keys(v)) o[k] = deep(v[k], fn); return o; }
+    return v;
+  }
   // Plain objects merge recursively; arrays and strings replace
   function merge(dst, src) {
     for (const k of Object.keys(src)) {
