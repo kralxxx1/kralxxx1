@@ -501,6 +501,8 @@ body.in-locker #crosshair, body.in-locker #marks { display: none; }
 [dir="rtl"] #scr-menu .menu button, [dir="rtl"] .pause .menu button { text-align: right; padding: 3px 30px 3px 0; }
 [dir="rtl"] #scr-menu .menu button::before, [dir="rtl"] .pause .menu button::before { left: auto; right: 4px; }
 [dir="rtl"] #scr-menu .menu button small, [dir="rtl"] .pause .menu button small { margin-left: 0; margin-right: 12px; }
+/* Each line of a document picks its own direction: DOS prompts and song titles stay left-to-right */
+[dir="rtl"] .paper .nb, [dir="rtl"] .paper .nb p { unicode-bidi: plaintext; }
 [dir="rtl"] .menu-credit { right: auto; left: 18px; }
 [dir="rtl"] .diff-grid button, [dir="rtl"] .level-row, [dir="rtl"] .arch-row, [dir="rtl"] .choice button, [dir="rtl"] .bag-cell { text-align: right; }
 [dir="rtl"] .arch-row { border-left: 0; border-right: 2px solid transparent; }
