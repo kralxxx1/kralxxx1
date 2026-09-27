@@ -15,6 +15,7 @@
     'boot.prep': 'Level wird vorbereitet…',
     'boot.noThree': 'Die 3D-Engine (three.js) konnte nicht geladen werden. Prüfe deine Internetverbindung und lade die Seite neu.',
     'boot.error': 'Fehler beim Start: {msg}',
+    'boot.noWebgl': 'Die Grafikkarte konnte 3D (WebGL 2) nicht starten. Aktualisiere den Grafiktreiber und starte das Spiel dann neu.',
     'load.textures': 'Texturen werden gewebt… ({n}/{m})',
     'load.walls': 'Wände werden hochgezogen…',
     'load.bake': 'Licht wird gebacken…',
@@ -37,6 +38,7 @@
     'menu.settings': 'Einstellungen',
     'menu.archive': 'Archiv',
     'menu.help': 'Anleitung',
+    'menu.quit': 'Spiel beenden',
     'menu.credit': 'Harlow · 30. November 1994 · 2:11 Uhr',
     'menu.foot': 'Mit Kopfhörern spielen, im Dunkeln.',
     'menu.footDone': 'Enden: {list} · Tode {deaths}',
@@ -543,6 +545,7 @@
     'perf.res': 'Render',
     'perf.heap': 'JS-Speicher',
     'perf.sysCpu': 'System-CPU',
+    'perf.appCpu': 'Spiel-CPU',
     'perf.procMem': 'Spielspeicher',
     'perf.card': 'Grafikkarte',
     'settings.revert': 'Rückgängig',
@@ -557,5 +560,7 @@
     'settings.gpuLoad': 'Geschätzte GPU-Last',
     'settings.vram': 'Geschätzter Grafikspeicher',
     'settings.reloadBadge': 'Gilt, sobald das nächste Kapitel lädt',
+    'settings.restartBadge': 'Gilt nach einem Neustart des Spiels',
+    'settings.restartNow': 'Jetzt neu starten',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

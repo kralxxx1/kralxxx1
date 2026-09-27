@@ -15,6 +15,7 @@
     'boot.prep': 'Bölüm hazırlanıyor…',
     'boot.noThree': '3D motoru (three.js) yüklenemedi. İnternet bağlantını kontrol edip sayfayı yenile.',
     'boot.error': 'Başlatma hatası: {msg}',
+    'boot.noWebgl': 'Ekran kartı 3B’yi (WebGL 2) başlatamadı. Ekran kartı sürücüsünü güncelle, sonra oyunu yeniden başlat.',
     'load.textures': 'Dokular dokunuyor… ({n}/{m})',
     'load.walls': 'Duvarlar örülüyor…',
     'load.bake': 'Işık pişiriliyor…',
@@ -37,6 +38,7 @@
     'menu.settings': 'Ayarlar',
     'menu.archive': 'Arşiv',
     'menu.help': 'Nasıl oynanır',
+    'menu.quit': 'Oyundan çık',
     'menu.credit': 'Harlow · 30 Kasım 1994 · 02:11',
     'menu.foot': 'Kulaklıkla, karanlıkta oyna.',
     'menu.footDone': 'Sonlar: {list} · ölüm {deaths}',
@@ -543,6 +545,7 @@
     'perf.res': 'İşleme',
     'perf.heap': 'JS belleği',
     'perf.sysCpu': 'Sistem CPU',
+    'perf.appCpu': 'Oyun CPU',
     'perf.procMem': 'Oyun belleği',
     'perf.card': 'Ekran kartı',
     'settings.revert': 'Geri al',
@@ -557,5 +560,7 @@
     'settings.gpuLoad': 'Tahmini GPU yükü',
     'settings.vram': 'Tahmini video belleği',
     'settings.reloadBadge': 'Bir sonraki bölüm yüklemesinde uygulanır',
+    'settings.restartBadge': 'Oyun yeniden başlayınca uygulanır',
+    'settings.restartNow': 'Şimdi yeniden başlat',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -15,6 +15,7 @@
     'boot.prep': 'ステージを準備中…',
     'boot.noThree': '3D エンジン（three.js）を読み込めませんでした。インターネット接続を確認して、ページを再読み込みしてください。',
     'boot.error': '起動エラー：{msg}',
+    'boot.noWebgl': 'グラフィックカードで3D（WebGL 2）を開始できませんでした。グラフィックドライバーを更新してから、ゲームを起動し直してください。',
     'load.textures': 'テクスチャを織っています…（{n}/{m}）',
     'load.walls': '壁を立てています…',
     'load.bake': '光を焼き付けています…',
@@ -37,6 +38,7 @@
     'menu.settings': '設定',
     'menu.archive': 'アーカイブ',
     'menu.help': '遊び方',
+    'menu.quit': 'ゲームを終了',
     'menu.credit': 'ハーロウ · 1994年11月30日 · 午前2時11分',
     'menu.foot': 'ヘッドホンを付けて、暗闇で。',
     'menu.footDone': 'エンディング：{list} · 死亡 {deaths} 回',
@@ -543,6 +545,7 @@
     'perf.res': '描画',
     'perf.heap': 'JSメモリ',
     'perf.sysCpu': 'システムCPU',
+    'perf.appCpu': 'ゲームのCPU',
     'perf.procMem': 'ゲームのメモリ',
     'perf.card': 'グラフィックカード',
     'settings.revert': '元に戻す',
@@ -557,5 +560,7 @@
     'settings.gpuLoad': '推定GPU負荷',
     'settings.vram': '推定ビデオメモリ',
     'settings.reloadBadge': '次にチャプターを読み込んだときに反映',
+    'settings.restartBadge': 'ゲームの再起動後に反映',
+    'settings.restartNow': '今すぐ再起動',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

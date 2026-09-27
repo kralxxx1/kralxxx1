@@ -15,6 +15,7 @@
     'boot.prep': 'جارٍ تجهيز المرحلة…',
     'boot.noThree': 'تعذّر تحميل محرك الرسوم ثلاثية الأبعاد (three.js). تحقّق من اتصالك بالإنترنت ثم أعد تحميل الصفحة.',
     'boot.error': 'خطأ في التشغيل: {msg}',
+    'boot.noWebgl': 'تعذّر على بطاقة الرسوميات تشغيل الرسوم ثلاثية الأبعاد (WebGL 2). حدِّث برنامج تشغيل بطاقة الرسوميات ثم أعد تشغيل اللعبة.',
     'load.textures': 'جارٍ نسج الخامات… ({n}/{m})',
     'load.walls': 'جارٍ رفع الجدران…',
     'load.bake': 'جارٍ خَبز الإضاءة…',
@@ -37,6 +38,7 @@
     'menu.settings': 'الإعدادات',
     'menu.archive': 'الأرشيف',
     'menu.help': 'طريقة اللعب',
+    'menu.quit': 'الخروج من اللعبة',
     'menu.credit': 'هارلو · 30 نوفمبر 1994 · 2:11 فجرًا',
     'menu.foot': 'العب بسماعات رأس، في الظلام.',
     'menu.footDone': 'النهايات: {list} · مرات الموت {deaths}',
@@ -543,6 +545,7 @@
     'perf.res': 'الرسم',
     'perf.heap': 'ذاكرة JS',
     'perf.sysCpu': 'معالج النظام',
+    'perf.appCpu': 'معالج اللعبة',
     'perf.procMem': 'ذاكرة اللعبة',
     'perf.card': 'بطاقة الرسوميات',
     'settings.revert': 'تراجع',
@@ -557,5 +560,7 @@
     'settings.gpuLoad': 'حمل الرسوميات المتوقَّع',
     'settings.vram': 'ذاكرة الفيديو المتوقَّعة',
     'settings.reloadBadge': 'يُطبَّق عند تحميل الفصل التالي',
+    'settings.restartBadge': 'يُطبَّق بعد إعادة تشغيل اللعبة',
+    'settings.restartNow': 'إعادة التشغيل الآن',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

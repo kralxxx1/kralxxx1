@@ -1,0 +1,105 @@
+{
+  "name": "level256",
+  "productName": "LEVEL 256",
+  "version": "1.0.0",
+  "description": "LEVEL 256: The Starlight Arcade. A first-person story horror game.",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "vendor": "node scripts/vendor.js",
+    "start": "npm run vendor && electron .",
+    "smoke": "npm run vendor && node scripts/smoke.js",
+    "dist:win": "npm run vendor && electron-builder --win --x64",
+    "dist:linux": "npm run vendor && electron-builder --linux --x64",
+    "dist:mac": "npm run vendor && electron-builder --mac --universal",
+    "dist": "npm run vendor && electron-builder"
+  },
+  "dependencies": {
+    "@fontsource/aref-ruqaa": "5.3.0",
+    "@fontsource/caveat": "5.3.0",
+    "@fontsource/courier-prime": "5.3.0",
+    "@fontsource/do-hyeon": "5.3.0",
+    "@fontsource/dotgothic16": "5.3.0",
+    "@fontsource/gaegu": "5.3.0",
+    "@fontsource/kalam": "5.3.0",
+    "@fontsource/klee-one": "5.3.0",
+    "@fontsource/long-cang": "5.3.0",
+    "@fontsource/mali": "5.3.0",
+    "@fontsource/nanum-gothic-coding": "5.3.0",
+    "@fontsource/nanum-pen-script": "5.3.0",
+    "@fontsource/neucha": "5.3.0",
+    "@fontsource/noto-kufi-arabic": "5.3.0",
+    "@fontsource/noto-naskh-arabic": "5.3.0",
+    "@fontsource/noto-sans-sc": "5.3.0",
+    "@fontsource/patrick-hand": "5.3.0",
+    "@fontsource/pixelify-sans": "5.3.0",
+    "@fontsource/press-start-2p": "5.3.0",
+    "@fontsource/pt-mono": "5.3.0",
+    "@fontsource/reem-kufi": "5.3.0",
+    "@fontsource/sriracha": "5.3.0",
+    "@fontsource/vt323": "5.3.0",
+    "@fontsource/yomogi": "5.3.0",
+    "@fontsource/zcool-kuaile": "5.3.0",
+    "@fontsource/zcool-qingke-huangyou": "5.3.0",
+    "cannon-es": "0.20.0",
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "electron": "44.4.5",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.level256.starlight",
+    "productName": "LEVEL 256",
+    "copyright": "Copyright © 2026 the LEVEL 256 developers",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "build/icon.png",
+      "app/**/*",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "asar": true,
+    "electronLanguages": [
+      "en-US",
+      "tr",
+      "de",
+      "fr",
+      "es",
+      "it",
+      "pt-BR",
+      "pl",
+      "ru",
+      "zh-CN",
+      "ja",
+      "ko",
+      "ar"
+    ],
+    "win": {
+      "target": "dir",
+      "icon": "build/icon.png"
+    },
+    "linux": {
+      "target": "dir",
+      "icon": "build/icon.png",
+      "category": "Game",
+      "executableName": "level256"
+    },
+    "mac": {
+      "target": "dir",
+      "icon": "build/icon.png",
+      "category": "public.app-category.games"
+    },
+    "extraFiles": [
+      {
+        "from": "app/THIRD_PARTY_NOTICES.txt",
+        "to": "THIRD_PARTY_NOTICES.txt"
+      }
+    ]
+  }
+}

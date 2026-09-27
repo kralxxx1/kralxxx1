@@ -111,7 +111,11 @@
         const mem = root.performance && root.performance.memory;
         rows.push([t('perf.res'), res, t('perf.heap'), mem ? Math.round(mem.usedJSHeapSize / 1048576) + ' MB' : t('perf.na')]);
         const nat = root.LEVEL256_NATIVE && root.LEVEL256_NATIVE.metrics && root.LEVEL256_NATIVE.metrics();
-        if (nat) rows.push([t('perf.sysCpu'), nat.cpu != null ? Math.round(nat.cpu) + '%' : t('perf.na'), t('perf.procMem'), nat.mem != null ? Math.round(nat.mem) + ' MB' : t('perf.na')]);
+        if (nat) {
+          const p = v => v != null ? Math.round(v) + '%' : t('perf.na');
+          rows.push([t('perf.sysCpu'), p(nat.cpu), t('perf.appCpu'), p(nat.appCpu)]);
+          rows.push([t('perf.procMem'), nat.mem != null ? Math.round(nat.mem) + ' MB' : t('perf.na')]);
+        }
         if (this.gpuName) rows.push([t('perf.card'), this.gpuName]);
       }
       this.rows.innerHTML = rows.map(r => `<div><span>${r[0]}</span><b>${r[1]}</b>${r[2] ? `<span>${r[2]}</span><b>${r[3]}</b>` : ''}</div>`).join('');

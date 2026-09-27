@@ -146,6 +146,8 @@ em { color: var(--yellow); font-style: normal; }
 .set-info .dots i { width: 16px; height: 8px; background: rgba(255, 255, 255, 0.12); }
 .set-info .dots i.on.l1 { background: #7dff9a; } .set-info .dots i.on.l2 { background: #d8ff5a; } .set-info .dots i.on.l3 { background: #ffb23f; } .set-info .dots i.on.l4 { background: #ff5a4a; }
 .set-info .badge { display: inline-block; font-size: 17px; color: var(--ink); background: var(--yellow); padding: 1px 8px; margin-top: 4px; }
+.set-info .restart-now { display: block; margin-top: 6px; padding: 4px 12px; font-size: 20px; color: var(--yellow); border: 1px solid var(--yellow); }
+.set-info .restart-now:hover, .set-info .restart-now:focus-visible { background: var(--yellow); color: var(--ink); }
 .gpu-budget { border: 1px solid var(--line); padding: 8px 10px 10px; margin-bottom: 8px; background: rgba(0, 0, 0, 0.25); }
 .gpu-budget .gb-row { display: flex; justify-content: space-between; font-size: 20px; color: var(--muted); }
 .gpu-budget .gb-row b { font-weight: normal; color: var(--text); }

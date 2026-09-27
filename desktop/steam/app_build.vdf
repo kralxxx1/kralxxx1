@@ -1,0 +1,13 @@
+"AppBuild"
+{
+	"AppID" "0000000" // your app id from Steamworks
+	"Desc" "LEVEL 256 build" // shown in the Steamworks build list
+	"BuildOutput" "./output/"
+	"ContentRoot" "../dist/"
+	"SetLive" "" // e.g. "beta" to push the build to a beta branch right away; never "default" before you have tested it
+	"Depots"
+	{
+		"0000001" "depot_windows.vdf"
+		"0000002" "depot_linux.vdf"
+	}
+}

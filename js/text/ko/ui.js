@@ -15,6 +15,7 @@
     'boot.prep': '스테이지를 준비하는 중…',
     'boot.noThree': '3D 엔진(three.js)을 불러오지 못했습니다. 인터넷 연결을 확인하고 페이지를 새로 고치세요.',
     'boot.error': '시작 오류: {msg}',
+    'boot.noWebgl': '그래픽 카드에서 3D(WebGL 2)를 시작하지 못했습니다. 그래픽 드라이버를 업데이트한 뒤 게임을 다시 시작하세요.',
     'load.textures': '텍스처를 짜는 중… ({n}/{m})',
     'load.walls': '벽을 세우는 중…',
     'load.bake': '빛을 굽는 중…',
@@ -37,6 +38,7 @@
     'menu.settings': '설정',
     'menu.archive': '기록 보관소',
     'menu.help': '플레이 방법',
+    'menu.quit': '게임 종료',
     'menu.credit': '할로 · 1994년 11월 30일 · 오전 2:11',
     'menu.foot': '헤드폰을 끼고, 어둠 속에서.',
     'menu.footDone': '엔딩: {list} · 사망 {deaths}회',
@@ -543,6 +545,7 @@
     'perf.res': '렌더링',
     'perf.heap': 'JS 메모리',
     'perf.sysCpu': '시스템 CPU',
+    'perf.appCpu': '게임 CPU',
     'perf.procMem': '게임 메모리',
     'perf.card': '그래픽 카드',
     'settings.revert': '되돌리기',
@@ -557,5 +560,7 @@
     'settings.gpuLoad': '예상 GPU 부하',
     'settings.vram': '예상 비디오 메모리',
     'settings.reloadBadge': '다음에 챕터를 불러올 때 적용',
+    'settings.restartBadge': '게임을 다시 시작하면 적용',
+    'settings.restartNow': '지금 다시 시작',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

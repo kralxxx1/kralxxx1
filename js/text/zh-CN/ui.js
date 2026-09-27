@@ -15,6 +15,7 @@
     'boot.prep': '正在准备关卡…',
     'boot.noThree': '3D 引擎（three.js）加载失败。请检查网络连接后刷新页面。',
     'boot.error': '启动错误：{msg}',
+    'boot.noWebgl': '显卡无法启动 3D（WebGL 2）。请更新显卡驱动，然后重新启动游戏。',
     'load.textures': '正在编织纹理…（{n}/{m}）',
     'load.walls': '正在砌墙…',
     'load.bake': '正在烘焙光照…',
@@ -37,6 +38,7 @@
     'menu.settings': '设置',
     'menu.archive': '档案',
     'menu.help': '游戏说明',
+    'menu.quit': '退出游戏',
     'menu.credit': '哈洛 · 1994 年 11 月 30 日 · 凌晨 2:11',
     'menu.foot': '请戴上耳机，在黑暗中游玩。',
     'menu.footDone': '结局：{list} · 死亡 {deaths} 次',
@@ -543,6 +545,7 @@
     'perf.res': '渲染',
     'perf.heap': 'JS 内存',
     'perf.sysCpu': '系统 CPU',
+    'perf.appCpu': '游戏 CPU',
     'perf.procMem': '游戏内存',
     'perf.card': '显卡',
     'settings.revert': '撤销',
@@ -557,5 +560,7 @@
     'settings.gpuLoad': '预计 GPU 负载',
     'settings.vram': '预计显存',
     'settings.reloadBadge': '下次载入章节时生效',
+    'settings.restartBadge': '重启游戏后生效',
+    'settings.restartNow': '立即重启',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

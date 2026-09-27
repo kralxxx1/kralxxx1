@@ -23,6 +23,10 @@ the arcade.
 - **Directly:** open `index.html` in a browser. three.js and the fonts come from a CDN, so an
   internet connection is needed.
 - **Single file:** `python3 tools/build_single.py` bundles everything into `dist/level256.html`.
+- **Desktop (Windows, Linux, macOS):** `cd desktop && npm ci && npm start`. The Electron build carries
+  local copies of three.js, the physics engine and every font, so it runs fully offline. `npm run dist:win`
+  and `npm run dist:linux` make the folders for Steam. See `docs/STEAM.md` for building, uploading and the
+  store page.
 
 ## Controls
 
@@ -129,6 +133,8 @@ js/bag.js            items and journal
 js/chapters*.js      chapter scripts
 js/game.js           game loop, saving
 tests/               level and text tests
+desktop/             Electron wrapper for the desktop and Steam builds (docs/STEAM.md)
 ```
 
-Tests: `node tests/levelgen.test.js` and `node tests/text.test.js`.
+Tests: `node tests/levelgen.test.js` and `node tests/text.test.js`. The desktop build has an automated
+check: `cd desktop && npm run smoke`.

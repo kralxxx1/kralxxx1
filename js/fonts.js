@@ -71,9 +71,11 @@
       if (f) html.style.setProperty('--hand-x', f.hand); else html.style.removeProperty('--hand-x');
       if (f && !loaded[lang] && doc.head) {
         const l = doc.createElement('link');
-        l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?' + f.css + '&display=swap';
+        l.rel = 'stylesheet';
+        // ready() waits for this: until the stylesheet is in, the faces do not exist and fonts.load() finds nothing
+        loaded[lang] = new Promise(res => { l.onload = l.onerror = () => res(); });
+        l.href = 'https://fonts.googleapis.com/css2?' + f.css + '&display=swap';
         doc.head.appendChild(l);
-        loaded[lang] = l;
       }
     },
     // Waits (a few seconds at most) until the language's faces are ready, so the papers and drawings
@@ -82,7 +84,11 @@
       const f = FAM[lang || this.lang], doc = root.document;
       if (!f || !doc || !doc.fonts || !doc.fonts.load) return;
       const fams = [f.term, f.pix, f.hand, f.type].join(', ').split(/,\s*/).filter(s => /^"/.test(s)).slice(0, 8);
-      const all = Promise.all(fams.map(name => doc.fonts.load('24px ' + name, f.sample).catch(() => null)));
+      const sheet = loaded[lang || this.lang];
+      const all = (async () => {
+        if (sheet) await sheet;
+        await Promise.all(fams.map(name => doc.fonts.load('24px ' + name, f.sample).catch(() => null)));
+      })();
       await Promise.race([all, new Promise(res => setTimeout(res, ms))]);
     },
   };

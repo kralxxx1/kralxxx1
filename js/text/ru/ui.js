@@ -15,6 +15,7 @@
     'boot.prep': 'Подготовка уровня…',
     'boot.noThree': 'Не удалось загрузить 3D-движок (three.js). Проверьте подключение к интернету и перезагрузите страницу.',
     'boot.error': 'Ошибка запуска: {msg}',
+    'boot.noWebgl': 'Видеокарте не удалось запустить 3D (WebGL 2). Обновите драйвер видеокарты и запустите игру снова.',
     'load.textures': 'Ткём текстуры… ({n}/{m})',
     'load.walls': 'Возводим стены…',
     'load.bake': 'Запекаем свет…',
@@ -37,6 +38,7 @@
     'menu.settings': 'Настройки',
     'menu.archive': 'Архив',
     'menu.help': 'Как играть',
+    'menu.quit': 'Выйти из игры',
     'menu.credit': 'Харлоу · 30 ноября 1994 · 2:11',
     'menu.foot': 'Играйте в наушниках, в темноте.',
     'menu.footDone': 'Концовки: {list} · смертей {deaths}',
@@ -543,6 +545,7 @@
     'perf.res': 'Рендер',
     'perf.heap': 'Память JS',
     'perf.sysCpu': 'ЦП системы',
+    'perf.appCpu': 'ЦП игры',
     'perf.procMem': 'Память игры',
     'perf.card': 'Видеокарта',
     'settings.revert': 'Отменить',
@@ -557,5 +560,7 @@
     'settings.gpuLoad': 'Ожидаемая загрузка ГП',
     'settings.vram': 'Ожидаемый объём видеопамяти',
     'settings.reloadBadge': 'Вступит в силу при следующей загрузке главы',
+    'settings.restartBadge': 'Вступит в силу после перезапуска игры',
+    'settings.restartNow': 'Перезапустить сейчас',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

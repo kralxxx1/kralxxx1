@@ -15,6 +15,7 @@
     'boot.prep': 'Preparando el nivel…',
     'boot.noThree': 'No se pudo cargar el motor 3D (three.js). Comprueba tu conexión a Internet y recarga la página.',
     'boot.error': 'Error al iniciar: {msg}',
+    'boot.noWebgl': 'La tarjeta gráfica no pudo iniciar el 3D (WebGL 2). Actualiza el controlador gráfico y vuelve a abrir el juego.',
     'load.textures': 'Tejiendo texturas… ({n}/{m})',
     'load.walls': 'Levantando paredes…',
     'load.bake': 'Horneando la luz…',
@@ -37,6 +38,7 @@
     'menu.settings': 'Ajustes',
     'menu.archive': 'Archivo',
     'menu.help': 'Cómo jugar',
+    'menu.quit': 'Salir del juego',
     'menu.credit': 'Harlow · 30 de noviembre de 1994 · 2:11',
     'menu.foot': 'Juega con auriculares, a oscuras.',
     'menu.footDone': 'Finales: {list} · muertes {deaths}',
@@ -543,6 +545,7 @@
     'perf.res': 'Render',
     'perf.heap': 'Memoria JS',
     'perf.sysCpu': 'CPU del sistema',
+    'perf.appCpu': 'CPU del juego',
     'perf.procMem': 'Memoria del juego',
     'perf.card': 'Tarjeta gráfica',
     'settings.revert': 'Deshacer',
@@ -557,5 +560,7 @@
     'settings.gpuLoad': 'Carga de GPU estimada',
     'settings.vram': 'Memoria de vídeo estimada',
     'settings.reloadBadge': 'Se aplica la próxima vez que se cargue un capítulo',
+    'settings.restartBadge': 'Se aplica al reiniciar el juego',
+    'settings.restartNow': 'Reiniciar ahora',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

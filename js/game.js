@@ -46,12 +46,19 @@
       this.save = U.store.get(SAVE_KEY, null);
       if (this.save) this.migrateSave(this.save);
       root.addEventListener('resize', () => this.resize());
-      document.addEventListener('fullscreenchange', () => {
-        const fs = document.fullscreenElement ? 'fullscreen' : 'windowed';
+      const fsChanged = on => {
+        const fs = on ? 'fullscreen' : 'windowed';
         if (S.data.displayMode !== fs) { S.data.displayMode = fs; if (this.ui && this.ui.isOpen('scr-settings') && this.ui.renderSettings) this.ui.renderSettings(); }
         this.resize();
-      });
-      document.addEventListener('keydown', e => { if (e.code === 'Enter' && e.altKey) { e.preventDefault(); S.set('displayMode', document.fullscreenElement ? 'windowed' : 'fullscreen'); } });
+      };
+      const native = root.LEVEL256_NATIVE;
+      if (native && native.setFullscreen) {
+        S.data.displayMode = native.isFullscreen() ? 'fullscreen' : 'windowed';
+        native.onFullscreen(fsChanged);
+        // V-Sync is a start-up switch in the desktop build: keep the next start in line with the setting
+        if (native.vsync !== !!S.data.vsync) native.setVsync(!!S.data.vsync);
+      } else document.addEventListener('fullscreenchange', () => fsChanged(!!document.fullscreenElement));
+      document.addEventListener('keydown', e => { if (e.code === 'Enter' && e.altKey) { e.preventDefault(); S.set('displayMode', S.data.displayMode === 'fullscreen' ? 'windowed' : 'fullscreen'); } });
       S.events.on('change', key => this.applySetting(key));
       document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'play') this.pause(); });
       this.resize();
@@ -150,6 +157,8 @@
     }
     // Fullscreen follows the setting; leaving it with Esc or F11 updates the setting
     setFullscreen(on) {
+      const native = root.LEVEL256_NATIVE;
+      if (native && native.setFullscreen) { native.setFullscreen(on); return; }
       const el = document.documentElement;
       try {
         if (on && !document.fullscreenElement && el.requestFullscreen) {
@@ -180,6 +189,7 @@
       if (['perfOverlay', 'perfCorner', '*'].includes(key) && this.perf) this.perf.setMode(S.data.perfOverlay, S.data.perfCorner);
       if (key === 'displayMode') this.setFullscreen(S.data.displayMode === 'fullscreen');
       if ((key === 'vsync' || key === 'fpsLimit') && this.restartLoop) this.restartLoop();
+      if ((key === 'vsync' || key === '*') && root.LEVEL256_NATIVE && root.LEVEL256_NATIVE.setVsync) root.LEVEL256_NATIVE.setVsync(!!S.data.vsync);
       if (key === 'lang' || key === '*') { PB.I18N.set(S.data.lang); this.onLanguage(); }
       if (['ao', 'ssr', 'volumetric', 'motionBlur', 'lensDirt', 'dof', 'preset', '*'].includes(key)) this.postDirty = true;
       if (['viewDist', 'preset', '*'].includes(key)) this.syncPostWorld();
@@ -262,6 +272,9 @@
       on('m-settings', () => { this.audio.init(); this.openSettings(() => this.toMenu()); });
       on('m-archive', () => { this.audio.init(); this.ui.buildArchive(this.save || { notes: [] }); this.ui.only('scr-archive'); });
       on('m-help', () => { this.audio.init(); this.ui.only('scr-help'); });
+      // The desktop build can close itself; a browser tab cannot, so the button only exists there
+      const native = root.LEVEL256_NATIVE;
+      if (native && native.quit) { $('m-quit').hidden = false; on('m-quit', () => native.quit()); }
       on('levels-back', () => this.toMenu());
       on('archive-back', () => { if (this.state === 'pause') this.ui.only('scr-pause'); else this.toMenu(); });
       on('help-back', () => { if (this.state === 'pause') this.ui.only('scr-pause'); else this.toMenu(); });
@@ -1739,7 +1752,12 @@
     if (!root.THREE) { const l = document.getElementById('boot-label'); if (l) l.textContent = PB.t('boot.noThree'); return; }
     const game = new Game();
     root.PB.game = game;
-    game.boot().catch(e => { console.error(e); const l = document.getElementById('boot-label'); if (l) l.textContent = PB.t('boot.error', { msg: e.message }); });
+    game.boot().catch(e => {
+      console.error(e);
+      const l = document.getElementById('boot-label');
+      // no WebGL 2 is the one start-up failure a player can fix themselves
+      if (l) l.textContent = /webgl/i.test(e && e.message) ? PB.t('boot.noWebgl') : PB.t('boot.error', { msg: e.message });
+    });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })(typeof window !== 'undefined' ? window : globalThis);

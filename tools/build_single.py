@@ -30,7 +30,7 @@ def build(fragment=False):
     )
     html = html.replace('<link rel="stylesheet" href="css/game.css">', f'<style>\n{css}\n</style>')
     # Harici betik etiketlerini ve ayrı modülü kaldır, yerine tek modülü koy
-    html = re.sub(r'<!-- 3D motoru.*?</script>\n', '', html, flags=re.S)
+    html = re.sub(r'<!-- 3D (?:motoru|engine).*?</script>\n', '', html, flags=re.S)
     html = re.sub(r'<script defer src="js/[^"]+"></script>\n', '', html)
     html = html.replace('</body>', module + '\n</body>')
     if fragment:

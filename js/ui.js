@@ -213,7 +213,15 @@
       const imp = this.impactOf(s, S.get(s.key));
       info.innerHTML = `<h3>${esc(t('set.' + s.key))}</h3><p>${esc(help !== helpKey ? help : '')}</p>` +
         (imp != null ? `<div class="imp"><span>${esc(t('settings.impact'))}</span><span class="dots">${[1, 2, 3, 4].map(n => `<i class="${n <= imp ? 'on l' + imp : ''}"></i>`).join('')}</span><b>${esc(t('impact.' + Math.max(0, imp)))}</b></div>` : '') +
-        (s.reload ? `<p class="badge">${esc(t('settings.reloadBadge'))}</p>` : '');
+        (s.reload ? `<p class="badge">${esc(t('settings.reloadBadge'))}</p>` : '') +
+        (s.key === 'vsync' && this.restartPending() ? `<p class="badge">${esc(t('settings.restartBadge'))}</p><button type="button" class="restart-now">${esc(t('settings.restartNow'))}</button>` : '');
+      const rb = info.querySelector('.restart-now');
+      if (rb) rb.onclick = () => root.LEVEL256_NATIVE.restart();
+    }
+    // Desktop build: a setting that only a restart can apply differs from what this session started with
+    restartPending() {
+      const n = root.LEVEL256_NATIVE;
+      return !!(n && n.restart && n.vsync !== !!S.data.vsync);
     }
     settingRow(s) {
       const row = document.createElement('div');
