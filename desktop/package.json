@@ -100,6 +100,8 @@
         "from": "app/THIRD_PARTY_NOTICES.txt",
         "to": "THIRD_PARTY_NOTICES.txt"
       }
-    ]
-  }
+    ],
+    "publish": null
+  },
+  "author": "LEVEL 256 developers"
 }
