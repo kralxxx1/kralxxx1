@@ -68,7 +68,7 @@ function pairs(a, b, p, lang, fn) {
   }
 }
 // Strings that may legitimately stay the same in another language: names, numbers, codes, songs
-const SAME_OK = s => !/[a-z]/.test(s.replace(/\{\w+\}/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')) || /^Terminal: [A-Z.]+$|^Harlow Mutual$|^Ultra\+? \(\d+\)$|^Sam\. Sam Keller\.$/.test(s);
+const SAME_OK = s => !/[a-z]/.test(s.replace(/\{\w+\}/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')) || /^Terminal: [A-Z.]+$|^Harlow Mutual$|^Harlow Junior High$|^Blue Moon Motor Inn$|^Ultra\+? \(\d+\)$|^Sam\. Sam Keller\.$/.test(s);
 for (const L of LANGS) if (L !== 'en') {
   const same = [];
   pairs(en.story, I.section('story', L), '', L, (pk, va, vb) => {

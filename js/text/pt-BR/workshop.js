@@ -123,7 +123,7 @@ VOCÊ PROMETEU.` },
       workshop_key: 'Encontre a chave do Walt',
       workshop_kernel: 'Abra a sala do Kernel',
       workshop_dials: 'Ajuste os botões de calibração ({n}/3 certos)',
-      workshop_leave: 'Passe pela SAÍDA',
+      workshop_leave: 'Passe pelo EXIT',
     },
     mono: {
       workshop_start: 'A oficina do Walt. Eu ficava vendo ele consertar TVs pela janelinha.',
