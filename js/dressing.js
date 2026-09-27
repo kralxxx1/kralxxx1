@@ -170,6 +170,8 @@
     const set = SETS[L.theme];
     if (!set) return 0;
     const r = U.rng((seed || 1) * 31 + 911), C = L.cell;
+    // Settings → Graphics → Detail objects scales how much gets left lying around
+    const clutter = (PB.Settings && PB.Settings.data && PB.Settings.data.clutter) || 1;
     // Keep clear of: spawn, the exit room, story spots, doorways
     const avoid = [];
     if (L.spawn) avoid.push([L.spawn.wx != null ? L.spawn.wx : L.cx(L.spawn.x), L.spawn.wz != null ? L.spawn.wz : L.cz(L.spawn.y), 2.2]);
@@ -187,7 +189,7 @@
       if (outdoor) continue;
       const walls = L.wallSides(cx, cy);
       for (const [model, where, dens] of set) {
-        if (r() >= dens * (where === 'wall' ? walls.length : 1)) continue;
+        if (r() >= dens * clutter * (where === 'wall' ? walls.length : 1)) continue;
         if (where === 'wall') {
           if (!walls.length || doorNear(cx, cy) && r() < 0.6) continue;
           const d = r.pick(walls), key = cx + ',' + cy + ',' + d;
@@ -229,7 +231,7 @@
     const vig = THEME_VIG[L.theme];
     if (vig) {
       const bag = vig.flatMap(([k, w]) => Array(w).fill(k));
-      const target = Math.round(L.w * L.h * (VIG_DENSITY[L.theme] || 0));
+      const target = Math.round(L.w * L.h * (VIG_DENSITY[L.theme] || 0) * clutter);
       const openN = (x, y) => [0, 1, 2, 3].filter(d => L.passable(x + DX[d], y + DY[d]) && !L.edgeKind(x, y, d) && !(L.doorAt && L.doorAt(x, y, d))).length;
       let placed = 0;
       for (let t = 0; t < target * 12 && placed < target; t++) {

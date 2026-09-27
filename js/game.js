@@ -34,6 +34,8 @@
       this.scene.add(this.camera);
       this.keeper = new PB.LightKeeper(this.scene);
       this.post = new PB.Post(r);
+      this.perf = PB.Perf ? new PB.Perf(r) : null;
+      if (this.perf) this.perf.setMode(S.data.perfOverlay, S.data.perfCorner);
       this.configurePost();
       T.init(r, S.data.anisotropy);
       this.audio = new PB.Audio();
@@ -157,7 +159,7 @@
     }
     configurePost() {
       const d = S.data;
-      this.post.configure({ ao: d.ao, ssr: d.ssr, vol: d.volumetric, mblur: d.motionBlur, lensDirt: d.lensDirt });
+      this.post.configure({ ao: d.ao, ssr: d.ssr, vol: d.volumetric, mblur: d.motionBlur, lensDirt: d.lensDirt, dof: d.dof });
       this.postDirty = false;
     }
     // Baked light volume and fog for the volumetric pass (after every bake)
@@ -174,10 +176,11 @@
     }
     applySetting(key) {
       if (['resolution', 'scaleMode', 'upscale', 'sharpen'].includes(key)) this.resize();
+      if (['perfOverlay', 'perfCorner', '*'].includes(key) && this.perf) this.perf.setMode(S.data.perfOverlay, S.data.perfCorner);
       if (key === 'displayMode') this.setFullscreen(S.data.displayMode === 'fullscreen');
       if ((key === 'vsync' || key === 'fpsLimit') && this.restartLoop) this.restartLoop();
       if (key === 'lang' || key === '*') { PB.I18N.set(S.data.lang); this.onLanguage(); }
-      if (['ao', 'ssr', 'volumetric', 'motionBlur', 'lensDirt', 'preset', '*'].includes(key)) this.postDirty = true;
+      if (['ao', 'ssr', 'volumetric', 'motionBlur', 'lensDirt', 'dof', 'preset', '*'].includes(key)) this.postDirty = true;
       if (['viewDist', 'preset', '*'].includes(key)) this.syncPostWorld();
       if (['renderScale', 'antialias', 'preset', '*'].includes(key)) this.resize();
       if (['shadows', 'preset', '*'].includes(key)) this.player.applyShadowSetting();
@@ -560,7 +563,17 @@
           break;
         }
         case 'powerPellet': {
-          const m = new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 16), new THREE.MeshBasicMaterial({ color: new THREE.Color(5, 3.4, 3) }));
+          // A lantern: a small brass hurricane lamp, its flame glowing through a smoked glass globe
+          const brass = new THREE.MeshStandardMaterial({ color: 0x9a7432, roughness: 0.35, metalness: 0.85 });
+          this.world.patch(brass);
+          const glass = new THREE.MeshPhysicalMaterial({ color: 0xfff0d8, roughness: 0.05, transmission: 0, transparent: true, opacity: 0.35, depthWrite: false, emissive: 0xffc070, emissiveIntensity: 0.6 });
+          const base = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.09, 0.07, 20), brass); base.position.y = -0.16; grp.add(base);
+          const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.04, 20), brass); cap.position.y = 0.13; grp.add(cap);
+          const globe = new THREE.Mesh(new THREE.SphereGeometry(0.1, 24, 16), glass); globe.scale.set(1, 1.35, 1); globe.position.y = -0.01; grp.add(globe);
+          const ring = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.006, 8, 24, Math.PI), brass); ring.position.y = 0.17; grp.add(ring);
+          for (const sx of [-1, 1]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.3, 6), brass); w.position.set(sx * 0.085, -0.01, 0); grp.add(w); }
+          const m = new THREE.Mesh(new THREE.SphereGeometry(0.035, 16, 12), new THREE.MeshBasicMaterial({ color: new THREE.Color(6, 3.6, 1.4) }));
+          m.scale.set(0.8, 1.5, 0.8); m.position.y = -0.02;
           grp.add(m);
           const g = this.glowSprite(0xffd28a, 1.4); grp.add(g); o.glow = g;
           const l = new THREE.PointLight(0xffd28a, 3, 5, 2); grp.add(l); o.light = l;
@@ -816,8 +829,12 @@
       const maze = def.layout === 'maze' || def.layout === 'killscreen';
       const pad = L.meta.pad || 0;
       const created = new Set();
+      // Extra creatures scale with difficulty: fewer on Easy, one more of each on Nightmare
+      const diffKey = PB.Settings.data.difficulty;
       for (const e of def.entities || []) {
-        const count = e.count || 1;
+        let count = e.count || 1;
+        if (e.extra && diffKey === 'easy') count = Math.floor(count / 2);
+        else if (e.extra && diffKey === 'nightmare') count += 1;
         for (let k = 0; k < count; k++) {
           let ent;
           if (e.type === 'eater') {
@@ -834,7 +851,7 @@
             if (maze) { const spots = [[pad + 11, 11], [pad + 16, 11], [pad + 11, 17], [pad + 16, 17]]; const s = spots[['red', 'violet', 'teal', 'amber'].indexOf(e.ghost)]; ent.placeCell(s[0], s[1]); }
             else if (friendly) ent.placeCell(L.spawn.x, L.spawn.y);
             else { const c = spawnFar(e.ghost === 'amber' ? 14 : 18); ent.placeCell(c.x, c.y); }
-          } else if (e.type === 'grinner') { ent = new E.Grinner(this, e); const c = spawnFar(12); ent.placeCell(c.x, c.y); }
+          } else if (e.type === 'grinner') { ent = new E.Grinner(this, e); const c = spawnFar(e.near || 12); ent.placeCell(c.x, c.y); }
           else if (e.type === 'watcher') { ent = new E.Watcher(this, e); ent.placeCell(L.spawn.x, L.spawn.y); }
           else if (E.extra && E.extra[e.type]) {
             ent = new E.extra[e.type](this, e);
@@ -1411,9 +1428,35 @@
       this.ui.notify(t('n.slow'));
     }
 
+    // How far the centre of the screen is: march the view ray over the level grid until it meets a wall,
+    // a closed door, the floor or the ceiling (for depth of field)
+    focusDistance() {
+      const L = this.level, cam = this.camera;
+      if (!L || !cam) return 3;
+      const f = cam.getWorldDirection(this._fd || (this._fd = new THREE.Vector3()));
+      const p = cam.position, DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0];
+      let best = 25;
+      if (f.y < -0.05) best = Math.min(best, p.y / -f.y);
+      if (f.y > 0.05) best = Math.min(best, Math.max(0.2, (L.ceil - p.y) / f.y));
+      let c = L.cellOf(p.x, p.z);
+      for (let d = 0.2; d < best; d += 0.2) {
+        const n = L.cellOf(p.x + f.x * d, p.z + f.z * d);
+        if (n.x === c.x && n.y === c.y) continue;
+        if (!L.passable(n.x, n.y)) return d;
+        const dir = DX.findIndex((dx, k) => dx === n.x - c.x && DY[k] === n.y - c.y);
+        if (dir >= 0) {
+          if (L.edgeKind(c.x, c.y, dir)) return d;
+          const door = L.doorAt(c.x, c.y, dir);
+          if (door && !door.open) return d;
+        }
+        c = n;
+      }
+      return best;
+    }
     // ================================================================ ANA DÖNGÜ
     frame() {
       const now = performance.now();
+      if (this.perf) this.perf.begin(now);
       const raw = (now - this.last) / 1000;
       const dt = Math.min(0.05, raw);
       this.last = now;
@@ -1422,7 +1465,6 @@
       this.fpsAcc += raw; this.fpsN++;
       if (this.fpsAcc > 0.5) {
         const fps = this.fpsN / this.fpsAcc;
-        if (S.data.showFps) this.ui.fps(Math.round(fps));
         this.checkPerf(fps);
         this.fpsAcc = 0; this.fpsN = 0;
       }
@@ -1456,15 +1498,21 @@
       }
       this.player.updateFlash(dt);
       this.flashInterference = Math.max(0, this.flashInterference - dt);
-      if (this.audio.ctx) { this.audio.camYaw = this.player.yaw; this.audio.los = this.level ? (ax, az, bx, bz) => this.level.los(ax, az, bx, bz) : null; this.audio.listen(this.camera); if (this.state === 'play') this.audio.ambienceTick(this.camera); }
+      if (this.audio.ctx) { this.audio.camYaw = this.player.yaw; this.audio.los = this.level ? (ax, az, bx, bz) => this.level.los(ax, az, bx, bz) : null; this.audio.listen(this.camera); if (this.state === 'play') { this.audio.dread = U.clamp((this.menace || 0) * 0.6 + (this.player.fear || 0) / 250, 0, 1); this.audio.ambienceTick(this.camera); } }
       if (this.state !== 'play' && this.markList && this.markList.length) { this.markList.length = 0; this.ui.marks(this.markList); }
       this.updatePost(dt);
       if (this.postDirty) this.configurePost();
       this.keeper.tick(dt);
       // While a level loads the boot screen covers the view: drawing a half-built scene only slows it
-      if (this.state !== 'loading') this.keeper.render(() => this.post.render(this.scene, this.camera, this.time));
+      if (this.state !== 'loading') {
+        if (S.data.dof && S.data.dof !== 'off') this.post.focusTarget = this.focusDistance();
+        if (this.perf) this.perf.gpuBegin();
+        this.keeper.render(() => this.post.render(this.scene, this.camera, this.time));
+        if (this.perf) this.perf.gpuEnd();
+      }
       if (PB.debug) this.watchPrograms();
       inp.endFrame();
+      if (this.perf) this.perf.end(performance.now());
     }
     // Debug: report shaders compiled during play (each one is a hitch)
     watchPrograms() {

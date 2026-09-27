@@ -129,9 +129,9 @@
     <div class="panel settings">
       <h2 data-t="settings.title">Settings</h2>
       <div id="set-tabs" class="tabs" role="tablist"></div>
-      <div id="set-body" class="set-body"></div>
-      <p class="help" data-t="settings.reloadNote"></p>
-      <div class="row"><button type="button" id="set-reset" data-t="settings.reset">Defaults</button><button type="button" id="set-back" data-action="back" data-t="common.back">Back</button></div>
+      <div class="set-main"><div id="set-body" class="set-body"></div><aside id="set-info" class="set-info" aria-live="polite"></aside></div>
+      <p class="help set-foot"><span data-t="settings.reloadNote"></span> <span id="set-keys" class="keys"></span></p>
+      <div class="row"><button type="button" id="set-reset" data-t="settings.reset">Defaults</button><button type="button" id="set-revert" data-t="settings.revert">Revert</button><button type="button" id="set-back" data-action="back" data-t="common.back">Back</button></div>
     </div>
   </section>
 
@@ -336,12 +336,14 @@
 <script defer src="js/textures.js"></script>
 <script defer src="js/art.js"></script>
 <script defer src="js/post.js"></script>
+<script defer src="js/perf.js"></script>
 <script defer src="js/lights.js"></script>
 <script defer src="js/props.js"></script>
 <script defer src="js/models.js"></script>
 <script defer src="js/models2.js"></script>
 <script defer src="js/containers.js"></script>
 <script defer src="js/dressing.js"></script>
+<script defer src="js/decor.js"></script>
 <script defer src="js/sdf.js"></script>
 <script defer src="js/hands.js"></script>
 <script defer src="js/monsters.js"></script>

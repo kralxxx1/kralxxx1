@@ -66,7 +66,7 @@
       rs = min(rs, 0.12);
       float rot = ign(gl_FragCoord.xy + uFrame * 7.13) * 6.2831;
       float occ = 0.0;
-      for (int i = 0; i < 32; i++) {
+      for (int i = 0; i < 48; i++) {
         if (i >= uSamples) break;
         float fi = (float(i) + 0.5) / float(uSamples);
         float a = float(i) * 2.39996 + rot;
@@ -113,7 +113,7 @@
       vec3 O = P + N * 0.03;
       vec2 hitUv = vec2(-1.0);
       float prevT = 0.0;
-      for (int i = 0; i < 96; i++) {
+      for (int i = 0; i < 128; i++) {
         if (i >= uSteps) break;
         vec3 X = O + R * t;
         vec2 uv = project(X);
@@ -229,6 +229,30 @@
       for (int i = 0; i < 10; i++) s += texture2D(tIn, vUv - vel * (float(i) / 9.0 - 0.5)).rgb;
       gl_FragColor = vec4(s / 10.0, 1.0);
     }`;
+  // Depth of field: a golden-angle disc gather whose radius follows each pixel's circle of confusion. Focus
+  // follows what is in the middle of the screen; near things (the hands) and the focus plane stay sharp.
+  const DOF = `
+    uniform sampler2D tIn; uniform sampler2D tDepth; uniform mat4 uInvProj; uniform vec2 uTexel; uniform float uAmount; uniform float uFocus; uniform float uNearMask; uniform int uSamples; varying vec2 vUv;
+    float lin(vec2 uv){ float d = texture2D(tDepth, uv).x; vec4 c = uInvProj * vec4(uv * 2.0 - 1.0, d * 2.0 - 1.0, 1.0); return -c.z / c.w; }
+    // circle of confusion 0..1: nothing within a band around the focus, more behind it than in front of it
+    float coc(float z){ float k = clamp(abs(z - uFocus) / max(max(z, uFocus), 0.5) - 0.22, 0.0, 1.0); return (z < uFocus ? k * 0.45 : k) * uAmount; }
+    void main(){
+      float d0 = texture2D(tDepth, vUv).x;
+      vec3 c0 = texture2D(tIn, vUv).rgb;
+      if (d0 < uNearMask) { gl_FragColor = vec4(c0, 1.0); return; }
+      float r0 = coc(lin(vUv));
+      if (r0 < 0.02) { gl_FragColor = vec4(c0, 1.0); return; }
+      vec3 acc = c0; float wsum = 1.0;
+      for (int i = 0; i < 48; i++) {
+        if (i >= uSamples) break;
+        float a = float(i) * 2.39996, rr = sqrt((float(i) + 0.5) / float(uSamples));
+        vec2 uv = vUv + vec2(cos(a), sin(a)) * rr * r0 * 11.0 * uTexel;
+        float ri = coc(lin(uv));
+        float w = smoothstep(0.0, 0.5, ri + 0.15);   // a sharp pixel in front does not smear into its blurry neighbour
+        acc += texture2D(tIn, uv).rgb * w; wsum += w;
+      }
+      gl_FragColor = vec4(acc / wsum, 1.0);
+    }`;
   const COMPOSITE = `
     uniform sampler2D tScene; uniform sampler2D tBloom; uniform sampler2D tDirt;
     uniform vec2 res; uniform vec2 srcTexel; uniform float ss;
@@ -328,9 +352,10 @@
 
   // Quality tables
   const Q = {
-    ao: { off: null, low: { scale: 0.5, samples: 8 }, high: { scale: 0.75, samples: 14 }, ultra: { scale: 1, samples: 24 } },
-    ssr: { off: null, low: { steps: 24, dist: 10 }, high: { steps: 48, dist: 16 }, ultra: { steps: 80, dist: 24 } },
-    vol: { off: null, low: { scale: 0.25, steps: 16 }, high: { scale: 0.35, steps: 32 }, ultra: { scale: 0.5, steps: 56 }, extreme: { scale: 0.5, steps: 96 } },
+    ao: { off: null, low: { scale: 0.5, samples: 8 }, high: { scale: 0.75, samples: 14 }, ultra: { scale: 1, samples: 24 }, ultraplus: { scale: 1, samples: 40 } },
+    ssr: { off: null, low: { steps: 24, dist: 10 }, high: { steps: 48, dist: 16 }, ultra: { steps: 80, dist: 24 }, ultraplus: { steps: 128, dist: 32 } },
+    vol: { off: null, low: { scale: 0.25, steps: 16 }, high: { scale: 0.35, steps: 32 }, ultra: { scale: 0.5, steps: 56 }, extreme: { scale: 0.5, steps: 96 }, ultraplus: { scale: 0.65, steps: 128 } },
+    dof: { off: null, low: { samples: 12, amount: 0.6 }, high: { samples: 24, amount: 0.8 }, ultra: { samples: 40, amount: 0.9 } },
   };
 
   class Post {
@@ -363,6 +388,7 @@
         uPL: { value: pl }, uPC: { value: pc }, uNPL: { value: 0 },
       });
       this.mCombine = mk(COMBINE, { tScene: { value: null }, tAO: { value: null }, tSSR: { value: null }, tVol: { value: null }, uAoStr: { value: 0.85 }, uHasAO: { value: 0 }, uHasSSR: { value: 0 }, uHasVol: { value: 0 } });
+      this.mDof = mk(DOF, { tIn: { value: null }, tDepth: { value: null }, uInvProj: M4(), uTexel: V2(), uAmount: { value: 0.8 }, uFocus: { value: 3 }, uNearMask: { value: 0 }, uSamples: { value: 24 } });
       this.mMBlur = mk(MBLUR, { tIn: { value: null }, tDepth: { value: null }, uInvViewProj: M4(), uPrevViewProj: M4(), uAmount: { value: 0.5 }, uNearMask: { value: 0 } });
       this.mComp = mk(COMPOSITE, {
         tScene: { value: null }, tBloom: { value: null }, tDirt: { value: this.dirtTexture() }, res: V2(), srcTexel: V2(), ss: { value: 1 },
@@ -378,7 +404,8 @@
       this.p = this.mComp.uniforms;
       this.vol = this.mVol.uniforms;
       this.enabled = { bloom: true, fxaa: false };
-      this.q = { ao: null, ssr: null, vol: null, mblur: 0 };
+      this.q = { ao: null, ssr: null, vol: null, mblur: 0, dof: null };
+      this.focus = 3;
       this.w = 1; this.h = 1; this.scale = 1; this.msaa = 0;
       this.frame = 0;
       this.prepassCache = new WeakMap();
@@ -435,6 +462,7 @@
       this.q.ssr = Q.ssr[o.ssr] || null;
       this.q.vol = Q.vol[o.vol] || null;
       this.q.mblur = o.mblur || 0;
+      this.q.dof = Q.dof[o.dof] || null;
       this.p.dirt.value = o.lensDirt ? 0.6 : 0;
       this.dirty = true;
       this.setSize(this.w, this.h, this.scaleReq || 1, this.msaa, true);
@@ -464,13 +492,14 @@
       const sw = Math.max(1, Math.min(max, Math.round(w * s))), sh = Math.max(1, Math.min(max, Math.round(h * s)));
       if (!force && this.sceneRT && this.sceneRT.width === sw && this.sceneRT.height === sh && this.msaa === msaa && this.w === w && this.h === h) return;
       this.w = w; this.h = h; this.scale = s; this.msaa = msaa;
-      const old = [this.sceneRT, this.ldrRT, this.hdrRT, this.hdr2RT, this.gRT, this.aoRT, this.aoRT2, this.ssrRT, this.volRT].concat(this.bloom);
+      const old = [this.sceneRT, this.ldrRT, this.hdrRT, this.hdr2RT, this.dofRT, this.gRT, this.aoRT, this.aoRT2, this.ssrRT, this.volRT].concat(this.bloom);
       old.forEach(t => t && t.dispose());
       this.sceneRT = this.rt(sw, sh, { samples: msaa, depthBuffer: true });
       this.hdrRT = this.rt(sw, sh);
       this.hdr2RT = this.q.mblur > 0 ? this.rt(sw, sh) : null;
+      this.dofRT = this.q.dof ? this.rt(sw, sh) : null;
       // G-buffer (depth + view normal + reflectivity) at effect resolution
-      const needG = this.q.ao || this.q.ssr || this.q.vol || this.q.mblur > 0;
+      const needG = this.q.ao || this.q.ssr || this.q.vol || this.q.mblur > 0 || this.q.dof;
       this.gRT = null;
       if (needG) {
         const gs = Math.max(this.q.ao ? this.q.ao.scale : 0.5, this.q.ssr ? 0.75 : 0.5);
@@ -673,6 +702,16 @@
         hdr = this.hdr2RT.texture;
       }
       this.prevViewProj.copy(viewProj); this.hasPrev = true;
+      // Depth of field; the focus distance eases toward whatever is at the centre of the screen
+      if (q.dof && this.gRT && this.dofRT) {
+        const f = this.mDof.uniforms;
+        if (this.focusTarget != null) this.focus += (this.focusTarget - this.focus) * 0.08;
+        f.tIn.value = hdr; f.tDepth.value = this.gRT.depthTexture; f.uInvProj.value.copy(invProj); f.uTexel.value.set(1 / this.dofRT.width, 1 / this.dofRT.height);
+        f.uAmount.value = q.dof.amount * (this.dofBoost || 1); f.uSamples.value = q.dof.samples; f.uFocus.value = this.focus;
+        { const n = camera.near, fa = camera.far, z = 0.8; f.uNearMask.value = ((fa + n) / (fa - n) - 2 * fa * n / ((fa - n) * z)) * 0.5 + 0.5; }
+        this.pass(this.mDof, this.dofRT);
+        hdr = this.dofRT.texture;
+      }
       let bloomTex = this.black;
       if (this.enabled.bloom && this.bloom.length) {
         const b = this.bloom;
@@ -707,7 +746,7 @@
       r.autoClear = auto;
     }
     dispose() {
-      [this.sceneRT, this.ldrRT, this.hdrRT, this.hdr2RT, this.gRT, this.aoRT, this.aoRT2, this.ssrRT, this.volRT].concat(this.bloom).forEach(rt => rt && rt.dispose());
+      [this.sceneRT, this.ldrRT, this.hdrRT, this.hdr2RT, this.dofRT, this.gRT, this.aoRT, this.aoRT2, this.ssrRT, this.volRT].concat(this.bloom).forEach(rt => rt && rt.dispose());
     }
   }
   PB.Post = Post;

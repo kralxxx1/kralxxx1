@@ -848,6 +848,70 @@
     }
     return normalize(biquad(out, 'lp', 1300, 0.7, sr), 0.85);
   };
+  // ------------------------------------------------------------ DREAD (rare, uncaptioned, placed around you)
+  // A whisper: breath shaped into syllables by two moving formants, with the hiss of an s or a sh
+  R.whisper = (sr, r) => {
+    const n = S(sr * 1.9), out = new Float32Array(n);
+    let t = 0.05;
+    while (t < 1.7) {
+      const len = r.range(0.12, 0.26), i0 = S(t * sr), m = S(len * sr);
+      const src = pink(m, r), f1a = r.range(420, 850), f1b = r.range(420, 850), f2a = r.range(1100, 2400), f2b = r.range(1100, 2400);
+      const a = sweep(src, 'bp', u => f1a + (f1b - f1a) * u, 5, sr), b = sweep(src, 'bp', u => f2a + (f2b - f2a) * u, 7, sr);
+      for (let i = 0; i < m && i0 + i < n; i++) { const u = i / m, e = Math.sin(Math.PI * u) ** 1.5; out[i0 + i] += (a[i] + b[i] * 0.7) * e; }
+      if (r() < 0.45) { const hs = biquad(white(S(0.1 * sr), r), 'hp', r() < 0.5 ? 4200 : 2600, 0.8, sr); for (let i = 0; i < hs.length && i0 + m + i < n; i++) out[i0 + m + i] += hs[i] * Math.sin(Math.PI * i / hs.length) * 0.5; t += 0.1; }
+      t += len + r.range(0.02, 0.09);
+    }
+    return normalize(biquad(out, 'lp', 6500, 0.7, sr), 0.7);
+  };
+  // A child humming a few notes of a tune, far away, a little flat
+  R.childHum = (sr, r) => {
+    const n = S(sr * 3.2), notes = [392, 440, 392, 330, 349, 330, 294].map(f => f * r.range(0.97, 0.99)), step = 3.0 / notes.length;
+    const out = throat(n, sr, r, { f0: t => { const k = Math.min(notes.length - 1, Math.floor(t * 3.2 / step)); return notes[k] * (1 + 0.012 * Math.sin(t * 3.2 * TAU * 5.5)); }, env: t => { const u = (t * 3.2) % step / step; return Math.min(1, t * 8) * (1 - t) * (0.55 + 0.45 * Math.sin(Math.PI * Math.min(1, u * 1.1))); }, formants: [[260, 4, 1], [2300, 6, 0.08]], fry: 0.02, breath: 0.15, drive: 1.1, jitter: 0.05 });
+    return normalize(biquad(out, 'lp', 1800, 0.7, sr), 0.7);
+  };
+  // A floorboard (or a bed frame) taking weight: stick-slip clicks ringing a wooden body
+  R.floorCreak = (sr, r) => {
+    const n = S(sr * 1.3), ex = new Float32Array(n);
+    let t = 0.05; const dur = r.range(0.5, 0.9);
+    while (t < 0.05 + dur) { const u = (t - 0.05) / dur; ex[S(t * sr)] += (r() * 0.5 + 0.5) * Math.sin(Math.PI * u); t += 1 / (90 + 260 * Math.sin(Math.PI * u) + r() * 40); }
+    const body = modes(n, sr, [[r.range(160, 220), 0.05, 1], [r.range(380, 460), 0.035, 0.7], [r.range(900, 1100), 0.02, 0.4]], 0, r);
+    const out = new Float32Array(n);
+    for (let i = 0; i < n; i++) if (ex[i]) add(out, body.subarray(0, S(0.08 * sr)), ex[i], i);
+    return normalize(biquad(out, 'bp', 700, 1.2, sr), 0.75);
+  };
+  // Somebody screaming a long way off, through several walls
+  R.farScream = (sr, r) => {
+    const n = S(sr * 2.2);
+    const v = throat(n, sr, r, { f0: t => (720 - 240 * t + 60 * Math.sin(t * 9)) * (1 + 0.03 * Math.sin(t * TAU * 7)), env: t => Math.min(1, t / 0.08) * Math.pow(1 - t, 1.4), formants: [[950, 6, 1], [1400, 7, 0.7], [2900, 8, 0.3]], fry: 0.15, breath: 0.35, drive: 3, jitter: 0.3 });
+    const muff = biquad(v, 'lp', 850, 0.7, sr), out = new Float32Array(n);
+    add(out, muff, 1); add(out, muff, 0.45, S(0.23 * sr)); add(out, muff, 0.25, S(0.51 * sr));
+    return normalize(out, 0.6);
+  };
+  // The building settling: a low, metal groan that bends in pitch
+  R.buildingGroan = (sr, r) => {
+    const n = S(sr * 3.2), out = new Float32Array(n);
+    let ph = [0, 0, 0];
+    const base = r.range(42, 60);
+    for (let i = 0; i < n; i++) {
+      const t = i / n, e = Math.sin(Math.PI * t) ** 0.8, f = base * (1 + 0.25 * Math.sin(t * 2.2 + 0.5) + 0.05 * Math.sin(t * 17));
+      ph[0] += TAU * f / sr; ph[1] += TAU * f * 2.01 / sr; ph[2] += TAU * f * 3.97 / sr;
+      out[i] = (Math.sin(ph[0]) + 0.5 * Math.sin(ph[1]) + 0.25 * Math.sin(ph[2])) * e;
+    }
+    add(out, decay(biquad(brown(n, r), 'bp', 160, 2, sr), sr, 1.5, 0.2, 0.3), 0.6);
+    return normalize(softclip(out, 1.6), 0.7);
+  };
+  // A music box winding down: the tune slows and sags, then stops mid-phrase
+  R.musicBoxDown = (sr, r) => {
+    const n = S(sr * 3.8), out = new Float32Array(n);
+    const mel = [784, 659, 784, 880, 784, 659, 523, 587, 659];
+    let t = 0.05, gap = 0.22;
+    for (let k = 0; k < mel.length && t < 3.4; k++) {
+      const f = mel[k] * (1 - k * 0.012), i0 = S(t * sr), m = S(1.2 * sr);
+      for (let i = 0; i < m && i0 + i < n; i++) { const tt = i / sr; out[i0 + i] += (Math.sin(TAU * f * tt) * Math.exp(-tt / 0.35) + 0.3 * Math.sin(TAU * f * 3.01 * tt) * Math.exp(-tt / 0.08) + 0.12 * Math.sin(TAU * f * 5.4 * tt) * Math.exp(-tt / 0.03)); }
+      t += gap; gap *= 1.2;
+    }
+    return normalize(biquad(out, 'lp', 5200, 0.7, sr), 0.6);
+  };
   // The Hall Monitor's whistle: two shrill blasts with a pea rattling in it
   R.whistle = (sr, r) => {
     const n = S(sr * 1.3), out = new Float32Array(n);
@@ -923,7 +987,7 @@
   // AudioContext (one only exists after the first click), at a fixed rate the context resamples.
   const SR = 44100;
   // How many takes of each effect are used (footsteps and doors vary the most)
-  const TAKES = { paper: 6, cloth: 4, chew: 4, plasticTap: 4, flashClick: 3, doorLocked: 3, squelch: 3, thunder: 3, stingSpot: 3, rustle: 6, breathIn: 4, breathOut: 4, breathInHeavy: 4, breathOutHeavy: 4, breathCalmIn: 3, breathCalmOut: 3, breathFearIn: 4, breathFearOut: 4, gasp: 2, dropMetal: 2, dropWood: 2, dropDebris: 2, farSteps: 3, roarEater: 3, screechGhost: 3, hissCrawler: 3, groanCounter: 2, moanNeighbor: 2, laughChompy: 2, whistle: 1, impactCardboard: 3, impactBottle: 3, impactSoft: 3, drawerWoodOpen: 3, drawerWoodShut: 3, drawerMetalOpen: 3, drawerMetalShut: 3 };
+  const TAKES = { whisper: 4, childHum: 2, floorCreak: 3, farScream: 2, buildingGroan: 2, musicBoxDown: 1, paper: 6, cloth: 4, chew: 4, plasticTap: 4, flashClick: 3, doorLocked: 3, squelch: 3, thunder: 3, stingSpot: 3, rustle: 6, breathIn: 4, breathOut: 4, breathInHeavy: 4, breathOutHeavy: 4, breathCalmIn: 3, breathCalmOut: 3, breathFearIn: 4, breathFearOut: 4, gasp: 2, dropMetal: 2, dropWood: 2, dropDebris: 2, farSteps: 3, roarEater: 3, screechGhost: 3, hissCrawler: 3, groanCounter: 2, moanNeighbor: 2, laughChompy: 2, whistle: 1, impactCardboard: 3, impactBottle: 3, impactSoft: 3, drawerWoodOpen: 3, drawerWoodShut: 3, drawerMetalOpen: 3, drawerMetalShut: 3 };
   const LOOPS = /^(rain|gutter|fluorescent|hvac|poolRoom|warehouse|darkRoom|tunnel|schoolHall|mallAtrium|motelHall|hospitalHall|workshop|carPass|radioStatic)/;
   class Sfx {
     constructor(ctx) { this.ctx = ctx || null; this.cache = new Map(); this.voices = new Map(); this.rng = U.rng(1234); this.sr = SR; }

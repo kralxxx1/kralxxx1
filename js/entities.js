@@ -15,11 +15,11 @@
   };
 
   // ------------------------------------------------------------ görseller
-  // The Eater (sculpted in monsters.js): swollen sick hide, gums and human teeth, a tongue, one eye
+  // The Eater (sculpted in monsters.js): swollen raw hide, horns, gums and human teeth, a tongue, two eyes, Walt's arms
   function pacmanMesh() { return PB.Monsters.eater(); }
 
-  // The four kids under wet, torn bedsheets (monsters.js). The cloth hangs and sways from the head and
-  // shoulders, the hem drags, the eye holes are black with a wet glint deep inside that follows you.
+  // The four Haunts (monsters.js): hooded, dyed, soaked cloth over a child. The cloth hangs and sways from
+  // the hood, the pointed hem drags, the eye holes are black with a glowing pinpoint deep inside that follows you.
   // Uniform names are the old glowing ghost's, so the AI code drives it the same way.
   function ghostMesh(color, key) {
     const g = new THREE.Group();
@@ -42,24 +42,24 @@
       sh.uniforms.uGhostT = uniforms.uTime;
       sh.fragmentShader = 'uniform vec3 uColor; uniform float uAlpha; uniform float uGhostT; uniform float uFlee; uniform float uFriendly; varying float vLy;\n' + sh.fragmentShader
         .replace('#include <color_fragment>', `#include <color_fragment>
-          // Power pellet: the soaked cloth goes a drowned blue, flashing white when it is about to wear off
+          // A lantern: the dye bleaches out to a pale, drowned grey, flashing red when it is about to wear off
           float flash = step(1.5, uFlee) * step(0.5, fract(uGhostT * 3.5));
-          diffuseColor.rgb = mix(diffuseColor.rgb, mix(vec3(0.12, 0.2, 0.62), vec3(0.9), flash), step(0.5, uFlee) * 0.8);
+          diffuseColor.rgb = mix(diffuseColor.rgb, mix(vec3(0.72, 0.72, 0.76), vec3(0.85, 0.12, 0.1), flash), step(0.5, uFlee) * 0.85);
           diffuseColor.a *= uAlpha;`)
         .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
           // A faint glow of their color soaked into the hem, so they are never quite invisible in the dark
-          totalEmissiveRadiance += mix(uColor, vec3(0.2, 0.3, 1.0), step(0.5, uFlee)) * (0.05 + uFriendly * 0.05) * (1.0 - smoothstep(0.0, 0.9, vLy));`);
+          totalEmissiveRadiance += mix(uColor, vec3(0.6, 0.6, 0.65), step(0.5, uFlee)) * ((0.035 + uFriendly * 0.05) + 0.07 * (1.0 - smoothstep(0.0, 0.9, vLy)));`);
     };
-    mat.customProgramCacheKey = () => 'sheet-ghost-v1';
+    mat.customProgramCacheKey = () => 'haunt-v2';
     const body = new THREE.Mesh(geo, mat);
     body.castShadow = true; body.receiveShadow = true;
     g.add(body);
-    // Pupils: wet pinpoints deep in the torn eye holes
-    const eyeP = new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(1.6).add(new THREE.Color(0.5, 0.5, 0.45)) });
+    // Pupils: glowing pinpoints deep in the black eye holes, following you
+    const eyeP = new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(2.2).add(new THREE.Color(1.2, 1.15, 1.1)) });
     const eyes = [];
-    for (const sx of [-0.036, 0.036]) {
-      const e = new THREE.Group(); e.position.set(sx, 1.392, 0.082); g.add(e);
-      const p = new THREE.Mesh(new THREE.SphereGeometry(0.0075, 8, 6), eyeP);
+    for (const sx of [-0.085, 0.085]) {
+      const e = new THREE.Group(); e.position.set(sx, sx < 0 ? 1.302 : 1.31, 0.15); g.add(e);
+      const p = new THREE.Mesh(new THREE.SphereGeometry(0.014, 10, 8), eyeP);
       e.add(p);
       eyes.push({ e, p });
     }
@@ -407,9 +407,20 @@
       // The eye: rolls and searches when it has lost you, fixes on you when it can see you
       if (V.eyeHolder) {
         const pl = g.player.pos;
-        if (this.losToPlayer() && this.distToPlayer() < 30) V.eyeHolder.lookAt(pl.x, pl.y + 1.55, pl.z);
-        else V.eyeHolder.rotation.set(Math.sin(g.time * 0.9) * 0.4, Math.sin(g.time * 0.6 + 1) * 0.8, 0);
+        const sees = this.losToPlayer() && this.distToPlayer() < 30;
+        for (const [k, h] of [V.eyeHolder, V.eyeHolder2].entries()) {
+          if (!h) continue;
+          if (sees) h.lookAt(pl.x, pl.y + 1.55, pl.z);
+          else h.rotation.set(Math.sin(g.time * 0.9 + k * 0.7) * 0.4, Math.sin(g.time * 0.6 + 1 + k * 1.9) * 0.8, 0);   // they roll separately
+        }
         V.eye.rotation.z = Math.sin(g.time * 23) * 0.02 * this.rage;
+      }
+      // The arms pull it along, hand over hand, and twitch when it stops
+      if (V.arms) for (const a of V.arms) {
+        const ph = this.chomp * Math.PI + (a.side > 0 ? 0 : Math.PI);
+        const reach = moving ? (chasing ? 0.55 : 0.32) : 0.06;
+        a.pivot.rotation.x = -0.15 + Math.sin(ph) * reach;
+        a.pivot.rotation.z = a.side * (0.12 + Math.max(0, Math.cos(ph)) * 0.1 + Math.sin(g.time * 17 + a.side) * 0.015 * this.rage);
       }
       // Lean into the chase, weave while sniffing
       this.lean = U.damp(this.lean || 0, this.state === 'chase' ? 0.22 : 0, 3, dt);
@@ -569,8 +580,8 @@
       const p = g.player.pos;
       const local = new THREE.Vector3(p.x, 1.6, p.z);
       this.mesh.worldToLocal(local);
-      local.sub(new THREE.Vector3(0, 1.39, 0)).normalize();
-      for (const e of this.vis.eyes) e.p.position.set(local.x * 0.008, local.y * 0.006, Math.max(0, local.z) * 0.006);
+      local.sub(new THREE.Vector3(0, 1.305, 0)).normalize();
+      for (const e of this.vis.eyes) e.p.position.set(local.x * 0.018, local.y * 0.014, Math.max(0, local.z) * 0.01);
     }
     tealTeleport(dt) {
       this.teleT -= dt;

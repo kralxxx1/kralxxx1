@@ -3,6 +3,8 @@
   'use strict';
   const PB = root.PB;
   const U = PB.U, S = PB.Settings, ST = PB.Story;
+  // How much each setting weighs on the graphics card at its highest value (0..4)
+  const IMPACT = { renderScale: 4, shadows: 3, ao: 3, ssr: 3, volumetric: 4, lightmapRes: 2, textureRes: 2, antialias: 2, motionBlur: 1, dof: 2, bloom: 1, particles: 1, dynLights: 2, viewDist: 2, anisotropy: 1, modelDetail: 2, clutter: 1, sharpen: 1 };
   const t = PB.t, I = PB.I18N;
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -60,7 +62,7 @@
       document.body.classList.toggle('no-crosshair', !d.crosshair);
       document.body.dataset.sub = d.subtitleSize;
       const rec = this.$('rec'); if (rec) rec.hidden = !d.vhs;
-      const fps = this.$('fps'); if (fps) fps.hidden = !d.showFps;
+      const fps = this.$('fps'); if (fps) fps.hidden = true;
       if (key === 'vhs' || key === '*') document.body.classList.toggle('vhs', !!d.vhs);
     }
 
@@ -123,50 +125,136 @@
         }
       }
     }
-    // ---------------------------------------------------------- ayarlar
+    // ---------------------------------------------------------- settings
+    // A list of rows on the left (label, then a value you cycle with ◀ ▶, a slider or a switch) and a panel on
+    // the right that explains whichever row is selected and how heavy it is on the graphics card. Graphics
+    // shows an estimate of the GPU load and video memory for the current choices. Arrow keys move and change,
+    // Q/E switch tabs, Backspace reverts to what was set when the screen opened, Esc goes back.
     buildSettings(onBack) {
-      const tabs = this.$('set-tabs'), body = this.$('set-body');
+      const tabs = this.$('set-tabs'), body = this.$('set-body'), info = this.$('set-info');
       tabs.innerHTML = '';
       let cur = this.setTab || 'screen';
+      const opened = JSON.parse(JSON.stringify(S.data));
+      const tabList = S.TABS.filter(id => S.SCHEMA.some(x => x.tab === id));
       const render = (relabel) => {
         if (relabel) for (const b of tabs.children) b.textContent = t('tab.' + b.dataset.tab);
         body.innerHTML = '';
+        if (cur === 'graphics') body.appendChild(this.gpuBudget());
         for (const s of S.SCHEMA.filter(x => x.tab === cur)) body.appendChild(this.settingRow(s));
-        for (const b of tabs.children) b.classList.toggle('on', b.dataset.tab === cur);
+        for (const b of tabs.children) { b.classList.toggle('on', b.dataset.tab === cur); b.setAttribute('aria-selected', String(b.dataset.tab === cur)); }
+        const first = body.querySelector('.set-row');
+        if (first) this.describe(first.dataset.key);
+        this.$('set-keys').textContent = this.touch ? '' : t('settings.keys');
       };
-      for (const id of S.TABS) {
+      const go = id => { cur = this.setTab = id; render(); const f = body.querySelector('.set-row'); if (f && !this.touch) f.focus({ preventScroll: true }); };
+      for (const id of tabList) {
         const b = document.createElement('button');
-        b.textContent = t('tab.' + id); b.dataset.tab = id;
-        b.addEventListener('click', () => { cur = this.setTab = id; render(); });
+        b.type = 'button'; b.textContent = t('tab.' + id); b.dataset.tab = id; b.setAttribute('role', 'tab');
+        b.addEventListener('click', () => go(id));
         tabs.appendChild(b);
       }
       render();
       this.$('set-reset').onclick = () => { S.reset(); render(); };
+      this.$('set-revert').onclick = () => { for (const k in opened) if (S.SCHEMA.some(x => x.key === k) && JSON.stringify(S.data[k]) !== JSON.stringify(opened[k])) S.set(k, opened[k], true); S.set('preset', opened.preset, true); render(); };
       this.$('set-back').onclick = onBack;
       this.renderSettings = render;
+      // own keys while the screen is open
+      if (this.setKeys) document.removeEventListener('keydown', this.setKeys, true);
+      this.setKeys = e => {
+        if (this.$('scr-settings').hidden) return;
+        const rows = [...body.querySelectorAll('.set-row')], i = rows.indexOf(document.activeElement.closest ? document.activeElement.closest('.set-row') : null);
+        const move = d => { if (!rows.length) return; const n = rows[(Math.max(0, i) + d + rows.length) % rows.length]; n.focus({ preventScroll: false }); n.scrollIntoView({ block: 'nearest' }); this.describe(n.dataset.key); this.g.audio && this.g.audio.uiMove(); };
+        const ti = tabList.indexOf(cur);
+        if (e.code === 'ArrowDown') { e.preventDefault(); e.stopPropagation(); move(i < 0 ? 0 : 1); }
+        else if (e.code === 'ArrowUp') { e.preventDefault(); e.stopPropagation(); move(i < 0 ? 0 : -1); }
+        else if ((e.code === 'ArrowLeft' || e.code === 'ArrowRight') && i >= 0) { e.preventDefault(); e.stopPropagation(); rows[i].step(e.code === 'ArrowRight' ? 1 : -1); }
+        else if ((e.code === 'Enter' || e.code === 'Space') && i >= 0 && rows[i].dataset.type === 'toggle') { e.preventDefault(); e.stopPropagation(); rows[i].step(1); }
+        else if (e.code === 'KeyQ' || e.code === 'PageUp') { e.preventDefault(); e.stopPropagation(); go(tabList[(ti - 1 + tabList.length) % tabList.length]); }
+        else if (e.code === 'KeyE' || e.code === 'PageDown') { e.preventDefault(); e.stopPropagation(); go(tabList[(ti + 1) % tabList.length]); }
+        else if (e.code === 'Backspace') { e.preventDefault(); e.stopPropagation(); this.$('set-revert').click(); }
+      };
+      document.addEventListener('keydown', this.setKeys, true);
+    }
+    // How heavy a setting is at its current value, 0..4 (for the detail panel and the GPU budget)
+    impactOf(s, v) {
+      const w = IMPACT[s.key]; if (w == null) return null;
+      let k = 1;
+      if (s.type === 'range') k = (v - s.min) / Math.max(1e-6, s.max - s.min);
+      else if (s.type === 'toggle') k = v ? 1 : 0;
+      else { const idx = s.options.findIndex(o => String(o[0]) === String(v)); k = s.options.length > 1 ? Math.max(0, idx) / (s.options.length - 1) : 1; }
+      return Math.round(w * k);
+    }
+    gpuBudget() {
+      const box = document.createElement('div'); box.className = 'gpu-budget'; box.id = 'gpu-budget';
+      this.fillBudget(box);
+      return box;
+    }
+    fillBudget(box) {
+      box = box || this.$('gpu-budget'); if (!box) return;
+      const d = S.data;
+      let load = 0, max = 0;
+      for (const s of S.SCHEMA.filter(x => x.tab === 'graphics' && IMPACT[x.key])) { load += this.impactOf(s, d[s.key]); max += IMPACT[s.key]; }
+      const k = load / Math.max(1, max), level = k < 0.2 ? 1 : k < 0.4 ? 2 : k < 0.6 ? 3 : k < 0.8 ? 4 : 5;
+      const w = innerWidth * (root.devicePixelRatio || 1), h = innerHeight * (root.devicePixelRatio || 1), px = w * h * d.renderScale * d.renderScale;
+      const tex = d.textureRes * d.textureRes * 4 * 1.33 * 46;
+      const rts = px * 8 * (5 + (d.antialias === 'msaa' || d.antialias === 'both' ? 4 : 0) + (d.ssr !== 'off' ? 1 : 0) + (d.dof !== 'off' ? 1 : 0) + (d.motionBlur > 0 ? 1 : 0));
+      const sh = Math.pow([0, 1024, 2048, 4096, 8192][d.shadows] || 0, 2) * 4;
+      const lm = d.lightmapRes * d.lightmapRes * 1600 * 4 * 8;
+      const vram = (tex + rts + sh + lm) / 1073741824 + 0.25;
+      box.innerHTML = `<div class="gb-row"><span>${esc(t('settings.gpuLoad'))}</span><b class="gb-l${level}">${esc(t('impact.' + level))}</b></div>
+        <div class="gb-bar"><i style="width:${Math.round(k * 100)}%" class="gb-l${level}"></i></div>
+        <div class="gb-row"><span>${esc(t('settings.vram'))}</span><b>≈ ${vram.toFixed(1)} GB</b></div>`;
+    }
+    describe(key) {
+      const info = this.$('set-info'), s = S.SCHEMA.find(x => x.key === key);
+      if (!info || !s) return;
+      for (const r of this.$('set-body').querySelectorAll('.set-row')) r.classList.toggle('sel', r.dataset.key === key);
+      const helpKey = 'set.' + s.key + '.help', help = t(helpKey);
+      const imp = this.impactOf(s, S.get(s.key));
+      info.innerHTML = `<h3>${esc(t('set.' + s.key))}</h3><p>${esc(help !== helpKey ? help : '')}</p>` +
+        (imp != null ? `<div class="imp"><span>${esc(t('settings.impact'))}</span><span class="dots">${[1, 2, 3, 4].map(n => `<i class="${n <= imp ? 'on l' + imp : ''}"></i>`).join('')}</span><b>${esc(t('impact.' + Math.max(0, imp)))}</b></div>` : '') +
+        (s.reload ? `<p class="badge">${esc(t('settings.reloadBadge'))}</p>` : '');
     }
     settingRow(s) {
       const row = document.createElement('div');
-      row.className = 'set-row';
+      row.className = 'set-row'; row.tabIndex = 0; row.dataset.key = s.key; row.dataset.type = s.type;
       const id = 'set-' + s.key;
-      const v = S.get(s.key);
+      const label = () => { const v = S.get(s.key); if (s.type === 'range') return s.fmt ? s.fmt(v) : String(v); if (s.type === 'toggle') return v ? t('common.on') : t('common.off'); const o = s.options.find(q => String(q[0]) === String(v)); return o ? t(o[1]) : String(v); };
       let ctl = '';
-      if (s.type === 'range') ctl = `<input type="range" id="${id}" min="${s.min}" max="${s.max}" step="${s.step}" value="${v}"><output>${esc(s.fmt ? s.fmt(v) : v)}</output>`;
-      else if (s.type === 'toggle') ctl = `<button type="button" class="toggle" id="${id}" aria-pressed="${!!v}">${v ? t('common.on') : t('common.off')}</button>`;
-      else ctl = `<select id="${id}">${s.options.map(o => `<option value="${esc(o[0])}"${String(o[0]) === String(v) ? ' selected' : ''}>${esc(t(o[1]))}</option>`).join('')}</select>`;
-      const helpKey = 'set.' + s.key + '.help', help = t(helpKey);
-      row.innerHTML = `<label for="${id}">${esc(t('set.' + s.key))}${s.reload ? ' <em>*</em>' : ''}</label><div class="ctl">${ctl}</div>${help !== helpKey ? `<p class="help">${esc(help)}</p>` : ''}`;
-      const input = row.querySelector('#' + id);
-      if (s.type === 'range') {
-        input.addEventListener('input', () => { S.set(s.key, +input.value); row.querySelector('output').textContent = s.fmt ? s.fmt(S.get(s.key)) : S.get(s.key); if (S.PRESET_KEYS.includes(s.key)) this.syncPresetSelect(); });
-      } else if (s.type === 'toggle') {
-        input.addEventListener('click', () => { S.set(s.key, !S.get(s.key)); input.setAttribute('aria-pressed', String(S.get(s.key))); input.textContent = S.get(s.key) ? t('common.on') : t('common.off'); });
-      } else {
-        input.addEventListener('change', () => { const o = s.options.find(q => String(q[0]) === input.value); S.set(s.key, o ? o[0] : input.value); if (s.key === 'preset') this.renderSettings(); else if (s.key !== 'lang') this.syncPresetSelect(); });
-      }
+      if (s.type === 'range') ctl = `<input type="range" id="${id}" min="${s.min}" max="${s.max}" step="${s.step}" value="${S.get(s.key)}" tabindex="-1"><output>${esc(label())}</output>`;
+      else if (s.type === 'toggle') ctl = `<button type="button" class="toggle" id="${id}" tabindex="-1" aria-pressed="${!!S.get(s.key)}">${esc(label())}</button>`;
+      else ctl = `<button type="button" class="cyc" data-d="-1" tabindex="-1" aria-label="◀">◀</button><span class="cyc-val" id="${id}">${esc(label())}</span><button type="button" class="cyc" data-d="1" tabindex="-1" aria-label="▶">▶</button>`;
+      row.innerHTML = `<label>${esc(t('set.' + s.key))}${s.reload ? ' <em>*</em>' : ''}</label><div class="ctl">${ctl}</div>`;
+      const refresh = () => {
+        const v = S.get(s.key);
+        if (s.type === 'range') { row.querySelector('input').value = v; row.querySelector('output').textContent = label(); }
+        else if (s.type === 'toggle') { const b = row.querySelector('.toggle'); b.setAttribute('aria-pressed', String(!!v)); b.textContent = label(); }
+        else row.querySelector('.cyc-val').textContent = label();
+        this.describe(s.key);
+        if (s.tab === 'graphics') this.fillBudget();
+      };
+      const after = () => {
+        if (s.key === 'preset' || s.key === '*') { const k = this.setTab; this.renderSettings(); const r = this.$('set-body').querySelector(`[data-key="${s.key}"]`); if (r && !this.touch) r.focus({ preventScroll: true }); return; }
+        if (S.PRESET_KEYS.includes(s.key)) this.syncPresetSelect();
+        refresh();
+      };
+      // one step of change: arrows, ◀ ▶, a click on a switch
+      row.step = d => {
+        const v = S.get(s.key);
+        if (s.type === 'range') S.set(s.key, U.clamp(Math.round((v + d * s.step) / s.step) * s.step, s.min, s.max));
+        else if (s.type === 'toggle') S.set(s.key, !v);
+        else { const idx = s.options.findIndex(o => String(o[0]) === String(v)); const n = s.options[(idx + d + s.options.length) % s.options.length]; S.set(s.key, n[0]); }
+        this.g.audio && this.g.audio.uiMove();
+        after();
+      };
+      if (s.type === 'range') row.querySelector('input').addEventListener('input', e => { S.set(s.key, +e.target.value); after(); });
+      else if (s.type === 'toggle') row.querySelector('.toggle').addEventListener('click', () => row.step(1));
+      else for (const b of row.querySelectorAll('.cyc')) b.addEventListener('click', () => row.step(+b.dataset.d));
+      row.addEventListener('focus', () => this.describe(s.key));
+      row.addEventListener('mouseenter', () => this.describe(s.key));
       return row;
     }
-    syncPresetSelect() { const p = this.$('set-preset'); if (p) p.value = S.get('preset'); }
+    syncPresetSelect() { const r = this.$('set-body') && this.$('set-body').querySelector('[data-key="preset"] .cyc-val'); if (r) { const s = S.SCHEMA.find(x => x.key === 'preset'); const o = s.options.find(q => q[0] === S.get('preset')); r.textContent = o ? t(o[1]) : ''; } }
 
     // ---------------------------------------------------------- HUD
     setObjective(text) {
@@ -358,63 +446,130 @@
       this.show('scr-keypad');
       setTimeout(() => { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }, 40);
     }
-    // ---------------------------------------------------------- harita (klasik labirent görünümünde)
+    // ---------------------------------------------------------- map: a surveyor's floor plan on old drafting paper
     drawMap(g, opts = {}) {
       const c = this.$('map-canvas'), L = g.level;
       if (!L) return;
       this.$('map-close').textContent = this.touch ? t('map.close') : t('map.closeKey');
       const box = c.parentElement.getBoundingClientRect();
-      const cs = Math.max(4, Math.floor(Math.min((box.width - 20) / L.w, (box.height - 20) / L.h)));
+      const pad = 2;
+      const cs = Math.max(4, Math.floor(Math.min((box.width - 20) / (L.w + pad * 2), (box.height - 20) / (L.h + pad * 2))));
+      const W = (L.w + pad * 2) * cs, H = (L.h + pad * 2) * cs;
       const dpr = Math.min(2, root.devicePixelRatio || 1);
-      c.width = L.w * cs * dpr; c.height = L.h * cs * dpr;
-      c.style.width = L.w * cs + 'px'; c.style.height = L.h * cs + 'px';
+      c.width = W * dpr; c.height = H * dpr;
+      c.style.width = W + 'px'; c.style.height = H + 'px';
       const x = c.getContext('2d');
       x.setTransform(dpr, 0, 0, dpr, 0, 0);
-      x.fillStyle = '#000'; x.fillRect(0, 0, L.w * cs, L.h * cs);
+      const r = U.rng(L.seed || 7);
+      // paper: warm stock, fibres, a pale blue drafting grid, foxing at the edges
+      x.fillStyle = '#e6dcc4'; x.fillRect(0, 0, W, H);
+      for (let k = 0; k < W * H / 60; k++) { x.fillStyle = `rgba(${120 + r() * 60 | 0},${100 + r() * 40 | 0},70,${r() * 0.06})`; x.fillRect(r() * W, r() * H, 1 + r() * 2, 1); }
+      x.strokeStyle = 'rgba(70,110,160,0.13)'; x.lineWidth = 1;
+      x.beginPath();
+      for (let k = 0; k <= L.w + pad * 2; k++) { x.moveTo(k * cs + 0.5, 0); x.lineTo(k * cs + 0.5, H); }
+      for (let k = 0; k <= L.h + pad * 2; k++) { x.moveTo(0, k * cs + 0.5); x.lineTo(W, k * cs + 0.5); }
+      x.stroke();
+      const vg = x.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
+      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(110,70,20,0.35)');
+      x.fillStyle = vg; x.fillRect(0, 0, W, H);
+      x.save(); x.translate(pad * cs, pad * cs);
       const ex = g.explored || new Uint8Array(L.w * L.h);
       const seen = i => opts.all || ex[i];
-      x.fillStyle = 'rgba(255,184,174,0.07)';
-      for (let y = 0; y < L.h; y++) for (let xx = 0; xx < L.w; xx++) { const i = L.i(xx, y); if (seen(i) && !L.solid[i]) x.fillRect(xx * cs, y * cs, cs, cs); }
-      x.strokeStyle = '#2b2bff'; x.lineWidth = Math.max(1, cs * 0.14); x.lineCap = 'round';
-      x.shadowColor = '#3d3dff'; x.shadowBlur = cs * 0.6;
+      // floors of explored cells, a soft wash that changes a little from zone to zone; water is blue
+      const tones = ['rgba(150,130,95,0.22)', 'rgba(130,125,110,0.22)', 'rgba(160,120,90,0.2)', 'rgba(120,130,125,0.2)'];
+      for (let y = 0; y < L.h; y++) for (let xx = 0; xx < L.w; xx++) {
+        const i = L.i(xx, y);
+        if (!seen(i) || L.solid[i]) continue;
+        x.fillStyle = L.floorType[i] === 1 ? 'rgba(70,120,170,0.35)' : tones[(L.zone[i] || 0) % tones.length];
+        x.fillRect(xx * cs, y * cs, cs + 0.5, cs + 0.5);
+      }
+      // pillars and solid blocks inside explored space: cross-hatched
+      x.strokeStyle = 'rgba(40,36,34,0.55)'; x.lineWidth = 1;
+      for (let y = 0; y < L.h; y++) for (let xx = 0; xx < L.w; xx++) {
+        const i = L.i(xx, y);
+        if (!L.solid[i] || L.solid[i] === 9) continue;
+        let near = false;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = xx + dx, ny = y + dy; if (L.inb(nx, ny) && !L.solid[L.i(nx, ny)] && seen(L.i(nx, ny))) near = true; }
+        if (!near && !opts.all) continue;
+        x.fillStyle = 'rgba(60,54,48,0.35)'; x.fillRect(xx * cs, y * cs, cs, cs);
+        x.beginPath(); for (let k = -cs; k < cs; k += Math.max(3, cs / 3)) { x.moveTo(xx * cs + Math.max(0, k), y * cs + Math.max(0, -k)); x.lineTo(xx * cs + Math.min(cs, cs + k), y * cs + Math.min(cs, cs - k)); } x.stroke();
+      }
+      // walls: heavy graphite strokes with a slight hand wobble
+      const wob = () => (r() - 0.5) * cs * 0.025;
+      x.strokeStyle = '#2b2724'; x.lineWidth = Math.max(1.6, cs * 0.2); x.lineCap = 'square';
       x.beginPath();
       for (let y = 0; y < L.h; y++) for (let xx = 0; xx < L.w; xx++) {
         const i = L.i(xx, y);
-        if (!seen(i)) continue;
-        if (L.solid[i] && L.solid[i] !== 9) { x.rect(xx * cs + cs * 0.2, y * cs + cs * 0.2, cs * 0.6, cs * 0.6); continue; }
-        if (L.edgeKind(xx, y, 0)) { x.moveTo(xx * cs, y * cs); x.lineTo((xx + 1) * cs, y * cs); }
-        if (L.edgeKind(xx, y, 3)) { x.moveTo(xx * cs, y * cs); x.lineTo(xx * cs, (y + 1) * cs); }
-        if (L.edgeKind(xx, y, 2)) { x.moveTo(xx * cs, (y + 1) * cs); x.lineTo((xx + 1) * cs, (y + 1) * cs); }
-        if (L.edgeKind(xx, y, 1)) { x.moveTo((xx + 1) * cs, y * cs); x.lineTo((xx + 1) * cs, (y + 1) * cs); }
+        if (!seen(i) || L.solid[i]) continue;
+        if (L.edgeKind(xx, y, 0)) { x.moveTo(xx * cs, y * cs + wob()); x.lineTo((xx + 1) * cs, y * cs + wob()); }
+        if (L.edgeKind(xx, y, 3)) { x.moveTo(xx * cs + wob(), y * cs); x.lineTo(xx * cs + wob(), (y + 1) * cs); }
+        if (L.edgeKind(xx, y, 2)) { x.moveTo(xx * cs, (y + 1) * cs + wob()); x.lineTo((xx + 1) * cs, (y + 1) * cs + wob()); }
+        if (L.edgeKind(xx, y, 1)) { x.moveTo((xx + 1) * cs + wob(), y * cs); x.lineTo((xx + 1) * cs + wob(), (y + 1) * cs); }
+        // outer face of walls that border solid space
+        for (const [d, dx, dy] of [[0, 0, -1], [2, 0, 1], [3, -1, 0], [1, 1, 0]]) {
+          const nx = xx + dx, ny = y + dy;
+          if (L.inb(nx, ny) && L.solid[L.i(nx, ny)] && !L.edgeKind(xx, y, d)) {
+            if (d === 0) { x.moveTo(xx * cs, y * cs); x.lineTo((xx + 1) * cs, y * cs); }
+            if (d === 2) { x.moveTo(xx * cs, (y + 1) * cs); x.lineTo((xx + 1) * cs, (y + 1) * cs); }
+            if (d === 3) { x.moveTo(xx * cs, y * cs); x.lineTo(xx * cs, (y + 1) * cs); }
+            if (d === 1) { x.moveTo((xx + 1) * cs, y * cs); x.lineTo((xx + 1) * cs, (y + 1) * cs); }
+          }
+        }
       }
       x.stroke();
-      x.shadowBlur = 0;
-      // Kapılar
+      // doors: the leaf drawn open with its swing, the way an architect draws them; locked ones in red
       for (const d of L.doors) {
         if (!seen(L.i(d.x, d.y))) continue;
-        x.strokeStyle = d.locked ? '#ff4040' : '#ffb8de'; x.lineWidth = Math.max(2, cs * 0.25);
+        const locked = d.locked && !d.open;
+        const col = locked ? '#b0201c' : '#2b2724';
+        let hx, hy, ax, ay; // hinge, and the direction along the opening
+        if (d.d === 0 || d.d === 2) { hx = d.x * cs; hy = (d.d === 0 ? d.y : d.y + 1) * cs; ax = 1; ay = 0; }
+        else { hx = (d.d === 3 ? d.x : d.x + 1) * cs; hy = d.y * cs; ax = 0; ay = 1; }
+        const inx = d.d === 1 ? -1 : d.d === 3 ? 1 : 0, iny = d.d === 2 ? -1 : d.d === 0 ? 1 : 0;
+        // clear the wall behind the opening
+        x.strokeStyle = '#e6dcc4'; x.lineWidth = Math.max(2, cs * 0.24); x.beginPath(); x.moveTo(hx + ax * cs * 0.08, hy + ay * cs * 0.08); x.lineTo(hx + ax * cs * 0.92, hy + ay * cs * 0.92); x.stroke();
+        x.strokeStyle = col; x.lineWidth = Math.max(1, cs * 0.08);
+        x.beginPath(); x.moveTo(hx, hy); x.lineTo(hx + inx * cs * 0.85, hy + iny * cs * 0.85); x.stroke();
+        x.setLineDash([Math.max(2, cs * 0.12), Math.max(2, cs * 0.1)]);
         x.beginPath();
-        if (d.d === 0 || d.d === 2) { const yy = (d.d === 0 ? d.y : d.y + 1) * cs; x.moveTo(d.x * cs + cs * 0.2, yy); x.lineTo((d.x + 1) * cs - cs * 0.2, yy); }
-        else { const xx = (d.d === 3 ? d.x : d.x + 1) * cs; x.moveTo(xx, d.y * cs + cs * 0.2); x.lineTo(xx, (d.y + 1) * cs - cs * 0.2); }
-        x.stroke();
+        const a0 = Math.atan2(iny, inx); let da = Math.atan2(ay, ax) - a0;
+        while (da > Math.PI) da -= 2 * Math.PI; while (da <= -Math.PI) da += 2 * Math.PI;
+        x.arc(hx, hy, cs * 0.85, a0, a0 + da, da < 0);
+        x.stroke(); x.setLineDash([]);
+        if (locked) { const mx = hx + ax * cs * 0.5, my = hy + ay * cs * 0.5; x.fillStyle = col; x.fillRect(mx - cs * 0.14, my - cs * 0.1, cs * 0.28, cs * 0.22); x.strokeStyle = col; x.lineWidth = Math.max(1, cs * 0.06); x.beginPath(); x.arc(mx, my - cs * 0.1, cs * 0.1, Math.PI, 0); x.stroke(); }
       }
-      // Bilinen önemli eşyalar
+      // known things: pencil-ringed dots
       for (const it of g.items || []) {
         if (it.taken || !it.marker || !seen(L.i(it.item.x, it.item.y))) continue;
-        x.fillStyle = it.marker;
-        x.beginPath(); x.arc(it.pos.x / L.cell * cs, it.pos.z / L.cell * cs, Math.max(2.5, cs * 0.28), 0, Math.PI * 2); x.fill();
+        const px = it.pos.x / L.cell * cs, py = it.pos.z / L.cell * cs, rr = Math.max(2.8, cs * 0.26);
+        x.fillStyle = it.marker; x.beginPath(); x.arc(px, py, rr, 0, Math.PI * 2); x.fill();
+        x.strokeStyle = 'rgba(30,26,24,0.85)'; x.lineWidth = 1.2; x.stroke();
       }
-      // Kamera ekranı: yaratıklar
+      // security cameras: what they can see
       if (opts.entities) for (const e of g.entities) {
         if (!e.mesh.visible && e.kind !== 'eater') continue;
-        x.fillStyle = e.kind === 'eater' ? '#ffd21a' : e.kind === 'ghost' ? ST.charColor(ST.ghostChar(e.type)) : '#cccccc';
-        x.beginPath(); x.arc(e.pos.x / L.cell * cs, e.pos.z / L.cell * cs, cs * 0.45, 0, Math.PI * 2); x.fill();
+        x.fillStyle = e.kind === 'eater' ? '#8a1010' : e.kind === 'ghost' ? ST.charColor(ST.ghostChar(e.type)) : '#3a3a3a';
+        x.beginPath(); x.arc(e.pos.x / L.cell * cs, e.pos.z / L.cell * cs, cs * 0.42, 0, Math.PI * 2); x.fill();
+        x.strokeStyle = '#1a0a0a'; x.lineWidth = 1.5; x.stroke();
       }
-      // Oyuncu oku
+      // you: a red arrow with a faint cone of view
       const p = g.player.pos;
       x.save(); x.translate(p.x / L.cell * cs, p.z / L.cell * cs); x.rotate(-g.player.yaw);
-      x.fillStyle = '#ffff00'; x.beginPath(); x.moveTo(0, -cs * 0.7); x.lineTo(cs * 0.45, cs * 0.45); x.lineTo(-cs * 0.45, cs * 0.45); x.closePath(); x.fill();
+      const cone = x.createRadialGradient(0, 0, 0, 0, 0, cs * 3); cone.addColorStop(0, 'rgba(190,30,20,0.25)'); cone.addColorStop(1, 'rgba(190,30,20,0)');
+      x.fillStyle = cone; x.beginPath(); x.moveTo(0, 0); x.arc(0, 0, cs * 3, -Math.PI / 2 - 0.5, -Math.PI / 2 + 0.5); x.closePath(); x.fill();
+      x.fillStyle = '#c0231a'; x.strokeStyle = '#fff6e8'; x.lineWidth = 1.5;
+      x.beginPath(); x.moveTo(0, -cs * 0.75); x.lineTo(cs * 0.48, cs * 0.5); x.lineTo(0, cs * 0.25); x.lineTo(-cs * 0.48, cs * 0.5); x.closePath(); x.fill(); x.stroke();
       x.restore();
+      x.restore();
+      // compass and a scale bar in the corner, drawn like a stamp
+      const cx0 = W - cs * 1.05, cy0 = cs * 1.15, R = cs * 0.62;
+      x.strokeStyle = 'rgba(40,36,34,0.8)'; x.fillStyle = 'rgba(40,36,34,0.8)'; x.lineWidth = 1.2;
+      x.beginPath(); x.arc(cx0, cy0, R, 0, Math.PI * 2); x.stroke();
+      x.beginPath(); x.moveTo(cx0, cy0 - R * 0.95); x.lineTo(cx0 + R * 0.22, cy0); x.lineTo(cx0, cy0 + R * 0.95); x.lineTo(cx0 - R * 0.22, cy0); x.closePath(); x.stroke();
+      x.beginPath(); x.moveTo(cx0, cy0 - R * 0.95); x.lineTo(cx0 + R * 0.22, cy0); x.lineTo(cx0 - R * 0.22, cy0); x.closePath(); x.fill();
+      x.font = `${Math.max(9, cs * 0.5)}px ${getComputedStyle(document.body).getPropertyValue('--term') || 'monospace'}`; x.textAlign = 'center'; x.fillText('N', cx0, cy0 - R - 2);
+      const sb = 10 / L.cell * cs, sx = cs * 0.6, sy = H - cs * 0.7;
+      x.fillRect(sx, sy, sb / 2, 3); x.strokeRect(sx, sy, sb, 3); x.textAlign = 'left'; x.fillText('10 m', sx + sb + 6, sy + 4);
       const lv = g.levelDef;
       this.$('map-title').textContent = lv ? `${lv.name} — ${lv.title}` : '';
     }

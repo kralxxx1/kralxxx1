@@ -21,30 +21,38 @@
     { key: 'fpsLimit', tab: 'screen', type: 'select', def: 0,
       options: [[0, 'opt.unlimited'], [30, '30'], [45, '45'], [60, '60'], [75, '75'], [90, '90'], [100, '100'], [120, '120'], [144, '144'], [165, '165'], [200, '200'], [240, '240'], [300, '300'], [360, '360']] },
     { key: 'vsync', tab: 'screen', type: 'toggle', def: true },
-    { key: 'showFps', tab: 'screen', type: 'toggle', def: false },
+    { key: 'perfOverlay', tab: 'perf', type: 'select', def: 'off',
+      options: [['off', 'opt.off'], ['fps', 'opt.perfFps'], ['basic', 'opt.perfBasic'], ['detailed', 'opt.perfDetailed']] },
+    { key: 'perfCorner', tab: 'perf', type: 'select', def: 'tr',
+      options: [['tr', 'opt.cornerTR'], ['tl', 'opt.cornerTL'], ['br', 'opt.cornerBR'], ['bl', 'opt.cornerBL']] },
 
     // ---------------- GRAPHICS ----------------
     { key: 'preset', tab: 'graphics', type: 'select', def: 'high',
-      options: ['low', 'medium', 'high', 'ultra', 'extreme', 'custom'].map(v => [v, 'preset.' + v]) },
+      options: ['low', 'medium', 'high', 'ultra', 'extreme', 'ultraplus', 'custom'].map(v => [v, 'preset.' + v]) },
     { key: 'renderScale', tab: 'graphics', type: 'range', def: 1, min: 0.5, max: 2, step: 0.05, fmt: pct },
     { key: 'textureRes', tab: 'graphics', type: 'select', def: 1024, reload: true,
       options: [[512, '512 px'], [1024, '1024 px'], [2048, '2048 px']] },
     { key: 'shadows', tab: 'graphics', type: 'select', def: 2,
-      options: [[0, 'opt.off'], [1, 'opt.shadow1'], [2, 'opt.shadow2'], [3, 'opt.shadow3']] },
+      options: [[0, 'opt.off'], [1, 'opt.shadow1'], [2, 'opt.shadow2'], [3, 'opt.shadow3'], [4, 'opt.shadow4']] },
     { key: 'antialias', tab: 'graphics', type: 'select', def: 'msaa',
       options: [['none', 'opt.off'], ['fxaa', 'FXAA'], ['msaa', 'MSAA 4x'], ['both', 'MSAA 4x + FXAA']] },
     { key: 'lightmapRes', tab: 'graphics', type: 'select', def: 6, reload: true,
-      options: [[3, 'opt.low'], [4, 'opt.medium'], [6, 'opt.high'], [8, 'opt.ultra'], [12, 'opt.extreme']] },
+      options: [[3, 'opt.low'], [4, 'opt.medium'], [6, 'opt.high'], [8, 'opt.ultra'], [12, 'opt.extreme'], [16, 'opt.ultraplus']] },
+    { key: 'modelDetail', tab: 'graphics', type: 'select', def: 'high', reload: true,
+      options: [['low', 'opt.low'], ['medium', 'opt.medium'], ['high', 'opt.high'], ['ultra', 'opt.ultra'], ['ultraplus', 'opt.ultraplus']] },
+    { key: 'clutter', tab: 'graphics', type: 'range', def: 1, min: 0.4, max: 1.6, step: 0.1, fmt: pct, reload: true },
     { key: 'ao', tab: 'graphics', type: 'select', def: 'high',
-      options: [['off', 'opt.off'], ['low', 'opt.low'], ['high', 'opt.high'], ['ultra', 'opt.ultra']] },
+      options: [['off', 'opt.off'], ['low', 'opt.low'], ['high', 'opt.high'], ['ultra', 'opt.ultra'], ['ultraplus', 'opt.ultraplus']] },
     { key: 'ssr', tab: 'graphics', type: 'select', def: 'high',
-      options: [['off', 'opt.off'], ['low', 'opt.low'], ['high', 'opt.high'], ['ultra', 'opt.ultra']] },
+      options: [['off', 'opt.off'], ['low', 'opt.low'], ['high', 'opt.high'], ['ultra', 'opt.ultra'], ['ultraplus', 'opt.ultraplus']] },
     { key: 'dynLights', tab: 'graphics', type: 'range', def: 6, min: 2, max: 12, step: 1, fmt: v => String(v) },
     { key: 'bloom', tab: 'graphics', type: 'toggle', def: true },
     { key: 'bloomStrength', tab: 'graphics', type: 'range', def: 1, min: 0, max: 2, step: 0.05, fmt: pct },
     { key: 'volumetric', tab: 'graphics', type: 'select', def: 'high',
-      options: [['off', 'opt.off'], ['low', 'opt.low'], ['high', 'opt.high'], ['ultra', 'opt.ultra'], ['extreme', 'opt.extreme']] },
+      options: [['off', 'opt.off'], ['low', 'opt.low'], ['high', 'opt.high'], ['ultra', 'opt.ultra'], ['extreme', 'opt.extreme'], ['ultraplus', 'opt.ultraplus']] },
     { key: 'motionBlur', tab: 'graphics', type: 'range', def: 0.3, min: 0, max: 1, step: 0.05, fmt: pct },
+    { key: 'dof', tab: 'graphics', type: 'select', def: 'off',
+      options: [['off', 'opt.off'], ['low', 'opt.low'], ['high', 'opt.high'], ['ultra', 'opt.ultra']] },
     { key: 'lensDirt', tab: 'graphics', type: 'toggle', def: true },
     { key: 'particles', tab: 'graphics', type: 'range', def: 0.8, min: 0, max: 1, step: 0.05, fmt: pct },
     { key: 'viewDist', tab: 'graphics', type: 'range', def: 90, min: 30, max: 160, step: 5, fmt: v => v + ' m' },
@@ -56,17 +64,17 @@
     { key: 'contrast', tab: 'display', type: 'range', def: 1, min: 0.8, max: 1.3, step: 0.01, fmt: pct },
     { key: 'saturation', tab: 'display', type: 'range', def: 1, min: 0.3, max: 1.5, step: 0.05, fmt: pct },
     { key: 'fov', tab: 'display', type: 'range', def: 75, min: 60, max: 110, step: 1, fmt: v => v + '°' },
-    { key: 'headBob', tab: 'display', type: 'range', def: 0.8, min: 0, max: 1, step: 0.05, fmt: pct },
-    { key: 'shake', tab: 'display', type: 'range', def: 0.8, min: 0, max: 1, step: 0.05, fmt: pct },
+    { key: 'headBob', tab: 'access', type: 'range', def: 0.8, min: 0, max: 1, step: 0.05, fmt: pct },
+    { key: 'shake', tab: 'access', type: 'range', def: 0.8, min: 0, max: 1, step: 0.05, fmt: pct },
     { key: 'grain', tab: 'display', type: 'range', def: 0.5, min: 0, max: 1, step: 0.05, fmt: pct },
     { key: 'chromatic', tab: 'display', type: 'range', def: 0.5, min: 0, max: 1, step: 0.05, fmt: pct },
     { key: 'vignette', tab: 'display', type: 'range', def: 0.6, min: 0, max: 1, step: 0.05, fmt: pct },
     { key: 'vhs', tab: 'display', type: 'toggle', def: false },
-    { key: 'reduceFlicker', tab: 'display', type: 'toggle', def: false },
-    { key: 'crosshair', tab: 'display', type: 'toggle', def: true },
-    { key: 'subtitles', tab: 'display', type: 'toggle', def: true },
-    { key: 'captions', tab: 'display', type: 'toggle', def: false },
-    { key: 'subtitleSize', tab: 'display', type: 'select', def: 'medium',
+    { key: 'reduceFlicker', tab: 'access', type: 'toggle', def: false },
+    { key: 'crosshair', tab: 'access', type: 'toggle', def: true },
+    { key: 'subtitles', tab: 'access', type: 'toggle', def: true },
+    { key: 'captions', tab: 'access', type: 'toggle', def: false },
+    { key: 'subtitleSize', tab: 'access', type: 'select', def: 'medium',
       options: [['small', 'opt.small'], ['medium', 'opt.medium'], ['large', 'opt.large']] },
 
     // ---------------- AUDIO ----------------
@@ -89,23 +97,24 @@
     { key: 'lang', tab: 'gameplay', type: 'select', def: 'en', options: [['en', 'English'], ['tr', 'Türkçe']] },
     { key: 'difficulty', tab: 'gameplay', type: 'select', def: 'normal',
       options: [['easy', 'diff.easy'], ['normal', 'diff.normal'], ['nightmare', 'diff.nightmare']] },
-    { key: 'jumpscare', tab: 'gameplay', type: 'select', def: 'full', options: [['full', 'opt.full'], ['reduced', 'opt.reduced']] },
+    { key: 'jumpscare', tab: 'access', type: 'select', def: 'full', options: [['full', 'opt.full'], ['reduced', 'opt.reduced']] },
     { key: 'hints', tab: 'gameplay', type: 'toggle', def: true },
   ];
 
   const PRESETS = {
-    low: { renderScale: 0.75, textureRes: 512, shadows: 0, antialias: 'fxaa', lightmapRes: 3, ao: 'off', ssr: 'off', dynLights: 2, bloom: true, bloomStrength: 0.8, volumetric: 'off', motionBlur: 0, lensDirt: false, particles: 0.25, viewDist: 45, anisotropy: 2 },
-    medium: { renderScale: 1, textureRes: 1024, shadows: 1, antialias: 'fxaa', lightmapRes: 4, ao: 'low', ssr: 'off', dynLights: 4, bloom: true, bloomStrength: 1, volumetric: 'low', motionBlur: 0.2, lensDirt: true, particles: 0.5, viewDist: 70, anisotropy: 4 },
-    high: { renderScale: 1, textureRes: 1024, shadows: 2, antialias: 'msaa', lightmapRes: 6, ao: 'high', ssr: 'low', dynLights: 6, bloom: true, bloomStrength: 1, volumetric: 'high', motionBlur: 0.3, lensDirt: true, particles: 0.8, viewDist: 90, anisotropy: 8 },
-    ultra: { renderScale: 1.5, textureRes: 2048, shadows: 3, antialias: 'both', lightmapRes: 8, ao: 'ultra', ssr: 'high', dynLights: 8, bloom: true, bloomStrength: 1.1, volumetric: 'ultra', motionBlur: 0.3, lensDirt: true, particles: 1, viewDist: 130, anisotropy: 16 },
-    extreme: { renderScale: 2, textureRes: 2048, shadows: 3, antialias: 'both', lightmapRes: 12, ao: 'ultra', ssr: 'ultra', dynLights: 12, bloom: true, bloomStrength: 1.1, volumetric: 'extreme', motionBlur: 0.35, lensDirt: true, particles: 1, viewDist: 160, anisotropy: 16 },
+    low: { renderScale: 0.75, textureRes: 512, shadows: 0, antialias: 'fxaa', lightmapRes: 3, ao: 'off', ssr: 'off', dynLights: 2, bloom: true, bloomStrength: 0.8, volumetric: 'off', motionBlur: 0, lensDirt: false, particles: 0.25, viewDist: 45, anisotropy: 2, dof: 'off', modelDetail: 'low', clutter: 0.7 },
+    medium: { renderScale: 1, textureRes: 1024, shadows: 1, antialias: 'fxaa', lightmapRes: 4, ao: 'low', ssr: 'off', dynLights: 4, bloom: true, bloomStrength: 1, volumetric: 'low', motionBlur: 0.2, lensDirt: true, particles: 0.5, viewDist: 70, anisotropy: 4, dof: 'off', modelDetail: 'medium', clutter: 0.9 },
+    high: { renderScale: 1, textureRes: 1024, shadows: 2, antialias: 'msaa', lightmapRes: 6, ao: 'high', ssr: 'low', dynLights: 6, bloom: true, bloomStrength: 1, volumetric: 'high', motionBlur: 0.3, lensDirt: true, particles: 0.8, viewDist: 90, anisotropy: 8, dof: 'off', modelDetail: 'high', clutter: 1 },
+    ultra: { renderScale: 1.5, textureRes: 2048, shadows: 3, antialias: 'both', lightmapRes: 8, ao: 'ultra', ssr: 'high', dynLights: 8, bloom: true, bloomStrength: 1.1, volumetric: 'ultra', motionBlur: 0.3, lensDirt: true, particles: 1, viewDist: 130, anisotropy: 16, dof: 'low', modelDetail: 'ultra', clutter: 1.1 },
+    extreme: { renderScale: 2, textureRes: 2048, shadows: 3, antialias: 'both', lightmapRes: 12, ao: 'ultra', ssr: 'ultra', dynLights: 12, bloom: true, bloomStrength: 1.1, volumetric: 'extreme', motionBlur: 0.35, lensDirt: true, particles: 1, viewDist: 160, anisotropy: 16, dof: 'high', modelDetail: 'ultra', clutter: 1.2 },
+    ultraplus: { renderScale: 2, textureRes: 2048, shadows: 4, antialias: 'both', lightmapRes: 16, ao: 'ultraplus', ssr: 'ultraplus', dynLights: 12, bloom: true, bloomStrength: 1.15, volumetric: 'ultraplus', motionBlur: 0.35, lensDirt: true, particles: 1, viewDist: 160, anisotropy: 16, dof: 'ultra', modelDetail: 'ultraplus', clutter: 1.4 },
   };
   const PRESET_KEYS = Object.keys(PRESETS.ultra);
   const STORE_KEY = 'pb.settings.v2';
 
   const S = PB.Settings = {
     SCHEMA, PRESETS, PRESET_KEYS,
-    TABS: ['screen', 'graphics', 'display', 'audio', 'controls', 'gameplay'],
+    TABS: ['screen', 'graphics', 'display', 'audio', 'controls', 'gameplay', 'access', 'perf'],
     data: {},
     events: new U.Emitter(),
     fresh: false,
@@ -149,7 +158,8 @@
       // Changed defaults reach settings saved by older versions once
       const rev = (saved && saved.rev) || 0;
       if (saved && rev < 4) this.data.captions = false;
-      this.data.rev = 4;
+      if (saved && rev < 5 && saved.showFps) this.data.perfOverlay = 'fps';
+      this.data.rev = 5;
       return this.data;
     },
     save() { U.store.set(STORE_KEY, this.data); },

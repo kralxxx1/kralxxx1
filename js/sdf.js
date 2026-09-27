@@ -76,7 +76,11 @@
   const cache = new Map();
   // fn(p) -> distance; bounds: [[x0,y0,z0],[x1,y1,z1]]; cell: voxel size in meters
   // opts.color(p, n) -> [r,g,b]; opts.id(p) -> number stored in a 'mid' attribute; opts.smooth: relax passes
+  // Model detail (Settings → Graphics): the voxel size of every sculpted mesh scales with it
+  const DETAIL = { low: 1.6, medium: 1.25, high: 1, ultra: 0.8, ultraplus: 0.66 };
   function mesh(key, fn, bounds, cell, opts = {}) {
+    const st = PB.Settings && PB.Settings.data, f = (st && DETAIL[st.modelDetail]) || 1;
+    if (f !== 1 && !opts.fixedDetail) { cell *= f; if (key) key += '@' + f; }
     if (key && cache.has(key)) return cache.get(key).clone();
     const [b0, b1] = bounds;
     const nx = Math.ceil((b1[0] - b0[0]) / cell) + 1, ny = Math.ceil((b1[1] - b0[1]) / cell) + 1, nz = Math.ceil((b1[2] - b0[2]) / cell) + 1;

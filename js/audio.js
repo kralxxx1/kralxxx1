@@ -635,7 +635,31 @@
       const heard = gain * ref / (ref + roll * Math.max(0, d - ref)) * (occluded ? 0.55 : 1);
       if (capKey && heard > 0.12) this.caption(capKey, PB.t('cap.' + capKey), pos, gap || 25);
     }
+    // Dread: rare, uncaptioned sounds that make the place feel inhabited. A whisper right behind you, a
+    // child humming somewhere, a board taking weight, the building groaning, a scream a long way off.
+    // They come more often as the game's menace rises. (this.dread 0..1 is set by the game.)
+    dreadTick(cam) {
+      if (this.t < (this.nextDread || (this.nextDread = this.t + 40))) return;
+      const dread = U.clamp(this.dread || 0, 0, 1);
+      this.nextDread = this.t + (70 - 40 * dread) * (0.7 + Math.random() * 0.6);
+      const th = this.ambTheme;
+      if (th === 'maze' || th === 'glitch') return;
+      const fwd = cam.getWorldDirection(this._df || (this._df = new root.THREE.Vector3())).clone(); fwd.y = 0; fwd.normalize();
+      const at = (dist, spread, behind) => {
+        const a = Math.atan2(fwd.z, fwd.x) + (behind ? Math.PI : 0) + (Math.random() - 0.5) * spread;
+        return { x: cam.position.x + Math.cos(a) * dist, y: 1.3, z: cam.position.z + Math.sin(a) * dist };
+      };
+      const pick = th === 'street' ? ['floorCreak', 'childHum', 'farScream'] : th === 'arcade' ? ['floorCreak', 'musicBoxDown', 'buildingGroan'] : th === 'tunnel' ? ['childHum', 'buildingGroan', 'whisper', 'farScream'] : ['whisper', 'childHum', 'floorCreak', 'farScream', 'buildingGroan', 'musicBoxDown', 'floorCreak'];
+      const kind = pick[Math.floor(Math.random() * pick.length)];
+      if (kind === 'whisper') { const p = at(1.6 + Math.random(), 1.2, true); this.play('whisper', 4, 'amb', p, { rev: 0.25, gain: 0.35 + dread * 0.25, ref: 1.2, roll: 1.6 }); }
+      else if (kind === 'childHum') this.play('childHum', 2, 'amb', at(12 + Math.random() * 8, 3, false), { rev: 0.8, gain: 0.5, ref: 4, occl: true, occluded: true });
+      else if (kind === 'floorCreak') this.play('floorCreak', 3, 'amb', at(4 + Math.random() * 5, 2, Math.random() < 0.6), { rev: 0.5, gain: 0.7, ref: 3 });
+      else if (kind === 'farScream') this.play('farScream', 2, 'amb', at(24 + Math.random() * 10, 6, false), { rev: 1, gain: 0.55, ref: 8, occl: true, occluded: true });
+      else if (kind === 'buildingGroan') this.play('buildingGroan', 2, 'amb', null, { rev: 0.9, gain: 0.45 + dread * 0.3 });
+      else if (kind === 'musicBoxDown') this.play('musicBoxDown', 1, 'amb', at(8 + Math.random() * 6, 3, false), { rev: 0.7, gain: 0.4, ref: 3 });
+    }
     ambienceTick(cam) {
+      if (this.ctx && this.ambTheme) this.dreadTick(cam);
       if (!this.ctx || !this.ambTheme || this.t < this.nextAmb) return;
       this.nextAmb = this.t + 6 + Math.random() * 10;
       const th = this.ambTheme;

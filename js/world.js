@@ -1509,9 +1509,13 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       // Pelletler (anlık örnekli, toplanınca gizlenir)
       const pel = (L.meta.pellets || []).filter(p => !p.power);
       this.pellets = pel.map((p, k) => ({ x: L.cx(p.x), z: L.cz(p.y), cx: p.x, cy: p.y, k, alive: true, glitch: p.glitch }));
-      const pm = new THREE.InstancedMesh(new THREE.SphereGeometry(0.11, 12, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(4, 2.6, 2.3) }), this.pellets.length);
+      // Hungry House's stars: small five-pointed stars, each turned a little differently
+      const star = new THREE.Shape();
+      for (let k = 0; k < 10; k++) { const a = Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? 0.055 : 0.14; if (k) star.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); else star.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+      const sgeo = new THREE.ExtrudeGeometry(star, { depth: 0.03, bevelEnabled: true, bevelThickness: 0.012, bevelSize: 0.01, bevelSegments: 1 }); sgeo.center();
+      const pm = new THREE.InstancedMesh(sgeo, new THREE.MeshBasicMaterial({ color: new THREE.Color(4, 3.2, 1.9) }), this.pellets.length);
       const dummy = new THREE.Object3D();
-      this.pellets.forEach((p, k) => { dummy.position.set(p.x, 1.0, p.z); dummy.updateMatrix(); pm.setMatrixAt(k, dummy.matrix); });
+      this.pellets.forEach((p, k) => { dummy.position.set(p.x, 1.0, p.z); dummy.rotation.set(0, (k * 0.7) % Math.PI, 0); dummy.updateMatrix(); pm.setMatrixAt(k, dummy.matrix); });
       pm.frustumCulled = false;
       this.group.add(pm);
       this.pelletMesh = pm;

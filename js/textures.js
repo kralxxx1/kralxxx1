@@ -777,7 +777,7 @@
   const POSTERS = {
     poster1: { title: 'GALAXY 2000', sub: 'DEEP IN SPACE', bg: ['#07052a', '#3a0b5e'], fg: '#ffe23b', art: 'ship' },
     poster2: { title: 'FROG ROAD', sub: 'CAN YOU MAKE IT ACROSS?', bg: ['#0b3d0b', '#0c1c3a'], fg: '#8cff4a', art: 'frog' },
-    poster3: { title: 'HIGH SCORE', sub: '921,450 — BLY, 1987', bg: ['#1a0000', '#3d0f00'], fg: '#ffcc33', art: 'pac' },
+    poster3: { title: 'HUNGRY HOUSE', sub: 'HIGH SCORE 921,450 — DAN, 1987', bg: ['#1a0624', '#3d0f2a'], fg: '#ff8a1a', art: 'muncher' },
     poster4: { title: 'TOKENS 25¢', sub: 'BUY 10, GET 1 FREE', bg: ['#2a002a', '#000033'], fg: '#ff66dd', art: 'coin' },
     motive1: { title: 'TEAMWORK', sub: 'Nobody escapes alone.', bg: ['#1c2a3a', '#0c141c'], fg: '#e8eef5', art: 'mountain' },
     motive2: { title: 'GOALS', sub: 'The exit is always in the next hallway.', bg: ['#2c2418', '#120e08'], fg: '#f5e6c8', art: 'arrow' },
@@ -792,6 +792,26 @@
     mall1: { title: 'HOLIDAY SALE', sub: 'Up to 40% off. Harlow Mall, open late.', bg: ['#b01a1a', '#5a0a0a'], fg: '#f8f0e0', art: 'star' },
   };
   T.poster = key => T.canvas('poster:' + key, 384, 512, (g, w, h) => {
+    if (key === 'missing87') {
+      // the flyer that went up on every pole in Harlow in April 1987, gone soft with rain
+      const r = U.rng(87);
+      g.fillStyle = '#ece6d4'; g.fillRect(0, 0, w, h);
+      g.fillStyle = '#111'; g.textAlign = 'center'; g.font = `bold 64px ${FONT_TYPE}`; g.fillText('MISSING', w / 2, 70);
+      const kids = [['DANNY K., 16', '#3a4a6a', '#3a2a1a'], ['ROSIE A., 15', '#8a3a6a', '#4a2a1a'], ['NELL P., 15', '#2a6a6a', '#1a1210'], ['TOBY M., 13', '#c86a20', '#b04a18']];
+      kids.forEach(([name, shirt, hair], k) => {
+        const x = 30 + (k % 2) * 172, y = 96 + Math.floor(k / 2) * 178;
+        g.fillStyle = '#8a8478'; g.fillRect(x, y, 150, 140);
+        g.fillStyle = shirt; g.fillRect(x + 35, y + 95, 80, 45);
+        g.fillStyle = '#c8b09a'; g.beginPath(); g.ellipse(x + 75, y + 70, 28, 34, 0, 0, 6.283); g.fill();
+        g.fillStyle = hair; g.beginPath(); g.ellipse(x + 75, y + 52, 30, 22, 0, Math.PI, 0); g.fill();
+        g.fillStyle = 'rgba(40,40,40,0.35)'; g.fillRect(x, y, 150, 140);
+        g.fillStyle = '#111'; g.font = `bold 16px ${FONT_TYPE}`; g.fillText(name, x + 75, y + 160);
+      });
+      g.font = `15px ${FONT_TYPE}`; g.fillStyle = '#222'; g.fillText('LAST SEEN APRIL 16, 1987 — FRONT STREET', w / 2, h - 44); g.fillText('HARLOW P.D.', w / 2, h - 22);
+      for (let k = 0; k < 14; k++) { g.fillStyle = 'rgba(90,70,40,0.18)'; g.fillRect(r() * w, r.range(0.2, 0.9) * h, r.range(3, 10), r.range(40, 180)); }
+      for (let k = 0; k < 1500; k++) { g.fillStyle = `rgba(90,70,40,${r() * 0.07})`; g.fillRect(r() * w, r() * h, 2, 2); }
+      return;
+    }
     const p = POSTERS[key] || POSTERS.poster1;
     const grd = g.createLinearGradient(0, 0, 0, h); grd.addColorStop(0, p.bg[0]); grd.addColorStop(1, p.bg[1]);
     g.fillStyle = grd; g.fillRect(0, 0, w, h);
@@ -802,7 +822,15 @@
     g.fillStyle = p.fg; g.strokeStyle = p.fg; g.lineWidth = 6;
     if (p.art === 'ship') { g.beginPath(); g.moveTo(0, -70); g.lineTo(50, 50); g.lineTo(0, 25); g.lineTo(-50, 50); g.closePath(); g.fill(); g.fillStyle = '#ff3b3b'; g.fillRect(-8, 50, 16, 30); }
     else if (p.art === 'frog') { g.beginPath(); g.arc(0, 0, 60, 0, 6.28); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(-25, -40, 16, 0, 6.28); g.arc(25, -40, 16, 0, 6.28); g.fill(); g.fillStyle = '#000'; g.beginPath(); g.arc(-25, -40, 7, 0, 6.28); g.arc(25, -40, 7, 0, 6.28); g.fill(); }
-    else if (p.art === 'pac') { g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, 80, 0.6, 6.28 - 0.6); g.closePath(); g.fill(); for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(110 + k * 40, 0, 9, 0, 6.28); g.fill(); } }
+    else if (p.art === 'muncher') {
+      // the Hungry House Muncher: round, horned, a toothy grin, chasing a row of stars
+      g.fillStyle = '#5a1e0a'; for (const d of [-1, 1]) { g.beginPath(); g.moveTo(d * 28, -62); g.lineTo(d * 52, -104); g.lineTo(d * 58, -48); g.fill(); }
+      g.fillStyle = p.fg; g.beginPath(); g.arc(-20, 0, 78, 0, 6.28); g.fill();
+      g.fillStyle = '#2a0808'; g.beginPath(); g.ellipse(-14, 24, 54, 22, 0, 0, 6.28); g.fill();
+      g.fillStyle = '#fff6e0'; for (let k = -2; k <= 2; k++) { g.beginPath(); g.moveTo(-14 + k * 20 - 7, 4); g.lineTo(-14 + k * 20 + 7, 4); g.lineTo(-14 + k * 20, 18); g.fill(); }
+      for (const d of [-1, 1]) { g.fillStyle = '#fff'; g.beginPath(); g.ellipse(-20 + d * 26, -22, 15, 18, 0, 0, 6.28); g.fill(); g.fillStyle = '#120818'; g.beginPath(); g.arc(-14 + d * 26, -20, 7, 0, 6.28); g.fill(); }
+      g.fillStyle = '#ffe7a0'; for (let k = 0; k < 3; k++) { const x = 100 + k * 36, y = 0; g.beginPath(); for (let j = 0; j < 10; j++) { const a = -Math.PI / 2 + j * Math.PI / 5, rr = j % 2 ? 5 : 12; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.fill(); }
+    }
     else if (p.art === 'coin') { g.beginPath(); g.arc(0, 0, 75, 0, 6.28); g.stroke(); g.font = `bold 60px ${FONT_TYPE}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('¢', 0, 4); }
     else if (p.art === 'mountain') { g.beginPath(); g.moveTo(-140, 80); g.lineTo(-40, -60); g.lineTo(10, 0); g.lineTo(60, -80); g.lineTo(150, 80); g.closePath(); g.globalAlpha = 0.6; g.fill(); }
     else if (p.art === 'arrow') { g.beginPath(); g.moveTo(-90, 20); g.lineTo(30, 20); g.lineTo(30, 55); g.lineTo(100, 0); g.lineTo(30, -55); g.lineTo(30, -20); g.lineTo(-90, -20); g.closePath(); g.globalAlpha = 0.7; g.fill(); }
@@ -922,6 +950,21 @@
         break;
       }
       case 'poster': { g.drawImage(T.poster(text || 'motive1').userData.canvas, 0, 0, W, H); break; }
+      case 'hands': {
+        // small handprints, a child's, pressed into the grime at different heights as if someone was feeling their way along
+        const hand = (cx, cy, s, a) => {
+          g.save(); g.translate(cx, cy); g.rotate(a); g.fillStyle = 'rgba(28,18,12,0.72)';
+          g.beginPath(); g.ellipse(0, 0, 30 * s, 36 * s, 0, 0, 6.283); g.fill();
+          [[-24, -44, 0.3], [-9, -56, 0.1], [7, -58, -0.05], [22, -50, -0.2]].forEach(([x, y, fa]) => { g.save(); g.translate(x * s, y * s); g.rotate(fa); g.beginPath(); g.ellipse(0, 0, 7 * s, 18 * s, 0, 0, 6.283); g.fill(); g.restore(); });
+          g.save(); g.translate(34 * s, -4 * s); g.rotate(-0.9); g.beginPath(); g.ellipse(0, 0, 8 * s, 17 * s, 0, 0, 6.283); g.fill(); g.restore();
+          for (let k = 0; k < 40; k++) { g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(r.range(-30, 30) * s, r.range(-60, 30) * s, 2, 2); }
+          g.restore();
+        };
+        const n = 2 + (r() * 3 | 0);
+        for (let k = 0; k < n; k++) hand(W * r.range(0.2, 0.8), H * r.range(0.25, 0.75), r.range(0.9, 1.3), r.range(-0.5, 0.5));
+        g.globalCompositeOperation = 'destination-out'; for (let k = 0; k < 900; k++) { g.fillStyle = `rgba(0,0,0,${r() * 0.6})`; g.fillRect(r() * W, r() * H, 3, 3); } g.globalCompositeOperation = 'source-over';
+        break;
+      }
       case 'storeSign': {
         const cols = ['#ff4fa3', '#4fd8ff', '#ffd23f', '#7dff6a', '#ff7a3d', '#c77dff'];
         const col = cols[U.hashStr(text || '') % cols.length];

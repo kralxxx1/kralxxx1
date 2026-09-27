@@ -35,10 +35,13 @@
       }
       // Eye socket on the upper jaw (the eye sits in it)
       if (upper) {
+        // two sockets (the body is symmetric here), each with swollen, raw lids set around the eye's axis
+        const q = [Math.abs(p[0]), p[1], p[2]];
         const ec = EYE, l = Math.hypot(ec[0], ec[1], ec[2]), ax = [ec[0] / l, ec[1] / l, ec[2] / l];
-        d = S.smax(d, -S.sphere(p, ec, 0.18), 0.02);
-        // swollen, raw lids ringing the socket, set around the eye's own axis
-        d = S.smin(d, S.torusAxis(p, [ec[0] - ax[0] * 0.02, ec[1] - ax[1] * 0.02, ec[2] - ax[2] * 0.02], ax, 0.17, 0.055), 0.05);
+        d = S.smax(d, -S.sphere(q, ec, 0.18), 0.02);
+        d = S.smin(d, S.torusAxis(q, [ec[0] - ax[0] * 0.02, ec[1] - ax[1] * 0.02, ec[2] - ax[2] * 0.02], ax, 0.17, 0.055), 0.05);
+        // a heavy brow ridge over both eyes
+        d = S.smin(d, S.capsule(q, [0, 1.02, 0.66], [0.62, 0.98, 0.62], 0.08, 0.06), 0.12);
       }
       return d;
     };
@@ -46,9 +49,9 @@
   function eaterSkinTex() {
     return T.canvas('eater:skin', 1024, 1024, (g, w, h) => {
       const r = U.rng(66);
-      g.fillStyle = '#c9a23a'; g.fillRect(0, 0, w, h);
+      g.fillStyle = '#8e6454'; g.fillRect(0, 0, w, h);
       // mottling
-      for (let k = 0; k < 220; k++) { const x = r() * w, y = r() * h, rr = r.range(20, 120); const grd = g.createRadialGradient(x, y, 0, x, y, rr); const c = r() < 0.5 ? '150,110,30' : r() < 0.5 ? '210,180,80' : '120,70,40'; grd.addColorStop(0, `rgba(${c},0.35)`); grd.addColorStop(1, `rgba(${c},0)`); g.fillStyle = grd; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); }
+      for (let k = 0; k < 220; k++) { const x = r() * w, y = r() * h, rr = r.range(20, 120); const grd = g.createRadialGradient(x, y, 0, x, y, rr); const c = r() < 0.5 ? '140,80,64' : r() < 0.5 ? '205,150,120' : '105,52,44'; grd.addColorStop(0, `rgba(${c},0.35)`); grd.addColorStop(1, `rgba(${c},0)`); g.fillStyle = grd; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); }
       // bruises
       for (let k = 0; k < 16; k++) { const x = r() * w, y = r() * h, rr = r.range(30, 90); const grd = g.createRadialGradient(x, y, 0, x, y, rr); grd.addColorStop(0, 'rgba(90,40,70,0.55)'); grd.addColorStop(0.6, 'rgba(110,90,40,0.3)'); grd.addColorStop(1, 'rgba(110,90,40,0)'); g.fillStyle = grd; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); }
       // veins: branching dark red-purple lines
@@ -61,7 +64,7 @@
       // sores: wet dark-red craters with a pale rim
       for (let k = 0; k < 22; k++) { const x = r() * w, y = r() * h, rr = r.range(4, 14); g.fillStyle = 'rgba(230,210,150,0.7)'; g.beginPath(); g.arc(x, y, rr * 1.4, 0, 6.28); g.fill(); g.fillStyle = 'rgba(90,10,15,0.95)'; g.beginPath(); g.arc(x, y, rr, 0, 6.28); g.fill(); g.fillStyle = 'rgba(40,0,5,0.9)'; g.beginPath(); g.arc(x + rr * 0.2, y + rr * 0.1, rr * 0.5, 0, 6.28); g.fill(); }
       // pores and stubble
-      for (let k = 0; k < 26000; k++) { g.fillStyle = r() < 0.7 ? 'rgba(80,50,10,0.18)' : 'rgba(40,20,5,0.4)'; g.fillRect(r() * w, r() * h, 1.5, 1.5); }
+      for (let k = 0; k < 26000; k++) { g.fillStyle = r() < 0.7 ? 'rgba(80,40,30,0.18)' : 'rgba(40,15,10,0.4)'; g.fillRect(r() * w, r() * h, 1.5, 1.5); }
     }, { repeat: true });
   }
   function eaterBumpTex() {
@@ -140,7 +143,7 @@
     };
     const upperG = S.mesh('eater:upper', eaterJaw(true), [[-1.3, -0.12, -1.3], [1.3, 1.3, 1.3]], 0.03, { color: jawColor, smooth: 2 });
     const lowerG = S.mesh('eater:lower', eaterJaw(false), [[-1.3, -1.3, -1.3], [1.3, 0.12, 1.3]], 0.03, { color: jawColor, smooth: 2 });
-    const mat = new THREE.MeshPhysicalMaterial({ map: skin, bumpMap: bump, bumpScale: 3, vertexColors: true, roughness: 0.42, metalness: 0, clearcoat: 0.35, clearcoatRoughness: 0.5, emissive: 0x3a2400, emissiveIntensity: 0.25 });
+    const mat = new THREE.MeshPhysicalMaterial({ map: skin, bumpMap: bump, bumpScale: 3, vertexColors: true, roughness: 0.55, metalness: 0, clearcoat: 0.2, clearcoatRoughness: 0.55, emissive: 0x2a0e06, emissiveIntensity: 0.25 });
     mat.onBeforeCompile = sh => {
       sh.uniforms.uT = uT; sh.uniforms.uBreath = uBreath; sh.uniforms.uRage = uRage;
       sh.vertexShader = 'uniform float uT; uniform float uBreath; uniform float uRage;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
@@ -194,11 +197,38 @@
     eye.rotation.y = -PI / 2;
     const eyeHolder = new THREE.Group(); eyeHolder.position.copy(eye.position); eye.position.set(0, 0, 0); eyeHolder.add(eye);
     up.add(eyeHolder);
+    const eye2 = new THREE.Mesh(eye.geometry, eyeMat); eye2.rotation.y = -PI / 2;
+    const eyeHolder2 = new THREE.Group(); eyeHolder2.position.set(-EYE[0], EYE[1], EYE[2]); eyeHolder2.add(eye2);
+    up.add(eyeHolder2);
+    // Horns: two thick, ridged, curling horns of old bone, like the Muncher's on the cabinet
+    const hornG = S.mesh('eater:horn', p => {
+      let d = S.chain(p, [[-0.05, -0.1, 0], [0.26, 0.12, 0.12], [0.52, 0.42, 0.16], [0.6, 0.76, 0.04]], [0.16, 0.115, 0.065, 0.015], 0.06);
+      const t = Math.hypot(p[0], p[1], p[2]);
+      return d + Math.sin(t * 60) * 0.006 + S.fbm(p[0] * 9, p[1] * 9, p[2] * 9, 2) * 0.01;
+    }, [[-0.26, -0.3, -0.24], [0.8, 0.95, 0.4]], 0.012, { color: (p) => { const k = Math.min(1, Math.max(0, (p[1] + 0.1) / 0.5)); return [0.55 + k * 0.45, 0.5 + k * 0.42, 0.42 + k * 0.36]; }, smooth: 2 });
+    const hornMat = new THREE.MeshStandardMaterial({ color: 0xcdbb98, roughness: 0.55, vertexColors: true });
+    for (const sx of [-1, 1]) { const h = new THREE.Mesh(hornG, hornMat); h.position.set(sx * 0.62, 0.8, 0.34); h.scale.x = sx; h.castShadow = true; up.add(h); }
+    // Arms: two long, thin, human arms hanging from under the jaw. Walt's. The fingers drag on the floor.
+    const armG = S.mesh('eater:arm', p => {
+      let d = S.chain(p, [[0, 0, 0], [0.34, -0.3, 0.12], [0.3, -0.76, 0.4]], [0.1, 0.07, 0.05], 0.03);
+      d = S.smin(d, S.ellipsoid(p, [0.3, -0.81, 0.49], [0.065, 0.03, 0.085]), 0.03);
+      for (let f = 0; f < 4; f++) { const fx = 0.3 + (f - 1.5) * 0.032; d = S.smin(d, S.capsule(p, [fx, -0.82, 0.55], [0.3 + (f - 1.5) * 0.05, -0.87, 0.7 - Math.abs(f - 1.5) * 0.03], 0.013, 0.009), 0.012); }
+      d = S.smin(d, S.capsule(p, [0.35, -0.8, 0.48], [0.4, -0.85, 0.57], 0.014, 0.01), 0.012);
+      return d + S.fbm(p[0] * 14, p[1] * 14, p[2] * 14, 2) * 0.004;
+    }, [[-0.14, -0.94, -0.14], [0.5, 0.12, 0.76]], 0.011, { color: (p) => p[2] > 0.66 ? [0.3, 0.24, 0.22] : [1, 1, 1], smooth: 2 });
+    const armMat = new THREE.MeshStandardMaterial({ color: 0x9a8478, roughness: 0.6, vertexColors: true });
+    const arms = [];
+    for (const sx of [-1, 1]) {
+      const pivot = new THREE.Group(); pivot.position.set(sx * 0.78, -0.34, 0.42);
+      const m = new THREE.Mesh(armG, armMat); m.scale.set(sx, 1, 1); m.castShadow = true; pivot.add(m);
+      arms.push({ pivot, side: sx });
+    }
     // Throat: black inside
     const throat = new THREE.Mesh(new THREE.SphereGeometry(R * 0.7, 24, 16), new THREE.MeshBasicMaterial({ color: 0x030000, side: THREE.BackSide }));
     throat.position.z = -0.2;
     const g = new THREE.Group();
     g.add(up, lo, throat);
+    for (const a of arms) g.add(a.pivot);
     // Saliva strands between the jaws
     const spit = new THREE.MeshPhysicalMaterial({ color: 0xd8dccc, roughness: 0.05, transparent: true, opacity: 0.5, depthWrite: false, clearcoat: 1 });
     const strands = [];
@@ -213,75 +243,84 @@
       g.add(m); strands.push(m);
     }
     // A dim, sick glow: enough to see it coming down a dark corridor, not a lamp
-    const light = new THREE.PointLight(0xd8a040, 10, 14, 1.8);
+    const light = new THREE.PointLight(0xc8704a, 10, 14, 1.8);
     light.position.set(0, 0.4, 1.0);
     g.add(light);
-    return { group: g, up, lo, light, mat, R, uT, uBreath, uRage, strands, tongue, eye, eyeHolder, ms: performance.now() - t0 };
+    return { group: g, up, lo, light, mat, R, uT, uBreath, uRage, strands, tongue, eye, eyeHolder, eye2, eyeHolder2, arms, ms: performance.now() - t0 };
   }
 
-  // ------------------------------------------------------------ SHEET GHOSTS
-  // A child's head under the soaked cloth: the sheet clings to the face, so the brow, the nose and an open
-  // mouth press through it, and it sinks into the eye sockets where it has been torn
-  const EYEH = [[-0.036, 1.392, 0.093], [0.036, 1.392, 0.093]];
+  // ------------------------------------------------------------ THE HAUNTS
+  // Hungry House's hooded Haunts, made of soaked, dyed cloth: a big round hood that is as wide as the body,
+  // a bell of cloth falling from it to a hem torn into long points, and two huge oval eye holes with a
+  // pinpoint glowing deep inside each. Under the hood a child's face presses through the wet cloth.
+  const EYEH = [[-0.085, 1.305, 0.188], [0.085, 1.318, 0.186]];
+  const HOOD = [0, 1.28, 0], HOODR = [0.235, 0.265, 0.215];
   function sheetDist(p) {
     const y = p[1];
-    let head = S.ellipsoid(p, [0, 1.38, 0.0], [0.097, 0.118, 0.108]);
-    head = S.smin(head, S.ellipsoid(p, [0, 1.305, 0.035], [0.072, 0.062, 0.072]), 0.045);
-    head = S.smin(head, S.capsule(p, [0, 1.39, 0.098], [0, 1.352, 0.118], 0.011, 0.016), 0.02);
-    head = S.smin(head, S.capsule(p, [-0.042, 1.418, 0.09], [0.042, 1.418, 0.09], 0.014), 0.022);
-    for (const e of EYEH) head = S.smax(head, -S.sphere(p, [e[0], e[1], e[2] + 0.01], 0.024), 0.012);
-    head = S.smax(head, -S.ellipsoid(p, [0, 1.298, 0.105], [0.024, 0.032, 0.03]), 0.012);
-    // narrow shoulders; the cloth falls from the chin and the shoulders in one piece
-    let d = S.smin(head, S.ellipsoid(p, [0, 1.17, -0.005], [0.2, 0.085, 0.12]), 0.1);
+    let d = S.ellipsoid(p, HOOD, HOODR);
+    // the face under the cloth: brow, nose, a slack open mouth
+    d = S.smin(d, S.capsule(p, [-0.07, 1.36, 0.19], [0.07, 1.36, 0.19], 0.028), 0.03);
+    d = S.smin(d, S.capsule(p, [0, 1.285, 0.205], [0, 1.25, 0.222], 0.014, 0.02), 0.025);
+    d = S.smax(d, -S.ellipsoid(p, [0, 1.165, 0.2], [0.045, 0.08, 0.06]), 0.015);   // a mouth stretched open in a scream
     {
-      const t = Math.min(1, Math.max(0, (1.22 - y) / 1.22));
+      // the bell: the cloth falls from the hood, a little wider at the bottom, folding as it goes
+      const t = Math.min(1, Math.max(0, (1.2 - y) / 1.2));
       const ang = Math.atan2(p[2], p[0]);
-      const folds = Math.sin(ang * 9 + t * 2) * 0.028 * t + Math.sin(ang * 4 - t * 3) * 0.02 * t + Math.sin(ang * 17 + y * 7) * 0.006 * t;
-      const rad = 0.17 + t * 0.27 + folds + S.fbm(p[0] * 5, y * 3, p[2] * 5, 2) * 0.05 * t;
-      let cone = (Math.hypot(p[0], p[2] * 1.12) - rad) * 0.8;
-      // ragged, torn hem that drags: uneven length, a few strips hanging lower
-      const hem = 0.015 + (S.fbm(ang * 3.3, 0, 0, 3) + 0.5) * 0.1 - Math.max(0, Math.sin(ang * 7 + 1.3)) * 0.02;
-      cone = S.smax(cone, hem - y, 0.02);
-      cone = S.smax(cone, y - 1.24, 0.06);   // the drape starts at the shoulders
-      d = S.smin(d, cone, 0.09);
+      const folds = Math.sin(ang * 8 + t * 2) * 0.022 * t + Math.sin(ang * 3 - t * 3) * 0.018 * t + Math.sin(ang * 15 + y * 7) * 0.005 * t;
+      const rad = 0.22 + t * 0.15 + folds + S.fbm(p[0] * 5, y * 3, p[2] * 5, 2) * 0.04 * t;
+      let bell = (Math.hypot(p[0], p[2] * 1.08) - rad) * 0.8;
+      // the hem: five long points, torn ragged, one strip dragging on the floor
+      const points = Math.pow(Math.abs(Math.sin(ang * 2.5 + 0.3)), 0.7);
+      const hem = 0.01 + points * 0.16 + (S.fbm(ang * 4.1, 0, 0, 3) + 0.5) * 0.05 - Math.max(0, Math.sin(ang * 7 + 1.3) - 0.8) * 0.2;
+      bell = S.smax(bell, hem - y, 0.02);
+      bell = S.smax(bell, y - 1.3, 0.05);
+      d = S.smin(d, bell, 0.08);
     }
-    // arms reaching a little forward under the sheet
-    d = S.smin(d, S.capsule(p, [0.16, 1.16, 0.04], [0.14, 0.86, 0.24], 0.045, 0.04), 0.06);
-    d = S.smin(d, S.capsule(p, [-0.16, 1.16, 0.04], [-0.15, 0.9, 0.2], 0.045, 0.04), 0.06);
-    // the eye holes are torn right through
-    for (const [k, e] of EYEH.entries()) d = S.smax(d, -S.ellipsoid(p, [e[0], e[1], e[2] + 0.02], [0.017 + k * 0.003, 0.014, 0.06]), 0.005);
+    // arms reaching forward under the cloth
+    d = S.smin(d, S.capsule(p, [0.2, 1.1, 0.03], [0.17, 0.82, 0.26], 0.05, 0.042), 0.06);
+    d = S.smin(d, S.capsule(p, [-0.2, 1.1, 0.03], [-0.18, 0.86, 0.22], 0.05, 0.042), 0.06);
+    // the eye holes are torn right through: big, oval, black
+    for (const [k, e] of EYEH.entries()) d = S.smax(d, -S.ellipsoid(p, [e[0], e[1] - k * 0.006, e[2] + 0.02], [0.052 - k * 0.006, 0.072 + k * 0.008, 0.1]), 0.008);
     return d;
   }
   function sheetColor(p, n) {
-    // dark in the torn eye holes and the mouth, darker and wetter toward the dragging hem
-    for (const e of EYEH) if (Math.hypot(p[0] - e[0], p[1] - e[1], p[2] - e[2] - 0.01) < 0.03) return [0.03, 0.025, 0.025];
-    if (Math.hypot(p[0], (p[1] - 1.298) * 0.8, p[2] - 0.105) < 0.03) return [0.35, 0.3, 0.3];
-    const wet = 0.62 + 0.38 * Math.min(1, Math.max(0, p[1] / 0.7));
+    // black in the eye holes and the mouth, darker and wetter toward the dragging hem
+    for (const e of EYEH) if (Math.hypot((p[0] - e[0]) / 0.058, (p[1] - e[1]) / 0.074, (p[2] - e[2] - 0.01) / 0.09) < 1) return [0.02, 0.015, 0.015];
+    if (Math.hypot((p[0]) / 0.05, (p[1] - 1.165) / 0.085, (p[2] - 0.2) / 0.07) < 1) return [0.03, 0.02, 0.02];
+    const wet = 0.55 + 0.45 * Math.min(1, Math.max(0, p[1] / 0.8));
     let occ = 0;
     for (const s of [0.02, 0.05]) { const q = [p[0] + n[0] * s, p[1] + n[1] * s, p[2] + n[2] * s]; occ += Math.max(0, s - sheetDist(q)) / s; }
     const a = Math.max(0.35, 1 - occ * 0.6) * wet;
     return [a, a * 0.98, a * 0.95];
   }
   function sheetGeo() {
-    const geo = S.mesh('ghost:sheet3', sheetDist, [[-0.62, -0.05, -0.6], [0.62, 1.54, 0.6]], 0.016, { color: sheetColor, smooth: 2 });
+    const geo = S.mesh('ghost:haunt1', sheetDist, [[-0.62, -0.05, -0.6], [0.62, 1.6, 0.6]], 0.016, { color: sheetColor, smooth: 2 });
     // Wrap the cloth texture around the body (mirrored at the back, so there is no seam) and up its height
     const pa = geo.attributes.position, uv = geo.attributes.uv;
-    for (let i = 0; i < pa.count; i++) uv.setXY(i, Math.abs(Math.atan2(pa.getX(i), pa.getZ(i))) / Math.PI * 1.5, pa.getY(i) / 1.54);
+    for (let i = 0; i < pa.count; i++) uv.setXY(i, Math.abs(Math.atan2(pa.getX(i), pa.getZ(i))) / Math.PI * 1.5, pa.getY(i) / 1.56);
     uv.needsUpdate = true;
     return geo;
   }
   function sheetTex(key, color) {
     return T.canvas('ghost:sheet:' + key, 512, 512, (g, w, h) => {
       const r = U.rng(U.hashStr(key));
-      g.fillStyle = '#d8d4c8'; g.fillRect(0, 0, w, h);
-      for (let k = 0; k < 9000; k++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)'; g.fillRect(r() * w, r() * h, 2, 1); }
-      // weave
-      g.fillStyle = 'rgba(0,0,0,0.05)'; for (let y = 0; y < h; y += 3) g.fillRect(0, y, w, 1);
-      // the dye of their color, bleeding up from the soaked hem (v=0 at the bottom)
+      // cloth dyed through in the Haunt's color, faded on the hood, soaked dark at the hem (v=0 at the bottom)
       const c = new THREE.Color(color);
-      const col = a => `rgba(${c.r * 255 | 0},${c.g * 255 | 0},${c.b * 255 | 0},${a})`;
-      const grd = g.createLinearGradient(0, h, 0, h * 0.35); grd.addColorStop(0, col(0.85)); grd.addColorStop(0.5, col(0.35)); grd.addColorStop(1, col(0)); g.fillStyle = grd; g.fillRect(0, 0, w, h);
-      for (let k = 0; k < 60; k++) { const x = r() * w; g.fillStyle = col(0.2 + r() * 0.3); g.fillRect(x, h * r.range(0.3, 0.7), r.range(2, 6), h); }
+      const col = (a, k = 1) => `rgba(${Math.min(255, c.r * 255 * k) | 0},${Math.min(255, c.g * 255 * k) | 0},${Math.min(255, c.b * 255 * k) | 0},${a})`;
+      g.fillStyle = col(1, 0.78); g.fillRect(0, 0, w, h);
+      const fade = g.createLinearGradient(0, h, 0, 0); fade.addColorStop(0, 'rgba(10,6,6,0.55)'); fade.addColorStop(0.35, 'rgba(10,6,6,0.1)'); fade.addColorStop(0.8, 'rgba(230,225,215,0.12)'); fade.addColorStop(1, 'rgba(230,225,215,0.2)');
+      g.fillStyle = fade; g.fillRect(0, 0, w, h);
+      for (let k = 0; k < 9000; k++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)'; g.fillRect(r() * w, r() * h, 2, 1); }
+      // weave
+      g.fillStyle = 'rgba(0,0,0,0.06)'; for (let y = 0; y < h; y += 3) g.fillRect(0, y, w, 1);
+      // runs of darker dye where the water ran down
+      for (let k = 0; k < 70; k++) { const x = r() * w; g.fillStyle = col(0.25 + r() * 0.3, 0.5); g.fillRect(x, h * r.range(0.25, 0.7), r.range(2, 7), h); }
+      // dark runs weeping down from under the eye holes (u = 0.2 on both sides) and from the mouth (u = 0)
+      for (const [u0, v0, n] of [[0.2, 0.2, 5], [0.0, 0.27, 4]]) for (let k = 0; k < n; k++) {
+        const x = (u0 + r.range(-0.035, 0.035)) * w, len = h * r.range(0.12, 0.42), wd = r.range(2, 6);
+        const gr = g.createLinearGradient(0, v0 * h, 0, v0 * h + len); gr.addColorStop(0, 'rgba(25,8,8,0.8)'); gr.addColorStop(1, 'rgba(25,8,8,0)');
+        g.fillStyle = gr; g.fillRect(x, v0 * h, wd, len); g.beginPath(); g.arc(x + wd / 2, v0 * h + len * 0.7, wd * 0.7, 0, 6.283); g.fill();
+      }
       // grime, mould and old stains
       for (let k = 0; k < 40; k++) { const x = r() * w, y = r() * h, rr = r.range(10, 50); const gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, 'rgba(70,60,40,0.35)'); gr.addColorStop(1, 'rgba(70,60,40,0)'); g.fillStyle = gr; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); }
     });

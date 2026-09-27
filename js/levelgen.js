@@ -747,7 +747,7 @@
     }
     decorDecals(L, r, Math.floor(L.w * L.h / 7), [
       { type: 'oil', floor: true, min: 0.8, max: 2.6 }, { type: 'crack', floor: true, min: 1, max: 3 }, { type: 'paintLine', floor: true, min: 2, max: 3 },
-      { type: 'rust', min: 0.8, max: 2, h: 2.4 }, { type: 'stain', min: 1, max: 2.5 }, { type: 'graffiti', min: 1.2, max: 2, h: 1.6, text: ['IF YOU SEE RED, RUN', 'BLY 1987', 'WHAT TIME IS IT?', 'THERE WERE FOUR OF US'] },
+      { type: 'rust', min: 0.8, max: 2, h: 2.4 }, { type: 'stain', min: 1, max: 2.5 }, { type: 'graffiti', min: 1.2, max: 2, h: 1.6, text: ['IF YOU SEE RED, RUN', 'DAN #1 1987', 'WHAT TIME IS IT?', 'THERE WERE FIVE OF US'] },
     ]);
     L.meta.zonesOn = [0];
     return L;

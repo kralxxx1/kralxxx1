@@ -210,7 +210,8 @@
       const q = PB.Settings.data.shadows;
       const fl = this.flash;
       fl.castShadow = q > 0;
-      const size = [512, 1024, 2048, 4096][q] || 1024;
+      const max = (this.game && this.game.renderer && this.game.renderer.capabilities.maxTextureSize) || 4096;
+      const size = Math.min(max, [512, 1024, 2048, 4096, 8192][q] || 1024);
       fl.shadow.mapSize.set(size, size);
       fl.shadow.bias = -0.0004;
       fl.shadow.normalBias = 0.03;
