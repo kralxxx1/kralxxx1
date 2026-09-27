@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Pacman: The Back Rooms</title>
-<meta name="description" content="A first-person horror escape game set in the endless rooms behind Pacman's level 256.">
+<title>LEVEL 256 — The Starlight Arcade</title>
+<meta name="description" content="A first-person story horror game. Harlow, 1994: four kids vanished inside an arcade cabinet in 1987, and it still knows your name.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Caveat:wght@500;700&family=Courier+Prime:wght@400;700&family=Kalam:wght@400;700&family=Patrick+Hand&family=Mali:wght@500;600&family=Sriracha&display=swap">
@@ -56,7 +56,7 @@
   <!-- ============================== LOADING -->
   <section id="scr-boot" class="screen">
     <div class="boot-inner">
-      <p class="boot-title">PACMAN<span data-t="game.subtitle">THE BACK ROOMS</span></p>
+      <p class="boot-title"><b data-t="game.title">LEVEL 256</b><span data-t="game.subtitle">THE STARLIGHT ARCADE</span></p>
       <p id="boot-level" class="boot-level"></p>
       <div class="boot-track"><div id="boot-bar"></div></div>
       <p id="boot-label" data-t="boot.init">Starting…</p>
@@ -81,8 +81,8 @@
   <!-- ============================== MAIN MENU -->
   <section id="scr-menu" class="screen nav" hidden>
     <div class="menu-side">
-      <h1 class="title" data-text="PACMAN">PACMAN</h1>
-      <p class="subtitle" data-t="game.subtitle">THE BACK ROOMS</p>
+      <h1 class="title" data-text="LEVEL 256" data-t="game.title">LEVEL 256</h1>
+      <p class="subtitle" data-t="game.subtitle">THE STARLIGHT ARCADE</p>
       <nav class="menu">
         <button type="button" id="m-continue" hidden><span data-t="menu.continue">Continue</span> <small></small></button>
         <button type="button" id="m-new" data-t="menu.new">New game</button>
@@ -251,7 +251,7 @@
 
   <section id="scr-cabinet" class="overlay dim" hidden>
     <div class="cabinet">
-      <div class="marquee">PACMAN</div>
+      <div class="marquee">HUNGRY HOUSE</div>
       <div class="bezel"><canvas id="cab-canvas"></canvas></div>
       <p class="cab-help"><span data-t="cab.help"></span> <button type="button" id="cab-exit" data-t="cab.exit">Leave the cabinet (Esc)</button></p>
     </div>

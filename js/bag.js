@@ -8,9 +8,9 @@
   const t = PB.t;
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const MEMENTO_MODEL = { billy: 'watch', ivy: 'glasses', penny: 'walkman', clyde: 'lighter' };
-  const CAST = ['sam', 'eddie', 'walt', 'billy', 'penny', 'ivy', 'clyde', 'lily'];
-  const GHOSTS = ['billy', 'penny', 'ivy', 'clyde'];
+  const MEMENTO_MODEL = { danny: 'watch', nell: 'glasses', rosie: 'walkman', toby: 'lighter' };
+  const CAST = ['sam', 'eddie', 'walt', 'danny', 'rosie', 'nell', 'toby', 'lily'];
+  const GHOSTS = ['danny', 'rosie', 'nell', 'toby'];
 
   class Bag {
     constructor(game) {

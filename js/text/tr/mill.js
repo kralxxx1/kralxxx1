@@ -1,110 +1,110 @@
-/* Türkçe — Bölüm 2: Fabrika Deposu (Billy). */
+/* Türkçe — Seviye 1: Değirmen Deposu (Danny). */
 (function (root) {
   'use strict';
   root.PB.I18N.register('tr', 'story', {
     chapters: {
       mill: {
-        name: 'SEVİYE 1', title: 'Fabrika Deposu', place: 'Billy’nin ayak sesleri',
-        intro: 'Tavan yedi metre yukarıda. Raflar karanlığa uzanıyor. Bir yerlerde bir saat tıkırdıyor, hep aynı saniyeye takılı.',
+        name: 'SEVİYE 1', title: 'Değirmen Deposu', place: 'Danny’nin anısı — Harlow Değirmeni, Front Sokağı',
+        intro: 'Tavan altı metre yukarıda. Raflar karanlığın içine uzanıyor. Bir yerde bir saat tıkırdıyor, hep aynı saniyede.\n\nDanny’nin babası bu binada yirmi beş yıl koli paketledi. Sonra bir cuma ona bir saat verip evine gönderdiler.',
       },
     },
     docs: {
-      mill_intro: { title: 'Asansör kapısına bantlanmış', from: 'Eddie', body:
-`Asansöre üç sigorta lazım. Pano yükleme ofisinin yanında.
+      mill_intro: { kind: 'note', title: 'Yük asansörünün kapısına bantlanmış', from: 'Eddie', body:
+`Yük asansörü üç sigorta istiyor. Pano yükleme ofisinin yanında.
 
-Kırmızı olan koridorlarda devriye geziyor. Hızlı ve hiç durmuyor, ama gürültücü. Kulak ver.
+Kırmızı olan raf aralarında devriye geziyor. Hızlı, hiç durmuyor ama GÜRÜLTÜLÜ. Onu dinle.
 
-Açık alanda ondan kaçmaya çalışma. Kimse Billy’den kaçamaz.
+Açık alanda ondan kaçmaya çalışma. Danny’den kimse kaçamaz.
 
-—E` },
-      mill_layoff: { title: 'Şirket kâğıdına yazılmış bir mektup', from: 'Harlow Fabrikası, Sevkiyat Bölümü', date: '30 Mayıs 1986', body:
+—E.` },
+      mill_layoff: { kind: 'letter', title: 'Şirket kâğıdına yazılmış bir mektup', from: 'Harlow Değirmeni, Sevkiyat Bölümü', date: '30 Mayıs 1986', body:
 `Sayın Ray,
 
-Front Caddesi sevkiyat biriminin yeniden yapılandırılması kapsamında görevinize 30 Haziran 1986 itibarıyla son verilmiştir.
+Front Sokağı sevkiyat biriminin yeniden yapılandırılması kapsamında görevinize 30 Haziran 1986 itibarıyla son verilecektir.
 
 Yirmi beş yıllık sadık hizmetiniz için teşekkür ederiz. Lütfen dolap anahtarınızı ve kartınızı ön büroya teslim ediniz.
 
-Ekte bir hatıra kol saati bulacaksınız.
+Ekteki kol saatini minnettarlığımızın bir nişanesi olarak kabul ediniz.
 
-Harlow Fabrikası Yönetimi` },
-      mill_punch: { title: 'Bir puantaj kartı', from: 'Harlow Fabrikası', date: '1986 yazı', body:
-`ÇALIŞAN: BILLY (YAZLIK — TEMİZLİKÇİ)
+Harlow Değirmeni Yönetimi` },
+      mill_punch: { kind: 'card', title: 'Bir mesai kartı', from: 'Harlow Değirmeni', date: '1986 yazı', body:
+`ÇALIŞAN: KOWALSKI, D. (YAZ — SÜPÜRGECİ)
 ÜCRET: saatte 3,35 $
 
-2/6  07:00 — 15:00
-3/6  07:00 — 15:00
-4/6  06:52 — 15:04
+02/6  07:00 — 15:00
+03/6  07:00 — 15:00
+04/6  06:52 — 15:04
 ...
 30/6  07:00 — 11:15
 
-Son satırın üstüne mavi kalemle yazılmış:
+Son satırın üstüne mavi tükenmezle:
 BABAMIN DA SON GÜNÜ` },
-      mill_graffiti: { title: 'Raflarda sprey boya', body:
-`BLY #1
-BILLY BURADAYDI
-BILLY HEP BURADA` },
-      mill_billy1: { title: 'Bir mont cebinde katlanmış not', from: 'Billy', date: 'Mart 1987', body:
+      mill_graffiti: { kind: 'wall', title: 'Raflara sprey boyayla', body:
+`DAN #1
+DANNY BURADAYDI
+DANNY HEP BURADA` },
+      mill_danny1: { kind: 'note', title: 'Bir ceket cebinde katlanmış not', from: 'Danny', date: 'Mart 1987', body:
 `Herkes hiçbir şeyden korkmadığımı sanıyor.
 
 Babamın bütün gün radyo kapalı mutfakta oturmasından korkuyorum.
 
 O yüzden oynuyorum. Birinci olan adam mutfakta oturmaz.
 
-(Penny bunu okursa gerçekten öldürürüm.)` },
-      mill_ray: { title: 'Hiç gönderilmemiş bir mektup', from: 'Ray (Billy’nin babası)', date: 'Mayıs 1987', body:
-`Billy,
+(Rosie bunu okursa onu gerçekten öldürürüm.)` },
+      mill_ray: { kind: 'letter', title: 'Hiç gönderilmemiş bir mektup', from: 'Danny’nin babası Ray', date: 'Mayıs 1987', body:
+`Danny,
 
-Polis yine anahtarı sordu. Anahtar falan umurumda değil dedim. Bu kasabadaki bütün anahtarlar senin olsun.
+Polis yine anahtarı sordu. Hiçbir anahtar umurumda değil dedim. Bu kasabadaki bütün anahtarlar senin olsun.
 
-Artık hırdavatçıdayım. Fena değil. Daha az saat. Maçı dinliyorum.
+Artık hırdavatçıdayım. İdare ediyor. Saatler daha az. Maçı dinliyorum.
 
-Bisikletini tamir ettim. Yeni zincir, yeni fren. Garajda duruyor.
+Bisikletini tamir ettim. Yeni zincir, yeni fren. Garajda.
 
-Eve gel ve bin. Tek kelime etmeyeceğim.
+Eve gel de bin. Tek kelime etmeyeceğim.
 
 Babam` },
-      mill_manifest: { title: 'Bir sevk irsaliyesi', from: 'Harlow Fabrikası, 3 No’lu Rampa', date: '17 Nisan 1987', body:
+      mill_manifest: { kind: 'printout', title: 'Bir sevk irsaliyesi', from: 'Harlow Değirmeni, 3 No’lu Rampa', date: '17 Nisan 1987', body:
 `SEVKİYAT #0256
-İÇERİK: 1 kol saati (durmuş)
-AĞIRLIK: yok
-VARIŞ YERİ: —
+İÇERİK: 1 kol saati (3:17’de durmuş)
+AĞIRLIK: hiç
+VARIŞ: —
 TESLİM ALAN: —
 
-Kâğıt ılık, sanki yazıcıdan az önce çıkmış.` },
-      mill_walt3: { title: 'Walt’ın defteri', from: 'Walt', date: 'İçeride, ? gün', body:
-`Kırmızı hiç durmuyor. Aynı turları tekrar tekrar koşuyor, Billy’nin labirenti oynadığı gibi: hep ilk, hep en hızlı, hiç soluklanmadan.
+Kâğıt ılık, sanki yazıcıdan az önce çıkmış gibi.` },
+      mill_walt3: { kind: 'diary', title: 'Walt’ın günlüğü', from: 'Walt', date: 'İçeride, ? . gün', body:
+`Kırmızı olan hiç durmuyor. Aynı turları tekrar tekrar koşuyor, tıpkı Danny’nin labirenti oynadığı gibi: hep ilk, hep en hızlı, hiç soluklanmadan.
 
-Bir kere adını seslendim. Bir saniye durdu. Sadece bir saniye.
+Bugün bağırarak üstüme geldi. BIRAKTIN. BIRAKTIN.
 
-Sonra çığlık atıp kaçtı, ben de peşinden gittim, ve nedenini hatırlamıyorum.
+Ben hiçbir şeyi bırakmadım. Beş yıldır her birine sımsıkı tutunuyorum. Kime bağırıyor o zaman?
 
-Sanırım açtım.` },
-      mill_shrine: { title: 'Sunaktaki fotoğrafın altında', from: 'W.', body:
+Sonra peşinden gittim ve neden gittiğimi hatırlamıyorum. Sanırım açtım.` },
+      mill_shrine: { kind: 'note', title: 'Sunaktaki fotoğrafın altında', from: 'W.', body:
 `Hep ilk olmak zorundaydı.
-Kabine ilk. 900.000’e ilk.
-Ekrandan ilk geçen.
+Makineye ilk o gelirdi. 900.000’e ilk o ulaştı.
+Ekrandan ilk o geçti.
 
-Ona durmasını sağlayacak bir şey ver.` },
-      mill_tape: { title: 'Kaset: "Birinci sıra, tarih için"', from: 'Penny’nin teyp kaydedicisi', date: '16 Nisan 1987, 23:52', body:
-`[Klik. Salon sesleri. Gülen çocuklar.]
+Ona duran bir şey ver.` },
+      mill_tape: { kind: 'tape', title: 'Kaset: "Birinci, tarih için"', from: 'Rosie’nin teyp kaydedicisi', date: '16 Nisan 1987, 23:52', body:
+`[Klik. Salon gürültüsü. Gülen çocuklar.]
 
-BILLY: Ben Billy, birinci sıra, tarih için kayıt yapıyorum. Bu gece kill screen’i geçiyoruz.
+DANNY: Ben Danny Kowalski, birinci sıra, tarih için kayıt yapıyorum. Bu gece ölüm ekranını geçiyoruz.
 
-PENNY: Bu gece kill screen’i geçmeyi DENİYORUZ.
+ROSIE: Bu gece ölüm ekranını geçmeyi DENİYORUZ.
 
-BILLY: Walt imkânsız diyor. Walt dokuz yüz bini geçemem de demişti.
+DANNY: Walt imkânsız diyor. Walt dokuz yüz bini de kimse geçemez demişti.
 
-CLYDE: Başımız belaya girecek mi? Annem beni Sam’lerde sanıyor.
+TOBY: Başımız belaya girecek mi? Annem Sam’lerde yatıyorum sanıyor.
 
-BILLY: Bela yakalananlar içindir Clyde.
+DANNY: Bela yakalananlar içindir, Toby.
 
-IVY: ...Sam eve gitti Billy.
+NELL: ...Sam eve gitti, Danny.
 
-BILLY: Sam korkak. Level 256 bize kalır.
+DANNY: Sam korkak. Ölüm ekranı bize kalır.
 
-[Bir an sessizlik.]
+[Kısa bir sessizlik.]
 
-CLYDE: O korkak değil.
+TOBY: Sam korkak değil. Sam gelecek.
 
 [Klik.]` },
     },
@@ -113,13 +113,12 @@ CLYDE: O korkak değil.
       mill_panel: 'Sigortaları asansör panosuna tak',
       mill_wait: 'Asansör geliyor… Hayatta kal ({n} sn)',
       mill_leave: 'Asansöre bin',
-      ghost: '{pos} eşyasını türbesine götür (isteğe bağlı)',
     },
     mono: {
-      mill_start: 'Bir saatin tik takı. Hep aynı saniyeye takılı.',
-      mill_redSeen: 'Kırmızı... sırılsıklam bir çarşaf. Kumaşın altından bir yüz bastırıyor. Gözlerin olduğu yerde iki yırtık delik. Bana bakıyor.',
+      mill_start: 'Bir saat tıkırdıyor. Hep aynı saniye.',
+      mill_dannySeen: 'Kırmızı. Sırılsıklam bir çarşaf, kafa gibi kubbelenmiş, eteği sivri sivri yırtılmış. Kocaman iki göz, yüz yok. Altında bir oğlan boyunda bir şey var.',
       mill_fuse: 'Bir sigorta daha.',
-      mill_elevator: 'Asansör geliyor. Yavaş. Çok yavaş.',
+      mill_elevator: 'Asansör geliyor. Yavaşça. Çok yavaş.',
       mill_watch: '3:17. Saatle aynı.',
     },
     lines: {
@@ -129,22 +128,24 @@ CLYDE: O korkak değil.
     },
     radio: {
       mill_start: [
-        ['eddie', 'Sam? Orada mısın? ...Aa. Burayı biliyorum. Harlow Fabrikası, Front Caddesi deposu. Billy’nin babası burada yirmi beş yıl çalıştı.'],
-        ['eddie', 'Yani kırmızı da burada olacak.'],
+        ['eddie', 'Sam? Orada mısın? ...Aa. Burayı biliyorum. Harlow Değirmeni, Front Sokağı’ndaki depo. Danny’nin babası burada yirmi beş yıl çalıştı.'],
+        ['eddie', 'Demek ki kırmızı olan da burada olacak.'],
       ],
-      mill_red: [
-        ['eddie', 'Peşinde! Açık alanda ondan kaçmaya çalışma. Görüşünü kes, köşe dön, aranıza bir şey koy!'],
+      mill_danny: [
+        ['eddie', 'Peşinde! Açıkta onunla yarışma. Görüşünü kes, köşe dön, aranıza bir şey koy!'],
+        ['sam', 'Bir şey bağırıyor!'],
+        ['eddie', 'Hep bağırır. "Bıraktın." Bana da bağırdı, Walt’a da. Kimi kastettiğini bilmiyorum. KOŞ.'],
       ],
       mill_watch: [
-        ['eddie', 'O bir saat mi? ...Ray’in saati. Onu kovdukları gün vermişlerdi. Billy ondan sonra her gün taktı.'],
+        ['eddie', 'O bir saat mi? ...Ray’in saati. İşten çıkardıkları gün ona vermişler. Danny ondan sonra her gün taktı.'],
         ['eddie', 'Buralarda bir sunak var. Oraya götür. Belki hatırlar.'],
       ],
       mill_freed: [
-        ['eddie', '...Durdu mu? Sam, ne yaptın? Orada... öylece duruyor.'],
-        ['eddie', 'Aman Tanrım. O Billy. Gerçekten Billy.'],
+        ['eddie', '...Durdu mu? Sam, ne yaptın? Öylece... duruyor.'],
+        ['eddie', 'Aman Tanrım. Bu Danny. Bu gerçekten Danny.'],
       ],
       mill_elevator: [
-        ['eddie', 'O asansör çok gürültülü. Her şey duydu. Gelene kadar hayatta kal.'],
+        ['eddie', 'O asansör çok gürültülü. Buradaki her şey duydu. O gelene kadar hayatta kal.'],
       ],
     },
   });

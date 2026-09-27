@@ -1,133 +1,148 @@
-/* Türkçe — Bölüm 5: Harlow Ortaokulu (7–9. sınıflar, 16 Nisan 1987). */
+/* Türkçe — Seviye 5: Harlow Ortaokulu (16 Nisan 1987). */
 (function (root) {
   'use strict';
   root.PB.I18N.register('tr', 'story', {
     chapters: {
       school: {
-        name: 'SEVİYE 5', title: 'Harlow Ortaokulu', place: 'Perşembe, 16 Nisan 1987, 15:05',
-        intro: 'Beşinin birlikte görüldüğü son gün. Zil az önce çaldı ve çalmaya devam edecek. Koridorlarda elinde fenerle biri dolaşıyor, koridor izni soruyor. Sende izin yok.',
+        name: 'SEVİYE 5', title: 'Harlow Ortaokulu', place: 'Herkesin anısı — Perşembe, 16 Nisan 1987, 15:05',
+        intro: 'Beşinizi birlikte gören son öğleden sonra. Zil az önce çaldı ve çalmaya devam edecek.\n\nBiri elinde fenerle koridorları dolaşıp koridor izin kâğıdı soruyor. Seninki yok.',
       },
     },
     items: {
-      janitorKeys: { name: 'Hademenin anahtarlığı', desc: 'Bay Gus’ın anahtarlığı: yirmi anahtar, bir şişe açacağı ve minicik plastik bir eşek arısı. Asma kilidin anahtarı kırmızı ojeyle işaretli olanı.' },
+      janitorKeys: { name: 'Hademenin anahtarlığı', desc: 'Bay Gus’ın anahtarlığı: yirmi anahtar, bir şişe açacağı ve plastik küçük bir eşek arısı. Asma kilidin anahtarında kırmızı oje var.' },
     },
     docs: {
-      school_intro: { title: 'Bir koridor izni panosunda', from: 'Eddie', body:
-`Okul. Onların okulu. Burada perşembe öğleden sonrası ve ben buradan geçtiğimden beri hep perşembe öğleden sonrası.
+      school_intro: { kind: 'note', title: 'Koridor izni panosuna tutturulmuş', from: 'Eddie', body:
+`Okul. Onların okulu. Burada perşembe öğleden sonrası, ne zaman geçsem hep perşembe öğleden sonrası.
 
-Doğu koridorunun sonundaki yangın çıkışı zincirli. Anahtarlar hademede. Hademe dolabında şifreli kilit var.
+Doğu koridorunun sonundaki yangın çıkışı zincirli. Anahtarlar hademede. Onun dolabında şifreli bir kilit var.
 
-Bu koridorlarda elinde fenerle biri dolaşıyor. Karanlıkta görmüyor, sadece ışığının değdiği yeri görüyor. Dolaplar açılıyor. İçine sığarsın.
+Bu koridorlarda feneriyle bir şey dolaşıyor. Sadece ışığının değdiğini görüyor. Dolaplar açılıyor. Sen sığarsın.
 
-—E` },
-      school_clue1: { title: 'Tebeşir, bir sınıf tahtasının köşesinde', body:
-`HATIRLATMA (Bay Gus, hademe):
+—E.` },
+      school_clue1: { kind: 'wall', title: 'Bir kara tahtanın köşesinde tebeşir', body:
+`HATIRLATMA (Hademe Bay Gus):
 Dolap şifresi değişti.
-Öğretmenler idareye sorsun.
+Öğretmenler müdürlüğe sorsun.
 
-(altında, daha küçük, bir çocuk el yazısıyla:)
+(altında, daha küçük, bir çocuğun el yazısıyla:)
 ilk rakam = 3
-pacman’deki 3 can gibi
-—P.` },
-      school_clue2: { title: 'Ceza kâğıdı, pembe karbon kopya', from: 'Harlow Ortaokulu', date: '14 Nisan 1987', body:
-`ÖĞRENCİ: Billy — 9. sınıf (sınıf tekrarı)
-SUÇ: 4. derste hademe dolabının içinde bulundu. "Envanter saydığını" iddia ediyor.
-CEZA: Perşembe 16/4, 15:15–16:00
+Hungry House’taki 3 can gibi
+—R.` },
+      school_clue2: { kind: 'note', title: 'Ceza kâğıdı, pembe karbon kopya', from: 'Harlow Ortaokulu', date: '14 Nisan 1987', body:
+`ÖĞRENCİ: Kowalski, Danny — 9. sınıf (sınıf tekrarı)
+SUÇ: 4. derste hademe dolabının içinde bulundu. "Envanter sayıyordum" diyor.
+CEZA: Çarşamba 15/4, 15:15–16:00
 
 Öğrenci açıklaması (zorunlu):
 "Şifreyi ezberledim. Ortadaki rakam 1. Benim gibi. Bir numara."
 
-Öğretmen notu: Bu suçla ilgili bir açıklama değil, Billy.` },
-      school_clue3: { title: 'Yıllık, 1986–87, bir imza sayfası', from: 'Harlow Hornets Yıllığı', date: 'Haziran 1987 (hiç dağıtılmadı)', body:
-`Sayfa beş farklı renkte imzayla kaplı.
+Öğretmen notu: Bu suçla ilgili bir açıklama değil Danny.` },
+      school_clue3: { kind: 'note', title: '1985–86 yıllığı, bir imza sayfası', from: 'Harlow Hornet Yıllığı', date: 'Haziran 1986', body:
+`Sayfa beş farklı renkte imzayla dolu.
 
-"GÜZEL BİR YAZ GEÇİR!! — Penny ♪"
-"tuhaf kal — Billy #1"
-"Bu sayfayı sonsuza kadar saklayacağım. — Ivy"
-"sam pacman’de benden sonra en iyisi sensin — Clyde"
+"İyi yazlar!! — Rosie ♪"
+"hep böyle tuhaf kal — Danny #1"
+"Bu sayfayı sonsuza kadar saklayacağım. — Nell"
+"sam hungry house’ta benden sonra en iyisi sensin — Toby"
 "salonda görüşürüz — Sam"
 
-Kenarda, Clyde’ın yazısıyla, hademe kapısını gösteren bir ok:
+Kenarda, daha yeni bir kurşun kalemle ve Toby’nin el yazısıyla, hademe kapısını gösteren bir ok:
 "son rakam = 7. şanslı 7. BAY GUS’A SÖYLEME"` },
-      school_passnote: { title: 'Minicik bir üçgen şeklinde katlanmış not', from: 'Penny', date: '16 Nisan 1987, 2. ders', body:
-`256 OPERASYONU — BU GECE
+      school_passnote: { kind: 'note', title: 'Minicik bir üçgen şeklinde katlanmış not', from: 'Rosie', date: '16 Nisan 1987, 2. ders', body:
+`OPERASYON 256 — BU GECE
 
-Anahtar B’de (nereden bulduğunu SORMAYIN).
-Herkes 7’de salonda buluşuyor.
-Ivy hayalet desen haritalarını getiriyor.
-Clyde atıştırmalık getiriyor.
-Sam şanslı çeyreklik parayı getiriyor.
+Anahtar D’de (SORMAYIN).
+Walt 10’da kapatıyor. 11:15’te geri geliyoruz. Arka kapı.
+Nell hayalet hareket haritalarını getiriyor.
+Toby feneri + atıştırmalıkları getiriyor.
+Sam şanslı çeyreği getiriyor.
 
-256. seviyeyi DÜNYADA gören ilk insanlar olacağız.
+Seviye 256’yı DÜNYADA ilk görenler biz olacağız.
 
-(bunu Ivy’ye ver, Clyde’a verme, kaybeder)
+(bunu Nell’e ver, Toby’ye DEĞİL, kaybeder)
 
-Not: Sam, Clyde’la konuş. Walkman yüzünden kendini kötü hissediyor.` },
-      school_plaque: { title: 'Kütüphane kapısının yanında pirinç bir plaket', body:
+Not: Sam. Toby’yle konuş. Walkman için çok kötü hissediyor.` },
+      school_pact: { kind: 'note', title: 'Sekize katlanmış bir defter yaprağı', from: 'Rosie’nin el yazısı', date: '16 Nisan 1987, 15:30', body:
+`OPERASYON 256 — ANLAŞMA
+
+Biz, Harlow, Pensilvanya’nın en iyi Hungry House oyuncuları, yemin ederiz:
+
+1. Beşimiz de gidiyoruz. YA BEŞİMİZ YA HİÇBİRİMİZ.
+2. 256’ya gelince beş el birden kolda.
+3. KİMSE BIRAKMAZ. Ekranda ne olursa olsun.
+4. Öbür tarafta ne varsa birlikte görürüz.
+5. Kimse eve yalnız gitmez. (Kale kuralı 4, Başkan’ın izniyle ödünç alınmıştır.)
+
+DANNY K.   ROSIE A. ♪   NELL P.   TOBY M. ★
+
+Ve en altta, herkesinkinden iyi tanıdığın bir el yazısıyla:
+SAM K.` },
+      school_plaque: { kind: 'wall', title: 'Kütüphane kapısının yanında pirinç bir plaket', body:
 `SEVGİYLE ANIYORUZ
-LILY
+LILY BRENNER
 1974 – 1983
 
-Her şeyin üstüne resim çizerdi.
+Her yere resim çizerdi.
 Her şeye gülerdi.
-O bizim arkadaşımızdı.
+Bizim arkadaşımızdı.
 
-— 4. sınıftaki sınıf arkadaşları, 104 numaralı sınıf, Harlow İlkokulu.
-Ortaokula geçerken bunu da yanımızda getirdik. (1985)` },
-      school_paper: { title: 'The Harlow Hornet, okul gazetesi', from: 'Harlow Ortaokulu', date: 'Nisan 1987', body:
-`RADYO KULÜBÜ SENİ ARIYOR!
-Müzik sever misin? Konuşmayı sever misin? Yayında olmak ister misin?
-Penny (9. sınıf) bir radyo kulübü kuruyor. İlk toplantı salı günü.
-"Harlow gerçek bir DJ’i hak ediyor." — Penny
+— 104 numaralı sınıftaki 4. sınıf arkadaşları, Harlow İlkokulu.
+Üst okula geçerken bunu yanımızda getirdik. (1986)` },
+      school_paper: { kind: 'note', title: 'The Harlow Hornet, okul gazetesi', from: 'Harlow Ortaokulu', date: 'Nisan 1987', body:
+`RADYO KULÜBÜ SENİ İSTİYOR!
+Müzik sever misin? Konuşmayı sever misin? YAYINA çıkmak ister misin?
+Rosie Alvarez (9. sınıf) bir radyo kulübü kuruyor. İlk toplantı salı.
+"Harlow gerçek bir DJ’i hak ediyor." — Rosie
 
-OYUN SALONU REKORLARI (Starlight’tan)
-1. BLY 921.450  2. PNY 887.300  3. IVY 640.120  4. CLY 512.890  5. SAM 498.770
+STARLIGHT’TAN REKORLAR (Hungry House, #7)
+1. DAN 921.450  2. ROS 887.300  3. NEL 640.120  4. TOB 512.890  5. SAM 498.770
 
-BULUNDU: bir walkman, mavi, arkasına "S" kazınmış. Biraz bozuk. Sahibi lütfen üstüne oturanı affetsin. —C.` },
-      school_samlocker: { title: '217 numaralı dolabın (seninkinin) kapağının içine bantlanmış', from: 'Sam', date: '16 Nisan 1987', body:
-`Clyde,
+BULUNDU: bir walkman, mavi, arkasına "S" kazınmış. Biraz bozuk. Sahibi, lütfen üstüne oturanı affetsin. —T.` },
+      school_samlocker: { kind: 'note', title: '217 numaralı dolabın içine bantlanmış (senin)', from: 'Sam', date: '16 Nisan 1987', body:
+`Toby,
 
-Sadece bir walkman. Walkman umurumda bile değil. Kızdım çünkü her şeyi hep ilk sen yapıyorsun, ben de hep arkandan yetişmeye çalışıyorum.
+Sadece bir walkman. Walkman umurumda bile değil. Kızdım çünkü her şeyi hep ilk sen yapıyorsun, ben de hep yetişmeye çalışıyorum.
 
 Yemekhanede bağırdığım için özür dilerim.
 
-Bu gece geleceğim. Şanslı çeyrekliği getireceğim.
+Bu gece geleceğim. Şanslı çeyreği getireceğim.
 
 Biz bir takımız.
 
 — Sam
 
-(Bunu öğle arasında yazdın ve okuldan sonra ona vermek için dolabının kapağının içine bantladın. O gece salonda onun yerine ikinci kavgayı ettiniz. Ona hiç vermedin. Haziranda dolapları boşaltana kadar orada kaldı.)` },
-      school_attendance: { title: 'Yoklama kâğıdı, 112 numaralı sınıf', from: 'Sınıf öğretmeni', date: 'Cuma, 17 Nisan 1987', body:
-`GELMEYENLER:
-Billy
-Penny
-Ivy
-Clyde
+(Öğle yemeğinde yazıp okuldan sonra ona vermek için dolabının içine bantlamıştın. O gece salonda onun yerine ikinci kavgayı ettiniz. Ona hiç vermedin. Haziranda dolaplar boşaltılana kadar orada kaldı.)` },
+      school_attendance: { kind: 'note', title: 'Günlük devamsızlık listesi, müdür yardımcılığı', from: 'Harlow Ortaokulu', date: 'Cuma, 17 Nisan 1987', body:
+`GELMEDİ, EVDEN ARAMA YOK:
+Kowalski, Danny (9)
+Alvarez, Rosie (9)
+Park, Nell (9)
+Marsh, Toby (7)
 
-İdareye bildirildi 08:20.
-Ailelere bildirildi 08:35.
+Müdürlüğe bildirildi 08:20.
+Velilere bildirildi 08:35.
 Polis binada 09:10.
 
-Sam — BURADA. Erken geldi. Clyde’ın sırasına oturdu. Kalkmadı. 09:30’da revire gönderildi.` },
-      school_walt: { title: 'Walt’ın günlüğü, kurşun kalemle', from: 'W', date: '—', body:
-`Bir okul spor salonu. Hiç yapılmamış bir dansın süsleri.
+Keller, Sam (7) — BURADA. Erken geldi. 112 numaralı sınıfta Toby’nin sırasına oturdu ve kalkmadı. Saçları hâlâ ıslak. 09:30’da revire gönderildi.` },
+      school_walt: { kind: 'diary', title: 'Walt’ın günlüğü, kurşun kalemle', from: 'Walt', date: 'İçeride', body:
+`Bir okul spor salonu. Hiç yapılmamış bir dans için süsler.
 
-Burası Lily’nin okulu değil ama aynı kokuyor. Onun okuluna bir kez gittim, 1983’te, sınıfıyla konuşmaya. Bana radarın ne işe yaradığını sordular. Dedim ki: kaybolan şeyleri bulur.
+Lily’nin okulu değil ama aynı kokuyor. ’83 baharında bir kere sınıfına gidip mesleğimi anlatmıştım. Radar ne işe yarar diye sordular. Kaybolan şeyleri bulur, dedim.
 
-Güldüler. O gülmedi. Gülemeyecek kadar yorgundu artık.
+En çok soruyu Keller’ların çocuğu sordu. Sam. Lily her sorusuna güldü. Onun öyle güldüğünü son duyuşumdu.
 
-Çok açım, Lily.` },
-      school_tape: { title: 'Kaset: "Sabah anonsları"', from: 'Müdürün odası', date: '17 Nisan 1987, 08:45', body:
-`[Klik. Hoparlör cızırtısı, mikrofona iki kez vuruluyor.]
+Çok açım Lily.` },
+      school_tape: { kind: 'tape', title: 'Kaset: "Sabah anonsları"', from: 'Müdür odası', date: '17 Nisan 1987, 08:45', body:
+`[Klik. Hoparlör cızırtısı. Mikrofona iki kez vuruluyor.]
 
-MÜDÜR: Günaydın, Harlow Hornets. Herkesin... dinlemesine ihtiyacım var.
+MÜDÜR: Günaydın Harlow Hornet’ları. Herkesin... dinlemesini istiyorum.
 
-MÜDÜR: Dört öğrencimiz dün gece eve dönmedi. Billy, Penny, Ivy ve Clyde.
+MÜDÜR: Dört öğrencimiz dün gece eve dönmedi. Danny Kowalski, Rosie Alvarez, Nell Park ve Toby Marsh.
 
-MÜDÜR: Onları dün akşam herhangi bir yerde gördüyseniz lütfen idareye gelin. Başınız belada değil. Kimsenin başı belada değil.
+MÜDÜR: Dün akşam onları herhangi bir yerde gördüyseniz lütfen müdürlüğe gelin. Başınız derde girmez. Kimsenin başı derde girmez.
 
-[Uzun bir sessizlik. İdarede biri ağlıyor.]
+[Uzun bir sessizlik. Müdürlükte biri ağlıyor.]
 
 MÜDÜR: ...Bahar dansı ertelendi.
 
@@ -142,10 +157,11 @@ MÜDÜR: ...Bahar dansı ertelendi.
     mono: {
       school_start: 'Harlow Ortaokulu. Kapının üstündeki saat 15:05’i gösteriyor. Bütün yıl 15:05’i gösterdi.',
       school_code: '3... 1... 7. Tabii ki.',
-      school_keys: 'Bay Gus’ın anahtarları. Spor salonuna taşımamıza izin verirdi. Kendimizi önemli hissederdik.',
-      school_gym: 'Spor salonu. BAHAR DANSI ’87. Clyde, Penny’yi dansa davet edecekti. Benim üzerimde prova yapmıştı.',
-      school_monitor: 'Koridorun sonunda elinde fenerle biri. Yüzü yok.',
-      hideLocker: 'Havalandırma delikleri. Nefes alma.',
+      school_keys: 'Bay Gus’ın anahtarları. Bazen spor salonuna taşımamıza izin verirdi. Kendimizi önemli hissederdik.',
+      school_gym: 'Spor salonu. BAHAR DANSI ’87. Toby, Nell’i davet edecekti. Benim üstümde prova yapmıştı.',
+      school_monitor: 'Koridorun sonunda elinde fener olan biri. Yüzünün olması gereken yerde sadece ışık var.',
+      school_pact: 'Kimse bırakmaz. İmzaladığımı hatırlıyorum. 21:40’taki kavgayı hatırlıyorum. Ondan sonrası... sadece yağmur.',
+      hideLocker: 'Deliklerden. Nefes alma.',
     },
     lines: {
       school_keypad: 'Hademe dolabı kilidi (3 hane)',
@@ -155,14 +171,14 @@ MÜDÜR: ...Bahar dansı ertelendi.
       school_start: [
         ['eddie', 'Olamaz. Okul. Okuldan nefret ederdim.'],
         ['sam', 'O gün. On altı Nisan.'],
-        ['eddie', '...Evet. Tahmin etmiştim. Dinle, koridor gözcüsü sadece fenerinin gördüğünü görür. Işığın dışında kal. Dolaplar senin dostun.'],
+        ['eddie', '...Evet. Tahmin etmiştim. Dinle: koridor gözcüsü sadece fenerinin gördüğünü görür. Işığın dışında kal. Dolaplar senin dostun.'],
       ],
       school_monitor: [
-        ['eddie', 'Koridor gözcüsü. Bir dolaba gir. Hemen, Sam, tartışma benimle, dolaba!'],
+        ['eddie', 'Koridor gözcüsü. Bir dolaba gir. Hemen Sam. Tartışma. DOLAP.'],
       ],
       school_keys: [
         ['eddie', 'Anahtarlar. Güzel. Doğu koridoru, yangın çıkışındaki zincir.'],
-        ['eddie', 'Ve Sam... o dolap. 217. Senin miydi?'],
+        ['eddie', 'Ve Sam... o dolap. 217. Seninki miydi?'],
         ['sam', 'Yapma.'],
         ['eddie', 'Tamam. Tamam.'],
       ],

@@ -1,164 +1,176 @@
-/* Türkçe — Bölüm 5: Sigorta Ofisi (Penny). */
+/* Türkçe — Seviye 4: Harlow Mutual (Rosie). */
 (function (root) {
   'use strict';
   root.PB.I18N.register('tr', 'story', {
     chapters: {
       office: {
-        name: 'SEVİYE 4', title: 'Harlow Mutual', place: 'Penny’nin dinlenme odası',
-        intro: 'Bölmeler, tüplü monitörler, soğumuş kahve. Bir telefon çalıyor. Sonra bir başkası. Sonra hepsi birden susuyor.',
+        name: 'SEVİYE 4', title: 'Harlow Mutual', place: 'Rosie’nin anısı — Keystone Binası, 3. kat',
+        intro: 'Bölmeler, yeşil ekranlar, soğumuş kahve. Bir telefon çalıyor. Sonra bir başkası. Sonra hepsi birden susuyor.\n\nAnnesi geç saatlere kadar çalışırken Rosie her akşam ödevini burada yapar, ofis daha az boş gelsin diye bir teybe konuşurdu.',
       },
     },
     docs: {
-      office_lily4: { title: '"LIL — SAKLA" yazan bir dosyanın içinde bir çizim', from: 'Lily, 9 yaşında', body:
-`Pastel boya. Çok pencereli, yüksek bir bina. Pencerelerden birinde kulaklıklı bir kız mikrofona konuşuyor. Pencereden bütün kasabanın üstüne notalar uçuşuyor.
+      office_lily4: { kind: 'drawing', drawing: 4, title: '"LIL — SAKLA" yazılı bir dosyadaki çizim', from: 'Lily, 9 yaşında', body:
+`Pastel boya. Bir sürü penceresi olan uzun bir bina. Pencerelerden birinde kulaklıklı bir kız mikrofona konuşuyor. Pencereden bütün kasabanın üstüne notalar uçuyor.
 
-PENNY RADYODA OLACAK.
-(PENNY BAZEN BENİ SALONDAN EVE BIRAKIYOR.)
-ŞARKILARI BENİM SEÇMEME İZİN VERİYOR.` },
-      office_intro: { title: 'Güvenlik odası kapısındaki tabela', from: 'Teknik Hizmetler', body:
+ROSIE RADYOYA ÇIKACAK.
+(ROSIE BAZEN BENİ SALONDAN EVE GÖTÜRÜYO.)
+ŞARKILARI BENİM SEÇMEME İZİN VERİYO.` },
+      office_intro: { kind: 'notice', title: 'Güvenlik odası kapısındaki tabela', from: 'Tesis Yönetimi', body:
 `GÜVENLİK ODASI
-Şifre şirket politikası gereği Nisan 1987’de değiştirildi.
-Her bölüm müdürüne TEK bir hane verildi.
-Hanenizi bir yere yazmayın.
+Şirket politikası gereği şifre Nisan 1987’de değiştirildi.
+Her bölüm müdürüne TEK bir rakam verildi.
+Rakamınızı bir yere yazmayın.
 
-(Dört ayrı kişi hanesini bu katta bir yere yazmış.)` },
-      office_clue1: { title: 'Yazıcıdan çıkan bir not', from: 'Teknik Hizmetler', date: '2 Nisan 1987', body:
+(Dört farklı kişi rakamını bu katta bir yerlere yazmış.)` },
+      office_clue1: { kind: 'printout', title: 'Yazıcıda unutulmuş bir yazı', from: 'Tesis Yönetimi', date: '2 Nisan 1987', clue: 1, body:
 `KİME: Hasar Bölümü
-KİMDEN: Teknik Hizmetler
+KİMDEN: Tesis Yönetimi
 
-Yeni güvenlik şifresindeki haneniz: 1
-Bu İLK hanedir.
+Yeni güvenlik şifresindeki rakamınız: 1
+Bu İLK rakamdır.
 
-Lütfen ezberleyip bu notu imha edin.
+Lütfen ezberleyin ve bu yazıyı imha edin.
 
-(Kimse bu notu imha etmemiş.)` },
-      office_clue2: { title: 'Terminal: CODE.TXT', from: 'IBM PC/XT', body:
+(Kimse bu yazıyı imha etmemiş.)` },
+      office_clue2: { kind: 'screen', title: 'Terminal: CODE.TXT', from: 'Ofis terminali', clue: 2, body:
 `C:\\> TYPE CODE.TXT
 
-GUVENLIK ODASI SIFRESI
+GÜVENLİK ODASI ŞİFRESİ
 2. HANE = 0
-3. VE 4. HANE: Hasar'dan Carol'a sor.
-O zaten her seyi biliyor.
+3. VE 4. HANELER: Hasar’daki Carol’a sorun.
+Zaten o her şeyi bilir.
 
 C:\\> _` },
-      office_clue3: { title: 'Dinlenme odasındaki beyaz tahta', from: 'Penny', body:
-`PENNY RADYO
-10_,3 FM
+      office_clue3: { kind: 'wall', title: 'Mola odasındaki beyaz tahta', from: 'Rosie', clue: 3, body:
+`ROSIE RADYO
+10_.3 FM
 DUYMAN GEREKENİ ÇALAN
 TEK İSTASYON
 
-eksik sayı = şanslı sayım = 7
-(Annem istasyonu şifreye koyamazsın diyor. Çok geç!)` },
-      office_clue4: { title: 'Sesli mesaj, dahili 1073', from: 'Carol (Hasar)', body:
+eksik rakam = şans sayım = 7
+(Annem istasyonumu şifreye koyamazsın diyor. Çok geç!)` },
+      office_clue4: { kind: 'phone', title: 'Sesli mesaj, dahili 1073', from: 'Carol, Hasar Bölümü', clue: 4, body:
 `[Bip.]
 
-CAROL: Penny, tatlım, annen. İkinci çeyrek hasar toplantısında kaldım, yine uzuyor.
+CAROL: Rosie, tatlım, annen. Hasar toplantısındayım, yine uzadı.
 
-CAROL: Teknik Hizmetler şifreyi sorarsa son hanenin üç olduğunu söyle. Üç, bizim gibi: sen, ben ve mikrodalga.
+CAROL: Tesis Yönetimi şifreyi sorarsa son rakamın üç olduğunu söyle. Üç, üçümüz gibi: sen, ben ve mikrodalga.
 
-CAROL: Otomattaki krakerlerin hepsini yeme. Seni seviyorum. Önce ödev, sonra radyo.
+CAROL: Makinedeki krakerlerin hepsini yeme. Seni seviyorum. Önce ödev, sonra radyo.
 
 [Bip.]` },
-      office_carol: { title: 'Dinlenme odası buzdolabındaki not', from: 'Carol (Penny’nin annesi)', date: 'Nisan 1987', body:
-`P —
+      office_carol: { kind: 'note', title: 'Mola odası buzdolabındaki not', from: 'Rosie’nin annesi Carol', date: 'Nisan 1987', body:
+`R —
 
-Toplantı yine uzuyor. Yemek dondurucuda, mavi kapaklı olan. On değil, yedi dakika.
+Toplantı yine uzuyor. Akşam yemeği dondurucuda, mavi kapaklı olan. On dakika değil, yedi dakika.
 
-Radyodan ÖNCE ödev.
+ÖNCE ödev, SONRA radyo.
 
-Seninle gurur duyuyorum. Söylemediğimi biliyorum. Buzdolabında söylüyorum.
+Seninle gurur duyuyorum. Söylemediğimi biliyorum. Buzdolabına yazarak söylüyorum.
 
 —Annen` },
-      office_tracklist: { title: 'Bir kaset kapağı', from: 'Penny', date: 'Nisan 1987', body:
-`256 OPERASYONU — RESMİ KARIŞIK KASET
+      office_tracklist: { kind: 'card', title: 'Bir kaset kabı', from: 'Rosie', date: 'Nisan 1987', body:
+`OPERASYON 256 — RESMÎ KASET
 
 A YÜZÜ: BU GECE İÇİN
-1. Neon Hearts — The Arcadians
-2. Kill Screen Boogie — DJ Pellet
-3. Midnight at the Starlight — Penny (canlı, dinlenme odasından)
-4. Don’t Look Back — Harbor Lights
+1. Neon Kalpler — The Arcadians
+2. Ölüm Ekranı Boogie — DJ Fener
+3. Starlight’ta Gece Yarısı — Rosie (mola odasından canlı)
+4. Arkana Bakma — Harbor Lights
 
 B YÜZÜ: SONRASI İÇİN
-(boş — kazandıktan sonra kaydedeceğiz)` },
-      office_penny_tape: { title: 'Kaset: "Penny Radyo, canlı"', from: 'Penny', date: '14 Nisan 1987', body:
-`[Klik. Bir floresan vızıltısı. Geri sayan bir mikrodalga.]
+(boş — kazanınca kaydedeceğiz)` },
+      office_rosie_tape: { kind: 'tape', title: 'Kaset: "Rosie Radyo, canlı"', from: 'Rosie’nin teyp kaydedicisi', date: '14 Nisan ve 17 Nisan 1987', body:
+`[Klik. Floresan uğultusu. Geri sayan bir mikrodalga.]
 
-PENNY: İyi akşamlar Harlow! Penny Radyo’yu dinliyorsunuz, yüz yedi nokta üç, Harlow Mutual Sigorta’nın dinlenme odasından canlı yayın. Kahvenin yanık, geleceğin parlak olduğu yerden.
+ROSIE: İyi akşamlar Harlow! Burası Rosie Radyo, yüz yedi nokta üç, Harlow Mutual’ın mola odasından canlı yayın; kahve yanık, gelecek parlak.
 
-PENNY: Bu gecenin hava durumu: karanlık. Yarının hava durumu: yine karanlık, çünkü annemin toplantısı yine uzuyor.
+ROSIE: [daha alçak sesle] Bazen bu şeye bir saat konuşuyorum ve kimse duymuyor. Olsun. Dışarıda biri varmış gibi yapmak güzel.
 
-[Mikrodalga ötüyor.]
+[Kaset hışırdıyor ve atlıyor. Şimdi: cama vuran yağmur, makine müziği, bir vantilatör. Sayaç 12:40’ı gösteriyor.]
 
-PENNY: [daha alçak sesle] Bazen bir saat boyunca buna konuşuyorum ve kimse duymuyor. Sorun değil. Orada biri varmış gibi yapmak güzel.
+ROSIE: [fısıldayarak] Rosie Radyo, kapanıştan sonra Starlight’tan canlı. Seviye iki yüz on iki. Kolda Danny var ve terliyor.
 
-PENNY: Eğer oradaysan... Perşembe kill screen’i geçeceğiz. Bizi dinlemeye devam et.
+[Metal bir kapıya üç vuruş.]
 
-[Klik.]` },
-      office_walt5: { title: 'Walt’ın defteri', from: 'Walt', date: 'İçeride, ? gün', body:
-`Pembe hep benim gideceğim yerde. Beni harita gibi okuyor.
+NELL: Arkada biri var.
 
-Penny kabinde de böyle yapardı. Billy’nin arkasında durup fısıldardı: "sol, sol, şimdi bekle, şimdi GİT." Billy onu dinlediğini hiç kabul etmedi.
+TOBY: [çoktan koşuyor] Biliyordum! BİLİYORDUM!
 
-Bugün sola gittim. Zaten oradaydı. Bana dokunmadı. Sadece bana üzgünmüş gibi baktı.` },
-      office_eddie_page: { title: 'Yırtık, buruşturulmuş bir sayfa', from: 'Eddie', body:
-`...Walt artık oyuncuysa, o gidince oyunun yeni birine ihtiyacı olur. Ekrandan geçen herkes olabilir. Çocuk olabilir.
+[Bir sürgü kayıyor. Yağmurun sesi yükseliyor.]
+
+ROSIE: Vay vay vay. Bakın kim sürünerek geri gelmiş.
+
+TOBY: [gülerek, neredeyse ağlayarak] Geri geldin!
+
+ROSIE: Harlow’a merhaba de, seni koca—
+
+[Klik. Kaset burada bitiyor.]` },
+      office_walt5: { kind: 'diary', title: 'Walt’ın günlüğü', from: 'Walt', date: 'İçeride, ? . gün', body:
+`Mor olan hep olacağım yerde. Beni harita gibi okuyor.
+
+Rosie makinenin başında da böyleydi. Danny’nin arkasında durup fısıldardı: "Sol, sol, şimdi bekle, şimdi GİT." Danny dinlediğini hiç kabul etmedi.
+
+Bugün sola döndüm. O zaten oradaydı. Bana dokunmadı. Sadece üzgünmüş gibi baktı.` },
+      office_eddie_page: { kind: 'note', title: 'Yırtılmış, buruşuk bir sayfa', from: 'Eddie', body:
+`...biri girer, biri çıkar. Yani kapı birinin geride kalmasını istiyor. Benden sonra ekrandan geçen biri. Herhangi biri olabilir. Bir çocuk olabilir.
 
 Hayır. Kes şunu.
 
-Sen öyle biri değilsin Eddie.` },
-      office_board: { title: 'Toplantı odasındaki beyaz tahta', from: 'B Toplantı Odası', body:
-`2. ÇEYREK HASAR DEĞERLENDİRME
-- bekleyen: 212 dosya
+Sen o adam değilsin Eddie.` },
+      office_board: { kind: 'wall', title: 'Toplantı odasındaki beyaz tahta', from: 'B Toplantı Odası', body:
+`HASAR DEĞERLENDİRMESİ
+- birikmiş dosya: 212
 - fazla mesai: onaylandı (yine)
-- Cuma: herkes bir yemek getirsin
+- Cuma: herkes yemek getiriyor
 
 Hepsinin üstüne, başka bir kalemle:
 HERKES NEREYE GİTTİ` },
-      office_phone2: { title: 'Telefon hattı 0256', from: 'Bilinmeyen hat', body:
-`[Cızırtı. Sonra düz, çocuksu bir ses, yavaşça sayıyor.]
+      office_phone2: { kind: 'phone', title: '0256 numaralı hat', from: 'Bilinmeyen hat', body:
+`[Parazit. Sonra düz, çocuksu bir ses, yavaşça sayıyor.]
 
 ...iki yüz elli üç...
 ...iki yüz elli dört...
 ...iki yüz elli beş...
 
-[Sayma duruyor. Nefes sesi. Tam ahizenin yanında.]
+[Sayma duruyor. Nefes sesi, ahizenin tam dibinde.]
 
 ...iki yüz elli-
 
 [Hat kesiliyor.]` },
-      office_phone3: { title: '1987’den bir arama', from: 'Maggie', date: '17 Nisan 1987, 07:12', body:
-`[Çalıyor, sonra sakin kalmak için çok uğraşan bir kadın sesi.]
+      office_phone3: { kind: 'phone', title: '1987’den bir arama', from: 'Maggie Marsh', date: '17 Nisan 1987, 07:12', body:
+`[Çalıyor, sonra sakin görünmeye çok uğraşan bir kadın.]
 
-MAGGIE: Alo? Carol? Ben Maggie, Clyde’ın annesi. Seni işte bu kadar erken aradığım için kusura bakma. Penny yanında mı? Clyde Sam’lerde kalacağını söylemişti ama Sam’in annesi diyor ki...
+MAGGIE: Alo? Carol? Ben Maggie, Toby’nin annesi. Seni işte bu kadar erken aradığım için özür dilerim. Rosie seninle mi? Toby Sam’lerde yatacağını söylemişti ama Sam, Toby hiç gelmedi diyor...
 
-MAGGIE: Orada kimse yok mu?
+MAGGIE: Orada kimse var mı?
 
-MAGGIE: ...Veranda ışığını onun için açık bıraktım. Açık bırakacağım.
+MAGGIE: ...Veranda lambasını onun için açık bıraktım. Açık bırakacağım.
 
 [Klik.]` },
-      office_personnel: { title: 'Terminal: PERSONNEL.TXT', from: 'IBM PC/XT', body:
-`HARLOW MUTUAL — HASAR BOLUMU
-CAROL ........ EKSPER ......... FM 1. CEYREK: 212 SA
-DENNIS ....... AMIR ........... FM 1. CEYREK:  12 SA
-MARGE ........ MEMUR .......... FM 1. CEYREK:   0 SA
+      office_personnel: { kind: 'screen', title: 'Terminal: PERSONNEL.TXT', from: 'Ofis terminali', body:
+`HARLOW MUTUAL — HASAR BÖLÜMÜ
+CAROL A. ..... EKSPER ......... FAZLA MESAİ 1Ç: 212 SAAT
+DENNIS R. .... ŞEF ............ FAZLA MESAİ 1Ç:  12 SAAT
+MARGE T. ..... MEMUR .......... FAZLA MESAİ 1Ç:   0 SAAT
 
-ZIYARETCI KAYDI (18:00 SONRASI):
-PENNY (KIZI, CAROL) ........... 61 ZIYARET
+ZİYARETÇİ KAYDI (18:00 SONRASI):
+ROSIE A. (CAROL A.’NIN KIZI) ... 61 ZİYARET
 
 C:\\> _` },
     },
     obj: {
-      office_code: 'Güvenlik şifresinin hanelerini bul ({n}/4)',
+      office_code: 'Güvenlik şifresinin rakamlarını bul ({n}/4)',
       office_keypad: 'Şifreyi güvenlik odasının tuş takımına gir',
       office_card: 'Güvenlik kartını al',
       office_stairs: 'Kartı yangın merdiveni kapısında kullan',
     },
     mono: {
-      office_start: 'Bir ofis. Tüplü monitörler. Kimse yok ama herkes az önce kalkmış gibi.',
-      office_pinkSeen: 'Pembe... önümde. Ben oraya varmadan oradaydı.',
-      office_code: 'Dördü de tamam. Bir, sıfır, yedi, üç. Penny’nin istasyonu.',
-      office_cameras: 'Monitörler katın kameralarını gösteriyor. Artık onları haritamda görebiliyorum.',
-      office_tape: 'B yüzü boş.',
+      office_start: 'Bir ofis. Yeşil ekranlar. Kimse yok ama sanki herkes az önce kalkmış gibi.',
+      office_rosieSeen: 'Mor... önümde. Benden önce oraya varmış. Gözleri gideceğim yerde.',
+      office_code: 'Dördü de tamam. Bir, sıfır, yedi, üç. Rosie’nin istasyonu.',
+      office_cameras: 'Monitörler kat kameralarını gösteriyor. Artık onları haritamda görebiliyorum.',
+      office_tape: 'B yüzü boş. "Sonrası için."',
     },
     lines: {
       office_keypad: 'Şifreyi gir',
@@ -168,24 +180,24 @@ C:\\> _` },
     },
     radio: {
       office_start: [
-        ['eddie', 'Ofis mi? ...Harlow Mutual. Penny’nin annesi burada çalışırdı. Penny her akşam dokuza kadar ödevini dinlenme odasında yapardı.'],
+        ['eddie', 'Ofis mi? ...Harlow Mutual. Rosie’nin annesi burada çalışırdı. Rosie her akşam dokuza kadar mola odasında ödev yapardı.'],
         ['eddie', 'Oradaki telefondan salonu arar, bize hava durumunu okurdu. Her akşam.'],
       ],
-      office_pink: [
-        ['eddie', 'Pembe önünde! Nereye gittiğini okuyor. Gerekirse geri geri yürü, kulağa nasıl geldiğini biliyorum.'],
+      office_rosie: [
+        ['eddie', 'Mor önünde! Nereye gittiğini okuyor. Geri dön. Sebepsiz yere dön. Kulağa nasıl geldiğini biliyorum.'],
       ],
       office_tape: [
-        ['eddie', 'Karışık kaset. O gece için bir tane yapmıştı. B yüzü "sonrası için" olacaktı.'],
+        ['eddie', 'Kaset. O gece için bir tane yapmıştı. B yüzü "sonrası için"di.'],
         ['sam', 'Neyin sonrası?'],
-        ['eddie', 'Kazandıktan sonrası. Eve döndükten sonrası.'],
+        ['eddie', 'Kazandıktan sonrası. Eve gittikten sonrası.'],
       ],
       office_freed: [
         ['eddie', 'Yanında yürüyor. Önünde değil. Yanında.'],
-        ['eddie', 'Kabinde de Billy’nin arkasında böyle dururdu. Tam orada, hamleleri fısıldayarak.'],
+        ['eddie', 'Makinenin başında Danny’nin arkasında da böyle dururdu. Tam orada, hamleleri fısıldayarak.'],
       ],
       office_page: [
-        ['sam', 'Eddie. Bir sayfa buldum. Senin el yazın. "Çocuk olabilir."'],
-        ['eddie', '...O eski. İlk haftamda bir sürü saçma şey yazdım. Unut onu.'],
+        ['sam', 'Eddie. Bir sayfa buldum. Senin el yazın. "Biri girer, biri çıkar. Bir çocuk olabilir."'],
+        ['eddie', '...O eski. İlk haftamda bir sürü saçmalık yazdım. Unut onu.'],
         ['eddie', 'Merdivenler Sam. Merdivenlere git.'],
       ],
     },

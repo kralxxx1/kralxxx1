@@ -1,152 +1,157 @@
-/* Türkçe — Bölüm 1: Lobi (Seviye 0). */
+/* Türkçe — Seviye 0: Tanıtım Ekranı. */
 (function (root) {
   'use strict';
   root.PB.I18N.register('tr', 'story', {
     chapters: {
       lobby: {
-        name: 'SEVİYE 0', title: 'Lobi', place: 'Ekranın kenarı',
-        intro: 'Bir vızıltı. Islak halı kokusu. Sonsuza uzanan sarı duvarlar. Çok uzaklarda on bin kere duyduğun bir ses: hayalet sireni. Vuu, vuu.',
+        name: 'SEVİYE 0', title: 'Tanıtım Ekranı', place: 'Ekranın içinde',
+        intro: 'Dişlerinde hissettiğin bir uğultu. Islak halı. Sonsuza kadar uzanan sarı duvarlar. Çok uzaklarda, makine hoparlöründen on bin kere duyduğun bir ses: hayaletlerin sireni, yükselip alçalıyor.\n\nOyun bir oyuncu bekliyordu. Artık bir oyuncusu var.',
       },
     },
     docs: {
-      lobby_rules: { title: 'Duvara bantlanmış kâğıt', from: 'Eddie', body:
+      lobby_rules: { kind: 'note', title: 'Duvara bantlanmış kâğıt', from: 'Eddie', body:
 `BUNU OKUYORSAN:
 
-1. Seni görmedikçe koşma. Koşmak gürültü yapar.
-2. ÇIKIŞ tabelaları yalan söyler. Dışarı değil, daha derine gider.
-3. Işıklar titrerse saklan ya da köşe dön.
-4. Hapların hepsi gerçek. Birini yut, her şey senden kaçar. Bir süreliğine.
-5. Badem suyu. İç. Sorma.
+1. Seni zaten görmediyse koşma. Koşmak gürültülü.
+2. EXIT tabelaları yalan söyler. Dışarı değil, daha derine götürür.
+3. Işıklar titrerse koridordan çık.
+4. Fenerler gerçek. Birini aldığında her şey SENDEN kaçar. Bir süreliğine.
+5. Star Pop (kirazlı gazoz) titremeyi durdurur. Nedenini sorma.
 6. Kampımda bir telsiz var. Kanal 7.
 
 —Eddie` },
-      lobby_camp: { title: 'Eddie’nin kamp günlüğü', from: 'Eddie', date: '12 Haziran 1993 (?)', body:
+      lobby_camp: { kind: 'diary', title: 'Eddie’nin kamp günlüğü', from: 'Eddie', date: '12 Haziran 1993 (?)', body:
 `Kamp 1.
 
-Ekrandan gece 23:40’ta geçtim. Yüzüstü düştüm. Halı ıslak ama hiçbir yer akıtmıyor. Burada hiçbir yer akıtmıyor.
+Ekrandan saat 23:40’ta geçtim. Yüzüstü düştüm. Halı sırılsıklam ama hiçbir yer sızdırmıyor. Burada hiçbir şey sızdırmıyor.
 
-Walt burada değil. Fenerini ve duvardaki el yazısını buldum.
+Walt yok. Fenerini ve bir duvarda el yazısını buldum.
 
-Telsizler kanal 7’de çalışıyor. Cevap veren yok. Walt’ın peşinden bir video oyununa dalan bir sonraki salak için buraya bir tane bırakıyorum.
+Telsizler 7. kanalda çalışıyor. Kimse cevap vermiyor. Bir yetişkini video oyununun içine kadar takip eden bir sonraki salak için bir tane buraya bırakıyorum.
 
-O sensen: merhaba. Kusura bakma. Kanal 7.` },
-      lobby_walt1: { title: 'Walt’ın defterinden bir sayfa', from: 'Walt', date: 'İçeride, 1. gün', body:
+Sensen: selam. Kusura bakma. Kanal 7.` },
+      lobby_walt1: { kind: 'diary', title: 'Walt’ın günlüğünden bir sayfa', from: 'Walt', date: 'İçeride, 1. gün', body:
 `1. gün.
 
-Sarı. Eski Asteroids kabinindeki balast gibi vızıldıyor. Halı ıslak.
+Sarı. Bozuk bir balast gibi uğulduyor. Halı ıslak.
 
-Uzakta sireni duyabiliyorum. Hayalet sireni, evden çıktıklarında çalan. Vuu, vuu.
+Uzaktan sireni duyuyorum, hayaletler evlerinden çıkınca çalan siren.
 
-Buradalar. Haklıydım. Tanrı yardımcım olsun, haklıydım.
+Buradalar. Haklıymışım. Tanrım, haklıymışım.
 
-Billy, Penny, Ivy, Clyde. Dayanın. Geliyorum.` },
-      lobby_walt2: { title: 'Walt’ın defterinden başka bir sayfa', from: 'Walt', date: 'İçeride, 9. gün (?)', body:
+Danny. Rosie. Nell. Toby. Dayanın. Geliyorum.` },
+      lobby_walt2: { kind: 'diary', title: 'Walt’ın günlüğünden başka bir sayfa', from: 'Walt', date: 'İçeride, 9. gün (?)', body:
 `9. gün. Ya da 90.
 
-Sürekli açım. Kasalarca badem suyu buldum, hepsini içtim. Karar verdiğimi hatırlamıyorum.
+Sürekli açım. Her yerde Star Pop kutuları var, kendi soğutucumun hepsi. Hepsini içtim. İçmeye karar verdiğimi hatırlamıyorum.
 
-Hapların tadı bozuk para gibi. Birini yiyince daha uzağı görebiliyorum.
+Fenerlerin tadı bozuk para gibi. Birini yutunca daha uzağı görüyorum.
 
-Bugün kırmızıyı gördüm. Yaklaşınca çığlık atıp kaçtı. Adını seslendim. Bir saniye durdu, sonra koşmaya devam etti.
+İlk gecemde fişi denedim. Tek başıma. İçimde bir şey tık etti, düşen bir jeton gibi.
 
-Anlıyorum. Ağzı olan artık benim.` },
-      lobby_flyer: { title: 'Katlanmış bir el ilanı', from: 'Penny', date: 'Nisan 1987', body:
+Bugün kırmızı olanı gördüm. Benden kaçtı. Adını seslendim, durdu. Bir saniyeliğine.
+
+Artık anlıyorum. Ağzı olan benim.` },
+      lobby_flyer: { kind: 'flyer', title: 'Katlanmış bir el ilanı', from: 'Rosie', date: 'Nisan 1987', body:
 `★ ÇOK GİZLİ ★
-256 OPERASYONU
+OPERASYON 256
 
 NE ZAMAN: Perşembe 16/4, kapanıştan sonra
-GÖREV: kill screen’in öbür tarafında ne olduğunu görmek
+GÖREV: ölüm ekranının ötesinde ne var, görmek
 
 EKİP:
-Billy — anahtar (Walt’a SÖYLEMEYİN)
-Penny — plan + atıştırmalık
-Ivy — hayalet hareketlerinin haritası
-Clyde — fener
+Danny — anahtar (Walt’a SÖYLEMEYİN)
+Rosie — plan + atıştırmalık
+Nell — hayalet hareketlerinin haritası
+Toby — el feneri
 Sam — şans
 
-OKUDUKTAN SONRA YOK EDİN!!!
-(Clyde, bu çizgi romanının içinde saklama demek.)` },
-      lobby_exitwall: { title: 'ÇIKIŞ kapısının yanına kazınmış', body:
-`ÇIKIŞLAR YALAN SÖYLER
-—E` },
-      lobby_chairs: { title: 'Sandalyelerin üstüne yazılmış', body:
-`BURAYA GELDİĞİMDE
+YA BEŞİMİZ YA HİÇBİRİMİZ.
+OKUDUKTAN SONRA İMHA EDİN!!!
+(Toby, bu çizgi romanının içinde saklama demek.)` },
+      lobby_exitwall: { kind: 'wall', title: 'EXIT kapısının yanına kazınmış', body:
+`EXIT’LER YALAN SÖYLER
+—E.` },
+      lobby_chairs: { kind: 'wall', title: 'Sandalyelerin üstüne yazılmış', body:
+`BEN GELDİĞİMDE
 SANDALYELER ZATEN
 DUVARA DÖNÜKTÜ
-—W` },
-      lobby_puddle: { title: 'Su birikintisinin yanında nemli bir not', from: 'Walt', body:
-`Buradaki su ılık ve klor kokuyor. Kasabanın havuzu gibi.
+—W.` },
+      lobby_puddle: { kind: 'note', title: 'Su birikintisinin yanında nemli bir not', from: 'Walt', body:
+`Buradaki su ılık ve klor kokuyor. Belediye havuzu gibi.
 
-Ivy ’85’ten sonra havuzun yanına bile gitmezdi. Burası onun mu?
+Nell ’85’ten sonra havuzun yanına bile gitmezdi. Bu onun mu?
 
-Burada her oda birine ait.` },
-      lobby_lily2: { title: 'Bir havalandırmanın arkasına sıkışmış çocuk çizimi', from: 'Lily, 8 yaşında', body:
-`Pastel boya. Bir yatakta iri bir adam ve küçük bir kız; ikisi birlikte ekranında sarı bir daire olan küçük bir oyun makinesini tutuyor. Kız kollarını havaya kaldırmış.
+Buradaki her oda birine ait.` },
+      lobby_lily2: { kind: 'drawing', drawing: 2, title: 'Bir havalandırmanın arkasına sıkışmış çizim', from: 'Lily, 9 yaşında', body:
+`Pastel boya. Bıyıklı iri bir adam ve turuncu örgülü küçük bir kız, küçük bir oyun makinesinin yanında. Ekranında yuvarlak turuncu bir yaratık ve 3190 sayısı. Kız iki kolunu da kaldırmış.
 
-BEN, BABAM VE KÜÇÜK MAKİNE.
+BEN VE BABAM VE KÜÇÜK MAKİNE.
 3190 PUAN YAPTIM!!!
-BABAM TABLODA SONSUZA KADAR KALACAK DEDİ.` },
-      lobby_tape: { title: 'Kaset: "Deneme, deneme"', from: 'Eddie', date: 'İçeride', body:
-`[Klik. Ağır nefesler. Vızıltı.]
+BABAM SONSUZA KADAR TABLODA KALACAK DİYO.` },
+      lobby_tape: { kind: 'tape', title: 'Kaset: "Deneme, deneme"', from: 'Eddie', date: 'İçeride', body:
+`[Klik. Ağır bir soluk. Uğultu.]
 
-EDDIE: Deneme, deneme. Kaset günlüğü, gün... bilmiyorum. Bir günler.
+EDDIE: Deneme, deneme. Kaset günlüğü, gün... bilmiyorum. Bir şeyinci gün.
 
-EDDIE: June, bu sensen: iyiyim. Hiçbir şeyim yok. Onu bulacağım ve bebekten önce eve döneceğim. Söz verdim, ben sözümü tutarım. Genelde.
+EDDIE: Dinleyen June’sa: iyiyim. Gerçekten. Walt’ı bulacağım, çocukları getireceğim, bebekten önce evde olacağım. Söz verdim, ben sözümü tutarım. Genelde.
 
-[Sessizlik.]
+[Duraklama.]
 
-EDDIE: June değilsen: kanal 7. Koşma. Ve ne yaparsan yap, yemek yerken seni görmesine izin verme.
+EDDIE: Dinleyen June değilse: kanal yedi. Koşma. Ve ne yaparsan yap, yemek yerken seni duymasına izin verme.
 
 [Klik.]` },
     },
     obj: {
       lobby_explore: 'Bir çıkış yolu bul',
-      lobby_pellets: 'Güç haplarını topla ({n}/4)',
-      lobby_insert: 'Hapları ÇIKIŞ kapısının yanındaki yuvalara yerleştir',
+      lobby_pellets: 'Fenerleri bul ({n}/4)',
+      lobby_insert: 'Fenerleri EXIT kapısının yanındaki panele yerleştir',
       lobby_leave: 'Kapıdan geç',
     },
     mono: {
-      lobby_start: 'Neredeyim ben? Halı... ıslak. Vızıltı kafamın içinde.',
-      lobby_exitSeen: 'ÇIKIŞ. Kapının yanında dört yuvarlak yuva var. Hap boyutunda.',
-      lobby_firstPellet: 'Avuç kadar bir ışık. Bir anlığına her şey maviye döndü.',
-      lobby_eaterHeard: 'O ses. Vaka, vaka. Çocukken bin kere duydum. Hiç böyle duymadım.',
-      lobby_eaterSeen: 'Koridorun sonunda sarı bir ışık. Büyük. Çok büyük.',
-      lobby_allPellets: 'Dört hap. Şimdi kapıya.',
-      lobby_radio: 'Bir telsiz. Kadranı kanal 7’ye bantlanmış.',
+      lobby_start: 'Neredeyim... Halı ıslak. Uğultu kafamın içinde.',
+      lobby_exitSeen: 'EXIT. Kapının yanında dört yuvarlak yuva. Fener büyüklüğünde.',
+      lobby_firstPellet: 'Bir fener. Elimde sıcacık. Bir anlığına her şey maviye döndü ve kaçtı.',
+      lobby_eaterHeard: 'Çiğneme sesi. Duvarların arkasında bir yerde bir şey çiğniyor.',
+      lobby_eaterSeen: 'Koridorun sonunda soluk bir şey. Yuvarlak. Koridora sığmayacak kadar büyük. Çiğniyor.',
+      lobby_allPellets: 'Dört fener. Şimdi kapı.',
+      lobby_radio: 'Bir telsiz. Biri düğmesini bantla 7. kanala sabitlemiş.',
     },
     lines: {
-      lobby_slots: 'Dört yuva ({n}/4 hap)',
-      lobby_place: 'Hapları yuvalara yerleştir',
+      lobby_slots: 'Dört yuva ({n}/4 fener)',
+      lobby_place: 'Fenerleri yuvalara yerleştir',
       lobby_radioTake: 'Telsizi al',
     },
     radio: {
       lobby_meet: [
-        ['radio', '[cızırtı]'],
-        ['eddie', '...alo? ALO? Yedide biri mi var? Bir şey söyle!'],
-        ['sam', '...Alo? Kimsin? Neredeyim ben?'],
-        ['eddie', 'Tanrıya şükür. Bir insan sesi. Tamam. Tamam. Adım Eddie. Eskiden Starlight’ta çalışırdım. Ekrandan geçtin, değil mi? Yedi numaradan?'],
-        ['sam', 'Eddie? Walt’ın Eddie’si mi? Geçen yıl kayboldun. Resmin haftalarca gazetedeydi.'],
-        ['eddie', 'Geçen yıl. Hıh. Geçen hafta gibi geliyor. Dinle, adın ne?'],
-        ['sam', 'Sam.'],
-        ['eddie', '...Sam. Clyde’ın Sam’i mi? Bisikletli küçük Sam? Dalga geçiyorsun. Tamam Sam, kurallar. Bir şey seni görmedikçe koşma. ÇIKIŞ tabelaları yalan söyler. Işıklar titrerse koridordan çık.'],
-        ['eddie', 'Bu seviyenin kapısı dört güç hapı istiyor. Onları bul. Ve Sam? Yedide kal.'],
+        ['radio', '[parazit]'],
+        ['eddie', '...alo? ALO? Yedide biri var mı? Bir şey söyle!'],
+        ['sam', '...Alo? Kimsin? Neredeyim?'],
+        ['eddie', 'Oh, şükürler olsun. Bir insan. Tamam. Tamam. Adım Eddie. Eskiden Starlight’ta çalışırdım. Yedi numaradan geçtin, değil mi?'],
+        ['sam', 'Eddie mi? Walt’ın Eddie’si? Bir buçuk yıl önce kayboldun. Karın fotoğrafını Harlow’daki her direğe astı.'],
+        ['eddie', 'Bir buçuk yıl. Bana bir gece gibi geldi. O zaman bebek... [parazit] Yok. Şimdi değil. Adın ne?'],
+        ['sam', 'Sam. Sam Keller.'],
+        ['eddie', '...Toby’nin Sam’i mi? Bisikletli çocuk? Hmm. Demek ondan.'],
+        ['sam', 'Ne ondan?'],
+        ['eddie', 'Sen girince bütün burası aynı şeyi söyledi. PLAYER ONE. Buradan stadyum gibi duydum. Bana hiç öyle demedi. Bana INSERT COIN dedi.'],
+        ['eddie', 'Kurallar. Bir şey seni görmediyse koşma. EXIT tabelaları yalan söyler. Işıklar titrerse koridordan çık. Buradan çıkan kapı dört fener istiyor. Onları bul. Ve Sam? Yedide kal.'],
       ],
       lobby_pellet1: [
-        ['eddie', 'Hap mı aldın az önce? Olamaz. Hayır, hayır, hayır. Tamam. Artık uyandı. Sen yedin mi hep bir şey uyanır.'],
-        ['eddie', 'Köşeler Sam. Düzde hızlı, dönüşlerde yavaş.'],
+        ['eddie', 'Az önce bir fener mi aldın? Eyvah. Tamam. Duydu. Bir fener aldığında hep bir şey uyanır.'],
+        ['eddie', 'Köşeler Sam. Düz çizgide hızlı, dönüşlerde yavaş.'],
       ],
       lobby_eater: [
-        ['eddie', 'Gördün onu. Ona çok uzun bakma. Ben ona Yutucu diyorum.'],
-        ['sam', 'Nedir o?'],
-        ['eddie', 'Eskiden... [cızırtı] Sen köşeleri kullan.'],
+        ['eddie', 'Gördün onu. Ona çok uzun bakma. Ben ona Yiyici diyorum.'],
+        ['sam', 'Ne o?'],
+        ['eddie', 'Oyuncu. Her oyunun bir oyuncusu olmalı. Bu da eskiden... [parazit] Sen sadece köşe dön.'],
       ],
       lobby_panel: [
         ['eddie', 'Dört yuva. Burada her şey oyun Sam. Tahtayı temizle, kapı açılsın.'],
       ],
       lobby_open: [
-        ['eddie', 'O kapı dışarı açılmıyor. Çıkışlar yalan söyler. Ama aşağı iniyor, ve onlar aşağıda.'],
-        ['sam', 'Kim?'],
-        ['eddie', 'Kim olduğunu biliyorsun. ’87 Nisan’ından dört çocuk. Hadi. Yedideyim.'],
+        ['eddie', 'O kapı çıkış değil. EXIT’ler yalan söyler. Ama aşağı iniyor ve onlar da aşağıda.'],
+        ['sam', 'Kimler?'],
+        ['eddie', 'Kim olduklarını biliyorsun. Nisan ’87’nin dört çocuğu. Hadi. Yedide olacağım.'],
       ],
     },
   });

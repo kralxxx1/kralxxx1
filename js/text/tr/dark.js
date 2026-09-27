@@ -1,127 +1,126 @@
-/* Türkçe — Bölüm 7: Karanlık (Clyde). */
+/* Türkçe — Seviye 6: Işıklar Söndü (Toby). */
 (function (root) {
   'use strict';
   root.PB.I18N.register('tr', 'story', {
     chapters: {
       dark: {
-        name: 'SEVİYE 6', title: 'Karanlık', place: 'Clyde’ın karanlığı',
-        intro: 'Aynı sarı odalar, bütün ışıkları ölü. Buradaki karanlık, yaslanabileceğin kadar koyu. İçinde bir yerlerde bir şey gülmemek için çok uğraşıyor.',
+        name: 'SEVİYE 6', title: 'Işıklar Söndü', place: 'Toby’nin anısı — karanlık',
+        intro: 'Aynı sarı odalar, bütün ışıkları ölü. Buradaki karanlık, yaslanabileceğin kadar koyu.\n\nToby hayatı boyunca karanlıktan korktu. Burada karanlık hiçbir şeyden korkmuyor. İçinde bir yerde bir şey gülmemek için çok uğraşıyor.',
       },
     },
     docs: {
-      dark_intro: { title: 'Bir jeneratörün üstünde', from: 'Eddie', body:
+      dark_intro: { kind: 'note', title: 'Bir jeneratörün üstünde', from: 'Eddie', body:
 `Üç jeneratör. Mazot bidonları etrafa dağılmış.
 
-Burada karanlığın dişleri var. Ben onlara sırıtkan diyorum. Işık onları kovar. Fener, ışık çubuğu, ne olursa.
+Bu seviyede karanlığın dişleri var. Ben onlara sırıtan diyorum. Işık onları uzaklaştırır. Fener, ışık çubuğu, ne olursa.
 
-Turuncu olana gelince... ışığını onun üstünde tut. Ona uzun süre sırtını dönme.
+Kehribar olan... ışığını onun üstünde tut. Ona uzun süre sırtını dönme.
 
-—E` },
-      dark_diary1: { title: 'Bir okul defterinden sayfa', from: 'Clyde', date: '15 Nisan 1987', body:
-`Yarın 256 Operasyonu!!!
+—E.` },
+      dark_diary1: { kind: 'diary', title: 'Bir okul defterinden bir sayfa', from: 'Toby', date: '15 Nisan 1987', body:
+`Yarın Operasyon 256!!!
 
-Billy feneri benim tutabileceğimi söyledi. Penny bir kaset yaptı. Ivy hayalet hareketlerinin haritasını çıkardı ve gerçekten çok iyi.
+Danny fenerden ben sorumluyum dedi. Rosie kaset yaptı. Nell hayalet hareketlerinin haritasını çıkardı, gerçekten çok iyi olmuş.
 
-Sam walkman’ini kırdığım için bana kızgın. İstemeden oldu. Üstüne oturdum. Mart VE Nisan harçlığımı ona vereceğim.
+Bugün Sam’in walkman’inin üstüne oturdum. Çatır diye ses çıktı. Henüz bilmiyor. Ona mart VE nisan harçlığımı vereceğim.
 
-Gelecek. Hep gelir.
+Danny, #7’deki kehribar hayalet benim çünkü korkak olan o diyor. Walt akıllı olan o diyor. Her iki durumda da o BENİM hayaletim.` },
+      dark_diary2: { kind: 'diary', title: 'Son sayfa', from: 'Toby', date: '17 Nisan 1987, 00:50 — salonda', body:
+`Çakmak ışığında yazıyorum. Danny korkutmak için arkadaki ışıkları kapattı. İşe yaradı.
 
-Billy, 7 numaradaki turuncu hayaletin adını benden aldığını söylüyor. Walt, ismin önce hayaletin olduğunu söylüyor. Ne olursa olsun o BENİM hayaletim.` },
-      dark_diary2: { title: 'Son sayfa', from: 'Clyde', date: '16 Nisan 1987 — 22:00, salonda', body:
-`Sam eve gitti.
+Sam 21:40’ta eve gitti. Sam "Peki. Kaybol o zaman." dedi. Ben bir şey demedim. Arka odada kimse görmesin diye ağladım.
 
-"Tamam, kaybol o zaman" dedi. Hiçbir şey demedim. Bir şey demeliydim.
+Sonra 12:40’ta biri arka kapıyı çaldı ve SAM’di. Sırılsıklam.
 
-Billy korkutucu olsun diye arkadaki ışıkları söndürdü. İşe yaradı.
+SAM GERİ GELDİ!!! Sam hep geri gelir.
 
-Dedemin çakmağı bende. Korkmuyorum.
+Önce ben özür diledim. Yani ben kazandım.
 
-Biraz korkuyorum.
+Seviye 212. Danny saat üçte 256 diyor. Beş el birden. Kimse bırakmaz.` },
+      dark_grandpa: { kind: 'card', title: 'Bir çakmak kutusunda küçük bir kart', from: 'Toby’nin dedesi', date: '1985', body:
+`Toby —
 
-Yarın Sam gelince önce ben özür dileyeceğim. Ondan önce. Böylece ben kazanırım.` },
-      dark_grandpa: { title: 'Bir çakmak kutusunda küçük bir kart', from: 'Clyde’ın dedesi', date: '1985', body:
-`Clyde —
+Bunu 1951’de, gece vardiyasından eve yolumu bulayım diye büyükannen vermişti.
 
-Bunu büyükannen 1951’de bana verdi, gece vardiyasından eve yolumu bulayım diye.
-
-Artık senin. Hiçbir zaman karanlıkta oturmak zorunda değilsin.
+Artık senin. Hiç karanlıkta oturmak zorunda kalmayacaksın.
 
 —Deden` },
-      dark_grinners: { title: 'Titrek bir el yazısı', from: 'Eddie', body:
-`Sırıtkanlar insan değil. Hayalet bile değiller.
+      dark_grinners: { kind: 'note', title: 'Titrek bir el yazısı', from: 'Eddie', body:
+`Sırıtanlar insan değil. Hayalet bile değiller.
 
-Bence oyunun karanlıkta ne olduğuna dair fikri onlar. Clyde’ın fikri. On üç yaşında bir çocuğun yatağın altında ne olduğuna dair fikri.
+Bence oyunun karanlıkta ne olduğuna dair fikri. Toby’nin fikri. On üç yaşında bir çocuğun yatağın altında ne yaşadığına dair fikri.
 
-Bir çubuk yak, üçe kadar say, gitmişler.
+Bir çubuğu kır, üçe kadar say, gitmiş olurlar.
 
 Bu seviyede pek uyumuyorum.` },
-      dark_walt6: { title: 'Walt’ın defteri, sıkışık yazı', from: 'W', date: '—', body:
+      dark_walt6: { kind: 'diary', title: 'Walt’ın günlüğü, sıkışık bir yazı', from: 'Walt', date: 'İçeride', body:
 `Adımı hatırlamıyorum. W ile başlıyor.
 
-Bir kızın el yazısını hatırlıyorum. Yuvarlak harfler. Bacaklı sarı bir daire çizmişti.
+Küçük bir kızın el yazısını hatırlıyorum. Yuvarlak harfler. Boynuzlu turuncu bir şey çizmiş, altına BABAM yazmıştı.
 
 Bozuk para tadını hatırlıyorum.
 
-Turuncu da bana bakmıyor. Artık kimse bana bakmıyor.
+Kehribar olan da bana bakmıyor. Artık kimse bana bakmıyor.
 
-Ye, diyor tahta. Ye.` },
-      dark_wall: { title: 'Duvara çakmak isiyle yazılmış', body:
-`BAKMA BANA
+YE, diyor tahta. YE.` },
+      dark_wall: { kind: 'wall', title: 'Duvara çakmak isiyle yazılmış', body:
+`BANA BAKMA
 
 ÖZÜR DİLERİM SAM` },
-      dark_porch: { title: 'Bir sineklikli kapıya bantlanmış not', from: 'Maggie (Clyde’ın annesi)', date: 'Nisan 1987', body:
-`Clyde —
+      dark_porch: { kind: 'note', title: 'Bir sineklik kapısına bantlanmış not', from: 'Toby’nin annesi Maggie', date: 'Nisan 1987', body:
+`Toby —
 
-Eve gelene kadar veranda ışığı açık kalacak.
+Sen eve gelene kadar veranda lambası açık kalacak.
 
-Sevgiler, Annen` },
-      dark_tape: { title: 'Kaset: "Clyde’ın fıkrası"', from: 'Penny’nin teyp kaydedicisi', date: '17 Nisan 1987, 00:40', body:
-`[Klik. Salonun arka odası. Işıklar kapalı. Biri çakmak çakıyor.]
+Seni seviyorum, annen` },
+      dark_tape: { kind: 'tape', title: 'Kaset: "Toby’nin fıkrası"', from: 'Rosie’nin teyp kaydedicisi', date: '16 Nisan 1987, 23:58', body:
+`[Klik. Salonun arka odası. Işıklar kapalı. Bir çakmak çakılıyor.]
 
-CLYDE: Tamam, tamam. Pacman karşıya neden geçmiş?
+TOBY: Tamam, tamam. Muncher karşıya neden geçmiş?
 
-BILLY: Çünkü hayaletler öbür taraftaymış.
+DANNY: Hayaletler bu taraftaymış da ondan.
 
-CLYDE: Hayır! Çünkü yolda NOKTA varmış!
+TOBY: Hayır! Yolda YILDIZLAR varmış da ondan!
 
-[Sessizlik. Sonra Ivy kıkırdıyor, sonra Penny, sonra herkes fıkranın hak ettiğinden çok daha fazla gülüyor.]
+[Sessizlik. Sonra Nell kıkırdıyor, sonra Rosie, sonra herkes fıkranın hak ettiğinden çok daha fazla gülüyor.]
 
-CLYDE: [hâlâ gülerek] Sam burada olmalıydı. O buna hep güler.
+TOBY: [hâlâ gülerek] Sam burada olmalıydı. Sam buna hep güler.
 
-[Gülüşmeler azalıyor.]
+[Gülüşler azalıyor.]
 
-PENNY: ...Yarın gelir Clyde.
+ROSIE: ...Sam gelecek Toby.
 
 [Klik.]` },
     },
     obj: {
       dark_generators: 'Jeneratörleri çalıştır ({n}/3)',
-      dark_leave: 'Servis asansörüne ulaş',
+      dark_leave: 'Servis asansörüne git',
     },
     mono: {
       dark_start: 'Hiçbir şey göremiyorum. Fener... yeter mi bilmiyorum.',
-      dark_orangeSeen: 'Köşede turuncu bir şey duruyor. Kıpırdamıyor. Ben baktıkça kıpırdamıyor.',
+      dark_tobySeen: 'Köşede kehribar bir şey. Eteği yanık bir çarşaf. Kıpırdamıyor. Ben ona bakarken değil.',
       dark_grinner: 'Karanlıkta bir gülümseme. Sadece dişler.',
-      dark_gen: 'Jeneratör öksürerek uyanıyor. Işıklar.',
-      dark_lighter: 'Çakmağı. 1986’da bir kere tutmuştum. On saniye sonra geri vermemi istemişti.',
+      dark_gen: 'Jeneratör öksürerek uyanıyor. Işık.',
+      dark_lighter: 'Onun çakmağı. 1986’da bir kere tutmama izin vermişti. On saniye sonra geri istemişti.',
+      dark_diary2: 'Sam geri geldi. ...Hayır. Hayır. Eve gittim. 21:40’ta eve gittim.',
     },
     lines: {
-      dark_gen: 'Mazot dök ve çalıştır (basılı tut)',
+      dark_gen: 'Mazotu dök ve çalıştır (basılı tut)',
       dark_genEmpty: 'Jeneratör (mazot yok)',
       dark_needFuel: 'Önce bir mazot bidonu bul.',
       dark_tankEmpty: 'Jeneratörün deposu boş.',
     },
     radio: {
       dark_start: [
-        ['eddie', 'Bundan nefret ediyorum. Çok nefret ediyorum. Işıkta kal Sam. Ciddiyim.'],
+        ['eddie', 'Bundan nefret ediyorum. Bundan o kadar nefret ediyorum ki. Işıkta kal Sam. Ciddiyim.'],
       ],
-      dark_orange: [
-        ['eddie', 'Turuncu... o Clyde. Sen ona bakarken üstüne gelmez. Hiç kimsenin gözüne bakamazdı.'],
-        ['sam', 'Benim gözüme bakardı. Hep.'],
+      dark_toby: [
+        ['eddie', 'Kehribar... o Toby. Sen ona bakarken üstüne gelmez. Korktuğunda kimsenin gözünün içine bakamazdı.'],
+        ['sam', 'Benim gözümün içine bakardı. Her zaman.'],
         ['eddie', '...Evet. Galiba bakardı.'],
       ],
       dark_lighter: [
-        ['eddie', 'Dedesinin çakmağı. Kimsenin dokunmasına izin vermezdi. Billy’nin bile.'],
+        ['eddie', 'Dedesinin çakmağı. Kimseye dokundurmazdı. Danny’ye bile.'],
       ],
       dark_freed: [
         ['eddie', '...O daha bir çocuk Sam. Hepsi daha çocuk.'],

@@ -23,7 +23,7 @@ for (const m of html.matchAll(/data-t(?:-html|-aria|-title)?="([a-zA-Z0-9_.]+)"/
 for (const m of code.matchAll(/(?:nameKey|lockKey): '([a-zA-Z0-9_.]+)'/g)) uiKeys.add(m[1]);
 for (const s of PB.Settings ? PB.Settings.SCHEMA : []) uiKeys.add('set.' + s.key);
 for (const k of uiKeys) {
-  if (/^(tab|kind|set|opt|preset)\.$/.test(k)) continue;
+  if (/^(tab|kind|set|opt|preset|cap)\.$/.test(k)) continue;
   for (const L of LANGS) check(I.section('ui', L)[k] !== undefined, `ui[${L}] missing key "${k}"`);
 }
 for (const L of LANGS) for (const k of Object.keys(en.ui)) check(I.section('ui', L)[k] !== undefined, `ui[${L}] lacks "${k}" that English has`);

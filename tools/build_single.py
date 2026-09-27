@@ -2,7 +2,7 @@
 """Tek dosyalık sürüm üretir: CSS ve bütün JS, three.js'i içe aktaran modülün içine gömülür.
 
 Kullanım:
-  python3 tools/build_single.py                 -> dist/pacman-arka-odalar.html (tam HTML belgesi)
+  python3 tools/build_single.py                 -> dist/level256.html (tam HTML belgesi)
   python3 tools/build_single.py --fragment OUT  -> <html>/<head>/<body> etiketleri olmadan (artifact için)
 """
 import re
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         out = Path(sys.argv[2])
         out.write_text(build(fragment=True), encoding='utf-8')
     else:
-        out = ROOT / 'dist' / 'pacman-arka-odalar.html'
+        out = ROOT / 'dist' / 'level256.html'
         out.parent.mkdir(exist_ok=True)
         out.write_text(build(), encoding='utf-8')
     print(f'{out} ({out.stat().st_size // 1024} KB)')

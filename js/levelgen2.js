@@ -499,21 +499,21 @@
       const fy0 = hs.north ? 0 : 10, fy1 = hs.north ? 3 : 13;
       for (let y = fy0; y <= fy1; y++) { if (hs.x0 - 1 >= 0 && outdoor[L.i(hs.x0 - 1, y)] && y !== (hs.north ? 3 : 10)) L.setEdge(hs.x0 - 1, y, 3, EDGE.FENCE, true); }
     }
-    // Doors: front doors facing the street; Sam's (house 1) and Clyde's (house 4) open, others locked
-    // Your house, and Clyde's two doors down on the same side
-    const tags = ['house0', 'samHouse', 'house2', 'clydeHouse', 'house4', 'house5', 'house6', 'house7', 'house8', 'house9'];
+    // Doors: front doors facing the street; Sam's (house 1) and Toby's (house 4) open, others locked
+    // Your house, and Toby's two doors down on the same side
+    const tags = ['house0', 'samHouse', 'house2', 'tobyHouse', 'house4', 'house5', 'house6', 'house7', 'house8', 'house9'];
     houses.forEach((hs, k) => {
       const tag = tags[k] || 'house' + k;
       const dx = Math.floor((hs.x0 + hs.x1) / 2) - 1, dy = hs.north ? hs.y1 : hs.y0;
-      const open = tag === 'samHouse' || tag === 'clydeHouse';
-      hs.door = L.addDoor(dx, dy, hs.d, { kind: 'wood', locked: !open, id: tag + 'Door', nameKey: open ? (tag === 'samHouse' ? 'door.samHouse' : 'door.clydeHouse') : 'door.neighbor', lockKey: 'lock.neighbor' });
+      const open = tag === 'samHouse' || tag === 'tobyHouse';
+      hs.door = L.addDoor(dx, dy, hs.d, { kind: 'wood', locked: !open, id: tag + 'Door', nameKey: open ? (tag === 'samHouse' ? 'door.samHouse' : 'door.tobyHouse') : 'door.neighbor', lockKey: 'lock.neighbor' });
       hs.tag = tag;
       (L.meta.rooms || (L.meta.rooms = {}))[tag] = hs;
       L.addSpot(tag, { x: dx, y: hs.north ? hs.y1 : hs.y0, room: hs });
       L.addSpot(tag + 'Back', { x: hs.x1 - 1, y: hs.north ? hs.y0 : hs.y1, room: hs });
       L.addSpot(tag + 'Porch', { x: dx, y: hs.north ? hs.y1 + 1 : hs.y0 - 1 });
-      // Porch light (Clyde's is on)
-      L.addLight({ x: L.cx(dx) + 0.8, z: hs.north ? (hs.y1 + 1) * C + 0.25 : hs.y0 * C - 0.25, y: 2.4, kind: 'cage', color: [1, 0.78, 0.45], intensity: tag === 'clydeHouse' ? 0.9 : 0.35, range: 7, on: tag === 'clydeHouse' || r() < 0.4, flicker: tag === 'clydeHouse' ? 0 : 0.2, outside: true });
+      // Porch light (Toby's is on)
+      L.addLight({ x: L.cx(dx) + 0.8, z: hs.north ? (hs.y1 + 1) * C + 0.25 : hs.y0 * C - 0.25, y: 2.4, kind: 'cage', color: [1, 0.78, 0.45], intensity: tag === 'tobyHouse' ? 0.9 : 0.35, range: 7, on: tag === 'tobyHouse' || r() < 0.4, flicker: tag === 'tobyHouse' ? 0 : 0.2, outside: true });
       // Locked neighbors' houses are shells: nothing inside
       if (!open) {
         for (let y = hs.y0; y <= hs.y1; y++) for (let x = hs.x0; x <= hs.x1; x++) L.solid[L.i(x, y)] = G.SOLID.VOID;

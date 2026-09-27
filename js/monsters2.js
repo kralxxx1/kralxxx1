@@ -433,8 +433,9 @@
     d = S.smin(d, S.smax(Math.abs(S.ellipsoid(p, [0, -0.12, 0.42], [0.37, 0.21, 0.31])) - 0.03, S.sphere(p, [0, 0, 0], 0.62), 0.02), 0.03);
     // nose and brow bumps
     d = S.smin(d, S.sphere(p, [0, 0.06, 0.57], 0.07), 0.05);
-    // hat
-    d = S.smin(d, S.capsule(p, [0, 0.52, 0.06], [0, 0.78, 0.12], 0.1, 0.02), 0.04);
+    // two felt horns
+    const q = [Math.abs(p[0]), p[1], p[2]];
+    d = S.smin(d, S.capsule(q, [0.26, 0.42, 0.08], [0.42, 0.8, 0.12], 0.1, 0.018), 0.05);
     return d;
   }
   function chompyBody(p) {
@@ -457,8 +458,8 @@
   function chompy() {
     const furTex = T.canvas('chompy:fur', 512, 512, (g, w, h) => {
       const r = U.rng(61);
-      g.fillStyle = '#d8a818'; g.fillRect(0, 0, w, h);
-      for (let k = 0; k < 18000; k++) { const x = r() * w, y = r() * h, a = r.range(-0.6, 0.6) + H, l = r.range(3, 9); g.strokeStyle = r() < 0.5 ? 'rgba(120,80,0,0.35)' : 'rgba(255,220,90,0.3)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke(); }
+      g.fillStyle = '#d2701c'; g.fillRect(0, 0, w, h);
+      for (let k = 0; k < 18000; k++) { const x = r() * w, y = r() * h, a = r.range(-0.6, 0.6) + H, l = r.range(3, 9); g.strokeStyle = r() < 0.5 ? 'rgba(110,40,0,0.35)' : 'rgba(255,170,80,0.3)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke(); }
       // matted, filthy patches and old dark stains
       for (let k = 0; k < 40; k++) { const x = r() * w, y = r() * h, rr = r.range(10, 55); const gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, `rgba(${r() < 0.3 ? '70,15,10' : '60,45,15'},${r.range(0.3, 0.6)})`); gr.addColorStop(1, 'rgba(60,45,15,0)'); g.fillStyle = gr; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); }
     }, { repeat: true });
@@ -476,7 +477,7 @@
     const head = new THREE.Group(); head.position.set(0, 1.95, 0); g.add(head);
     const hm = new THREE.Mesh(S.mesh('chompy:head', chompyHead, [[-0.66, -0.66, -0.66], [0.66, 0.86, 0.72]], 0.016, { color: (pp, n) => {
       const a = aoColor(chompyHead, [1, 1, 1], 1.4)(pp, n);
-      if (pp[1] > 0.5) return [2.4 * a[0], 0.3 * a[1], 0.3 * a[2]];            // the red hat
+      if (pp[1] > 0.47 && Math.abs(pp[0]) > 0.15) return [0.5 * a[0], 0.3 * a[1], 0.2 * a[2]];   // dark felt horns
       const inMouth = Math.hypot((pp[0]) / 0.36, (pp[1] + 0.12) / 0.2, (pp[2] - 0.42) / 0.3) < 1.05;
       return inMouth ? [0.08, 0.02, 0.02] : a;
     }, smooth: 2 }), fur);

@@ -50,7 +50,7 @@
     freedLines(id) { return st('freed.' + id) || []; },
     shrine(key, vars) { return I.fill(st('shrine.' + key) || '', vars || {}); },
     ghostHelp(key) { return st('ghostHelp.' + key) || ''; },
-    death(kind) { return st('deaths.' + kind) || st('deaths.pacman'); },
+    death(kind) { return st('deaths.' + kind) || st('deaths.eater'); },
     tips() { return st('tips') || []; },
     tip() { const t = this.tips(); return t.length ? t[Math.floor(Math.random() * t.length)] : ''; },
     ending(kind) { return st('endings.' + kind); },

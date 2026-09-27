@@ -975,7 +975,7 @@
   // you read up close is what you then read in the viewer
   const HAND_FONT = {
     walt: ['700 {s}px "Caveat", cursive', '#1d2c5e', 1.25], eddie: ['400 {s}px "Kalam", cursive', '#37373a', 0.95], lily: ['600 {s}px "Mali", cursive', '#6a2aa8', 0.95],
-    penny: ['400 {s}px "Sriracha", cursive', '#a82a64', 0.95], clyde: ['400 {s}px "Patrick Hand", cursive', '#1d4a90', 1.05], billy: ['700 {s}px "Kalam", cursive', '#141414', 0.95],
+    rosie: ['400 {s}px "Sriracha", cursive', '#a82a64', 0.95], toby: ['400 {s}px "Patrick Hand", cursive', '#1d4a90', 1.05], danny: ['700 {s}px "Kalam", cursive', '#141414', 0.95],
     theo: ['500 {s}px "Mali", cursive', '#2a5aa8', 0.95], sam: ['400 {s}px "Patrick Hand", cursive', '#262626', 1.05], adult: ['500 {s}px "Caveat", cursive', '#243a6a', 1.25],
     wall: ['700 {s}px "Kalam", cursive', '#1b120a', 1], type: ['400 {s}px "Courier Prime", "Courier New", monospace', '#222', 0.8], dot: ['400 {s}px "VT323", monospace', '#2a2a3a', 1.05],
   };
@@ -1029,7 +1029,7 @@
   T.glitch = seed => T.canvas('glitch:' + seed, 512, 512, (g, w, h) => {
     const r = U.rng(seed);
     g.fillStyle = '#000'; g.fillRect(0, 0, w, h);
-    const cols = ['#ff0000', '#ffb8ff', '#00ffff', '#ffb852', '#ffff00', '#2121ff', '#dedeff', '#ff66aa', '#66ff66'];
+    const cols = ['#ff3b30', '#b46cff', '#2fe0b8', '#ffb020', '#ff8a1a', '#8a3cff', '#f3e6ff', '#ff9ad5', '#66ff66'];
     const chars = 'ABCDEFGHIJKLMNOPRSTUVYZ0123456789!?#%&*ÇĞİÖŞÜ▓▒░';
     const cs = 32;
     g.font = `22px ${FONT_PIX}`; g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -1092,7 +1092,7 @@
     tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false;
     const r = U.rng(U.hashStr(game));
     const stars = Array.from({ length: 40 }, () => ({ x: r() * W, y: r() * H, s: r.range(0.3, 1.2) }));
-    const titles = { galaksi: 'GALAXY 2000', kurbaga: 'FROG ROAD', tugla: 'BRICK BREAKER', yilan: 'SNAKE BYTE', uzay: 'SPACE INVASION', yaris: 'NIGHT RACER', dovus: 'STREET BRAWL', tetris: 'FALLING BLOCKS', special: '', classic: 'PACMAN' };
+    const titles = { galaksi: 'GALAXY 2000', kurbaga: 'FROG ROAD', tugla: 'BRICK BREAKER', yilan: 'SNAKE BYTE', uzay: 'ORBIT RAID', yaris: 'NIGHT RACER', dovus: 'STREET BRAWL', tetris: 'GEM DROP', special: '', classic: 'HUNGRY HOUSE' };
     const scr = {
       tex, canvas: c, game, on: true, text: null,
       update(t) {
@@ -1101,24 +1101,33 @@
         g.font = `8px ${FONT_PIX}`; g.textAlign = 'center'; g.textBaseline = 'middle';
         if (game === 'special') {
           // Özel kabin: 255. seviye ve bozulan sağ yarı
-          g.strokeStyle = '#2121de'; g.lineWidth = 2;
+          g.strokeStyle = '#8a3cff'; g.lineWidth = 2;
           for (let k = 0; k < 6; k++) g.strokeRect(10 + k * 6, 30 + k * 6, W / 2 - 20 - k * 12, H - 70 - k * 12);
-          g.fillStyle = '#ffb8ae';
+          g.fillStyle = '#ffe7a0';
           for (let y = 40; y < H - 40; y += 10) for (let x = 16; x < W / 2 - 6; x += 10) g.fillRect(x, y, 2, 2);
           const gr = U.rng(Math.floor(t * 6));
           for (let y = 24; y < H - 24; y += 8) for (let x = W / 2; x < W - 4; x += 8) {
             const q = gr();
-            if (q < 0.5) { g.fillStyle = ['#ff0000', '#ffb8ff', '#00ffff', '#ffb852', '#ffff00', '#dedeff'][Math.floor(gr() * 6)]; g.fillText('ABCDEF0123456789'[Math.floor(gr() * 16)], x + 4, y + 4); }
+            if (q < 0.5) { g.fillStyle = ['#ff3b30', '#b46cff', '#2fe0b8', '#ffb020', '#ff8a1a', '#f3e6ff'][Math.floor(gr() * 6)]; g.fillText('ABCDEF0123456789'[Math.floor(gr() * 16)], x + 4, y + 4); }
           }
           g.fillStyle = '#fff'; g.fillText(this.text || 'LEVEL 255', W / 2, 12);
-          if (Math.floor(t * 2) % 2 === 0) { g.fillStyle = '#ffff00'; g.fillText(this.sub || 'PLAYER 1 READY', W / 2, H - 12); }
+          if (Math.floor(t * 2) % 2 === 0) { g.fillStyle = '#ff8a1a'; g.fillText(this.sub || 'PLAYER 1 READY', W / 2, H - 12); }
         } else if (game === 'classic') {
-          g.fillStyle = '#ffff00'; g.font = `14px ${FONT_PIX}`; g.fillText('PACMAN', W / 2, 40);
-          g.font = `8px ${FONT_PIX}`; g.fillStyle = '#dedeff'; g.fillText('FREE PLAY', W / 2, 70);
-          const px = ((t * 40) % (W + 60)) - 30;
-          g.fillStyle = '#ffff00'; g.beginPath(); const m = Math.abs(Math.sin(t * 10)) * 0.7; g.moveTo(px, 110); g.arc(px, 110, 9, m, 6.28 - m); g.fill();
-          const gc = ['#ff0000', '#ffb8ff', '#00ffff', '#ffb852'];
-          gc.forEach((col, k) => { const gx = px - 28 - k * 22; g.fillStyle = col; g.beginPath(); g.arc(gx, 108, 8, Math.PI, 0); g.lineTo(gx + 8, 118); g.lineTo(gx - 8, 118); g.fill(); });
+          g.fillStyle = '#ff8a1a'; g.font = `14px ${FONT_PIX}`; g.fillText('HUNGRY HOUSE', W / 2, 40);
+          g.font = `8px ${FONT_PIX}`; g.fillStyle = '#f3e6ff'; g.fillText('FREE PLAY', W / 2, 70);
+          // attract loop: the horned Muncher runs from four hooded Haunts
+          const px = ((t * 40) % (W + 60)) - 30, chew = Math.abs(Math.sin(t * 10));
+          g.fillStyle = '#5a1e0a'; for (const d of [-1, 1]) { g.beginPath(); g.moveTo(px + d * 3, 102); g.lineTo(px + d * 6, 97); g.lineTo(px + d * 7, 104); g.fill(); }
+          g.fillStyle = '#ff8a1a'; g.beginPath(); g.arc(px, 110, 9, 0, 6.283); g.fill();
+          g.fillStyle = '#2a0808'; g.beginPath(); g.ellipse(px + 1, 113, 6, 1 + chew * 3, 0, 0, 6.283); g.fill();
+          g.fillStyle = '#fff'; for (const d of [-1, 1]) g.fillRect(px + d * 3 - 1, 106, 3, 3);
+          const gc = ['#ff3b30', '#b46cff', '#2fe0b8', '#ffb020'];
+          gc.forEach((col, k) => {
+            const gx = px - 28 - k * 22; g.fillStyle = col; g.beginPath();
+            g.moveTo(gx - 8, 119); g.quadraticCurveTo(gx - 9, 100, gx, 99); g.quadraticCurveTo(gx + 9, 100, gx + 8, 119);
+            for (let j = 1; j <= 4; j++) g.lineTo(gx + 8 - j * 4, j % 2 ? 115 : 119);
+            g.fill(); g.fillStyle = '#120818'; g.fillRect(gx - 4, 106, 3, 4); g.fillRect(gx + 1, 106, 3, 4);
+          });
           if (Math.floor(t * 2) % 2 === 0) { g.fillStyle = '#fff'; g.fillText('E: PLAY', W / 2, 160); }
         } else {
           for (const s of stars) { s.y = (s.y + s.s) % H; g.fillStyle = `rgba(255,255,255,${0.3 + s.s * 0.4})`; g.fillRect(s.x, s.y, 1, 1); }
@@ -1148,7 +1157,7 @@
     return scr;
   };
   T.marquee = game => T.canvas('marquee:' + game, 512, 128, (g, w, h) => {
-    const titles = { galaksi: 'GALAXY 2000', kurbaga: 'FROG ROAD', tugla: 'BRICK BREAKER', yilan: 'SNAKE BYTE', uzay: 'SPACE INVASION', yaris: 'NIGHT RACER', dovus: 'STREET BRAWL', tetris: 'FALLING BLOCKS', special: 'PACMAN ★ #7', classic: 'PACMAN' };
+    const titles = { galaksi: 'GALAXY 2000', kurbaga: 'FROG ROAD', tugla: 'BRICK BREAKER', yilan: 'SNAKE BYTE', uzay: 'ORBIT RAID', yaris: 'NIGHT RACER', dovus: 'STREET BRAWL', tetris: 'GEM DROP', special: 'HUNGRY HOUSE ★ #7', classic: 'HUNGRY HOUSE' };
     const hue = U.hashStr(game) % 360;
     const grd = g.createLinearGradient(0, 0, w, 0); grd.addColorStop(0, `hsl(${hue},70%,15%)`); grd.addColorStop(1, `hsl(${(hue + 60) % 360},70%,25%)`);
     g.fillStyle = game === 'special' || game === 'classic' ? '#000018' : grd; g.fillRect(0, 0, w, h);

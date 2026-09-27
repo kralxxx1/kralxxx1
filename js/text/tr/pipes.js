@@ -1,111 +1,111 @@
-/* Türkçe — Bölüm 2: Boru Rüyaları (yağmur suyu tünelleri, 1985 yazı). */
+/* Türkçe — Seviye 2: Boru Düşleri (yağmur suyu tünelleri, 1985 yazı). */
 (function (root) {
   'use strict';
   root.PB.I18N.register('tr', 'story', {
     chapters: {
       pipes: {
-        name: 'SEVİYE 2', title: 'Boru Rüyaları', place: 'C tüneli, 1985 yazı',
-        intro: 'Harlow’un altında ılık, damlayan tuğla tüneller. Temmuz 1985’te üç çocuk tek bir fener ve bir paket meyankökü şekeriyle buraya indi. Tebeşir okları hâlâ taze. Artık aşağıda başka bir şey yaşıyor ve ışıktan nefret ediyor.',
+        name: 'SEVİYE 2', title: 'Boru Düşleri', place: 'Front Sokağı altındaki C tüneli — Temmuz 1985',
+        intro: 'Harlow’un altında ılık, damlayan tuğla tüneller. Temmuz 1985’te üç çocuk tek bir fener ve bir paket meyankökü şekeriyle buraya indi ve bir kale kurdu. Biri sendin.\n\nTebeşir okları hâlâ taze duruyor. Artık burada başka bir şey yaşıyor ve ışıktan nefret ediyor.',
       },
     },
     docs: {
-      pipes_intro: { title: 'Bir boruya bantlanmış, plastik kılıfta', from: 'Eddie', body:
-`Yağmur suyu tünelleri. Sanırım burası çocukların yeri. Birisi her yere tebeşirle ok çizmiş.
+      pipes_intro: { kind: 'note', title: 'Plastik bir kılıfın içinde, bir boruya bantlanmış', from: 'Eddie', body:
+`Yağmur suyu tünelleri. Sanırım burası çocukların yeri. Her yerde tebeşirle oklar.
 
-Sondaki basınç kapısı buhar boşaltılmadan açılmaz. Üç büyük vana var. Sonuna kadar çevir.
+Sondaki basınç kapısı buhar boşaltılmadan kıpırdamaz. Üç büyük vana. Her birini sonuna kadar çevir.
 
-Burada "sürüngen" dediğim şeyler var. Işığı sevmiyorlar. Hiç. Feneri üzerlerinde tut, kaçarlar.
+Burada benim sürüngen dediğim şeyler var. Işıktan nefret ederler. NEFRET. Feneri üstlerinde tutarsan geri çekilirler.
 
-Burada pilin bitmesine izin verme.
+Pilin burada bitmesine izin verme.
 
-—E` },
-      pipes_chalk: { title: 'Tuğlaların üstünde tebeşir', body:
-`B + C + S
+—E.` },
+      pipes_chalk: { kind: 'wall', title: 'Tuğlaların üstünde tebeşir', body:
+`D + T + S
 BURADAYDI
 TEMMUZ 1985
 
 → KALE →
 
 (KIZLAR GİREMEZ)
-(IVY HARİÇ) (PENNY HARİÇ) (TAMAM HERKES)` },
-      pipes_map: { title: 'Bir mısır gevreği kutusunun arkasına çizilmiş hazine haritası', from: 'Clyde, 11 yaşında', body:
+(NELL HARİÇ) (ROSIE HARİÇ) (TAMAM HERKES GİREBİLİR)` },
+      pipes_map: { kind: 'note', title: 'Bir mısır gevreği kutusunun arkasına hazine haritası', from: 'Toby, 11 yaşında', body:
 `C TÜNELİ — GİZLİ HARİTA
-(BILLY’NİN AĞABEYİNE GÖSTERME)
+(HİÇBİR BÜYÜĞE GÖSTERME)
 
 X = KALE
-ZİKZAK = GÜRÜLTÜCÜ BORU
+ZİKZAK = GÜRÜLTÜLÜ BORU
 KAFATASI = SAM’İN FENERİ DÜŞÜRDÜĞÜ VE EL ELE TUTUŞMAK ZORUNDA KALDIĞIMIZ YER
 
-Kazan dairesi ejderhadır. Kırmızı çarka dokunma. Billy bütün kasabayı hapşırttığını söylüyor.
+Kazan dairesi ejderha. Kırmızı çarka dokunma. Danny bütün kasabayı hapşırtıyor diyor.
 
 Bunu bulduysan artık kulüptesin.` },
-      pipes_rules: { title: 'Bir tahtaya keçeli kalemle, kocaman harflerle yazılmış', body:
-`GİZLİ ÜS KURALLARI
+      pipes_rules: { kind: 'wall', title: 'Bir tahtaya keçeli kalemle, kocaman harflerle', body:
+`KALE KURALLARI
 1. BÜYÜKLER GİREMEZ
-2. AĞLAMAK YASAK (CLYDE SANA DİYORUM) (ŞAKA)
+2. AĞLAMAK YOK (TOBY SANA DİYORUM) (ŞAKA)
 3. FENER KİMDEYSE DİĞERLERİNİ BEKLER
 4. KİMSE EVE YALNIZ GİTMEZ
 5. SONSUZA KADAR EN İYİ ARKADAŞLAR, GERİ ALMAK YOK
 
 — SAM (BAŞKAN)` },
-      pipes_works: { title: 'Harlow Belediyesi — denetim defteri', from: 'Harlow Belediyesi Fen İşleri', date: '2 Ağustos 1985', body:
+      pipes_works: { kind: 'note', title: 'Harlow Bayındırlık — denetim kaydı', from: 'Harlow Bayındırlık Müdürlüğü', date: '2 Ağustos 1985', body:
 `C TÜNELİ, 4. BÖLÜM
 
-Kazan emniyet vanaları yağlandı. Basınç normal.
+Kazan tahliye vanaları yağlandı. Basınç normal.
 
-Çocuk izleri: şeker ambalajları, bir uyku tulumu, çizgi romanlar, tebeşir yazıları. Bir fener (bitik). Kavşaktaki tabelada "GİZLİ ÜS — BÜYÜKLER GİREMEZ" yazıyor.
+Çocuk izleri: şeker ambalajları, bir uyku tulumu, çizgi romanlar, tebeşir yazılar, bir fener (bitik). Kavşaktaki tabela: "KALE — BÜYÜKLER GİREMEZ".
 
-Front Street’teki ızgaraya kilit önerilir.
+Front Sokağı’ndaki yağmur ızgarasına kilit önerilir.
 
-Not: Kaleyi kaldırmadım. Birileri için önemli görünüyordu.
+Kaleyi kaldırmadım. Birisi için önemli gibi duruyordu.
 
 —R.` },
-      pipes_walt: { title: 'Walt’ın günlüğü, nemli bir sayfa', from: 'W', date: '—', body:
-`Tüneller. Tuğla. Hayatımda bu tünellere hiç girmedim ama her dönemeci biliyorum.
+      pipes_walt: { kind: 'diary', title: 'Walt’ın günlüğü, nemli bir sayfa', from: 'Walt', date: 'İçeride', body:
+`Tüneller. Tuğla. Hayatımda buraya hiç inmedim ama her dönemeci biliyorum.
 
-Bunlar benim anılarım değil. Sanırım başkasının yazında dolaşıyorum.
+Bunlar benim anılarım değil. Başka birinin yazında dolaşıyorum.
 
-Üç çocuk. Bir fener. Kimsenin eve yalnız gitmemesiyle ilgili bir kural.
+Üç çocuk. Tek fener. Kimsenin eve yalnız gitmemesiyle ilgili bir kural.
 
-Onlara bu kuralın iyi bir kural olduğunu söylemek istiyorum. Çocuklarla nasıl konuşulur hatırlamıyorum. Eskiden bunda iyiydim.` },
-      pipes_photo: { title: 'Kale duvarına iğnelenmiş bir Polaroid', from: 'Bilinmiyor', date: 'Temmuz 1985', body:
-`Tuğla bir tünelde üç çocuk, yüzleri aşağıdan tek bir fenerle aydınlanmış, hepsi korkutucu görünmeye çalışıyor ve beceremiyor. Uzun olan (Billy) küçüğün (Clyde) başının üstünde şeytan boynuzu yapıyor. Ortadaki sensin.
+Onlara bunun iyi bir kural olduğunu söylemek isterdim. Çocuklarla nasıl konuşulur, hatırlayamıyorum. Eskiden iyiydim bunda.` },
+      pipes_photo: { kind: 'photo', photo: 'fort', title: 'Kalenin duvarına iğnelenmiş bir Polaroid', from: 'Bilinmiyor', date: 'Temmuz 1985', body:
+`Tuğla bir tünelde, tek bir fenerle aşağıdan aydınlanmış, korkunç görünmeye çalışıp beceremeyen üç çocuk. Uzun olan (Danny) küçüğün (Toby) başının üstünde şeytan boynuzu yapıyor. Ortadaki, gülümseyen, sensin.
 
-Alttaki beyaz şeritte, tükenmezle: "KALE. AÇILIŞ GÜNÜ."` },
-      pipes_crawlers: { title: 'Bir defterden koparılmış', from: 'Eddie', body:
+Beyaz şeritte, tükenmezle: "KALE. AÇILIŞ GÜNÜ."` },
+      pipes_crawlers: { kind: 'note', title: 'Bir defterden koparılmış', from: 'Eddie', body:
 `Sürüngenler hakkında.
 
-Sanırım bunlar oyunun çöpçüleri. Bir anı sayılamayacak kadar eskidiğinde gelip onu yiyorlar. Tünelleri artık üç çocuktan başka kimse hatırlamıyor, o yüzden tüneller onlarla dolu.
+Bence oyunun çöpçüleri. Bir anı önemsenmeyecek kadar eskiyince gelip onu yiyorlar. Bu tünelleri artık üç çocuktan başka kimse hatırlamıyor, o yüzden tüneller onlarla kaynıyor.
 
-Karanlıkta hızlılar, ışıkta aptallar.
+Karanlıkta hızlı. Işıkta aptal. Atılıyorlar, yanınca geri çekiliyorlar, sonra etrafında dönüyorlar.
 
-Arkana yere bırakacağın bir ışık çubuğu sana bir dakika kazandırır. Bunu zor yoldan öğrendim.` },
-      pipes_lily3: { title: 'Bir borunun içine rulo yapılmış bir çizim', from: 'Lily, 8 yaşında', date: '1983 yazı', body:
-`Pastel boya. Büyük, kavisli bir tavanın altında iki oğlan ve örgülü saçlı bir kız. Oğlanlar tek bir feneri birlikte tutuyor. Kız biraz uzağa çizilmiş, el sallıyor.
+Arkana yere bıraktığın bir ışık çubuğu sana bir dakika kazandırır. Bunu zor yoldan öğrendim.` },
+      pipes_lily3: { kind: 'drawing', drawing: 3, title: 'Bir borunun içine rulo yapılmış çizim', from: 'Lily, 9 yaşında', date: 'Mayıs 1983', body:
+`Pastel boya. Kocaman kavisli bir tuğla tavanın altında tek bir feneri paylaşan üç çocuk. Dışarıda turuncu örgülü bir kız onlara el sallıyor.
 
-SAM VE CLYDE SOKAĞIN ALTINDA BİR MAĞARA BULMUŞ.
-KIZLAR GİREMEZ DİYORLAR.
-BEN KAFAMIN İÇİNDE GİREBİLİYORUM.` },
-      pipes_tape: { title: 'Kaset: "Kale kaydı 1"', from: 'Billy’nin teyp çalarının kaydı', date: '19 Temmuz 1985', body:
-`[Klik. Damlayan su. Üç çocuk fısıldaşıyor, sesleri yankılanıyor.]
+SAM VE TOBY VE KOCAMAN DANNY SOKAĞIN ALTINDA BİR MAĞARA BULMUŞ.
+KIZLAR GİREMEZ DİYOLAR.
+BEN KAFAMDA GİREBİLİYOM.` },
+      pipes_tape: { kind: 'tape', title: 'Kaset: "Kale günlüğü 1"', from: 'Danny’nin teybi', date: '19 Temmuz 1985', body:
+`[Klik. Damlayan su. Fısıldayan üç çocuk, yankılanıyor.]
 
-BILLY: Kale kaydı bir numara. Burada olanlar: ben, Clyde ve başkan Sam.
+DANNY: Kale günlüğü bir numara. Hazır bulunanlar: ben, Toby ve başkan Sam.
 
-SAM: Kale başkanı.
+SAM: KALE başkanı.
 
-BILLY: Kale başkanı. Dört çizgi romanımız, iki fenerimiz var, biri çalışıyor, bir de meyankökü şekeri.
+DANNY: Kale başkanı. Dört çizgi romanımız, iki fenerimiz var, biri çalışıyor, bir de meyankökü şekeri.
 
-CLYDE: Şekeri ben getirdim.
+TOBY: Şekeri ben getirdim.
 
-BILLY: Şekeri Clyde getirdi. Dördüncü kural, Sam.
+DANNY: Şekeri Toby getirdi. Dördüncü kural Sam.
 
 SAM: Kimse eve yalnız gitmez.
 
-CLYDE: Kızgın olsa bile mi?
+TOBY: Kızgın olsa bile mi?
 
 SAM: ...Özellikle kızgınsa.
 
-[Uzaklarda bir boru çınlıyor. Üçü birden çığlık atıyor, sonra nefesleri kesilene kadar gülüyorlar.]
+[Uzakta bir boru çınlıyor. Üçü birden çığlık atıyor, sonra nefesleri kesilene kadar gülüyorlar.]
 
 [Klik.]` },
     },
@@ -114,29 +114,29 @@ SAM: ...Özellikle kızgınsa.
       pipes_leave: 'Basınç kapısından geç',
     },
     mono: {
-      pipes_start: 'C tüneli. Bu kokuyu tanıyorum. On bir yaşındaydım.',
-      pipes_valve: 'Vana çığlık atıyor, sonra susuyor. Çok uzaklarda bir yerden buhar tıslıyor.',
-      pipes_fort: 'Kale. Bizim kalemiz. Uyku tulumu hâlâ burada. Clyde’ın çizgi romanları hâlâ burada.',
-      pipes_crawler: 'Tavanda beyaz ve hızlı bir şey. Işıktan yanmış gibi geri çekildi.',
+      pipes_start: 'C tüneli. Bu kokuyu biliyorum. On bir yaşındaydım.',
+      pipes_valve: 'Vana çığlık atıyor, sonra susuyor. Çok uzaklarda bir yerde buhar tıslıyor.',
+      pipes_fort: 'Kale. Bizim kalemiz. Uyku tulumu hâlâ burada. Toby’nin çizgi romanları hâlâ burada.',
+      pipes_crawler: 'Tavanda beyaz, hızlı bir şey. Yanmış gibi ışıktan kaçtı.',
     },
     lines: {
       pipes_valve: 'Buhar vanasını çevir (basılı tut)',
     },
     radio: {
       pipes_start: [
-        ['eddie', 'Tüneller. İyi misin? Telsizde nefesin çok yüksek geliyor.'],
-        ['sam', 'Eskiden buraya gelirdim. Billy ve Clyde’la.'],
-        ['eddie', 'O zaman yolu benden iyi biliyorsun. Önce vanalar. Ve ışığı yukarıda tut. Bu sefer ciddiyim.'],
+        ['eddie', 'Tüneller. İyi misin? Nefesin telsizde çok yüksek geliyor.'],
+        ['sam', 'Eskiden buraya gelirdim. Danny ve Toby’yle.'],
+        ['eddie', 'O zaman yolu benden iyi bilirsin. Önce vanalar. Ve ışığı yukarıda tut. Ciddiyim.'],
       ],
       pipes_crawler: [
-        ['eddie', 'Sürüngen. Işığı üstüne tut, Sam. Karanlıkta onlardan kaçma, senden hızlılar.'],
+        ['eddie', 'Sürüngen. Işığı üstüne tut Sam! Karanlıkta onlardan kaçma, senden hızlılar.'],
       ],
       pipes_fort: [
-        ['eddie', '...Kimse eve yalnız gitmez. Hıh.'],
-        ['eddie', 'Güzel bir kural. Keşke benim de böyle bir kuralım olsaydı.'],
+        ['sam', 'Dördüncü kural. Kimse eve yalnız gitmez. Onu ben uydurmuştum. On bir yaşındaydım.'],
+        ['eddie', '...Güzel bir kural Sam. Keşke benim de öyle bir kuralım olsaydı.'],
       ],
       pipes_done: [
-        ['eddie', 'Basınç düşüyor. Kapı artık açılmalı. Sıradaki yer su. Bol bol su.'],
+        ['eddie', 'Basınç düşüyor. Kapı artık açılmalı. Sıradaki su. Bolca su.'],
       ],
     },
   });

@@ -1,111 +1,120 @@
-/* Türkçe — Bölüm 10: Maple Sokağı (Sam, 16 Nisan 1987 gecesi). */
+/* Türkçe — Seviye 10: Maple Sokağı (Sam, 16–17 Nisan 1987 gecesi). */
 (function (root) {
   'use strict';
   root.PB.I18N.register('tr', 'story', {
     chapters: {
       maple: {
-        name: 'SEVİYE 10', title: 'Maple Sokağı', place: 'Perşembe gecesi, 16 Nisan 1987, 21:40',
-        intro: 'Senin sokağın. Senin evin, iki kapı ötede Clyde’ın evi, köşedeki sokak lambası; hayatında söylediğin en kötü şeyi söylediğin yer. O gece yağdığı gibi yağıyor. Biri, neredeyse onunki gibi bir sesle adını seslenip duruyor.',
+        name: 'SEVİYE 10', title: 'Maple Sokağı', place: 'Senin anın — 16 Nisan 1987 gecesi',
+        intro: 'Senin sokağın. Senin evin, iki kapı ötede Toby’nin evi ve hayatında söylediğin en kötü şeyi söylediğin köşedeki sokak lambası.\n\nO gece nasıl yağıyorsa öyle yağıyor. Biri, neredeyse onunki olan bir sesle adını seslenip duruyor.',
       },
     },
     docs: {
-      maple_intro: { title: 'Kaldırım kenarında ıslak bir taşın altında', from: 'Eddie', body:
-`Bu seninki, değil mi? Anlıyorum, çünkü burası içeride dağılmayan ilk yer. Her kiremidi hatırlamışsın.
+      maple_intro: { kind: 'note', title: 'Kaldırımda ıslak bir taşın altında', from: 'Eddie', body:
+`Bu seninki, değil mi? Anlıyorum, çünkü burada dağılmayan ilk yer bu. Her kiremidi hatırlamışsın.
 
-Önce Clyde’ın evi. Sonra seninki. Sonra köşe. Sanırım oyun o lambanın altında yeniden durmanı istiyor.
+Önce Toby’nin evi. Sonra seninki. Sonra köşe. Sanırım oyun o lambanın altında yeniden durmanı istiyor.
 
 Bu sokakta kapı çalan bir adam var. Tanıdığın biri gibi konuşuyor. O değil.
 
-—E` },
-      maple_missing: { title: 'Bir telefon direğine zımbalanmış, yağmurdan sırılsıklam bir ilan', from: 'Harlow Emniyet Müdürlüğü', date: 'Nisan 1987', body:
+—E.` },
+      maple_missing: { kind: 'note', title: 'Bir telefon direğine zımbalanmış, sırılsıklam bir ilan', from: 'Harlow Polis Müdürlüğü', date: 'Nisan 1987', body:
 `KAYIP
-BILLY, 16 — PENNY, 15 — IVY, 15 — CLYDE, 13
+DANNY KOWALSKI, 16 — ROSIE ALVAREZ, 15 — NELL PARK, 15 — TOBY MARSH, 13
 
-En son 16 Nisan perşembe günü Front Street’teki Starlight Oyun Salonu yakınlarında görüldüler.
+En son 16 Nisan Perşembe günü, Front Sokağı’ndaki Starlight Oyun Salonu civarında görüldüler.
 
-Bilgisi olan Harlow Emniyeti’nden Komiser Frank’i arasın.
+Bilgisi olanlar lütfen Harlow Polisi’nden Dedektif Frank Dobbs’u arasın.
 
-(Biri altına keçeli kalemle yazmış: EVE GEL CLYDE)` },
-      maple_paper: { title: 'The Harlow Herald, bir verandada hâlâ naylon kılıfında', from: 'The Harlow Herald', date: 'Cumartesi, 18 Nisan 1987', body:
-`DÖRT YEREL ÇOCUK KAYIP
+(Alt tarafa keçeli kalemle: EVE GEL TOBY)` },
+      maple_paper: { kind: 'note', title: 'Bir verandada, hâlâ plastik kılıfında The Harlow Herald', from: 'The Harlow Herald', date: 'Cumartesi, 18 Nisan 1987', body:
+`DÖRT ÇOCUK KAYIP
 Nehirde ve yağmur suyu tünellerinde arama sürüyor
 
-...Oyun salonu sahibi Walt (56), polise dördünün mekânından "gece yarısı civarı" ayrıldığını söyledi. Dedektifler onu "işbirliğine açık ama ketum" olarak tanımlıyor.
+...Oyun salonu sahibi Walter Brenner (56) polise, dördünün işletmesinden "gece yarısı civarında" ayrıldığını söyledi. Dedektifler onu "iş birliğine açık ama ketum" olarak tanımlıyor.
 
-Kayıpların yakın arkadaşı olan beşinci bir çocuk, muhabirlere "orada olması gerektiğini" söyledi.
+Kayıpların yakın arkadaşı olan beşinci bir çocuk muhabirlere şunu söyledi: "Orada olmalıydım."
 
-"Eve geldi," dedi annesi. "Tanrıya şükür eve geldi."` },
-      maple_samroom: { title: 'Eski yatağının üstünde spiralli bir defter', from: 'Sam, 13 yaşında', date: '16 Nisan 1987, 22:15', body:
-`Clyde’a kaybol dedim.
+Çocuğun annesi, "Sam eve gitti" dedi. "Şükürler olsun ki Sam eve gitti."` },
+      maple_samroom: { kind: 'memory', title: 'Odan', from: 'Sam', date: '17 Nisan 1987, 03:40', body:
+`Pencere birkaç parmak aralık. Altındaki halı yağmurdan sırılsıklam.
 
-Öyle demek istemedim. İnsan böyle şeyleri öyle demek istemez.
+Pervazın altında: iliklerine kadar ıslanmış, bağcıklarına kadar çamurlu spor ayakkabıların.
 
-Geri döneceğim. Pencereden sıvışıp salona döneceğim, özür dileyip onlarla 256’yı oynayacağım.
+Yatağın üstünde pijamaların, hâlâ katlı. Yatakta hiç uyunmamış.
 
-Beş dakika sonra çıkıyorum.
+Radyolu saat 03:40’ı gösteriyor.
 
-(Sonraki sayfa boş. Uyuyakalmışsın. On üç yaşındaydın ve uyuyakaldın.)` },
-      maple_clyderoom: { title: 'Clyde’ın yastığında hiç okunmamış bir not', from: 'Clyde, 13 yaşında', date: '16 Nisan 1987, 18:50', body:
-`ANNE — Sam’de yatıya kalıyorum. (Kalmıyorum, salondayım ama Sam beni idare eder.) (Bu kısmı okuma.)
+Masanın üstünde bir defter. O geceki el yazın, kâğıdı yırtacak kadar bastırılmış:
 
-SAM — bunu önce sen okursan:
-Walkman’in için özür dilerim. Gazete dağıtma paramla sana yenisini alacağım. Para zaten kavanozda.
-Bu gece tüm zamanların en güzel gecesi olacak.
-Sen benim en iyi arkadaşımsın. Pislik yaptığında bile. Özellikle o zaman.
-— C.
+21:40’TA EVE GİTTİM
+21:40’TA EVE GİTTİM
+21:40’TA EVE GİTTİM` },
+      maple_tobyroom: { kind: 'note', title: 'Toby’nin yastığında hiç okunmamış bir not', from: 'Toby, 13 yaşında', date: '16 Nisan 1987, 18:50', body:
+`ANNE — Sam’lerde yatıyorum. (Yatmıyorum, salondayım ama Sam beni idare eder.) (Bu kısmı okuma.)
 
-(Raftaki bir kavanoz. İçinde: 31,40 dolar bozuk para ve katlanmış bir fiş; mavi bir walkman, taksitle, tamamı ödenmiş.)` },
-      maple_porch: { title: 'Clyde’ın sineklikli kapısına bantlanmış', from: 'Maggie', date: '1987 — 1994', body:
-`Clyde —
+SAM — önce sen okursan:
+Walkman’in için özür dilerim. Gazete dağıtmaktan kazandığım parayla sana yenisini alıyorum. Para zaten kavanozda.
+Bu gece gelmiş geçmiş en güzel gece olacak.
+Sen benim en iyi arkadaşımsın. Pislik olduğunda bile. Özellikle o zaman.
+— T.
 
-Sen eve gelene kadar veranda ışığı yanık kalacak.
+(Rafta bir kavanoz. İçinde 31,40 dolar bozukluk ve katlanmış bir taksit fişi: mavi bir walkman, tamamı ödenmiş.)` },
+      maple_porch: { kind: 'note', title: 'Toby’nin sineklik kapısına bantlanmış', from: 'Maggie', date: '1987 — 1994', body:
+`Toby —
 
-Seni seviyorum, Annen
+Sen eve gelene kadar veranda lambası açık kalacak.
+
+Seni seviyorum, annen
 
 (Bant defalarca değiştirilmiş. En yenisi 1994’ten.)` },
-      maple_machine: { title: 'Telesekreter, kırmızı ışığı yanıp sönüyor', from: 'Ailenin telesekreteri', date: 'Cuma, 17 Nisan 1987', body:
-`[BİİP] 00:52
-MAGGIE: Merhaba, ben Maggie, Clyde’ın annesi. Bu saatte aradığım için kusura bakmayın. Clyde orada, Sam’in yanında mı? Bir not bırakmış. Onun... beni aramasını söyleyebilir misiniz? Teşekkürler.
+      maple_machine: { kind: 'tape', title: 'Telesekreter, kırmızı ışık yanıp sönüyor', from: 'Ailenin telesekreteri', date: '17 Nisan 1987', body:
+`[BİP] 00:10
+ANN: Sam, annen, moladayım. Aç tatlım. ...Sam? Uyumuşsundur. Tamam. Seni seviyorum. Kapıyı kilitle.
 
-[BİİP] 01:30
-MAGGIE: Yine ben, Maggie. Özür dilerim. Açmıyor... Eminim iyidir. Lütfen arayın.
+[BİP] 00:52
+MAGGIE: Merhaba, ben Maggie, Toby’nin annesi. Bu saatte aradığım için kusura bakmayın. Toby, Sam’le birlikte mi orada? Bir not bırakmış. Biri... biri beni arayabilir mi? Teşekkürler.
 
-[BİİP] 06:05
-MAGGIE: [ağlayarak] Lütfen. Lütfen, orada mı? Lütfen sadece orada olduğunu söyleyin.
+[BİP] 02:50
+ANN: Sam? Aç. Maggie beni santralden aradı. Toby seninle değil mi? Sam, telefonu aç. ...Sam?
 
-[BİİP] 09:40
-KOMİSER FRANK: Ben Komiser Frank, Harlow Emniyeti, Sam için arıyorum. Oğlunuza birkaç soru sormak istiyoruz. Başı belada değil.
+[BİP] 06:05
+MAGGIE: [ağlayarak] Lütfen. Lütfen, orada mı? Sadece orada olduğunu söyleyin.
+
+[BİP] 09:40
+DEDEKTİF DOBBS: Ben Harlow Polisi’nden Dedektif Frank Dobbs. Sam’e birkaç soru sormak istiyoruz. Kimsenin başı dertte değil.
 
 [MESAJLARIN SONU]` },
-      maple_walt: { title: 'Walt’ın günlüğü, yazı çok büyük ve titrek', from: 'W', date: '—', body:
-`Veranda ışığı olan bir sokak.
+      maple_walt: { kind: 'diary', title: 'Walt’ın günlüğü, kocaman ve titrek bir yazı', from: 'Walt', date: 'İçeride', body:
+`Veranda lambalı bir sokak.
 
-Oğlan. Arkadaşı. Eve giden. SAM. Adı SAM.
+Arkadaşı. Eve giden. SAM. Adı SAM.
 
-Polise çocukların gece yarısı çıktığını söyledim. Cumartesileri açılışta bana yardım etmek isteyen bir çocuğa verdiğim anahtarı korumak için yalan söyledim.
+Polise çocukların gece yarısı çıktığını söyledim. Cumartesileri açılışta bana yardım etmek isteyen bir oğlana verdiğim anahtarı korumak için yalan söyledim.
 
-"Onlara güvendim" demektense bütün kasabanın bana bir canavar gibi bakmasına izin verdim.
+Bu bütün kasabanın bana canavar gibi bakmasına izin verdim de "Onlara güvendim" demedim.
 
-Artık adını hatırlıyorum. Sam. Hatırlıyorum.` },
-      maple_lily7: { title: 'Eski masanın çekmecesine sıkıştırılmış bir çizim', from: 'Lily, 9 yaşında', body:
-`Pastel boya. Bir sokak lambasının altında, kaldırımda bir çizgi romanı paylaşan iki oğlan. Sokağın öbür tarafına örgülü saçlı bir kız çizilmiş, el sallıyor.
+Artık adı hatırlıyorum. Sam. Hatırlıyorum.
+
+Puan. Gece 01:52. Saat hiç yanlış değilmiş.` },
+      maple_lily7: { kind: 'drawing', drawing: 7, title: 'Eski masanın çekmecesine sıkıştırılmış bir çizim', from: 'Lily, 9 yaşında', body:
+`Pastel boya. Bir sokak lambasının altında kaldırıma oturmuş, bir çizgi romanı paylaşan iki çocuk. Sokağın karşısında örgülü bir kız el sallıyor.
 
 SAM İÇİN.
-GÜZEL SALINCAK İÇİN TEŞEKKÜRLER.
-SEN VE CLYDE GÖRDÜĞÜM EN İYİ ARKADAŞLARSINIZ.` },
+İYİ SALINCAK İÇİN TEŞEKKÜRLER.
+SEN VE TOBY GÖRDÜĞÜM EN İYİ ARKADAŞLARSINIZ.` },
     },
     obj: {
-      maple_clyde: 'Clyde’ın evine gir',
+      maple_toby: 'Toby’nin evine gir',
       maple_home: 'Eve git',
       maple_corner: 'Köşedeki sokak lambasının altında dur',
-      maple_leave: 'Salonun arkasındaki ara sokaktan in',
+      maple_leave: 'Salonun arkasındaki ara sokaktan aşağı in',
     },
     mono: {
       maple_start: 'Maple Sokağı. Yağmur yağıyor. O gece de yağıyordu. Unutmuşum.',
-      maple_porch: 'Onun veranda ışığı yanık. Yedi yıldır yanık.',
-      maple_clyderoom: 'Bir kavanoz bozuk para ve bir fiş. Parasını ödemiş. Çoktan ödemiş.',
-      maple_machine: 'Annem bunları bana hiç dinletmedi. Ben de hiç sormadım.',
-      maple_neighbor: 'Bir garaj yolunun sonunda uzun bir adam. Clyde’ın korktuğunda durduğu gibi duruyor.',
+      maple_porch: 'Veranda lambası yanıyor. Yedi yıldır yanıyor.',
+      maple_tobyroom: 'Bir kavanoz bozukluk ve bir fiş. Parasını ödemiş. Çoktan ödemiş.',
+      maple_machine: 'Gece 2:50. "Sam, aç." Açmadım. Uyuyordum. ...Değil mi?',
+      maple_neighbor: 'Bir garaj yolunun ucunda uzun bir adam. Toby’nin korktuğunda durduğu gibi duruyor.',
     },
     lines: {
       maple_machine: 'Mesajları dinle',
@@ -114,31 +123,35 @@ SEN VE CLYDE GÖRDÜĞÜM EN İYİ ARKADAŞLARSINIZ.` },
       maple_start: [
         ['eddie', 'Sam? Nefesin değişti. Neredesin?'],
         ['sam', 'Evde.'],
-        ['eddie', '...Acele etme. Bir yere gitmiyorum. Belli ki.'],
+        ['eddie', '...Acele etme. Hiçbir yere gitmiyorum. Belli ki.'],
       ],
       maple_echo: [
-        ['clyde', 'Sam, dur! Sadece dur, tamam mı? Walkman için özür diledim ya!'],
+        ['toby', 'Sam, bekle! Bir dakika bekle, tamam mı? Walkman için özür diledim ya!'],
         ['sam', 'Mesele o aptal walkman değil!'],
-        ['clyde', 'O zaman ne? 256’yı kaçıracaksın! Bir aydır planlıyoruz!'],
+        ['toby', 'Ne o zaman? 256’yı kaçıracaksın! Bir aydır planlıyoruz!'],
         ['sam', 'Her şeyi hep ilk sen yapıyorsun. Orada bana ihtiyacın bile yok.'],
-        ['clyde', 'Bu doğru değil! Sam! Kal. Lütfen. Sensiz gitmek istemiyorum.'],
-        ['sam', 'Peki. O zaman kaybol.'],
-        ['clyde', '...'],
+        ['toby', 'Doğru değil! Sam! Kal. Lütfen. Sensiz gitmek istemiyorum.'],
+        ['sam', 'Peki. Kaybol o zaman.'],
+        ['toby', '...'],
+        ['radio', '[Sokak lambası tekliyor. Yağmur şiddetleniyor. Aynı köşe, daha sonra. Çok daha sonra.]'],
+        ['sam', '(On üç yaşında. Koşuyor. Hıçkırarak soluk alıyor.) Bıraktım... bıraktım bıraktım bıraktım...'],
+        ['sam', '...Bu benim. Gece 3:20. Bu benim, eve koşuyorum.'],
+        ['sam', 'Eve gitmedim. 21:40’ta eve gitmedim.'],
       ],
       maple_reconcile: [
-        ['clyde', '(Turuncu ışık kaldırımda yanına süzülüyor, çok küçük.) ...Benden nefret ettiğini sanıyordum.'],
-        ['sam', 'Etmedim. Hiç etmedim. Uyuyakaldım, Clyde. Geri geliyordum ve uyuyakaldım.'],
-        ['clyde', 'Eve gittin. Yapman gereken buydu. Dördüncü kural, salak.'],
-        ['clyde', 'Kimse eve yalnız gitmez. Sen de eve gittin. Ve ben yalnız kalmak zorunda değildim, çünkü eve dönebileceğim biri vardı: sen.'],
-        ['sam', 'Bunun hiç mantığı yok.'],
-        ['clyde', 'Bence var. (Eskiden yaptığı gibi omzunla omzuna vuruyor.) Hadi. Daha işimiz bitmedi.'],
+        ['toby', '(Kehribar ışık yanına, kaldırıma konuyor, çok küçük.) ...Artık hatırlıyorsun.'],
+        ['sam', 'Geri geldim. Kapıyı sen açtın. Çok mutluydun.'],
+        ['toby', 'Sam hep geri gelir. Yazmıştım.'],
+        ['sam', 'Sonra da kaçtım.'],
+        ['toby', '...Evet. Kaçtın. (Eskiden yaptığı gibi omzunla omzunu dürtüyor.) Kızgın değilim. Ben de korkmuştum. Bırakabilseydim belki ben de bırakırdım.'],
+        ['toby', 'Gerisi Walt’ın bodrumunda. Bir kasette. Hepsini dinlemek zorundasın Sam. Hadi. Daha bitmedi.'],
       ],
       maple_alone: [
         ['sam', 'Özür dilerim. Özür dilerim. Özür dilerim.'],
-        ['eddie', '...Sam. O hâlâ burada bir yerde. Karanlıkta turuncu bir ışık. Ona hâlâ söyleyebilirsin.'],
+        ['eddie', '...Sam. Hâlâ burada bir yerde. Karanlıkta kehribar bir ışık. Ona hâlâ söyleyebilirsin.'],
       ],
       maple_neighbor: [
-        ['eddie', 'Ne derse desin, o Clyde değil. Clyde’ın sesi o kadar uzun bir adamdan çıkmaz.'],
+        ['eddie', 'Ne derse desin, o Toby değil. Toby’nin sesi o kadar uzun bir adamdan çıkmaz.'],
       ],
     },
   });

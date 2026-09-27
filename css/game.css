@@ -1,4 +1,4 @@
-/* Pacman: Arka Odalar — arayüz. Tek görünüm: gece yarısı arcade + VHS korku. Tema bilinçli olarak yalnızca koyu. */
+/* LEVEL 256 — arayüz. Tek görünüm: gece yarısı arcade + VHS korku. Tema bilinçli olarak yalnızca koyu. */
 :root {
   color-scheme: dark;
   --ink: #0a0907;
@@ -70,6 +70,7 @@ em { color: var(--yellow); font-style: normal; }
 #scr-boot { background: #000; z-index: 30; }
 .boot-inner { width: min(560px, 100%); text-align: center; }
 .boot-title { font: 34px/1 var(--pix); color: var(--pac); margin: 0 0 12px; text-shadow: 3px 0 var(--red), -3px 0 var(--cyan); }
+.boot-title b { font-weight: inherit; }
 .boot-title span { display: block; font: 30px var(--term); letter-spacing: 0.5em; color: var(--muted); text-shadow: none; margin-top: 12px; padding-left: 0.5em; }
 .boot-level { color: var(--yellow); min-height: 1.3em; margin: 22px 0 8px; }
 .boot-track { height: 6px; background: #1a1712; border: 1px solid #2c271c; margin: 10px 0; }

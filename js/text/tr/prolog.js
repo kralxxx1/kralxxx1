@@ -1,173 +1,178 @@
-/* Türkçe — Prolog: Starlight atari salonu, 30 Kasım 1994. */
+/* Türkçe — Prolog: Starlight Oyun Salonu, 30 Kasım 1994. */
 (function (root) {
   'use strict';
   root.PB.I18N.register('tr', 'story', {
     chapters: {
       prolog: {
-        name: 'PROLOG', title: 'Starlight Atari Salonu', place: 'Harlow — 30 Kasım 1994, 02:11',
-        intro: 'Banka makinelerin altıya kadar boşaltılmasını istiyor. Nakliyeciler anahtarı paspasın altına bırakmış. Sen dört saat erken ve tek başına geldin, ve kimseye nedenini söylemedin.',
+        name: 'PROLOG', title: 'Starlight Oyun Salonu', place: 'Harlow, Pensilvanya — 30 Kasım 1994, 02:11',
+        intro: 'Yedi yıl önce dört çocuk kapanıştan sonra bu salona girdi ve bir daha çıkmadı. Sen de onlarla olacaktın. 21:40’ta eve gittin. Annene, polise ve kendine hep bunu söyledin.\n\nBanka makineleri sabah altıda alacak. Dört saat erken, tek başına geldin ve nedenini kimseye söylemedin.',
       },
     },
     docs: {
-      p_workorder: { title: 'Tri-County Nakliyat iş emri', from: 'Tri-County Nakliyat', date: 'İş emri #4471', body:
-`TESLİM ALMA: Starlight Arcade, Front Caddesi 114, Harlow
-TARİH: Çarşamba, 30 Kasım 1994 — 06:00
-İÇERİK: 23 jetonlu oyun kabini, 1 hediye tezgâhı, çeşitli demirbaş
-GİRİŞ: anahtar paspasın altında (First Harlow Tasarruf)
+      p_workorder: { kind: 'printout', title: 'Tri-County Nakliyat iş emri', from: 'Tri-County Nakliyat', date: 'İş emri #4471', body:
+`ALINACAK YER: Starlight Oyun Salonu, 114 Front Sk., Harlow
+TARİH: Çar., 30 Kasım 1994, 06:00
+İÇERİK: 23 jetonlu oyun makinesi, 1 ödül tezgâhı, çeşitli demirbaş
+GİRİŞ: anahtarlar paspasın altında (First Harlow Tasarruf)
 EKİP: 3 kişi
-NOT: Alıcı 7 numaralı kabinin ayrıca taşınmasını istiyor. Fişe takmayın.
+NOT: Alıcı 7 numaralı makinenin ayrı sandıklanmasını istiyor. FİŞE TAKMAYIN.
 
-En altta, senin el yazınla:
-Erken gidiyorum. Götürmeden önce 7’yi görmem lazım. —S` },
-      p_notice: { title: 'Ön cama bantlanmış duyuru', from: 'First Harlow Tasarruf', date: '21 Ekim 1994', body:
-`HACİZ DUYURUSU
+Altta, tükenmez kalemle, senin el yazınla:
+Erken giriyorum. Götürmeden önce 7’yi görmem lazım. —S.` },
+      p_notice: { kind: 'notice', title: 'Ön cama bantlanmış duyuru', from: 'First Harlow Tasarruf ve Kredi', date: '21 Ekim 1994', body:
+`HACİZ BİLDİRİMİ
 
-First Harlow Tasarruf ve Kredi kararıyla bu mülk ve içindeki her şey ödenmemiş borç nedeniyle haczedilmiştir.
+Bu mülk ve içindekilerin tamamı, ödeme yapılmaması nedeniyle First Harlow Tasarruf ve Kredi’nin kararıyla haczedilmiştir.
 
-Eşyalar 3 Aralık 1994 Cumartesi saat 10:00’da AÇIK ARTIRMA ile satılacaktır.
+İçindekiler 3 Aralık 1994 Cumartesi saat 10:00’da AÇIK ARTIRMA ile satılacaktır.
 
-Kayıtlı mal sahibi Mart 1992’den bu yana hiçbir yazışmaya yanıt vermemiştir.
+Kayıtlı mülk sahibi Mart 1992’den beri hiçbir yazışmaya cevap vermemiştir.
 
-Altına biri keçeli kalemle yazmış: HÂLÂ İÇERİDE` },
-      p_sticky: { title: '7 numaralı kabinin üstündeki sarı not', from: 'W.', body:
-`FİŞİNİ ÇEKME.
+Altına biri siyah keçeli kalemle yazmış:
+HÂLÂ İÇERİDE` },
+      p_sticky: { kind: 'note', title: '7 numaralı makineye yapıştırılmış sarı not', from: 'W.', body:
+`FİŞİ ÇEKME.
 
-Hiçbir sebeple. Sesleri duysan bile. Özellikle sesleri duyarsan.
+Hiçbir sebeple. Onları duysan bile.
+Özellikle onları duyarsan.
 
-(Bankadansan: zaten prize takılı değil. Bak.)` },
-      p_repair: { title: '7’nin jeton kapağındaki servis etiketi', from: 'Eddie', date: 'Kasım 1986', body:
+(Bankadansan: zaten fişe takılı değil. Bak.)` },
+      p_repair: { kind: 'card', title: '7’nin jeton kapağındaki servis etiketi', from: 'Eddie', date: 'Kasım 1986', body:
 `SERVİS ETİKETİ — ÜNİTE #7
-Kart: KERNEL rev C (özel yapım, değiştirmeyin)
-Güç kaynağı: değiştirildi, deftere bakın
+Kart: KERNEL rev. C (özel yapım, DEĞİŞTİRMEYİN)
+Güç kaynağı: modifiyeli, bkz. defterim
 
-TOPRAKLAMA OLMADAN ÇALIŞTIRMAYIN.
+Topraklama olmadan ÇALIŞTIRMAYIN.
 Gece yarısından sonra Walt’ın "bir şey daha deneyeyim" demesine İZİN VERMEYİN.
 
 —Eddie` },
-      p_ledger: { title: 'Walt’ın elektrik defteri', from: 'Walt', date: '1987–1992', body:
-`Nisan 1987 — Elektrik: 212 $. Normalin iki katı. 7 numara salonun geri kalanından fazla çekiyor.
+      p_ledger: { kind: 'diary', title: 'Walt’ın elektrik defteri', from: 'Walt', date: '1987–1992', body:
+`Nis. 1987 — Elektrik: 212 $. Normalin iki katı. 7 numara bütün salondan fazla çekiyor.
 
-Ekim 1989 — Elektrik: 1.940 $. Ev sahibine "dondurucu bozuk" dedim.
+Eki. 1989 — Elektrik: 1.940 $. Ev sahibine dondurucu bozuk dedim.
 
-Ocak 1991 — 7’yi bir hafta boyunca fişten çektim, görmek için. Sayaç dönmeye devam etti. Hiç duvara takılı değildi zaten. Başka bir şeye takılı.
+Oca. 1991 — Denemek için 7’nin fişini koca bir hafta çektim. Sayaç dönmeye devam etti. Hiç duvara takılı değildi ki. Başka bir şeye takılı.
 
-2 Mart 1992 — Her şeyi hazirana kadar ödedim. Kalanını zarfta Nora’ya bıraktım.
+2 Mar. 1992 — Haziran’a kadar her şeyi ödedim. Kalanını Nora için zarfa koydum.
 Nora, özür dilerim.` },
-      p_hiscore: { title: 'Rekor tablosu', from: 'Starlight Arcade', body:
-`EN YÜKSEK SKORLAR — KABİN #7
-1  BLY  921.450
-2  PNY  887.300
-3  IVY  640.120
-4  CLY  512.890
-5  SAM  498.770
-6  LIL    3.190
+      p_hiscore: { kind: 'note', title: 'Koridordaki çerçeveli puan listesi', from: 'Walt’ın el yazısı', date: '#7’den kopyalandı, 17 Nisan 1987', body:
+`HUNGRY HOUSE — 7 NUMARALI MAKİNE — TÜM ZAMANLAR
+1  DAN  921.450
+2  ROS  887.300
+3  NEL  640.120
+4  TOB  512.890
+5  SAM  498.770   (saat 01:52’de mi?)
 
-Camın altında pirinç bir levha:
-Bu tablodaki isimler asla silinmeyecek. Söz. —Walt` },
-      p_photo: { title: 'Ofis masasının üstüne iğnelenmiş fotoğraf', from: 'Arkasında kurşun kalemle', date: '11 Nisan 1987', body:
+      LIL    3.190   (Oda 207)
+
+Camın altında, daha küçük harflerle:
+Makinenin saatine göre Sam’in puanı gece 01:52’de girilmiş. Sam 21:40’ta eve gitti. Herkes öyle söylüyor. Saat yanlış olmalı.
+Bu isimler asla silinmeyecek. Söz. —Walt` },
+      p_photo: { kind: 'photo', photo: 'five', title: 'Ofis masasının üstüne iğnelenmiş fotoğraf', from: 'Arkasında kurşun kalemle', date: '11 Nisan 1987', body:
 `Starlight müdavimleri, 7’nin önünde.
-Arkada: Billy (bir parmağını kaldırmış), Penny, Ivy.
-Önde: Clyde (her zamanki gibi gözleri kapalı) ve Sam.
+Arkada: Danny (her zamanki gibi tek parmağını kaldırmış), Rosie, Nell.
+Önde: Toby (her zamanki gibi gözleri kapalı) ve Sam.
 
 Sam hariç herkes gülüyor.
 
 Altında, daha yeni bir kurşun kalemle:
-Beş gün önce. Kapıyı kilitlemeliydim. —W` },
-      p_birthday: { title: 'Masa çekmecesindeki doğum günü kartı', from: 'B, P, I, C ve S', date: 'Ağustos 1986', body:
-`MUTLU 55. YAŞ WALT!!!
+Beş gün önce. Kilitleri değiştirmeliydim. —W.` },
+      p_birthday: { kind: 'card', title: 'Depodaki doğum günü kartı', from: 'D, R, N, T ve S', date: '12 Mart 1987', body:
+`İYİ Kİ DOĞDUN WALT, 56 YAŞINDASIN!!!
 
 Bir numaralı müşterilerinden.
-Billy sana 40 jeton borçlu olduğunu söylüyor.
-Penny, Billy’nin SANA 40 jeton borçlu olduğunu söylüyor.
-Pastayı Ivy çizdi. (Pacman pastası. Tabii ki.)
-Clyde yaşlıların hâlâ Galaxian oynayıp oynayamayacağını merak ediyor.
+Danny sana 40 jeton borçlu olduğunu söylüyor.
+Rosie, Danny’nin SANA 40 jeton borçlu olduğunu söylüyor.
+Pastayı Nell çizdi. (Hungry House pastası. Mum yerine dört fener.)
+Toby, sen çocukken televizyonun renkli olup olmadığını merak ediyor.
 Sam bisikleti tamir ettiğin için teşekkür ediyor.
 
-Yarın görüşürüz. Ve öbür gün. Ve ondan sonraki gün.` },
-      p_nora: { title: 'Açılmamış bir mektup', from: 'Nora (Walt’ın kız kardeşi)', date: 'Posta damgası 3 Mart 1992', body:
+Yarın görüşürüz. Ertesi gün de. Ondan sonraki gün de.` },
+      p_nora: { kind: 'letter', title: 'Açılmamış bir mektup', from: 'Walt’ın kız kardeşi Nora', date: 'Posta damgası: 3 Mart 1992', body:
 `Walt,
 
-Yüz kere aradım. Telefon sadece çalıyor. Banka elektriğin hâlâ açık olduğunu söylüyor, orada olduğunu biliyorum.
+Yüz kere aradım. Telefon hep çalıyor. Banka elektriğin hâlâ açık olduğunu söylüyor, yani orada olduğunu biliyorum.
 
-Beş yıl oldu Walt. Aileler artık seni suçlamıyor. Polis suçlamıyor. Sadece sen suçluyorsun.
+Beş yıl oldu Walt. Aileler artık seni suçlamıyor. Polis de suçlamıyor. Bir tek sen suçluyorsun.
 
 Annemin mezarına çiçek lazım. Bu yıl da tek başıma gitmeyeceğim.
 
-Eve gel. Makineyi sat, parçala, ne istersen yap. Ama o ekrana bakmayı bırak.
+Sat o makineyi. Kır. Ne istersen yap. Yeter ki ona bakmayı bırak.
 
-Lily seni karanlıkta görmek istemezdi.
+Lily seni karanlıkta oturuyorken görmek istemezdi.
 
 —Nora
 
-(Mektup o kaybolduktan bir gün sonra gelmiş. Kimse açmamış.)` },
-      p_frank: { title: 'Bir dedektifin kartviziti', from: 'Frank, Harlow Polis Teşkilatı', date: '2 Mayıs 1987', body:
-`Arkasında tükenmez kalemle:
+(Ortadan kaybolduğu günün ertesi geldi. Kimse açmadı.)` },
+      p_frank: { kind: 'card', title: 'Bir dedektifin kartviziti', from: 'Dedektif Frank Dobbs, Harlow Polisi', date: '2 Mayıs 1987', body:
+`Arkasında, tükenmez kalemle:
 
 Walt —
 Bana çocukların gece yarısı çıktığını söyledin.
-Karşıdaki kadın arka ışıklarının saat üçte yandığını görmüş.
-Arama iziyle geri gelmek zorunda kalmadan beni ara.
-—Frank` },
-      p_mirror: { title: 'Tuvalet aynasına rujla yazılmış', body:
+Karşıdaki Bayan Pruitt saat üçte arka ışıklarının yandığını görmüş.
+Bir de 3:25’te Front Sokağı’nda yağmurun altında koşan TEK bir çocuk görmüş. Buradan uzağa doğru.
+Arama izniyle gelmek zorunda kalmadan beni ara.
+—F.D.` },
+      p_mirror: { kind: 'wall', title: 'Tuvalet aynasına rujla yazılmış', body:
 `BU BİR OYUN DEĞİL
 BİR YER
 
-—P. 16/4` },
-      p_lily1: { title: 'Ofis buzdolabındaki çizim', from: 'Lily, 8 yaşında', body:
-`Kâğıt üstünde pastel boya. Bir sürü renkli kutunun önünde duran, bacaklı sarı bir daire.
+—R. 16/4` },
+      p_lily1: { kind: 'drawing', drawing: 1, title: 'Ofis buzdolabındaki Lily çizimi', from: 'Lily, 9 yaşında', body:
+`Kâğıda pastel boya. Ekranlı renkli kutuların önünde duran, iki küçük boynuzlu ve kocaman dişli sırıtışlı, yuvarlak turuncu bir yaratık.
 
-BABAM STARLİTE’TA ÇALIŞIYOR.
-CUMARTESİLERİ ÇOMPİ OLUYOR.
-DÜNYANIN EN İYİ ÇOMPİSİ.
-—LILY` },
-      p_tape: { title: 'Kaset: "Bunu dinliyorsan"', from: 'Walt', date: '3 Mart 1992, 23:48', body:
+BABAM STARLİTE’TA ÇALIŞIYO.
+CUMARTESİLERİ O CHOMPY OLUYO.
+DÜNYANIN EN İYİ CHOMPY’Sİ O.
+—LİLY` },
+      p_tape: { kind: 'tape', title: 'Kaset: "Bunu dinliyorsan"', from: 'Walt', date: '3 Mart 1992, 23:48', body:
 `[Klik. Cama vuran yağmur. Bir sandalye gıcırdıyor.]
 
-WALT: Bunu dinliyorsan içerideyim. Frank’i arama. Nora’yı arama. Sadece dinle.
+WALT: Bunu dinliyorsan içerideyim demektir. Frank’i arama. Nora’yı arama. Sadece dinle.
 
-WALT: Onlar içeride. Billy, Penny, Ivy ve Clyde. Tanıtım ekranını yeterince uzun izlersen hayaletlerin isimlerini gösterir. Eskiden Blinky, Pinky, Inky ve Clyde yazardı. On altı Nisan’dan beri BILLY, PENNY, IVY... ve Clyde yazıyor. Bizim Clyde. Ve artık hayalet gibi hareket etmiyorlar. Çocuk gibi hareket ediyorlar. Beş yıldır izliyorum.
+WALT: Oradalar. Danny, Rosie, Nell ve Toby. 7’yi yeterince uzun tanıtım ekranında bırakırsan hayaletleri tanıtır. Altı yıl boyunca onlara KIRMIZI, MOR, TURKUAZ ve KEHRİBAR dedi. On yedi Nisan sabahından beri DAN diyor. ROS. NEL. TOB. Ve artık sprite gibi hareket etmiyorlar. Çocuklar gibi hareket ediyorlar. Beş yıldır izliyorum.
 
-WALT: Masamdaki altın jeton. Üstünde 0256 yazan. Makine onu DEVAM olarak alıyor. Onlar böyle girdi. Ben de böyle gireceğim.
+WALT: Masamdaki altın jeton, üstünde 0256 damgalı olan. Makine onu CONTINUE sayıyor. Onlar böyle girdi. Ben de böyle gireceğim.
 
-WALT: Fişini çekme. Buradan karanlığa gömülürse onlar da gömülür. Kesin bilmiyorum. Öğrenmeyeceğim de.
+WALT: Fişini çekmeyin. Burası karanlığa gömülürse onlar da gömülür. Kesin bilmiyorum. Öğrenmeye de niyetim yok.
 
 [Uzun bir sessizlik.]
 
-WALT: Onları eve getireceğim. Getiremezsem... en azından içeride yalnız olmazlar.
+WALT: Onları eve getireceğim. Getiremezsem... en azından orada yalnız olmazlar.
 
-WALT: Lily, eğer sen de... [Susuyor.] Yok. Boş ver. Kaset bitiyor.
+WALT: Lily, eğer sen de... [Susar.] Yok. Boş ver. Kaset bitiyor.
 
 [Klik.]` },
     },
     obj: {
-      p_flash: 'Bir fener bul (hediye tezgâhının arkasında)',
+      p_flash: 'Bir el feneri bul (ödül tezgâhının arkasında)',
       p_power: 'Depodaki ana şalteri kaldır',
       p_key: 'Walt’ın ofisinin anahtarını bul',
       p_office: 'Walt’ın ofisine gir',
       p_token: 'Walt’ın ofisini ara',
-      p_insert: 'Jetonu 7 numaralı kabine at',
+      p_insert: 'Altın jetonu 7 numaralı makineye at',
     },
     mono: {
-      prolog_start: 'Elektrik yok. Fenerim de kamyonette kaldı... Hediye tezgâhının arkasında bir tane olmalı.',
-      prolog_flash: 'Pil yarım. İdareli kullanmalıyım.',
-      prolog_power: 'Işıklar... ve makineler. Hepsi bir anda.',
-      prolog_register: 'Yazar kasa hâlâ çalışıyor. Çekmecede bir anahtar var. OFİS.',
-      prolog_token: 'Altın bir jeton. Üstünde 0256 yazıyor. Ağır. Normal bir jetondan çok daha ağır.',
-      prolog_cabinet: 'OYUNCU 1 HAZIR. Seviye sayacı: 255. Prize takılı değil. Kablosu yerde yatıyor.',
-      prolog_seven: 'Yedi numara. Clyde hep yanık ekmek gibi koktuğunu söylerdi. Hâlâ öyle kokuyor.',
-      prolog_hiscore: 'Beşinci sıra. SAM. Bir zamanlar bu kadar iyi olduğumu unutmuşum.',
+      prolog_start: 'Elektrik yok. Fenerim kamyonda kaldı... Walt ödül tezgâhının arkasında bir tane tutardı.',
+      prolog_flash: 'Pilin yarısı var. Boşa harcama.',
+      prolog_power: 'Işıklar... ve makineler. Hepsi birden.',
+      prolog_register: 'Yazar kasa hâlâ açılıyor. Kâğıt etiketli bir anahtar: OFİS.',
+      prolog_token: 'Altın bir jeton, üstünde 0256 damgası. Ağır. Gerçek bir jetondan çok daha ağır.',
+      prolog_cabinet: 'PLAYER 1: SAM — CONTINUE? ...Kablo yerde duruyor. Fişe takılı değil.',
+      prolog_seven: 'Yedi numara. Toby yanık ekmek gibi kokuyor derdi. Hâlâ öyle kokuyor.',
+      prolog_hiscore: 'Gece 01:52. Olamaz. Ben saat onda evdeydim.',
       prolog_outside: '...Camın dışında biri mi duruyordu?',
-      prolog_insert: 'Ekranın sağ yarısı harflerle doluyor. Ekran... büyüyor.',
-      prolog_office: 'Walt’ın ofisi. Kahve ve lehim kokuyor. 1987 gibi.',
+      prolog_insert: 'Ekran ortadan ikiye bölünüyor. Sağ yarısı harflerle doluyor... ve büyüyor.',
+      prolog_office: 'Walt’ın ofisi. Kahve ve lehim. 1987 gibi kokuyor.',
     },
     lines: {
-      prolog_registerDead: 'Yazar kasada elektrik yok. Çekmecesi kilitli.',
-      prolog_flashHint: 'Feneri açıp kapatmak için F.',
+      prolog_registerDead: 'Yazar kasada elektrik yok. Çekmece kilitli.',
+      prolog_flashHint: 'Feneri açıp kapatmak için F’ye bas.',
       prolog_breaker: 'Ana şalteri kaldır',
       prolog_register: 'Yazar kasayı aç',
       prolog_registerIdle: 'Yazar kasa',
       prolog_insertTok: 'Altın jetonu at',
-      prolog_inspect: '7 numaralı kabine bak',
+      prolog_inspect: '7 numaralı makineye bak',
     },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,202 +1,231 @@
-# PACMAN: THE BACK ROOMS — Story Bible
+# LEVEL 256 — Story Bible
 
-This file is the single source of truth for the story. Every note, radio line, level and
-ending must agree with it. People have first names only.
+Single source of truth for the story. Every document, radio line, chapter card and ending must agree
+with this file. Where a detail is not here, it does not exist yet: add it here first.
+
+The game is an original work. The arcade game inside the story, **HUNGRY HOUSE** (Brightline
+Amusements, Chicago, 1981), is fictional: a maze game in which a round, hungry **Player** eats the
+**stars** in a haunted house while four **Haunts** chase it; four **lanterns** turn the tables.
 
 ## Logline
 
-November 30, 1994, 2:11 AM, rain. Sam, a 20-year-old machine mover, is clearing out the
-foreclosed Starlight Arcade in the steel town of Harlow, where four kids vanished in 1987.
-Sam was supposed to be with them that night. Cabinet #7 still runs with no plug in the wall.
-One token later, Sam falls through the kill screen into the Back Rooms: the corrupted half of
-level 256, built out of the town's lost memories. The four missing kids are ghosts there.
-Something that used to be a man is still hungry.
+November 30, 1994, 2:11 AM, rain. Sam, twenty, a night-shift mover, lets themself into the foreclosed
+Starlight Arcade in Harlow, Pennsylvania, hours before the auction crew. Seven years ago four kids
+vanished here and cabinet #7 kept running with no plug in the wall. Sam was supposed to be with them
+that night, and always told the police the same story: *I went home at 9:40.*
 
-## Rules of the Back Rooms (in-world logic)
+Cabinet #7 is still on. It is showing level 255 of Hungry House, and a prompt that has been waiting
+since 1987:
 
-1. The machine is a game. A game needs one PLAYER and four GHOSTS. It keeps running as long as
-   it has them, and it draws power even when unplugged.
-2. On April 16, 1987 four kids reached level 256 on cabinet #7 and pressed CONTINUE on Walt's
-   experimental board, "the Kernel". The game cast them as its four ghosts. They lost their
-   names and faces. They kept their habits, which is why each ghost moves like the kid it was.
-3. With no PLAYER the game stalled on the kill screen. The right half of level 256 filled with
-   "garbage": memories the game could not count. Those memories are the Back Rooms. Every level
-   is somebody's memory, rebuilt wrong.
-4. In March 1992 Walt went in to bring the kids back and became the PLAYER. A player must eat.
-   Walt refused to eat the ghosts, so he ate everything else: rooms, time, himself. He is the
-   Eater now and no longer remembers his name.
-5. Ghosts chase anyone who is not the player. A ghost remembers its name when its memento is
-   returned to its shrine. A ghost that remembers is free: it stops hunting and helps.
-6. Time runs slower inside. For the kids it has been one long night. For Eddie (inside since
-   June 1993) it feels like weeks.
-7. EXIT signs lie. Each EXIT is a level transition. The only real exit is on the kill screen, and
-   it follows the game's rule: one goes out, one stays in. The score must be kept.
-8. Pulling the plug from OUTSIDE deletes everyone inside (hence Walt's note). Pulling it from
-   INSIDE, once all four ghosts have their names back, ends the game properly: GAME OVER, and
-   everyone who is still themselves goes home.
+**PLAYER 1: SAM — CONTINUE?**
+
+## What the story is about
+
+Leaving people behind, and the lies we build so we can live with it. Every chapter is someone's
+memory, swallowed by the game and rebuilt wrong: a mill that fired a father, a pool where a boy
+nearly drowned, an office where a girl waited for her mother, a hospital room where a man promised his
+dying daughter a game that never ends. Sam walks through all of them, and the last memory is Sam's own.
+
+## Tone and pacing rules
+
+- Dread first, gore never. The worst things are heard, or half seen.
+- Every chapter answers one question and asks a bigger one.
+- Documents are short. A reader should finish one in under 30 seconds.
+- Eddie is funny. The fear is sharper next to a joke.
+- Nobody explains the rules in one speech. The player learns them one at a time, each when it matters.
+
+## The rules of the House (in-world logic)
+
+1. **A game needs a Player and four Haunts.** Walt's experimental board, the **Kernel**, lets Hungry
+   House keep them: people, not sprites. It draws power even when unplugged.
+2. **Overflow.** Past level 255 the level counter overflows. What the game swallowed with its players,
+   their memories, spills out as rooms. Every chapter is one of those rooms, rebuilt wrong.
+3. **The Player must eat.** That is what a Player is. The Player since March 1992 is Walt. He will not
+   eat the Haunts, so he eats everything else: rooms, time, himself. The kids call it the **Eater**.
+4. **Haunts chase anyone who is not the Player.** A Haunt remembers who it was when something it
+   loved is returned to its **shrine**. A Haunt that remembers stops hunting and follows you as a light.
+5. **One in, one out.** There is one real EXIT, on the split screen of level 256. It opens for one
+   person only when another person stays inside in their place. Every other EXIT sign lies.
+6. **The plug.** Pulled from outside, it erases everyone inside (Walt's note). Pulled from inside it
+   ends the game properly, GAME OVER, but it takes **five hands**: the game started with five, it ends
+   with five.
+7. **Time runs slow inside.** For the four kids it is still the night of April 16, 1987.
+
+## The truth about the night (the twist)
+
+Sam's story, told to Sam's mother, to Detective Dobbs and to Sam for seven years: *after the fight
+with Toby at 9:40 PM I walked home and went to bed.*
+
+What happened: Sam walked around Front Street in the rain for three hours, angry, and came back
+through the back door (Eddie had left it unlocked for the Rialto midnight movie) at **12:30 AM**. Toby
+cried with relief. The five played in turns. At **3:17 AM** they reached level 256. The screen split in
+half and showed their five names. Their pact (written that afternoon, signed by all five) said: *all
+five hands on the stick when we hit 256, and nobody lets go.* The cabinet was burning hot. The Haunts
+on screen had turned toward them. Sam **let go** and ran. Four hands pressed CONTINUE.
+
+The game took the four as its Haunts. It never got its Player, so it broke: the kill screen froze and
+the overflow began. Sam ran home through the rain, climbed in through the bedroom window at 3:40 AM,
+and by morning had built the memory that let a thirteen-year-old keep breathing. Sam's lie also made
+Walt the prime suspect. In March 1992 Walt went in to bring the kids back; the empty Player slot took
+him. The monster that hunts Sam through the game is the man Sam's lie destroyed.
+
+The truth is revealed in stages (see Foreshadowing) and stated fully by the 3:17 tape in the Workshop.
 
 ## Cast
 
-| Name | In 1987 | Role |
+| Name | In April 1987 | Who they are |
 | --- | --- | --- |
-| **Sam** | 13 | Protagonist. Clyde's best friend, the fifth regular. Left the arcade at 9:40 PM on April 16 after a fight with Clyde. Last words to him: "Fine. Disappear then." Now 20, works nights for Tri-County Movers and volunteered for this job. |
-| **Walt** | 56 | Owner of Starlight Arcade (opened May 1981). Former Air Force radar technician, then TV repairman. Kind to the kids: free tokens, fixed their bikes. His daughter Lily died in October 1983. Built the Kernel with Eddie to push the game past level 255. Went into cabinet #7 in March 1992. Now the Eater. |
-| **Lily** | died 1983, age 9 | Walt's daughter. Sam's and Clyde's classmate in fourth grade. Her initials LIL are still on the high score table (3,190 points). Drew pictures of the arcade. Her eight drawings are hidden through the game. |
-| **Billy** | 16 | Red ghost. Loud, fearless, holds the #1 score (BLY). His dad was laid off from the Harlow Mill warehouse in 1986. Walt trusted him with a spare front key for Saturday set-up; Billy used it to dare everyone back after closing. Memento: his dad's wristwatch, stopped at 3:17. Haunts the Mill Warehouse. |
-| **Penny** | 15 | Pink ghost. The planner, always one step ahead. Makes mixtapes, wants to be a radio DJ. Did homework at her mom's insurance office every evening. Memento: mixtape "SIDE B: FOR AFTER". Haunts the Insurance Office. |
-| **Ivy** | 15 | Blue ghost. Quiet, draws comics, thick glasses, never sure of herself. In July 1985 her little brother Theo (6) nearly drowned at the town pool while she was supposed to be watching him. Memento: her glasses. Haunts the Pool. |
-| **Clyde** | 13 | Orange ghost. Youngest, funny, scared of the dark. Carries his grandpa's engraved lighter. Begged Sam to stay that night. Memento: the lighter. Haunts Lights Out. |
-| **Eddie** | 29 | Walt's assistant 1984–1988, co-built the Kernel. Quit after a fight with Walt ("Unplug it!"). Married June (motel night clerk) in 1991. Went into cabinet #7 on June 12, 1993 to find Walt and the kids. His daughter Hope was born that August; he has never met her. Talks to Sam over a walkie-talkie. Warm and funny, but hiding his plan: if Sam opens the real EXIT, Eddie goes out and Sam stays as the new player. |
-| **Nora** | — | Walt's younger sister. Her unopened letters pile up in the arcade. |
-| **Frank** | — | Harlow police detective who ran the 1987 investigation. Suspected Walt. |
-| **June** | — | Eddie's wife. Letters and a photo of baby Hope. |
-| **Theo** | 6 in 1985 | Ivy's little brother. Survived. Wrote to Ivy every year. |
-| **Maggie** | — | Clyde's mother. Still leaves the porch light on. |
-| **Ruth** | — | Walt's wife, left in 1985. One letter. |
+| **Sam Keller** | 13 | You. Toby's best friend, the fifth regular. Now 20, drives nights for Tri-County Movers and volunteered for this job. Others call Sam "Sam" or "kid". (Sam's gender is never stated.) |
+| **Toby Marsh** | 13 | Amber Haunt. Funny, small, scared of the dark, carries his grandpa's engraved brass lighter. Begged Sam to stay. Chapter: Lights Out. |
+| **Danny Kowalski** | 16 | Red Haunt. Loud, fearless, #1 on the score sheet (DAN). Repeating 9th grade. His dad Ray was laid off from the Harlow Mill warehouse in 1986. Walt trusted him with a spare front key for Saturday set-up; Danny used it to bring the others back after closing. Memento: Ray's mill watch, stopped at 3:17. Chapter: Mill Warehouse. |
+| **Rosie Alvarez** | 15 | Violet Haunt. The planner, always a step ahead, wants to be a radio DJ ("Rosie Radio, one-oh-seven-three"). Did her homework at her mother's insurance office every evening. Memento: mixtape "SIDE B: FOR AFTER". Chapter: Harlow Mutual. |
+| **Nell Park** | 15 | Teal Haunt. Quiet, draws comics, thick glasses. In July 1985 her brother Theo (6) nearly drowned at the town pool while she was reading. Memento: her glasses. Chapter: The Pool. |
+| **Walt Brenner** | 56 | Owner of the Starlight Arcade (opened May 9, 1981). Air Force radar technician, then TV repairman. Built the Kernel with Eddie. Missing since March 3, 1992. The Eater. |
+| **Lily Brenner** | died 1983, age 9 | Walt's daughter. Scored 3,190 on the little cabinet Walt carried up to Room 207. Her eight drawings are hidden through the game. |
+| **Eddie Price** | 22 (now 29) | Walt's assistant 1984–1988, co-built the Kernel. Left the back door unlocked that night. Married June in 1991. Went in on June 12, 1993; his daughter Hope was born that August. Talks to Sam over a walkie-talkie. Needs someone to stay in his place. |
+| **June Price** | — | Eddie's wife, night clerk at the Blue Moon Motor Inn on Route 9. |
+| **Frank Dobbs** | — | Harlow police detective in 1987. Suspected Walt. Never believed Sam's timeline. |
+| **Nora Brenner** | — | Walt's younger sister. Her letters pile up unopened in the arcade. |
+| **Ruth Brenner** | — | Walt's wife until September 1985. |
+| **Ray Kowalski** | — | Danny's father. |
+| **Carol Alvarez** | — | Rosie's mother, claims adjuster at Harlow Mutual. |
+| **Theo Park** | 6 in 1985 | Nell's little brother. Survived. Wrote to Nell every year. |
+| **Maggie Marsh** | — | Toby's mother. The porch light has been on for seven years. |
+| **Ann Keller** | — | Sam's mother. Worked nights at the telephone exchange in 1987. |
+| **Donna** | — | Night nurse on the children's ward at St. Agnes, 1983. |
 
 ## Timeline
 
-- 1974: Sam, Clyde and Lily are born. Billy 1971, Penny and Ivy 1972.
-- May 1981: Starlight Arcade opens at 114 Front Street.
-- Oct 1983: Lily dies of leukemia at St. Agnes Hospital. Walt wore the arcade's Chompy mascot costume for her last birthday on the ward.
+- 1981, May 9: Starlight Arcade opens at 114 Front Street. Cabinet #7 is Hungry House.
+- 1983, April 2: Lily turns nine. Walt has a Chompy mascot costume made for the party from her drawing:
+  the Muncher on legs, round and orange, with felt horns and foam teeth.
+- 1983, June: Lily is diagnosed with leukemia. October 27: Walt wears the Chompy costume to the
+  ward's early Halloween party. October 29: Lily dies in Room 207 at St. Agnes. Her last wish to Walt:
+  *"Make a game that never ends. So nobody ever has to go."*
 - 1984: Eddie is hired.
-- Jul 1985: Theo nearly drowns at Harlow Municipal Pool. Ivy stops swimming. Billy, Clyde and Sam explore the storm tunnels ("B+C+S WERE HERE").
-- 1986: Billy's dad is laid off. Harlow Mall opens. Dec 1986: the five spend their best Saturday at the mall (photo booth strip).
-- Nov 1986: Walt and Eddie start building the Kernel.
-- Apr 16, 1987 (Thursday): After school the kids plan "Operation 256". At 9:40 PM Sam and Clyde fight and Sam walks home. Billy lets the four back in with the spare key after Walt goes upstairs (Eddie also left the back door unlocked). At 3:17 AM they reach level 256, press CONTINUE and vanish. Walt finds the cabinet running at 3:20 AM with four new ghosts on screen.
-- 1987: Detective Frank investigates. Walt tells police the kids left at midnight, to hide that Billy had his key. The lie makes him the prime suspect. No charges. The arcade closes to the public in December.
-- 1988: Eddie quits after the fight about unplugging the cabinet.
-- 1988–1992: Walt lives in the back of the arcade, studies the ghosts' patterns, keeps paying the huge electric bills.
-- Mar 3, 1992: Walt goes in. Leaves the note: DON'T PULL THE PLUG.
-- Jun 12, 1993: Eddie breaks in and goes in after him.
-- Oct 1994: The bank forecloses. Auction set for Dec 3.
-- Nov 30, 1994, 2:11 AM: Sam arrives alone, hours before the crew, to see cabinet #7 one last time.
+- 1985, July: Theo nearly drowns at Harlow Municipal Pool. Danny, Toby and Sam build their fort in the
+  Front Street storm tunnels (D+T+S WERE HERE). September: Ruth leaves Walt.
+- 1986, March: Harlow Mall opens. May 30: Ray is laid off (effective June 30). November: Walt and Eddie
+  begin the Kernel. December 13: the five's best Saturday at the mall (photo booth strip).
+- 1987, April 16 (Thursday): Operation 256. Lunch: Sam yells at Toby for sitting on Sam's walkman, then
+  writes an apology and tapes it inside locker 217 to give him later. 3:30 PM: all five sign the pact.
+  9:40 PM: the second fight, at the arcade ("Fine. Disappear then."). Sam leaves. 10 PM: Walt closes;
+  11 PM: he goes upstairs. 11:20 PM: Danny lets Rosie, Nell and Toby in with the spare key. 11:52 PM:
+  Rosie's recorder ("Sam went home"); 11:58 PM, Toby's joke. 12:40 AM: Sam knocks at the back door and is let in.
+  1:52 AM: Sam's score goes up on #7. 3:05 AM: level 255. 3:14 AM: the recorder is switched on again. 3:16 AM:
+  level 256, five hands on the stick; Sam lets go and runs. 3:17 AM: CONTINUE, four hands. 3:20 AM:
+  Walt comes down and finds #7 running, its attract screen listing four new Haunts: DAN, ROS, NEL, TOB.
+  3:40 AM: Sam climbs in through the bedroom window.
+- 1987, April 17: Sam tells everyone the 9:40 story. Walt tells police the kids left at midnight, to
+  hide that Danny had his key; the lie makes him the prime suspect. No charges. December: the arcade
+  closes to the public.
+- 1988: Eddie quits after a fight with Walt ("Unplug it!" "It would erase them.").
+- 1991: Eddie marries June.
+- 1992, March 3: Walt goes in with the gold token. Leaves the note: DON'T PULL THE PLUG.
+- 1993, June 12: Eddie goes in after him. August 22: Hope is born.
+- 1994, October: the bank forecloses. Auction set for December 3.
+- 1994, November 30, 2:11 AM: Sam arrives, alone.
 
 ## Chapters
 
-Each chapter is a memory. Emotional beat in brackets.
+| # | Card | Title | Memory of | Threat | Goal | Beat |
+| --- | --- | --- | --- | --- | --- | --- |
+| P | PROLOGUE | Starlight Arcade | Sam, now | the storm | Flashlight, power, Walt's office, the gold token | dread, homecoming |
+| 0 | LEVEL 0 | Attract Mode | the game, waiting | the Eater | Four lanterns for the EXIT panel; the walkie-talkie: Eddie | relief, humor, the first lie |
+| 1 | LEVEL 1 | Mill Warehouse | Danny | Danny (red), the Eater | Three fuses for the freight elevator | anger, then grief |
+| 2 | LEVEL 2 | Pipe Dreams | Danny, Toby, Sam, 1985 | Crawlers | Bleed three steam valves; the fort | childhood, "nobody goes home alone" |
+| 3 | LEVEL 3 | The Pool | Nell | Nell (teal) | Four drain valves, the hatch | guilt, forgiveness |
+| 4 | LEVEL 4 | Harlow Mutual | Rosie | Rosie (violet) | Security code, keycard, fire stairs | loneliness; first doubt about Eddie |
+| 5 | LEVEL 5 | Harlow Junior High | all five, April 16, 1987 | the Hall Monitor | Closet code, janitor's keys, the fire exit | the pact: Sam's signature |
+| 6 | LEVEL 6 | Lights Out | Toby | Toby (amber), Grinners | Three generators | fear, courage; "Sam came back" |
+| 7 | LEVEL 7 | Harlow Mall | all five, December 1986 | Mannequins | Four photo-booth frames | the happiest day |
+| 8 | LEVEL 8 | Blue Moon Motor Inn | Eddie | the Neighbor | Room 12, Eddie's notebook | ONE IN, ONE OUT; trust him or not |
+| 9 | LEVEL 9 | St. Agnes | Walt, October 1983 | the Counter | Five diary pages, Room 207 | the promise to Lily |
+| 10 | LEVEL 10 | Maple Street | Sam, April 16–17, 1987 | the Neighbor (Toby's voice) | Toby's room, Sam's house, the corner | the memory breaks |
+| 11 | LEVEL 11 | The Workshop | Walt, April 1987 | Chompy | Walt's key, the Kernel's dials | the 3:17 tape: the truth |
+| 12 | LEVEL 255 | The House | the game | the Eater, the Haunts | Four lanterns, the Haunts' house | the game itself |
+| 13 | LEVEL 256 | Kill Screen | everyone | the Counter, the Eater | The choice | ending |
 
-| # | Chapter | Memory of | Threat | Goal |
-| --- | --- | --- | --- | --- |
-| P | Starlight Arcade, 1994 | Sam, now | — (the storm, a figure outside) | Flashlight, power, Walt's office, the special token |
-| 0 | The Lobby | the game itself | Eater (wakes) | Four power pellets for the EXIT panel. Find the walkie-talkie: meet Eddie [relief, humor] |
-| 1 | Mill Warehouse | Billy | Billy (red), Eater | Three fuses, freight elevator. Billy's watch [anger, then grief] |
-| 2 | Pipe Dreams | Billy, Clyde, Sam | Crawlers | Steam valves and pressure, follow the kids' chalk arrows [happy childhood] |
-| 3 | The Pool | Ivy | Ivy (blue), the Drowned | Drain the pool. Ivy's glasses. Theo's letters [guilt, forgiveness] |
-| 4 | Insurance Office | Penny | Penny (pink), Clerks | Security code, keycard, fire stairs. Penny's mixtape [loneliness] |
-| 5 | Harlow Junior High | all five, Apr 16 1987 | Hall Monitor | Operation 256 plans, the kids' lockers, the gym [nostalgia, dread] |
-| 6 | Lights Out | Clyde | Clyde (orange), Grinners | Three generators. Clyde's lighter [fear, courage] |
-| 7 | Harlow Mall | all five, Dec 1986 | Mannequins | Find the four photo booth frames, rebuild the strip [the happiest day] |
-| 8 | Blue Moon Motor Inn | Eddie | the Neighbor | Find Room 12. Eddie's notebook: ONE IN, ONE OUT [suspicion] |
-| 9 | St. Agnes Hospital | Walt | the Counter | Lily's room, Walt's diary, the Chompy photo [sorrow] |
-| 10 | Maple Street | Sam | the Neighbor (uses Clyde's voice) | Sam's house, Clyde's house, the fight [guilt, reconciliation] |
-| 11 | The Workshop | Walt, Apr 1987 | Chompy | Recalibrate the Kernel. The 3:17 tape: the truth [shock] |
-| 12 | The Maze | the game, level 255 | Eater, ghosts | Pellets, power pellets, the ghost house |
-| 13 | Kill Screen | level 256 | the Counter, Eater | The choice |
+Freed Haunts follow Sam as colored lights and help: Danny draws the Eater away, Rosie warns of
+ambushes, Nell shows hidden doors, Toby's lighter pushes back the dark.
 
-Freed ghosts follow Sam and help: Billy draws the Eater away, Penny warns of ambushes,
-Ivy shows hidden doors, Clyde's lighter pushes back the dark.
+## Foreshadowing map (the twist, step by step)
+
+- **Prologue.** The cabinet greets Sam by name. The framed 1987 score sheet (copied by Walt from #7's
+  memory) lists SAM with a score posted at 1:52 AM; Walt decided the machine clock was wrong. Dobbs'
+  card: a neighbor saw a kid running on Front Street at 3:25 AM.
+- **Attract Mode.** Eddie: "It said *player one* when you came in. It never said that for me."
+- **Mill.** Danny's Haunt screams while it chases: "YOU LET GO!" Walt's journal: he doesn't know who it
+  means.
+- **Harlow Mutual.** Rosie's 12:40 AM tape: a knock at the back door, Toby's shout, Rosie: "Look who
+  came crawling back." The tape cuts before a name.
+- **Junior High.** The pact ("NOBODY LETS GO"), signed D, R, N, T and **S**, in Sam's handwriting. Sam
+  remembers signing it, and nothing after 9:40 but rain.
+- **Lights Out.** Toby's last diary page: "Sam came back! Sam always comes back."
+- **Maple Street.** Sam's mother's answering machine: 12:10 AM and 2:50 AM, "Sam? Pick up." Wet
+  sneakers under an open window. The echo on the corner plays twice: 9:40 PM, then 3:20 AM, a
+  thirteen-year-old running home in the rain. Sam: "I didn't go home. I didn't go home at 9:40."
+- **Workshop.** The 3:17 tape. All of it: the burning cabinet, Sam's hand tearing away at 3:16, Toby calling
+  after Sam, four hands on CONTINUE.
+- **Kill Screen.** The corrupted save file: PLAYER 1 (04/17/87 03:16): SAM — LEFT GAME. Walt's last letter:
+  "One hand let go at 3:16. The game has been waiting for that hand ever since."
 
 ## Endings
 
-1. **EXIT (bad)**: Sam walks through the real EXIT alone. Wakes on the arcade floor at dawn.
-   The movers load cabinet #7. The truck never reaches the auction.
-2. **THE DEAL (dark)**: Sam holds the EXIT open for Eddie. Eddie goes home to June and Hope.
-   Sam stays as the new player. The high score table gains a row: SAM.
-3. **GAME OVER (good)**: All four ghosts free. Sam and the four pull the plug together. The
-   kids stumble out into the rain at dawn, still 13 to 16 years old. Eddie comes home. The Eater
-   says in Walt's voice: "I'm full, Sam. Finally."
-4. **LIL (true)**: All four free, all eight of Lily's drawings found and Walt's memory
-   completed in the hospital. Placing the drawings at the core gives Walt his name back. He
-   pulls the plug himself so Sam doesn't have to, and walks into the maze holding Lily's hand.
-   Epilogue: Nora, Eddie meeting Hope, Sam and Clyde on Maple Street.
+1. **EXIT** (bad): Sam takes the door. Eddie stays in Sam's place, screaming Sam's name. Dawn on the
+   arcade floor; #7 is loaded onto the truck; the truck never reaches the auction. Sam left them twice.
+2. **THE DEAL** (dark): Sam holds the door. Eddie goes home to June and Hope. Sam stays: not the
+   Player (Walt still is), not a Haunt, but the one who stayed. The score sheet gains a line:
+   SAM — STILL PLAYING.
+3. **GAME OVER** (good): all four remember. Five hands on the plug: Sam, Danny, Rosie, Nell, Toby.
+   The game ends. The kids wake on the arcade carpet, still 13 to 16, in 1994. Eddie walks home. The
+   Eater, in Walt's voice: "I'm full, Sam. Finally."
+4. **LIL** (true): all four free, all eight of Lily's drawings found, Walt's five pages read in Room 207.
+   The drawings give Walt his name back. He pulls the plug himself, with the four, so Sam doesn't have
+   to, and walks into the maze holding Lily's hand.
 
 ## Motifs
 
-- 3:17 (the watch, clocks, the tape counter).
+- 3:17 (the watch, the clocks, the tape counter).
 - "DON'T PULL THE PLUG."
-- High score table (1987): 1 BLY 921,450 / 2 PNY 887,300 / 3 IVY 640,120 / 4 CLY 512,890 /
-  5 SAM 498,770 / 6 LIL 3,190.
-- "The names on the high score table will never be erased. Promise." (Walt).
-- Waka waka. The Eater's steps sound like chewing.
+- "Nobody goes home alone." (fort rule 4) / "Nobody lets go." (the pact)
+- Hands: on the stick, on the plug, Walt's hand in Lily's.
+- The score sheet (1987, Walt's handwriting): 1 DAN 921,450 / 2 ROS 887,300 / 3 NEL 640,120 /
+  4 TOB 512,890 / 5 SAM 498,770 / LIL 3,190 (on its own line, "Room 207").
 - Porch lights left on.
+- The Eater chews. You hear it before you see it.
 
-## Chapter beats and documents
+## Continuity notes (check every document against these)
 
-Each chapter has 10–20 documents (notes, letters, tapes, phone messages, screens, photos,
-wall writing, drawings), radio exchanges with Eddie from the Lobby onward, and one or two
-"echoes" (a memory replayed as ghost voices when Sam touches a memento or a key object).
+- The four Haunts of Hungry House were always four: RED, VIOLET, TEAL and AMBER on the attract screen.
+  Since 3:17 AM on April 17, 1987, #7 lists them as DAN, ROS, NEL, TOB, and they move like the kids did.
+- **Schools.** Sam, Toby and Lily were in 4th grade together at Harlow Elementary (Room 104) in fall
+  1983. In 1987 all five go to Harlow Junior High (grades 7–9): Sam and Toby in 7th grade, Rosie and
+  Nell in 9th, Danny in 9th for the second time.
+- **Lily died on October 29, 1983.** Everything she drew is from before that date.
+- **The two fights.** Lunch (the walkman, the apology in locker 217, never given) and 9:40 PM at the
+  arcade ("Fine. Disappear then.").
+- **That night.** Back door unlocked by Eddie; front key with Danny. Rosie's recorder: 11:52 PM,
+  11:58 PM, 12:40 AM, 3:14–3:42 AM (it kept running after the four were gone; Walt's voice is on it at 3:20).
+- **Sam's mother** was at work at the telephone exchange until 6 AM; she called home on her breaks.
+- **The motel** is the Blue Moon Motor Inn on Route 9.
+- **The office** is Harlow Mutual Insurance, 3rd floor of the Keystone Building on Front Street.
+- **Time inside.** Eddie went in on June 12, 1993 and found the real EXIT in his first week; out here
+  a year and a half has passed, in there it feels like one long night.
+- **The plug** needs five hands. Walt tried it alone on his first night inside; the game took the move
+  as the Player's and he has been the Eater since.
+- **Cherry soda** (Starlight's own brand, "Star Pop") calms your nerves and gives you your breath back.
+  There are cans all over the overflow, because the arcade's cooler was the last thing Walt stocked.
 
-- **Prologue.** Auction notice on the door. Tri-County work order ("going early, need to see #7").
-  Walt's note on cabinet #7. Walt's electric ledger. High score table. Office photo of the five,
-  April 1987. Nora's unopened letter. Detective Frank's card ("I know you're lying about the
-  time"). Eddie's repair tag on #7 ("KERNEL REV C"). Lipstick on the restroom mirror ("IT'S NOT A
-  GAME / IT'S A PLACE", Penny, 1987). Lily's drawing #1 on the office fridge. Walt's last tape
-  (March 3, 1992): how to follow him with the gold token.
-- **Lobby.** Walkie-talkie at Eddie's old camp: first contact, jokes, the rules. Walt's first
-  journal pages from inside. Penny's "Operation 256" flyer. "EXITS LIE —E" scratched by the door.
-  Lily's drawing #2. The Eater wakes when the first pellet is taken.
-- **Mill Warehouse.** Billy's dad's layoff letter (1986). Billy's punch card. "BLY #1" spray paint.
-  Billy's dad's letter written after he vanished ("I'm not mad about the key"). Walt: "the red one
-  never stops". Echo: Billy daring the others. Freed: "3:17. My watch stopped. I never did."
-- **Pipe Dreams.** Chalk "B+C+S WERE HERE 1985", Clyde's treasure map, Sam's own child handwriting
-  ("SECRET BASE RULES"), Eddie on the Crawlers ("garbage collectors"), Lily's drawing #3.
-- **The Pool.** Lifeguard report (July 1985). Theo's letters to Ivy (1986, 1987, 1990: "It wasn't
-  your fault. I swim every day now."). Ivy's comic pages ("the girl who looked away").
-- **Insurance Office.** Penny's tracklist "SIDE B: FOR AFTER". Her mom's memos. Penny Radio practice
-  tape from the break room. The security code comes from her DJ call sign. A torn page in Eddie's
-  hand: "the kid might be the one" (first doubt). Lily's drawing #4.
-- **Harlow Junior High.** Notes passed in class ("Operation 256 tonight. B has the key").
-  Detention slip. Yearbook page with all five. Sam's own locker: an apology to Clyde never given.
-  Lily's memorial plaque in the hall (1983). School paper. Radio club flyer.
-- **Lights Out.** Clyde's diary ("Sam's mad at me. I just wanted him to stay"). Grandpa's lighter
-  engraving. Eddie grows tense on the radio. Freed Clyde will not look at Sam yet.
-- **Harlow Mall.** Photo booth strip, the five laughing (Dec 1986). Christmas lists. Receipts from the
-  record store and the comic store. The "Starlight Jr." kiosk. Lily's drawing #5.
-- **Blue Moon Motor Inn.** Room 12. Eddie's notebook: ONE IN, ONE OUT. June's letters, the ultrasound
-  photo, Eddie's tape to Hope. After Sam reads it, Eddie asks to explain. Trust becomes a choice.
-- **St. Agnes Hospital.** Room 207. Photo of Walt in the Chompy costume at Lily's bedside. Five pages
-  of Walt's diary (completing them is needed for the true ending). Nurse notes. Ruth's letter.
-  Lily's drawing #6.
-- **Maple Street.** Sam's house, Clyde's house with the porch light on. Sam's mother's answering
-  machine (April 17, 1987). The Neighbor calls in Clyde's voice. Echo of the fight. Reconciliation:
-  "You went home. That's what you were supposed to do." Lily's drawing #7.
-- **The Workshop.** Kernel schematics. Eddie's bench (he was supposed to lock up that night and
-  didn't: his own guilt). The 3:17 tape: the kids' last minutes and Walt at 3:20. Walt's key given to
-  Billy months earlier. Lily's drawing #8 in Walt's toolbox.
-- **The Maze.** Level 255. Walt's neon writing on the walls. The ghost house.
-- **Kill Screen.** Eddie in person at the EXIT. The plug. The Counter. The endings.
+## How the story compares with modern horror (design goals)
 
-## Continuity notes (checked against every document)
-
-- **The attract screen.** Pac-Man's ghosts are always four: Blinky, Pinky, Inky and Clyde. What changed on
-  April 16, 1987 is their *names*. Since 3:17 AM the attract screen of #7 lists them as BILLY, PENNY, IVY
-  and CLYDE (the kids always joked that the orange ghost was named after Clyde), and they move like the kids
-  did. That is what Walt saw at 3:20 AM and what he watched for five years.
-- **Schools.** Sam, Clyde and Lily were in 4th grade together at Harlow Elementary (Room 104) in 1983. In
-  1987 all five go to Harlow Junior High (grades 7–9): Sam and Clyde in 7th grade, Penny and Ivy in 9th,
-  Billy in 9th for the second time (hence his detention record). Lily's plaque came with her class when
-  they moved up in 1985.
-- **Lily died on October 29, 1983.** Everything she drew is from before that: Chompy (the costume was
-  bought in March 1983), the arcade, the Front Street Christmas tree (Dec 1982), a "cave under the street"
-  that Sam and Clyde found in the summer of 1983 and wouldn't let her into, Penny walking her home, the
-  3,190 points scored on the small cabinet Walt carried up to Room 207, the good swing Sam saved for her,
-  and Walt crying by her hospital monitor. The mall (1986) and the storm-tunnel fort (July 1985) come
-  after her; Walt used her old Chompy drawing on the mall kiosk sign.
-- **The two fights.** At lunch on April 16 Sam yelled at Clyde about the walkman Clyde sat on; Sam wrote
-  an apology and taped it inside his own locker (217) to give him later. At 9:40 PM at the arcade they
-  fought again ("Fine. Disappear then.") and Sam walked home. The note was never given.
-- **That night.** Walt went upstairs at 11 PM. Eddie had left the back door unlocked (the Rialto
-  midnight movie). Billy also had Walt's spare front key. The four were at #7 from 11:30 PM; Penny's
-  recorder ran all night (11:52 PM, 12:40 AM on the 17th, 3:14–3:42 AM). 3:17 AM: CONTINUE.
-- **People with the same first name.** There is only one Carol (Penny's mother, claims adjuster). The
-  night nurse at St. Agnes is Donna.
-- **Eddie** was hired in 1984, after Lily died; he knew her only from Walt's one story in 1986.
-- **The motel** is the Blue Moon Motor Inn on Route 9 (not to be confused with the Starlight Arcade).
-- **Time inside.** Eddie went in on June 12, 1993 and found the real EXIT in his first week; out here a
-  year and a half has passed, in there it has felt like one long night.
-- **The plug.** While the four are still ghosts it will not move for one pair of hands; it needs five.
-  Walt tried it alone on his first night inside, and the game took the move as his and made him its
-  player. With the four remembered, five hands pull it and the game ends properly.
-- **The movers** were due at 6 AM on Wednesday, November 30, 1994. Sam arrived at 2:11 AM, four hours
-  early.
+- **Silent Hill 2**: the monster is personal and the protagonist's own memory is the last door. Here
+  the twist is Sam's lie, prepared for from the first room.
+- **Amnesia / Soma**: documents tell a tragedy in fragments; the player assembles it. Kept short.
+- **Outlast / Alien: Isolation**: the threat hunts by sound and sight with its own logic; hiding and
+  breathing matter. Each chapter's creature has one readable rule.
+- **P.T. / Backrooms media**: liminal, wrong spaces that are memories. The overflow levels.
+- **Five Nights at Freddy's (by contrast)**: we avoid the missing-children-in-a-mascot trope as the
+  twist; Chompy is Walt's grief, not a body.
+- Difference: every scare lands on a character we have met on paper, and the final choice depends on
+  what the player learned about Sam.

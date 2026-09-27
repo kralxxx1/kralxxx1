@@ -133,10 +133,10 @@
   }
   // Clothes and hair for the five (and Lily)
   const CAST = {
-    billy: { h: 1.1, build: 1.08, hair: 'short', colors: { shirt: hex('#2c3e7a'), hair: hex('#2a1a10'), pants: hex('#2a3048') } },
-    penny: { h: 1.04, hair: 'long', colors: { shirt: hex('#b04a8a'), hair: hex('#7a3a1a'), pants: hex('#3a3a50') } },
-    ivy: { h: 1.02, hair: 'long', glasses: true, colors: { shirt: hex('#2a8a8a'), hair: hex('#1a1210'), pants: hex('#40404a') } },
-    clyde: { h: 0.92, hair: 'curly', colors: { shirt: hex('#c86a20'), hair: hex('#b04a18'), pants: hex('#4a5a7a'), skin: SKIN2 } },
+    danny: { h: 1.1, build: 1.08, hair: 'short', colors: { shirt: hex('#2c3e7a'), hair: hex('#2a1a10'), pants: hex('#2a3048') } },
+    rosie: { h: 1.04, hair: 'long', colors: { shirt: hex('#b04a8a'), hair: hex('#7a3a1a'), pants: hex('#3a3a50') } },
+    nell: { h: 1.02, hair: 'long', glasses: true, colors: { shirt: hex('#2a8a8a'), hair: hex('#1a1210'), pants: hex('#40404a') } },
+    toby: { h: 0.92, hair: 'curly', colors: { shirt: hex('#c86a20'), hair: hex('#b04a18'), pants: hex('#4a5a7a'), skin: SKIN2 } },
     sam: { h: 0.94, hair: 'short', colors: { shirt: hex('#c8b030'), hair: hex('#3a2410'), pants: hex('#30405a') } },
     lily: { h: 0.82, hair: 'pigtails', colors: { shirt: hex('#c0c8e0'), hair: hex('#c05020'), pants: hex('#c0c8e0') } },
   };
@@ -159,10 +159,10 @@
       const cab = propMesh('cabinetBody'); cab.position.set(0, 0, -0.9); sc.add(cab);
       const glow = new THREE.PointLight(0x80c8ff, 3, 4, 2); glow.position.set(0, 1.4, -0.4); sc.add(glow);
       const put = (k, x, z, ry, extra) => { const m = castKid(k, extra); m.position.set(x, 0, z); m.rotation.y = ry; sc.add(m); };
-      put('billy', -0.5, -0.25, 0.15, { armUp: true, mouth: 'laugh' });
-      put('penny', 0.02, -0.35, 0, { mouth: 'laugh' });
-      put('ivy', 0.52, -0.25, -0.15, { mouth: 'laugh' });
-      put('clyde', -0.24, 0.3, 0.1, { eyes: 'closed', mouth: 'laugh' });
+      put('danny', -0.5, -0.25, 0.15, { armUp: true, mouth: 'laugh' });
+      put('rosie', 0.02, -0.35, 0, { mouth: 'laugh' });
+      put('nell', 0.52, -0.25, -0.15, { mouth: 'laugh' });
+      put('toby', -0.24, 0.3, 0.1, { eyes: 'closed', mouth: 'laugh' });
       put('sam', 0.26, 0.32, -0.05, { mouth: 'flat' });
       cam.position.set(0, 1.3, 2.25); cam.lookAt(0, 1.12, 0);
       return { flash: 1 };
@@ -170,9 +170,9 @@
     fort(sc, cam) {
       room(sc, 0x3a2418, 4, 2.4, 6);
       const put = (k, x, z, ry, extra) => { const m = castKid(k, extra); m.position.set(x, 0, z); m.rotation.y = ry; sc.add(m); };
-      put('billy', -0.35, -0.1, 0.2, { mouth: 'laugh', h: 1.0 });
+      put('danny', -0.35, -0.1, 0.2, { mouth: 'laugh', h: 1.0 });
       put('sam', 0.08, 0.05, 0, { mouth: 'smile', h: 0.86 });
-      put('clyde', 0.45, 0.1, -0.2, { mouth: 'laugh', h: 0.82 });
+      put('toby', 0.45, 0.1, -0.2, { mouth: 'laugh', h: 0.82 });
       // one flashlight from below, faces lit from under the chin
       const fl = new THREE.SpotLight(0xffd8a0, 18, 5, 0.7, 0.6, 1.5); fl.position.set(0.05, 0.5, 0.9); fl.target.position.set(0, 1.4, 0); sc.add(fl, fl.target);
       cam.position.set(0, 1.1, 2.1); cam.lookAt(0, 1.05, 0);
@@ -182,10 +182,10 @@
       room(sc, 0x9a9a9a, 2, 2.4, 2);
       const n = parseInt(String(id).replace(/\D/g, ''), 10) || 1;
       const put = (k, x, z, ry, extra) => { const m = castKid(k, extra); m.position.set(x, -0.35, z); m.rotation.y = ry; sc.add(m); };
-      if (n === 1) { put('billy', -0.13, 0, 0.2, { mouth: 'flat' }); put('penny', 0.16, 0.02, -0.15, { mouth: 'laugh' }); }
-      if (n === 2) { put('ivy', -0.12, 0, 0.15, { mouth: 'laugh', hat: 'santa' }); put('clyde', 0.14, 0.05, -0.15, { mouth: 'laugh' }); }
-      if (n === 3) { put('sam', -0.09, 0.02, 0.25, { eyes: 'closed', mouth: 'laugh' }); put('clyde', 0.09, 0.02, -0.25, { eyes: 'closed', mouth: 'laugh' }); }
-      if (n >= 4) { put('billy', -0.28, -0.1, 0.2, { mouth: 'laugh' }); put('penny', 0.0, -0.14, 0, { mouth: 'laugh' }); put('ivy', 0.27, -0.1, -0.2, { mouth: 'laugh' }); put('clyde', -0.14, 0.15, 0.1, { mouth: 'laugh' }); put('sam', 0.14, 0.17, -0.1, { mouth: 'laugh' }); }
+      if (n === 1) { put('danny', -0.13, 0, 0.2, { mouth: 'flat' }); put('rosie', 0.16, 0.02, -0.15, { mouth: 'laugh' }); }
+      if (n === 2) { put('nell', -0.12, 0, 0.15, { mouth: 'laugh', hat: 'santa' }); put('toby', 0.14, 0.05, -0.15, { mouth: 'laugh' }); }
+      if (n === 3) { put('sam', -0.09, 0.02, 0.25, { eyes: 'closed', mouth: 'laugh' }); put('toby', 0.09, 0.02, -0.25, { eyes: 'closed', mouth: 'laugh' }); }
+      if (n >= 4) { put('danny', -0.28, -0.1, 0.2, { mouth: 'laugh' }); put('rosie', 0.0, -0.14, 0, { mouth: 'laugh' }); put('nell', 0.27, -0.1, -0.2, { mouth: 'laugh' }); put('toby', -0.14, 0.15, 0.1, { mouth: 'laugh' }); put('sam', 0.14, 0.17, -0.1, { mouth: 'laugh' }); }
       cam.position.set(0, 1.12, n >= 4 ? 1.35 : 0.95); cam.lookAt(0, 1.06, 0);
       return { flash: 0.9, mono: true };
     },

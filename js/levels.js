@@ -57,7 +57,7 @@
         { type: 'note', id: 'n_exitwall', data: 'lobby_exitwall', place: 'spot', spot: 'exitPanel', reuse: true, beside: -1.05, h: 1.5 },
         { type: 'drawing', id: 'd_lily2', data: 'lobby_lily2', place: 'deadEnd', minFrac: 0.6 },
       ].concat(supplies(6, 4)),
-      entities: [{ type: 'pacman', dormant: true }],
+      entities: [{ type: 'eater', dormant: true }],
       objectives: ['lobby_explore', 'lobby_pellets', 'lobby_insert', 'lobby_leave'],
     },
     {
@@ -66,21 +66,21 @@
       items: [
         { type: 'fuse', id: 'fuse', count: 3, place: 'far', group: 'fuse', minFrac: 0.4 },
         { type: 'fusePanel', id: 'fusePanel', place: 'spot', spot: 'fusePanel', h: 1.4 },
-        { type: 'memento', id: 'watch', data: 'billy', place: 'far', group: 'mem', minFrac: 0.5 },
-        { type: 'shrine', id: 'shrine_b', data: 'billy', place: 'spot', spot: 'shrine' },
+        { type: 'memento', id: 'watch', data: 'danny', place: 'far', group: 'mem', minFrac: 0.5 },
+        { type: 'shrine', id: 'shrine_b', data: 'danny', place: 'spot', spot: 'shrine' },
         { type: 'tape', id: 'tape_mill', data: 'mill_tape', place: 'spot', spot: 'camp' },
         { type: 'note', id: 'n_mill_intro', data: 'mill_intro', place: 'near' },
         { type: 'note', id: 'n_layoff', data: 'mill_layoff', place: 'spot', spot: 'office1', fallback: 'mid' },
         { type: 'note', id: 'n_punch', data: 'mill_punch', place: 'mid' },
-        { type: 'note', id: 'n_billy1', data: 'mill_billy1', place: 'far', group: 'notes' },
+        { type: 'note', id: 'n_danny1', data: 'mill_danny1', place: 'far', group: 'notes' },
         { type: 'note', id: 'n_ray', data: 'mill_ray', place: 'far', group: 'notes' },
         { type: 'note', id: 'n_manifest', data: 'mill_manifest', place: 'spot', spot: 'office2', fallback: 'far' },
         { type: 'note', id: 'n_walt3', data: 'mill_walt3', place: 'mid' },
         { type: 'note', id: 'n_graffiti', data: 'mill_graffiti', place: 'mid', wall: true, h: 1.8 },
         { type: 'note', id: 'n_mill_shrine', data: 'mill_shrine', place: 'spot', spot: 'shrine', fallback: 'far' },
       ].concat(supplies(5, 3)),
-      entities: [{ type: 'ghost', ghost: 'blinky' }, { type: 'pacman', dormant: true }],
-      ghost: 'billy',
+      entities: [{ type: 'ghost', ghost: 'red' }, { type: 'eater', dormant: true }],
+      ghost: 'danny',
       objectives: ['mill_fuses', 'mill_panel', 'mill_wait', 'mill_leave'],
     },
     {
@@ -104,7 +104,7 @@
         { type: 'drawing', id: 'd_lily3', data: 'pipes_lily3', place: 'deadEnd', minFrac: 0.55 },
         { type: 'glowstick', count: 5, place: 'any', group: 'glow', sep: 6 },
       ].concat(supplies(6, 3)),
-      entities: [{ type: 'crawler', count: 5 }, { type: 'pacman', dormant: true }],
+      entities: [{ type: 'crawler', count: 5 }, { type: 'eater', dormant: true }],
       objectives: ['pipes_valves', 'pipes_leave'],
     },
     {
@@ -113,8 +113,8 @@
       items: [
         { type: 'valve', id: 'valve', count: 4, place: 'far', wall: true, group: 'valve', minFrac: 0.35, h: 1.1 },
         { type: 'drain', id: 'drain', place: 'spot', spot: 'drain' },
-        { type: 'memento', id: 'glasses', data: 'ivy', place: 'far', group: 'mem', minFrac: 0.5 },
-        { type: 'shrine', id: 'shrine_i', data: 'ivy', place: 'spot', spot: 'shrine' },
+        { type: 'memento', id: 'glasses', data: 'nell', place: 'far', group: 'mem', minFrac: 0.5 },
+        { type: 'shrine', id: 'shrine_i', data: 'nell', place: 'spot', spot: 'shrine' },
         { type: 'tape', id: 'tape_pool', data: 'pool_tape', place: 'spot', spot: 'camp' },
         { type: 'note', id: 'n_pool_intro', data: 'pool_intro', place: 'near' },
         { type: 'note', id: 'n_report', data: 'pool_report', place: 'mid' },
@@ -126,8 +126,8 @@
         { type: 'note', id: 'n_walt4', data: 'pool_walt4', place: 'mid' },
         { type: 'note', id: 'n_poolrules', data: 'pool_rules', place: 'mid', wall: true, h: 1.6 },
       ].concat(supplies(3, 3)),
-      entities: [{ type: 'ghost', ghost: 'inky' }, { type: 'pacman', dormant: true }],
-      ghost: 'ivy',
+      entities: [{ type: 'ghost', ghost: 'teal' }, { type: 'eater', dormant: true }],
+      ghost: 'nell',
       objectives: ['pool_valves', 'pool_drain', 'pool_hatch'],
     },
     {
@@ -142,9 +142,9 @@
         { type: 'keypad', id: 'keypad', place: 'spot', spot: 'keypad', reuse: true, h: 1.35, beside: 0.95 },
         { type: 'keycard', id: 'keycard', place: 'spot', spot: 'keycard', h: 0.8 },
         { type: 'cardReader', id: 'cardReader', place: 'spot', spot: 'cardReader', reuse: true, h: 1.3, beside: 0.95 },
-        { type: 'memento', id: 'mixtape', data: 'penny', place: 'far', group: 'mem', minFrac: 0.45 },
-        { type: 'shrine', id: 'shrine_p', data: 'penny', place: 'spot', spot: 'shrine' },
-        { type: 'tape', id: 'tape_office', data: 'office_penny_tape', place: 'spot', spot: 'kitchen', fallback: 'mid' },
+        { type: 'memento', id: 'mixtape', data: 'rosie', place: 'far', group: 'mem', minFrac: 0.45 },
+        { type: 'shrine', id: 'shrine_p', data: 'rosie', place: 'spot', spot: 'shrine' },
+        { type: 'tape', id: 'tape_office', data: 'office_rosie_tape', place: 'spot', spot: 'kitchen', fallback: 'mid' },
         { type: 'note', id: 'n_office_intro', data: 'office_intro', place: 'spot', spot: 'keypad', reuse: true, h: 1.55, beside: -0.95 },
         { type: 'note', id: 'n_carol', data: 'office_carol', place: 'spot', spot: 'kitchen', reuse: true, offset: [0.8, 0.6], fallback: 'mid' },
         { type: 'note', id: 'n_tracklist', data: 'office_tracklist', place: 'far', group: 'notes' },
@@ -156,8 +156,8 @@
         { type: 'phone', id: 'phone2', data: 'office_phone2', place: 'far', group: 'phone' },
         { type: 'phone', id: 'phone3', data: 'office_phone3', place: 'far', group: 'phone' },
       ].concat(supplies(4, 3)),
-      entities: [{ type: 'ghost', ghost: 'pinky' }, { type: 'pacman', dormant: true }],
-      ghost: 'penny',
+      entities: [{ type: 'ghost', ghost: 'violet' }, { type: 'eater', dormant: true }],
+      ghost: 'rosie',
       objectives: ['office_code', 'office_keypad', 'office_card', 'office_stairs'],
     },
     {
@@ -183,6 +183,7 @@
         { type: 'key', id: 'janitorKeys', data: 'janitorKeys', place: 'spot', spot: 'janitorShelf', fallback: 'far' },
         { type: 'note', id: 'n_school_intro', data: 'school_intro', place: 'near' },
         { type: 'note', id: 'n_school_pass', data: 'school_passnote', place: 'spot', spot: 'classroomDesk', fallback: 'mid' },
+        { type: 'note', id: 'n_school_pact', data: 'school_pact', place: 'spot', spot: 'libraryTable', reuse: true, offset: [-0.45, 0.15], fallback: 'mid' },
         { type: 'note', id: 'n_school_plaque', data: 'school_plaque', place: 'mid', wall: true, h: 1.5 },
         { type: 'note', id: 'n_school_paper', data: 'school_paper', place: 'spot', spot: 'cafTableTop', fallback: 'mid' },
         { type: 'note', id: 'n_school_samlocker', data: 'school_samlocker', place: 'spot', spot: 'locker217', fallback: 'far' },
@@ -190,7 +191,7 @@
         { type: 'note', id: 'n_school_walt', data: 'school_walt', place: 'spot', spot: 'gym', fallback: 'far' },
         { type: 'tape', id: 'tape_school', data: 'school_tape', place: 'spot', spot: 'officeDeskTop', reuse: true, offset: [0.45, 0.1], fallback: 'mid' },
       ].concat(supplies(5, 3)),
-      entities: [{ type: 'monitor' }, { type: 'pacman', dormant: true }],
+      entities: [{ type: 'monitor' }, { type: 'eater', dormant: true }],
       objectives: ['school_code', 'school_closet', 'school_keys', 'school_leave'],
     },
     {
@@ -202,8 +203,8 @@
       items: [
         { type: 'generator', id: 'gen', count: 3, place: 'spot', spot: 'generator', depth: 0.45, h: 0 },
         { type: 'fuelCan', id: 'fuel', count: 3, place: 'far', group: 'fuel', minFrac: 0.3 },
-        { type: 'memento', id: 'lighter', data: 'clyde', place: 'spot', spot: 'generator', fallback: 'far' },
-        { type: 'shrine', id: 'shrine_c', data: 'clyde', place: 'spot', spot: 'shrine' },
+        { type: 'memento', id: 'lighter', data: 'toby', place: 'spot', spot: 'generator', fallback: 'far' },
+        { type: 'shrine', id: 'shrine_c', data: 'toby', place: 'spot', spot: 'shrine' },
         { type: 'tape', id: 'tape_dark', data: 'dark_tape', place: 'spot', spot: 'camp' },
         { type: 'note', id: 'n_dark_intro', data: 'dark_intro', place: 'near' },
         { type: 'note', id: 'n_diary1', data: 'dark_diary1', place: 'mid' },
@@ -215,8 +216,8 @@
         { type: 'note', id: 'n_porch', data: 'dark_porch', place: 'mid' },
         { type: 'glowstick', count: 7, place: 'any', group: 'glow', sep: 6 },
       ].concat(supplies(7, 3)),
-      entities: [{ type: 'ghost', ghost: 'clyde' }, { type: 'grinner', count: 4 }, { type: 'pacman', dormant: true }],
-      ghost: 'clyde',
+      entities: [{ type: 'ghost', ghost: 'amber' }, { type: 'grinner', count: 4 }, { type: 'eater', dormant: true }],
+      ghost: 'toby',
       objectives: ['dark_generators', 'dark_leave'],
     },
     {
@@ -246,7 +247,7 @@
         { type: 'tape', id: 'tape_mall', data: 'mall_tape', place: 'spot', spot: 'cafTableTop', fallback: 'mid' },
         { type: 'drawing', id: 'd_lily5', data: 'mall_lily5', place: 'spot', spot: 'emptyStore', fallback: 'far' },
       ].concat(supplies(5, 3)),
-      entities: [{ type: 'mannequin', count: 6 }, { type: 'pacman', dormant: true }],
+      entities: [{ type: 'mannequin', count: 6 }, { type: 'eater', dormant: true }],
       objectives: ['mall_frames', 'mall_booth', 'mall_leave'],
       extraDocs: ['mall_frame1', 'mall_frame2', 'mall_frame3', 'mall_frame4', 'mall_strip'],
     },
@@ -273,7 +274,7 @@
         { type: 'note', id: 'n_motel_ultra', data: 'motel_ultrasound', place: 'spot', spot: 'room12StandL', fallback: 'far' },
         { type: 'tape', id: 'tape_motel', data: 'motel_tape', place: 'spot', spot: 'room12StandR', fallback: 'far' },
       ].concat(supplies(5, 3)),
-      entities: [{ type: 'neighbor' }, { type: 'pacman', dormant: true }],
+      entities: [{ type: 'neighbor' }, { type: 'eater', dormant: true }],
       objectives: ['motel_find12', 'motel_key', 'motel_room12', 'motel_leave'],
     },
     {
@@ -303,7 +304,7 @@
         { type: 'tape', id: 'tape_hosp', data: 'hospital_tape', place: 'spot', spot: 'patientStand', fallback: 'mid' },
         { type: 'drawing', id: 'd_lily6', data: 'hospital_lily6', place: 'spot', spot: 'room207Side', fallback: 'far' },
       ].concat(supplies(5, 3)),
-      entities: [{ type: 'watcher' }, { type: 'pacman', dormant: true }],
+      entities: [{ type: 'watcher' }, { type: 'eater', dormant: true }],
       objectives: ['hospital_pages', 'hospital_207', 'hospital_leave'],
       extraDocs: ['hospital_diary1', 'hospital_diary2', 'hospital_diary3', 'hospital_diary4', 'hospital_diary5'],
     },
@@ -317,13 +318,13 @@
         { type: 'note', id: 'n_maple_missing', data: 'maple_missing', place: 'spot', spot: 'poleFlyer', fallback: 'mid' },
         { type: 'note', id: 'n_maple_paper', data: 'maple_paper', place: 'spot', spot: 'samHousePorch', fallback: 'mid' },
         { type: 'note', id: 'n_maple_samroom', data: 'maple_samroom', place: 'spot', spot: 'samHousePillow', fallback: 'far' },
-        { type: 'note', id: 'n_maple_clyderoom', data: 'maple_clyderoom', place: 'spot', spot: 'clydeHousePillow', fallback: 'far' },
-        { type: 'note', id: 'n_maple_porch', data: 'maple_porch', place: 'spot', spot: 'clydeHouseScreenDoor', fallback: 'mid' },
+        { type: 'note', id: 'n_maple_tobyroom', data: 'maple_tobyroom', place: 'spot', spot: 'tobyHousePillow', fallback: 'far' },
+        { type: 'note', id: 'n_maple_porch', data: 'maple_porch', place: 'spot', spot: 'tobyHouseScreenDoor', fallback: 'mid' },
         { type: 'note', id: 'n_maple_walt', data: 'maple_walt', place: 'far', group: 'notes' },
         { type: 'drawing', id: 'd_lily7', data: 'maple_lily7', place: 'spot', spot: 'samHouseDesk', fallback: 'far' },
       ].concat(supplies(4, 2)),
       entities: [{ type: 'neighbor' }],
-      objectives: ['maple_clyde', 'maple_home', 'maple_corner', 'maple_leave'],
+      objectives: ['maple_toby', 'maple_home', 'maple_corner', 'maple_leave'],
     },
     {
       id: 'workshop',
@@ -356,7 +357,7 @@
         { type: 'battery', count: 1, place: 'spot', spot: 'corner', center: true },
         { type: 'portal', id: 'portal', place: 'spot', spot: 'houseInside', center: true },
       ],
-      entities: [{ type: 'pacman', arcade: true }, { type: 'ghost', ghost: 'blinky', maze: true }, { type: 'ghost', ghost: 'pinky', maze: true }, { type: 'ghost', ghost: 'inky', maze: true }, { type: 'ghost', ghost: 'clyde', maze: true }, { type: 'watcher' }],
+      entities: [{ type: 'eater', arcade: true }, { type: 'ghost', ghost: 'red', maze: true }, { type: 'ghost', ghost: 'violet', maze: true }, { type: 'ghost', ghost: 'teal', maze: true }, { type: 'ghost', ghost: 'amber', maze: true }, { type: 'watcher' }],
       objectives: ['maze_pellets', 'maze_house'],
     },
     {
@@ -370,15 +371,15 @@
         { type: 'note', id: 'n_walt8', data: 'ks_walt8', place: 'spot', spot: 'core', fallback: 'far' },
         { type: 'note', id: 'n_eddie_exit', data: 'ks_eddie', place: 'far', group: 'notes' },
       ],
-      entities: [{ type: 'pacman', arcade: true, final: true }, { type: 'watcher' }],
+      entities: [{ type: 'eater', arcade: true, final: true }, { type: 'watcher' }],
       objectives: ['ks_core', 'ks_choice'],
     },
   ];
   LEVELS.forEach((L, i) => { L.index = i; });
 
   // Ghost type ↔ character
-  const GHOSTS = { blinky: 'billy', pinky: 'penny', inky: 'ivy', clyde: 'clyde' };
-  const CHAR_COLOR = { billy: '#ff2a2a', penny: '#ff9ad5', ivy: '#39e6ff', clyde: '#ffae3b' };
+  const GHOSTS = { red: 'danny', violet: 'rosie', teal: 'nell', amber: 'toby' };
+  const CHAR_COLOR = { danny: '#ff3b30', rosie: '#c28aff', nell: '#3fe6c0', toby: '#ffb62e' };
 
   PB.Levels = { LEVELS, GHOSTS, CHAR_COLOR, byId: id => LEVELS.find(l => l.id === id) };
 })(typeof window !== 'undefined' ? window : globalThis);

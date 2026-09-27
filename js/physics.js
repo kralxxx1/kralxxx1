@@ -35,7 +35,7 @@
   class Physics {
     constructor(g) {
       this.g = g; this.bodies = []; this.statics = new Set(); this.ok = false;
-      this.held = null; this.acc = 0; this.soundT = 0;
+      this.acc = 0; this.soundT = 0;
     }
     setup() {
       const g = this.g, L = g.level, w = g.world;
@@ -140,29 +140,6 @@
       // a crash carries: anything hunting by ear hears it
       if (v > 2.2 && g.noise) g.noise(pos.x, pos.z, 3 + gain * 9);
     }
-    grab(rb) {
-      if (this.held) return;
-      const b = rb.body;
-      if (!rb.inWorld) { this.world.addBody(b); rb.inWorld = true; }
-      b.wakeUp();
-      b.type = C.Body.KINEMATIC; b.mass = 0; b.updateMassProperties();
-      this.held = rb;
-      this.g.audio && this.g.audio.play('cloth', 4, 'sfx', null, { gain: 0.4 });
-      this.g.ui.hint(PB.t('hint.throw'));
-    }
-    drop(throwIt) {
-      const rb = this.held;
-      if (!rb) return;
-      this.held = null;
-      const b = rb.body;
-      b.type = C.Body.DYNAMIC; b.mass = rb.k.m; b.updateMassProperties();
-      const cam = this.g.camera, f = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
-      const sp = throwIt ? U.clamp(11 - rb.k.m, 4, 10) : 0.5;
-      b.velocity.set(f.x * sp + this.g.player.vel.x, f.y * sp + (throwIt ? 1.5 : 0), f.z * sp + this.g.player.vel.z);
-      b.angularVelocity.set((Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6);
-      b.wakeUp();
-      if (throwIt && this.g.audio) this.g.audio.play('cloth', 4, 'sfx', null, { gain: 0.6, rate: 1.4 });
-    }
     // Keep a kinematic body where an actor is, with the velocity it moved at (so it pushes, not teleports)
     follow(body, x, y, z, dt) {
       const dx = x - body.position.x, dz = z - body.position.z;
@@ -184,7 +161,7 @@
         for (const rb of this.bodies) {
           const d = Math.max(Math.abs(rb.body.position.x - pl.pos.x), Math.abs(rb.body.position.z - pl.pos.z));
           if (d < 24 && !rb.inWorld) { this.world.addBody(rb.body); rb.inWorld = true; rb.body.sleep(); }
-          else if (d > 30 && rb.inWorld && rb.body.sleepState === C.Body.SLEEPING && rb !== this.held) { this.world.removeBody(rb.body); rb.inWorld = false; }
+          else if (d > 30 && rb.inWorld && rb.body.sleepState === C.Body.SLEEPING) { this.world.removeBody(rb.body); rb.inWorld = false; }
           if (d < 9 && rb.inWorld) this.around(rb);
         }
       }
@@ -192,21 +169,12 @@
         if (!e.mesh || !e.mesh.visible || e.ghostly || e.kind === 'watcher' || e.kind === 'grinner' || e.state === 'dormant') continue;
         let mb = this.movers.get(e);
         if (!mb) {
-          const r = e.kind === 'pacman' ? 1.05 : e.kind === 'chompy' ? 0.45 : e.kind === 'crawler' ? 0.3 : 0.32;
+          const r = e.kind === 'eater' ? 1.05 : e.kind === 'chompy' ? 0.45 : e.kind === 'crawler' ? 0.3 : 0.32;
           mb = new C.Body({ type: C.Body.KINEMATIC, mass: 0 });
-          mb.addShape(new C.Sphere(r), new C.Vec3(0, e.kind === 'pacman' ? 1.1 : r, 0));
+          mb.addShape(new C.Sphere(r), new C.Vec3(0, e.kind === 'eater' ? 1.1 : r, 0));
           this.world.addBody(mb); this.movers.set(e, mb);
         }
         this.follow(mb, e.pos.x, 0, e.pos.z, Math.max(dt, 1e-3));
-      }
-      // what you are carrying floats in front of you
-      if (this.held) {
-        const cam = g.camera, f = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
-        const b = this.held.body, tx = cam.position.x + f.x * 0.75, ty = cam.position.y - 0.25 + f.y * 0.5, tz = cam.position.z + f.z * 0.75;
-        b.velocity.set((tx - b.position.x) * 12, (ty - b.position.y) * 12, (tz - b.position.z) * 12);
-        b.angularVelocity.scale(0.8, b.angularVelocity);
-        if (g.input.pressed('interact')) this.drop(false);
-        else if (g.input.pressed('throw') || g.input.pressed('attack')) this.drop(true);
       }
       // fixed steps
       this.acc = Math.min(this.acc + dt, 0.1);

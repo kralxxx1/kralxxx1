@@ -94,7 +94,7 @@
     async loadFonts() {
       if (!document.fonts || !document.fonts.load) return;
       const list = ['16px "Press Start 2P"', '24px "VT323"', '32px "Caveat"', '20px "Courier Prime"', 'bold 20px "Courier Prime"'];
-      const sample = 'PACMAN ÇIKIŞ İŞĞÜÖÇ ğüşıöç 0123';
+      const sample = 'HUNGRY HOUSE ÇIKIŞ İŞĞÜÖÇ ğüşıöç 0123';
       try { await Promise.race([Promise.all(list.map(f => document.fonts.load(f, sample))), U.sleep(3000)]); } catch (e) { /* yazı tipleri isteğe bağlı */ }
     }
     // Output resolution: native (window x device pixels) or a fixed size scaled to the window
@@ -209,6 +209,9 @@
       if (!Array.isArray(s.drawings)) s.drawings = [];
       if (!s.world || typeof s.world !== 'object') s.world = {};
       if (!Array.isArray(s.freed)) s.freed = [];
+      // Saves from before the names changed
+      const OLD = { billy: 'danny', penny: 'rosie', ivy: 'nell', clyde: 'toby' };
+      s.freed = s.freed.map(c => OLD[c] || c);
       if (!Array.isArray(s.endings)) s.endings = [];
       if (!Array.isArray(s.notes)) s.notes = [];
       if (!Array.isArray(s.unlocked)) s.unlocked = ['prolog'];
@@ -424,7 +427,7 @@
     }
     unloadLevel() {
       for (const e of this.entities) e.remove();
-      this.entities = []; this.pacman = null;
+      this.entities = []; this.eater = null;
       for (const it of this.items) if (it.mesh) { this.scene.remove(it.mesh); it.mesh.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
       for (const gs of this.glowsticks || []) this.scene.remove(gs.mesh);
       this.items = []; this.interactables = [];
@@ -451,7 +454,7 @@
       if (s.pellets && this.world.pellets) for (const k of s.pellets) this.world.hidePellet(k);
       if (s.drained) this.drainPools(true);
       if (this.script.restore) this.script.restore(this, s);
-      for (const e of this.entities) if (e.kind === 'pacman' && this.flags.pacAwake) e.wake(false);
+      for (const e of this.entities) if (e.kind === 'eater' && this.flags.eaterAwake) e.wake(false);
       this.updateInventoryUI();
     }
 
@@ -551,7 +554,7 @@
         case 'fuelCan': add('fuelCan', 0, 1.2); o.marker = MARK.obj; { const g = this.glowSprite(0xff8030, 0.6); g.position.y = 0.3; grp.add(g); o.glow = g; } break;
         case 'keycard': add('keycard', 0, 1.6); o.marker = MARK.obj; { const g = this.glowSprite(0x60a0ff, 0.4); g.position.y = 0.1; grp.add(g); o.glow = g; } o.pos.y = 0.8; { const tbl = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.78, 0.6), w.mat('darkMetal')); tbl.position.y = -0.39; grp.add(tbl); } break;
         case 'memento': {
-          const key = { billy: 'watch', ivy: 'glasses', penny: 'walkman', clyde: 'lighter' }[it.data] || 'watch';
+          const key = { danny: 'watch', nell: 'glasses', rosie: 'walkman', toby: 'lighter' }[it.data] || 'watch';
           add(key, 0.03, 2.2); o.spin = true; o.marker = ST.charColor(it.data);
           const g = this.glowSprite(ST.charColor(it.data), 0.8); g.position.y = 0.12; grp.add(g); o.glow = g;
           break;
@@ -559,8 +562,8 @@
         case 'powerPellet': {
           const m = new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 16), new THREE.MeshBasicMaterial({ color: new THREE.Color(5, 3.4, 3) }));
           grp.add(m);
-          const g = this.glowSprite(0xffb8ae, 1.4); grp.add(g); o.glow = g;
-          const l = new THREE.PointLight(0xffb8ae, 3, 5, 2); grp.add(l); o.light = l;
+          const g = this.glowSprite(0xffd28a, 1.4); grp.add(g); o.glow = g;
+          const l = new THREE.PointLight(0xffd28a, 3, 5, 2); grp.add(l); o.light = l;
           o.pos.y = 1.0; o.bob = true; o.marker = MARK.obj;
           break;
         }
@@ -653,7 +656,7 @@
         case 'note': case 'codeClue': case 'computer': this.readNote(it.data, () => { if (ty === 'codeClue' && this.script.clue) this.script.clue(this, o); }); break;
         case 'drawing': this.takeDrawing(o); break;
         case 'tape': {
-          this.readNote(it.data); this.checkpoint();
+          this.readNote(it.data, () => { if (this.script.tapeRead) this.script.tapeRead(this, it.data); }); this.checkpoint();
           if (this.audio.ctx) { this.audio.loop('tape', 'tape', null, { bus: 'sfx', gain: 0.3, rev: 0 }); const n = ST.note(it.data); this.audio.tapeVoice(n ? U.clamp(n.body.length * 0.045, 4, 12) : 6); }
           break;
         }
@@ -817,9 +820,9 @@
         const count = e.count || 1;
         for (let k = 0; k < count; k++) {
           let ent;
-          if (e.type === 'pacman') {
-            ent = new E.Pacman(this, e);
-            this.pacman = ent;
+          if (e.type === 'eater') {
+            ent = new E.Eater(this, e);
+            this.eater = ent;
             if (e.dormant) { ent.mesh.visible = true; ent.mesh.position.set(0, -60, 0); ent.vis.light.intensity = 0; }
             else if (maze) ent.placeCell(pad + 13, 11);
             else { const c = spawnFar(20); ent.placeCell(c.x, c.y); }
@@ -828,9 +831,9 @@
             const friendly = this.save && this.save.freed.includes(ch);
             ent = new E.Ghost(this, Object.assign({}, e, { friendly }));
             created.add(e.ghost);
-            if (maze) { const spots = [[pad + 11, 11], [pad + 16, 11], [pad + 11, 17], [pad + 16, 17]]; const s = spots[['blinky', 'pinky', 'inky', 'clyde'].indexOf(e.ghost)]; ent.placeCell(s[0], s[1]); }
+            if (maze) { const spots = [[pad + 11, 11], [pad + 16, 11], [pad + 11, 17], [pad + 16, 17]]; const s = spots[['red', 'violet', 'teal', 'amber'].indexOf(e.ghost)]; ent.placeCell(s[0], s[1]); }
             else if (friendly) ent.placeCell(L.spawn.x, L.spawn.y);
-            else { const c = spawnFar(e.ghost === 'clyde' ? 14 : 18); ent.placeCell(c.x, c.y); }
+            else { const c = spawnFar(e.ghost === 'amber' ? 14 : 18); ent.placeCell(c.x, c.y); }
           } else if (e.type === 'grinner') { ent = new E.Grinner(this, e); const c = spawnFar(12); ent.placeCell(c.x, c.y); }
           else if (e.type === 'watcher') { ent = new E.Watcher(this, e); ent.placeCell(L.spawn.x, L.spawn.y); }
           else if (E.extra && E.extra[e.type]) {
@@ -917,7 +920,7 @@
     updateInteraction(dt) {
       const pl = this.player;
       // carrying something: E puts it down, G or a click throws it (handled by the physics)
-      if (this.physics && this.physics.held) { this.target = null; this.ui.prompt(t('pr.drop')); return; }
+      
       const tgt = this.findTarget();
       this.target = tgt;
       const holdLen = tgt && tgt.it.hold ? tgt.it.hold() : 0;
@@ -1044,15 +1047,15 @@
         ent.lastVoice = now;
         this.audio.creature(ent.kind, { x: ent.pos.x, y: ent.kind === 'crawler' ? 0.4 : 1.4, z: ent.pos.z }, !ent.losToPlayer(), { rate: ent.kind === 'ghost' && ent.cfg ? ent.cfg.pitch / 330 : 1 });
       }
-      this.player.addTrauma(ent.kind === 'pacman' ? 0.45 : 0.3);
+      this.player.addTrauma(ent.kind === 'eater' ? 0.45 : 0.3);
       this.fx.punch = 1;
       if (!this.spottedOnce[key]) {
         this.spottedOnce[key] = true;
         if (this.script.onSpotted) this.script.onSpotted(this, ent);
       }
     }
-    onClydeSeen() {
-      if (!this.spottedOnce.clyde) { this.spottedOnce.clyde = true; if (this.script.onClyde) this.script.onClyde(this); this.audio.stinger('spot'); }
+    onAmberSeen() {
+      if (!this.spottedOnce.amber) { this.spottedOnce.amber = true; if (this.script.onAmber) this.script.onAmber(this); this.audio.stinger('spot'); }
     }
     onWatcherSeen() {
       if (!this.spottedOnce.watcher) { this.spottedOnce.watcher = true; this.mono('watcherSeen', 5); }
@@ -1075,8 +1078,8 @@
         this.fx.damage = 1;
         this.player.addTrauma(0.8);
         this.audio.stinger('spot');
-        if (ent.kind === 'pacman') { ent.frozenT = 6; ent.setState('stunned'); }
-        else if (ent.kind === 'ghost') { if (ent.type === 'clyde') ent.retreat(); else { ent.setState('eaten'); ent.eatenT = 8; } }
+        if (ent.kind === 'eater') { ent.frozenT = 6; ent.setState('stunned'); }
+        else if (ent.kind === 'ghost') { if (ent.type === 'amber') ent.retreat(); else { ent.setState('eaten'); ent.eatenT = 8; } }
         else if (ent.kind === 'grinner') ent.dissolve();
         else if (ent.kind === 'watcher') ent.vanish();
         else if (ent.stun) ent.stun();
@@ -1104,9 +1107,9 @@
         pl.pitch = U.damp(pl.pitch, k.kind === 'watcher' ? 0.35 : 0.05, 8, dt);
         if (S.data.jumpscare === 'full' && this.dyingT < 0.7) {
           const cam = this.camera.position;
-          const target = new THREE.Vector3(cam.x - Math.sin(pl.yaw) * 1.1, k.kind === 'pacman' ? 1.4 : 1.2, cam.z - Math.cos(pl.yaw) * 1.1);
+          const target = new THREE.Vector3(cam.x - Math.sin(pl.yaw) * 1.1, k.kind === 'eater' ? 1.4 : 1.2, cam.z - Math.cos(pl.yaw) * 1.1);
           k.mesh.position.lerp(target, 1 - Math.exp(-9 * dt));
-          if (k.kind === 'pacman') { k.vis.up.rotation.x = -0.9; k.vis.lo.rotation.x = 0.4; }
+          if (k.kind === 'eater') { k.vis.up.rotation.x = -0.9; k.vis.lo.rotation.x = 0.4; }
         }
       }
       pl.updateCamera(dt, 0);
@@ -1116,7 +1119,7 @@
         this.state = 'dead';
         this.input.exitLock();
         $('hud').hidden = true;
-        const kind = k ? (k.kind === 'ghost' ? k.type : k.kind) : 'pacman';
+        const kind = k ? (k.kind === 'ghost' ? k.type : k.kind) : 'eater';
         this.ui.showDeath(kind, () => this.respawn(), () => this.toMenu());
       }
     }
@@ -1131,14 +1134,14 @@
       this.nav.dirty = true; this.nav.update();
       // Yaratıkları uzağa yerleştir
       for (const e of this.entities) {
-        if (e.kind === 'pacman' && e.state === 'dormant') continue;
+        if (e.kind === 'eater' && e.state === 'dormant') continue;
         if (e.friendly) { e.placeCell(this.nav.playerCell.x, this.nav.playerCell.y); continue; }
         const c = e.randomCellNear(this.nav.playerCell.x, this.nav.playerCell.y, 18, 30, true) || e.randomCellNear(this.nav.playerCell.x, this.nav.playerCell.y, 12, 40);
         if (c) e.placeCell(c.x, c.y);
         e.awareness = 0;
         if (e.kind === 'watcher') e.vanish();
         else if (e.kind === 'grinner') e.setState('lurk');
-        else if (e.kind === 'ghost' && e.type === 'clyde') e.setState('retreat');
+        else if (e.kind === 'ghost' && e.type === 'amber') e.setState('retreat');
         else e.setState('patrol');
       }
       $('hud').hidden = false;
@@ -1392,7 +1395,7 @@
       if (lines[0]) this.ui.subtitle(lines[0], 5);
       if (lines[1]) this.later(5200, () => this.ui.subtitle(lines[1], 5));
       this.ui.notify(t('n.freed', { name: ST.char(ch).name }), 'key');
-      const rk = { billy: 'mill_freed', ivy: 'pool_freed', penny: 'office_freed', clyde: 'dark_freed' }[ch];
+      const rk = { danny: 'mill_freed', nell: 'pool_freed', rosie: 'office_freed', toby: 'dark_freed' }[ch];
       if (rk) this.radio(rk, { delay: 11 });
       this.updateInventoryUI();
       this.checkpoint(true);
@@ -1448,7 +1451,7 @@
         if (f.t >= f.dur) { this.fx.fade = null; if (f.then) f.then(); }
       }
       if (this.world && this.world.ready) {
-        const pac = this.pacman && this.pacman.info ? this.pacman.info() : null;
+        const pac = this.eater && this.eater.info ? this.eater.info() : null;
         this.world.update(dt, this.time, this.camera.position, { pac });
       }
       this.player.updateFlash(dt);
@@ -1490,7 +1493,7 @@
       if (inp.pressed('map')) { this.openMap(); return; }
       if (inp.pressed('inventory')) { this.openBag('items'); return; }
       if (inp.pressed('journal')) { this.openBag('journal'); return; }
-      if (inp.pressed('throw') && !(this.physics && this.physics.held)) this.throwGlowstick();
+      if (inp.pressed('throw')) this.throwGlowstick();
       if (inp.pressed('drink')) this.drinkAlmond();
       pl.update(dt);
       // Keşfedilen hücreler (harita)
@@ -1526,7 +1529,7 @@
       if (Math.floor(this.playTime) % 20 === 0 && Math.floor(this.playTime - dt) % 20 !== 0) this.writeSave();
     }
     updateEntities(dt, frozen) {
-      for (const e of this.entities) { if (frozen && e === this.killer) continue; if (!frozen || e.kind !== 'pacman') e.update(dt); if (this.state !== 'play' && this.state !== 'dying') break; }
+      for (const e of this.entities) { if (frozen && e === this.killer) continue; if (!frozen || e.kind !== 'eater') e.update(dt); if (this.state !== 'play' && this.state !== 'dying') break; }
     }
     updateItems(dt) {
       const t = this.time, pl = this.player;
@@ -1610,7 +1613,7 @@
         const d = e.distToPlayer();
         if (d < 24) f += (24 - d) / 24 * (e.state === 'chase' ? 26 : 9);
         // Something heavy on your heels shakes the floor under you
-        if (e.state === 'chase' && d < 9) pl.addTrauma(dt * (1 - d / 9) * (e.kind === 'pacman' || e.kind === 'chompy' ? 0.55 : 0.2));
+        if (e.state === 'chase' && d < 9) pl.addTrauma(dt * (1 - d / 9) * (e.kind === 'eater' || e.kind === 'chompy' ? 0.55 : 0.2));
       }
       if (this.levelDef.theme === 'dark' && !pl.flashOn) f += 6;
       if (this.world.lightAt(pl.pos.x, pl.pos.z) < 0.15 && !pl.flashOn) f += 3;
@@ -1673,7 +1676,7 @@
   // Maze "READY!" freeze: wrap the creature update
   const baseUpdateEntities = Game.prototype.updateEntities;
   Game.prototype.updateEntities = function (dt, frozen) {
-    if (this.readyT > 0) { for (const e of this.entities) if (e.pose) e.pose(dt); else if (e.mesh && e.kind === 'pacman') { e.mesh.position.set(e.pos.x, 1.2, e.pos.z); } return; }
+    if (this.readyT > 0) { for (const e of this.entities) if (e.pose) e.pose(dt); else if (e.mesh && e.kind === 'eater') { e.mesh.position.set(e.pos.x, 1.2, e.pos.z); } return; }
     return baseUpdateEntities.call(this, dt, frozen);
   };
 

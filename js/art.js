@@ -135,13 +135,21 @@
     return { hx: x, hy, hr, ay, al };
   }
   function chompy(K, x, y, rad, o = {}) {
-    // yellow circle with a wedge mouth, an eye, and little legs with shoes
-    const m = o.mouth == null ? 0.5 : o.mouth, face = o.face || 1;
-    const path = g => { g.moveTo(x, y); g.arc(x, y, rad, face > 0 ? m : Math.PI + m, face > 0 ? 6.283 - m : Math.PI + 6.283 - m); g.closePath(); };
-    K.bounds(x - rad, y - rad, x + rad, y + rad).fill(path, C.yellow, 9, -0.7);
-    const pts = []; for (let k = 0; k <= 24; k++) { const a = (face > 0 ? m : Math.PI + m) + (6.283 - 2 * m) * k / 24; pts.push([x + Math.cos(a) * rad, y + Math.sin(a) * rad]); }
-    K.line([[x, y]].concat(pts, [[x, y]]), C.orange, 5, 2);
-    K.dot(x + face * rad * 0.1, y - rad * 0.5, rad * 0.09, C.black);
+    // Chompy as Lily drew him: a round orange monster with two little horns, big eyes and a toothy grin
+    const face = o.face || 1;
+    for (const sd of [-1, 1]) K.poly([[x + sd * rad * 0.3, y - rad * 0.86], [x + sd * rad * 0.62, y - rad * 1.42], [x + sd * rad * 0.66, y - rad * 0.66]], C.black, C.brown, 4);
+    K.circle(x, y, rad, C.red, C.orange, 6);
+    // eyes, looking the way he faces
+    for (const sd of [-1, 1]) {
+      const ex = x + sd * rad * 0.34, ey = y - rad * 0.28;
+      K.circle(ex, ey, rad * 0.2, C.black, C.white, 3);
+      K.dot(ex + face * rad * 0.07, ey + rad * 0.02, rad * 0.08, C.black);
+    }
+    // the grin: a wide dark mouth with a row of pointed teeth
+    const my = y + rad * 0.12, mw = rad * 0.66;
+    const mouth = []; for (let k = 0; k <= 12; k++) { const t = k / 12; mouth.push([x - mw + 2 * mw * t, my + Math.sin(t * Math.PI) * rad * 0.5]); }
+    K.poly(mouth, C.black, '#3a1010', 4);
+    for (let k = 0; k < 6; k++) { const tx = x - mw * 0.82 + k * mw * 0.33; K.poly([[tx - rad * 0.08, my + 2], [tx + rad * 0.08, my + 2], [tx, my + rad * 0.2]], null, C.white, 2); }
     if (o.legs !== false) {
       K.line([[x - rad * 0.3, y + rad * 0.95], [x - rad * 0.35, y + rad * 1.5]], C.black, 6); K.line([[x + rad * 0.3, y + rad * 0.95], [x + rad * 0.35, y + rad * 1.5]], C.black, 6);
       K.line([[x - rad * 0.35, y + rad * 1.5], [x - rad * 0.55, y + rad * 1.5]], C.red, 10); K.line([[x + rad * 0.35, y + rad * 1.5], [x + rad * 0.55, y + rad * 1.5]], C.red, 10);
@@ -193,7 +201,7 @@
       person(K, 660, 440, 150, { shirt: C.pink, dress: true, hairStyle: 'braids', hair: C.orange, armR: 'wave' });
       sun(K, 700, 80, 36);
     },
-    4(K, w, h, r) { // radio building, Penny in a window, music over the town
+    4(K, w, h, r) { // radio building, Rosie in a window, music over the town
       K.rect(250, 70, 230, 370, C.black, C.gray, 6);
       for (let y = 100; y < 400; y += 70) for (let x = 275; x < 460; x += 60) if (!(x < 340 && y === 170)) K.rect(x, y, 34, 40, C.black, C.yellow, 3);
       K.rect(270, 160, 90, 80, C.black, C.white, 4);
@@ -429,7 +437,8 @@
       g.fillStyle = '#d8d8d0'; g.fillRect(x + w * 0.45, y + h * 0.55, w * 0.55, h * 0.1);
       // costume head
       const cx = x + w * 0.36, cy = y + h * 0.48, R = h * 0.34;
-      const hg = g.createRadialGradient(cx - R * 0.3, cy - R * 0.3, R * 0.1, cx, cy, R); hg.addColorStop(0, '#fff080'); hg.addColorStop(0.7, '#f0c020'); hg.addColorStop(1, '#a07010');
+      g.fillStyle = '#5a2a10'; for (const d of [-1, 1]) { g.beginPath(); g.moveTo(cx + d * R * 0.3, cy - R * 0.85); g.lineTo(cx + d * R * 0.6, cy - R * 1.35); g.lineTo(cx + d * R * 0.66, cy - R * 0.62); g.fill(); }
+      const hg = g.createRadialGradient(cx - R * 0.3, cy - R * 0.3, R * 0.1, cx, cy, R); hg.addColorStop(0, '#ffb070'); hg.addColorStop(0.7, '#e0701c'); hg.addColorStop(1, '#8a3a0c');
       g.fillStyle = hg; g.beginPath(); g.arc(cx, cy, R, 0, 6.283); g.fill();
       g.fillStyle = '#301010'; g.beginPath(); g.moveTo(cx, cy + R * 0.1); g.arc(cx, cy + R * 0.1, R * 0.62, 0.3, Math.PI - 0.3); g.fill();
       g.fillStyle = '#fff'; for (const d of [-1, 1]) { g.beginPath(); g.ellipse(cx + d * R * 0.3, cy - R * 0.3, R * 0.12, R * 0.16, 0, 0, 6.283); g.fill(); }

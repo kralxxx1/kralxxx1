@@ -30,14 +30,14 @@
   };
   const shrinePrompt = (g, o, ch) => (o.type === 'shrine' ? (g.save.freed.includes(ch) ? null : g.inv.memento === ch ? t('pr.shrinePlace') : t('pr.shrineLook')) : undefined);
   const wakePac = (g, near) => {
-    if (g.pacman && g.pacman.state === 'dormant') {
-      g.pacman.wake(near); g.flags.pacAwake = true;
+    if (g.eater && g.eater.state === 'dormant') {
+      g.eater.wake(near); g.flags.eaterAwake = true;
       if (g.levelDef.id === 'lobby') { g.mono('lobby_eaterHeard', 4); g.radio('lobby_pellet1', { delay: 4.5 }); }
       else g.ui.subtitle(ST.mono('eaterFlicker'), 3);
     }
   };
   // When a ghost's memento is picked up in its own chapter
-  const mementoRadio = { billy: 'mill_watch', ivy: 'pool_glasses', penny: 'office_tape', clyde: 'dark_lighter' };
+  const mementoRadio = { danny: 'mill_watch', nell: 'pool_glasses', rosie: 'office_tape', toby: 'dark_lighter' };
 
   const C = {};
 
@@ -176,7 +176,7 @@
       }
       return false;
     },
-    onSpotted(g, ent) { if (ent.kind === 'pacman' && !g.flags.eaterSeenR) { g.flags.eaterSeenR = true; g.mono('lobby_eaterSeen', 3.5); g.radio('lobby_eater', { delay: 3.5 }); } },
+    onSpotted(g, ent) { if (ent.kind === 'eater' && !g.flags.eaterSeenR) { g.flags.eaterSeenR = true; g.mono('lobby_eaterSeen', 3.5); g.radio('lobby_eater', { delay: 3.5 }); } },
     update(g) {
       if (!g.flags.exitSeen) {
         const d = exitDoorOf(g);
@@ -190,11 +190,11 @@
         }
       }
       // After two pellets the Eater starts to hunt
-      if (g.pacman) g.pacman.huntBias = g.inv.pellets >= 2;
+      if (g.eater) g.eater.huntBias = g.inv.pellets >= 2;
     },
   };
 
-  // ================================================================ MILL WAREHOUSE (Billy)
+  // ================================================================ MILL WAREHOUSE (Danny)
   C.mill = {
     start(g) { g.setObj('mill_fuses', { n: 0 }); },
     afterCard(g) { g.mono('mill_start', 4); g.radio('mill_start', { delay: 5 }); },
@@ -206,7 +206,7 @@
     },
     prompt(g, o) {
       if (o.type === 'fusePanel') return g.flags.panelDone ? null : g.inv.fuses >= 3 ? ST.line('mill_panel') : ST.line('mill_panelIdle', { n: g.inv.fuses });
-      return shrinePrompt(g, o, 'billy');
+      return shrinePrompt(g, o, 'danny');
     },
     use(g, o) {
       if (o.type === 'fuse') {
@@ -233,9 +233,9 @@
         g.completeStep();
         return true;
       }
-      return shrineUse(g, o, 'billy');
+      return shrineUse(g, o, 'danny');
     },
-    onSpotted(g, ent) { if (ent.type === 'blinky' && !g.flags.redR) { g.flags.redR = true; g.mono('mill_redSeen', 3.5); g.radio('mill_red', { delay: 1 }); } },
+    onSpotted(g, ent) { if (ent.type === 'red' && !g.flags.redR) { g.flags.redR = true; g.mono('mill_dannySeen', 3.5); g.radio('mill_danny', { delay: 1 }); } },
     update(g, dt) {
       if (g.flags.panelDone && !g.flags.elevatorReady) {
         g.flags.waitT -= dt;
@@ -245,7 +245,7 @@
     },
   };
 
-  // ================================================================ THE POOL (Ivy)
+  // ================================================================ THE POOL (Nell)
   C.pool = {
     start(g) { g.setObj('pool_valves', { n: 0 }); g.flags.valves = 0; },
     afterCard(g) { g.mono('pool_start', 4); g.radio('pool_start', { delay: 5 }); },
@@ -258,7 +258,7 @@
     prompt(g, o) {
       if (o.type === 'valve') return o.done ? null : ST.line('pool_valve');
       if (o.type === 'drain') return g.flags.drained ? ST.line('pool_hatch') : null;
-      return shrinePrompt(g, o, 'ivy');
+      return shrinePrompt(g, o, 'nell');
     },
     holdStart(g, o) { if (o && o.type === 'valve') { g.audio.mech('valve', o.pos); g.noise(o.pos.x, o.pos.z, 22); } },
     use(g, o) {
@@ -283,21 +283,21 @@
         g.exitLevel('office');
         return true;
       }
-      return shrineUse(g, o, 'ivy');
+      return shrineUse(g, o, 'nell');
     },
-    onSpotted(g, ent) { if (ent.type === 'inky' && !g.flags.blueR) { g.flags.blueR = true; g.mono('pool_blueSeen', 3.5); g.radio('pool_blue', { delay: 1 }); } },
+    onSpotted(g, ent) { if (ent.type === 'teal' && !g.flags.blueR) { g.flags.blueR = true; g.mono('pool_nellSeen', 3.5); g.radio('pool_nell', { delay: 1 }); } },
     update(g, dt) {
       if (g.flags.valves >= 4 && !g.flags.drained) {
         g.flags.drainT -= dt;
         if (g.flags.drainT <= 0) { g.flags.drained = true; g.world.drained = true; g.mono('pool_drained', 4); g.setObj('pool_hatch'); g.completeStep(); }
       }
-      // Ivy hears splashing much better
-      const ink = g.entities.find(e => e.type === 'inky');
+      // Nell hears splashing much better
+      const ink = g.entities.find(e => e.type === 'teal');
       if (ink) ink.hearMul = g.player.surface() === 'water' ? 2.4 : 1.1;
     },
   };
 
-  // ================================================================ INSURANCE OFFICE (Penny)
+  // ================================================================ INSURANCE OFFICE (Rosie)
   C.office = {
     start(g) {
       g.setObj('office_code', { n: 0 }); g.flags.digits = 0;
@@ -334,7 +334,7 @@
       if (o.type === 'keypad') return g.flags.securityOpen ? null : ST.line('office_keypad');
       if (o.type === 'cardReader') return g.flags.stairOpen ? null : g.inv.keycard ? ST.line('office_card') : ST.line('office_cardIdle');
       if (o.type === 'phone') { if (o.answered) return null; return o.ringing ? t('pr.phoneRing') : t('pr.phone'); }
-      return shrinePrompt(g, o, 'penny');
+      return shrinePrompt(g, o, 'rosie');
     },
     use(g, o) {
       if (o.type === 'keypad') {
@@ -369,9 +369,9 @@
         return true;
       }
       if (o.type === 'note' && o.item.data === 'office_eddie_page') { g.readNote('office_eddie_page', () => { g.save.world.eddiePage = true; g.radio('office_page', { delay: 1 }); }); return true; }
-      return shrineUse(g, o, 'penny');
+      return shrineUse(g, o, 'rosie');
     },
-    onSpotted(g, ent) { if (ent.type === 'pinky' && !g.flags.pinkR) { g.flags.pinkR = true; g.mono('office_pinkSeen', 3.5); g.radio('office_pink', { delay: 1 }); } },
+    onSpotted(g, ent) { if (ent.type === 'violet' && !g.flags.pinkR) { g.flags.pinkR = true; g.mono('office_rosieSeen', 3.5); g.radio('office_rosie', { delay: 1 }); } },
     update(g) {
       if (!g.flags.cameraHint && g.flags.securityOpen) {
         const sec = g.level.meta.security;
@@ -384,7 +384,7 @@
     },
   };
 
-  // ================================================================ LIGHTS OUT (Clyde)
+  // ================================================================ LIGHTS OUT (Toby)
   C.dark = {
     start(g) { g.setObj('dark_generators', { n: 0 }); g.flags.gens = 0; },
     afterCard(g) { g.mono('dark_start', 4); g.player.toggleFlash(true); g.radio('dark_start', { delay: 5 }); },
@@ -395,11 +395,15 @@
     },
     prompt(g, o) {
       if (o.type === 'generator') return o.done ? null : g.inv.fuel > 0 ? ST.line('dark_gen') : ST.line('dark_genEmpty');
-      return shrinePrompt(g, o, 'clyde');
+      return shrinePrompt(g, o, 'toby');
     },
     canHold(g, o) { if (o.type === 'generator' && g.inv.fuel <= 0) { g.ui.hint(ST.line('dark_needFuel')); return false; } return true; },
     holdStart(g, o) { if (o && o.type === 'generator') g.noise(o.pos.x, o.pos.z, 20); },
     use(g, o) {
+      if (o.type === 'note' && o.item && o.item.data === 'dark_diary2') {
+        g.readNote('dark_diary2', () => { if (!g.flags.diary2Read) { g.flags.diary2Read = true; g.mono('dark_diary2', 5); } });
+        return true;
+      }
       if (o.type === 'fuelCan') { g.takeItem(o); g.inv.fuel++; g.audio.pickup(); g.updateInventoryUI(); g.ui.notify(t('n.diesel')); return true; }
       if (o.type === 'generator') {
         if (o.done) return true;
@@ -418,9 +422,9 @@
         g.updateInventoryUI(); g.completeStep();
         return true;
       }
-      return shrineUse(g, o, 'clyde');
+      return shrineUse(g, o, 'toby');
     },
-    onClyde(g) { if (!g.flags.orangeR) { g.flags.orangeR = true; g.mono('dark_orangeSeen', 4); g.radio('dark_orange', { delay: 4.2 }); } },
+    onAmber(g) { if (!g.flags.orangeR) { g.flags.orangeR = true; g.mono('dark_tobySeen', 4); g.radio('dark_toby', { delay: 4.2 }); } },
     update(g) {
       if (!g.flags.grinnerMono && g.entities.some(e => e.kind === 'grinner' && e.state !== 'gone' && e.distToPlayer() < 10 && e.losToPlayer())) { g.flags.grinnerMono = true; g.mono('dark_grinner', 4); }
     },
@@ -474,10 +478,11 @@
         const L = g.level, sp = L.spots.fruit[0];
         const o = { item: { x: sp.x, y: sp.y, d: -1, data: 'maze_fruit' }, id: 'fruit', type: 'fruit', pos: new THREE.Vector3(L.cx(sp.x) + 1.5, 1, L.cz(sp.y)), taken: false };
         const grp = new THREE.Group();
-        const cm = new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 0.2, 0.2) });
-        for (const [x, z] of [[-0.12, 0], [0.12, 0.05]]) { const s = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 12), cm); s.position.set(x, 0, z); grp.add(s); }
-        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.35, 6), new THREE.MeshBasicMaterial({ color: 0x5a3a10 }));
-        stem.position.set(0, 0.2, 0); stem.rotation.z = 0.3; grp.add(stem);
+        // Hungry House's first prize: a wrapped candy (red sweet, twisted yellow ends)
+        const cm = new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 0.25, 0.3) });
+        const wm = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.6, 2.1, 0.4) });
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.14, 20, 14), cm); body.scale.set(1.35, 1, 1); grp.add(body);
+        for (const sd of [-1, 1]) { const w = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.16, 10), wm); w.rotation.z = sd * Math.PI / 2; w.position.x = sd * 0.26; grp.add(w); }
         grp.position.copy(o.pos); g.scene.add(grp); o.mesh = grp; o.spin = true; o.baseY = 1; o.bob = true; o.marker = '#ffe23b';
         g.items.push(o);
         g.interactables.push({ kind: 'item', ref: o, pos: o.pos, reach: 2.3, prompt: () => (o.taken ? null : ST.line('maze_fruitTake')), act: () => { g.takeItem(o); g.audio.pickup('key'); g.readNote('maze_fruit'); } });
@@ -509,7 +514,7 @@
           const lil = (g.save.drawings || []).length >= 8 && g.save.world.waltMemory;
           g.later(3500, () => { g.fx.flash = 1; g.audio.stinger('spot'); g.player.frozen = false; g.whenPlaying(() => g.exitLevel(lil ? 'ending-lil' : 'ending-plug')); });
         } else {
-          const missing = ['billy', 'penny', 'ivy', 'clyde'].filter(c => !g.save.freed.includes(c)).map(c => ST.char(c).name).join(', ');
+          const missing = ['danny', 'rosie', 'nell', 'toby'].filter(c => !g.save.freed.includes(c)).map(c => ST.char(c).name).join(', ');
           g.ui.subtitle(ST.mono('ks_plugTry') + ' ' + ST.line('ks_missing', { names: missing }), 6);
           g.setObj('ks_choice');
         }

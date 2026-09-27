@@ -52,8 +52,8 @@
   };
 
   // Speaker voices: pitch and style. Kids get smaller formants.
-  const RADIO_PITCH = { eddie: 118, walt: 96, radio: 110, penny: 205, ivy: 190 };
-  const ECHO_PITCH = { clyde: 262, billy: 180, penny: 236, ivy: 244, lily: 300, walt: 98, voice: 140, june: 205, sam: 150 };
+  const RADIO_PITCH = { eddie: 118, walt: 96, radio: 110, rosie: 205, nell: 190 };
+  const ECHO_PITCH = { toby: 262, danny: 180, rosie: 236, nell: 244, lily: 300, walt: 98, voice: 140, june: 205, sam: 150 };
   const VOICE = {
     radio: who => { const pitch = RADIO_PITCH[who] || 115; return ['radio:' + pitch, { pitch, radio: true }]; },
     echo: who => { const pitch = ECHO_PITCH[who] || 220; return ['echo:' + pitch, { pitch, echo: true, breathy: true, fscale: pitch > 170 ? (who === 'june' ? 1.12 : 1.2) : 1 }]; },
@@ -343,7 +343,7 @@
     calloutVoice(june, pos, occluded) {
       if (!this.ctx || !this.sfx) return;
       const o = this.out('ent', pos, { rev: 0.6, gain: 0.55, occl: true, occluded, ref: 3 });
-      this.voiceLine(june ? VOICE.echo('june') : VOICE.echo('clyde'), 1.1, o.input, this.t);
+      this.voiceLine(june ? VOICE.echo('june') : VOICE.echo('toby'), 1.1, o.input, this.t);
     }
     duckFor(sec) {
       if (!this.ctx) return;
@@ -390,7 +390,7 @@
     // A creature's voice where it stands: the Eater's roar, a ghost's wail, the hall monitor's whistle...
     creature(kind, pos, occluded, o = {}) {
       if (!this.ctx) return;
-      const name = { pacman: 'roarEater', ghost: 'screechGhost', crawler: 'hissCrawler', watcher: 'groanCounter', neighbor: 'moanNeighbor', chompy: 'laughChompy', monitor: 'whistle' }[kind];
+      const name = { eater: 'roarEater', ghost: 'screechGhost', crawler: 'hissCrawler', watcher: 'groanCounter', neighbor: 'moanNeighbor', chompy: 'laughChompy', monitor: 'whistle' }[kind];
       if (!name) return;
       this.play(name, name === 'whistle' ? 1 : name === 'groanCounter' || name === 'moanNeighbor' || name === 'laughChompy' ? 2 : 3, 'ent', pos, { rev: 0.5, occl: true, occluded, gain: o.gain != null ? o.gain : 1, rate: o.rate || 1, jitter: 0.06 });
     }
@@ -463,19 +463,17 @@
     }
 
     // ---------------------------------------------------------- yaratık sesleri
-    waka(pos, occluded, big = 1) {
+    // The Eater's bite: a heavy jaw closing, teeth meeting, spit. Not a tone: a mouth.
+    bite(pos, occluded, big = 1) {
       if (!this.ctx) return;
-      const t = this.t, o = this.out('ent', pos, { rev: 0.5, occl: true, occluded, ref: 3, roll: 1.1, gain: 1.4 * big });
-      const ws = this.ctx.createWaveShaper(); ws.curve = this.distCurve;
-      const lp = this.filt('lowpass', 1400, 0.8);
-      ws.connect(lp).connect(o.input);
-      this.wakaFlip = !this.wakaFlip;
-      if (this.wakaFlip) this.tone(ws, 'triangle', 300, 150, t, 0.11, 0.7);
-      else this.tone(ws, 'triangle', 150, 300, t, 0.11, 0.7);
-      this.tone(o.input, 'sine', 60, 45, t, 0.14, 0.5);
-      if (big > 0.6 && Math.random() < 0.35) this.play('chew', 4, 'ent', pos, { rev: 0.5, occl: true, occluded, ref: 3, gain: 0.8 * big });
-      if (!occluded && big > 0.5) this.caption('waka', PB.t('cap.waka'), pos, 6);
-      else this.caption('wakaFar', PB.t('cap.wakaFar'), pos, 10);
+      const t = this.t, o = this.out('ent', pos, { rev: 0.5, occl: true, occluded, ref: 3, roll: 1.1, gain: 1.3 * big });
+      this.biteFlip = !this.biteFlip;
+      this.tone(o.input, 'sine', 78, 38, t, 0.16, 0.8, 0.004);
+      this.burst(o.input, 'bandpass', this.biteFlip ? 2600 : 2100, 2.5, t + 0.012, 0.025, 0.55, 0.001);
+      this.burst(o.input, 'bandpass', 850, 1.2, t + 0.02, 0.07, 0.3, 0.006);
+      if (big > 0.5 && Math.random() < 0.55) this.play('chew', 4, 'ent', pos, { rev: 0.5, occl: true, occluded, ref: 3, gain: 0.75 * big });
+      if (!occluded && big > 0.5) this.caption('bite', PB.t('cap.bite'), pos, 6);
+      else this.caption('biteFar', PB.t('cap.biteFar'), pos, 10);
     }
     stinger(kind = 'spot') {
       if (!this.ctx) return;

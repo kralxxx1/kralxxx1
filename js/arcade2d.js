@@ -1,39 +1,40 @@
-/* Atari salonundaki bedava kabin: ilk sürümdeki klasik 2D Pacman, bir tuvale çizilen sınıf olarak. */
+/* The free cabinet in the arcade: HUNGRY HOUSE (Brightline Amusements, 1981), a fictional maze game.
+   The Muncher eats the stars of a haunted house; four Haunts chase it; lanterns turn the tables. */
 (function (root) {
   'use strict';
   const PB = root.PB || (root.PB = {});
   PB.Classic = function (canvas, opts = {}) {
-  // Klasik 28 x 31 labirent. # duvar, . yem, o güç hapı, - hayalet evinin kapısı.
+  // 28 x 31 floor plan. # wall, . star, o lantern, - door of the Haunts' house.
   const MAP = [
     '############################',
-    '#............##............#',
-    '#.####.#####.##.#####.####.#',
-    '#o####.#####.##.#####.####o#',
-    '#.####.#####.##.#####.####.#',
     '#..........................#',
     '#.####.##.########.##.####.#',
+    '#o####.##.########.##.####o#',
     '#.####.##.########.##.####.#',
-    '#......##....##....##......#',
-    '######.##### ## #####.######',
-    '     #.##### ## #####.#     ',
-    '     #.##          ##.#     ',
-    '     #.## ###--### ##.#     ',
-    '######.## #      # ##.######',
-    '      .   #      #   .      ',
-    '######.## #      # ##.######',
-    '     #.## ######## ##.#     ',
-    '     #.##          ##.#     ',
-    '     #.## ######## ##.#     ',
-    '######.## ######## ##.######',
-    '#............##............#',
-    '#.####.#####.##.#####.####.#',
-    '#.####.#####.##.#####.####.#',
-    '#o..##.......  .......##..o#',
-    '###.##.##.########.##.##.###',
-    '###.##.##.########.##.##.###',
-    '#......##....##....##......#',
-    '#.##########.##.##########.#',
-    '#.##########.##.##########.#',
+    '#..........................#',
+    '#.##.###.##########.###.##.#',
+    '#.##.###.##########.###.##.#',
+    '#...........####...........#',
+    '######.####.####.####.######',
+    '######.####.####.####.######',
+    '######.#            #.######',
+    '######.# ####--#### #.######',
+    '######.# ##      ## #.######',
+    '      .  ##      ##  .      ',
+    '######.# ##      ## #.######',
+    '######.# ########## #.######',
+    '######.#            #.######',
+    '######.# ########## #.######',
+    '######.# ########## #.######',
+    '#..........................#',
+    '#.########.######.########.#',
+    '#o########.######.########o#',
+    '#....#......    ......#....#',
+    '####.#.##############.#.####',
+    '####.#.##############.#.####',
+    '#....#.......##.......#....#',
+    '#.########.#.##.#.########.#',
+    '#.########.#.##.#.########.#',
     '#..........................#',
     '############################',
   ];
@@ -41,31 +42,31 @@
   const UP = 0, LEFT = 1, DOWN = 2, RIGHT = 3;
   const DX = [0, -1, 0, 1], DY = [-1, 0, 1, 0];
   const opposite = d => (d + 2) % 4;
-  const BASE = 75.75757625 / 8 / 60; // %100 hız, kare başına karo
+  const BASE = 9.6 / 60; // tiles per frame at 100% speed
   const STEP_MS = 1000 / 60;
   const EPS = 1e-6;
-  const HI_KEY = 'pb.classic.hi', MUTE_KEY = 'pb.classic.muted';
+  const HI_KEY = 'pb.hungry.hi', MUTE_KEY = 'pb.classic.muted';
 
   const COLOR = {
-    maze: '#2121de', mazeGlow: 'rgba(64, 64, 255, 0.9)',
-    mazeFlash: '#dedeff', mazeFlashGlow: 'rgba(222, 222, 255, 0.7)',
-    dot: '#ffb8ae', pac: '#ffff00', door: '#ffb8de', text: '#dedeff', white: '#ffffff',
-    red: '#ff0000', cyan: '#00ffff', pink: '#ffb8ff',
-    fright: '#2121ff', frightFace: '#ffb8ae', flash: '#dedeff', flashFace: '#ff0000', pupil: '#2121de',
+    maze: '#8a3cff', mazeGlow: 'rgba(170, 90, 255, 0.85)',
+    mazeFlash: '#ffe9c4', mazeFlashGlow: 'rgba(255, 220, 160, 0.7)',
+    dot: '#ffe7a0', pac: '#ff8a1a', door: '#ff9a4a', text: '#f3e6ff', white: '#ffffff',
+    red: '#ff3b30', cyan: '#3fe6c0', pink: '#ff9ad5',
+    fright: '#d8d8e0', frightFace: '#3a3a48', flash: '#ff3b30', flashFace: '#ffffff', pupil: '#120818',
   };
 
   const GHOSTS = [
-    { name: 'blinky', color: '#ff0000', home: [13.5, 11], corner: { x: 25, y: -3 } },
-    { name: 'pinky', color: '#ffb8ff', home: [13.5, 14], corner: { x: 2, y: -3 } },
-    { name: 'inky', color: '#00ffff', home: [11.5, 14], corner: { x: 27, y: 31 } },
-    { name: 'clyde', color: '#ffb852', home: [15.5, 14], corner: { x: 0, y: 31 } },
+    { name: 'red', color: '#ff3b30', home: [13.5, 11], corner: { x: 25, y: -3 } },
+    { name: 'violet', color: '#b46cff', home: [13.5, 14], corner: { x: 2, y: -3 } },
+    { name: 'teal', color: '#2fe0b8', home: [11.5, 14], corner: { x: 27, y: 31 } },
+    { name: 'amber', color: '#ffb020', home: [15.5, 14], corner: { x: 0, y: 31 } },
   ];
-  const GLOBAL_LIMITS = { pinky: 7, inky: 17, clyde: 32 };
-  const NO_UP = new Set(['12,11', '15,11', '12,23', '15,23']);
+  const GLOBAL_LIMITS = { violet: 6, teal: 16, amber: 30 };
+  const NO_UP = new Set();
   const FRUITS = [
-    { kind: 'cherry', pts: 100 }, { kind: 'strawberry', pts: 300 }, { kind: 'orange', pts: 500 },
-    { kind: 'apple', pts: 700 }, { kind: 'melon', pts: 1000 }, { kind: 'galaxian', pts: 2000 },
-    { kind: 'bell', pts: 3000 }, { kind: 'key', pts: 5000 },
+    { kind: 'candy', pts: 100 }, { kind: 'soda', pts: 300 }, { kind: 'cupcake', pts: 500 },
+    { kind: 'token', pts: 700 }, { kind: 'yoyo', pts: 1000 }, { kind: 'robot', pts: 2000 },
+    { kind: 'crown', pts: 3000 }, { kind: 'trophy', pts: 5000 },
   ];
   const fruitFor = l => FRUITS[l === 1 ? 0 : l === 2 ? 1 : l <= 4 ? 2 : l <= 6 ? 3 : l <= 8 ? 4 : l <= 10 ? 5 : l <= 12 ? 6 : 7];
   const TOTAL_DOTS = MAP.join('').replace(/[^.o]/g, '').length;
@@ -73,25 +74,25 @@
   // Seviyeye göre hızlar ve süreler (salon makinesinin tablolarından)
   function spec(level) {
     const tier = level === 1 ? 0 : level <= 4 ? 1 : level <= 20 ? 2 : 3;
-    const FRIGHT = [6, 5, 4, 3, 2, 5, 2, 2, 1, 5, 2, 1, 1, 3, 1, 1, 0, 1];
-    const ELROY = [20, 30, 40, 40, 40, 50, 50, 50, 60, 60, 60, 80, 80, 80, 100, 100, 100, 100, 120];
+    const FRIGHT = [7, 6, 5, 4, 3, 5, 3, 2, 2, 4, 2, 2, 1, 3, 1, 1, 1, 1];
+    const RAGE = [18, 28, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 90, 100, 110, 120];
     return {
-      pac: [0.8, 0.9, 1.0, 0.9][tier],
-      pacFright: [0.9, 0.95, 1.0, 1.0][tier],
-      ghost: [0.75, 0.85, 0.95, 0.95][tier],
-      ghostFright: [0.5, 0.55, 0.6, 0.6][tier],
-      tunnel: [0.4, 0.45, 0.5, 0.5][tier],
-      elroy1: [0.8, 0.9, 1.0, 1.0][tier],
-      elroy2: [0.85, 0.95, 1.05, 1.05][tier],
-      elroyDots: ELROY[Math.min(level, ELROY.length) - 1],
-      fright: level <= FRIGHT.length ? FRIGHT[level - 1] : 0,
-      schedule: level === 1 ? [7, 20, 7, 20, 5, 20, 5, Infinity]
-        : level <= 4 ? [7, 20, 7, 20, 5, 1033, 1 / 60, Infinity]
-        : [5, 20, 5, 20, 5, 1037, 1 / 60, Infinity],
-      idle: level <= 4 ? 240 : 180,
-      dotLimits: level === 1 ? { pinky: 0, inky: 30, clyde: 60 }
-        : level === 2 ? { pinky: 0, inky: 0, clyde: 50 }
-        : { pinky: 0, inky: 0, clyde: 0 },
+      pac: [0.82, 0.9, 1.0, 0.92][tier],
+      pacFright: [0.9, 0.96, 1.0, 1.0][tier],
+      ghost: [0.74, 0.84, 0.94, 0.95][tier],
+      ghostFright: [0.48, 0.54, 0.6, 0.6][tier],
+      tunnel: [0.42, 0.46, 0.5, 0.5][tier],
+      rage1: [0.8, 0.9, 1.0, 1.0][tier],
+      rage2: [0.86, 0.95, 1.04, 1.05][tier],
+      rageDots: RAGE[Math.min(level, RAGE.length) - 1],
+      fright: level <= FRIGHT.length ? FRIGHT[level - 1] : 1,
+      schedule: level === 1 ? [6, 22, 6, 22, 5, 24, 5, Infinity]
+        : level <= 4 ? [6, 22, 6, 22, 4, 40, 3, Infinity]
+        : [5, 24, 5, 24, 4, 60, 2, Infinity],
+      idle: level <= 4 ? 220 : 170,
+      dotLimits: level === 1 ? { violet: 0, teal: 28, amber: 56 }
+        : level === 2 ? { violet: 0, teal: 0, amber: 46 }
+        : { violet: 0, teal: 0, amber: 0 },
     };
   }
 
@@ -138,10 +139,15 @@
       o.start(t);
       o.stop(t + dur + 0.02);
     },
-    waka() {
+    munch() {
+      // a short crunch: two clicks of filtered noise, alternating in pitch
+      if (!this.ctx || this.muted) return;
       this.flip = !this.flip;
-      if (this.flip) this.tone(520, 260, 0.075, 'triangle', 0.6);
-      else this.tone(260, 520, 0.075, 'triangle', 0.6);
+      const c = this.ctx, t = c.currentTime, n = c.createBuffer(1, Math.floor(c.sampleRate * 0.06), c.sampleRate), d = n.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (c.sampleRate * 0.012));
+      const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      src.buffer = n; f.type = 'bandpass'; f.frequency.value = this.flip ? 1400 : 900; f.Q.value = 3; g.gain.value = 0.9;
+      src.connect(f).connect(g).connect(this.master); src.start(t);
     },
     power() { this.tone(180, 720, 0.18, 'square', 0.25); },
     eatGhost() { this.tone(220, 1500, 0.22, 'sawtooth', 0.25); this.tone(1500, 900, 0.12, 'square', 0.15, 0.22); },
@@ -199,7 +205,7 @@
   let level = 1, score = 0, hi = 0, lives = 2, extraAwarded = false, lvl = spec(1);
   const dots = new Uint8Array(ROWS * COLS);
   let dotsLeft = 0, dotsEaten = 0;
-  let pac = null, ghosts = [], blinky = null;
+  let pac = null, ghosts = [], leader = null;
   let frightTimer = 0, ghostCombo = 0, modeIndex = 0, modeTimer = 0, idleTimer = 0;
   let useGlobalCounter = false, globalDotCount = 0;
   let fruit = null, popups = [], eatenFlash = null;
@@ -247,11 +253,11 @@
     ghosts = GHOSTS.map(d => ({
       name: d.name, color: d.color, corner: d.corner,
       x: d.home[0], y: d.home[1],
-      dir: d.name === 'blinky' ? LEFT : d.name === 'pinky' ? DOWN : UP,
-      state: d.name === 'blinky' ? 'active' : 'house',
+      dir: d.name === 'red' ? LEFT : d.name === 'violet' ? DOWN : UP,
+      state: d.name === 'red' ? 'active' : 'house',
       frightened: false, reverse: false, dotCount: 0,
     }));
-    blinky = ghosts[0];
+    leader = ghosts[0];
     frightTimer = 0; ghostCombo = 0; modeIndex = 0; modeTimer = 0; idleTimer = 0;
     fruit = null; popups = []; eatenFlash = null;
   }
@@ -379,7 +385,7 @@
     dots[i] = 0; dotsLeft--; dotsEaten++; idleTimer = 0;
     if (useGlobalCounter) globalDotCount++;
     else { const w = firstWaiting(); if (w) w.dotCount++; }
-    if (v === 1) { addScore(10); pac.stall = 1; Sound.waka(); }
+    if (v === 1) { addScore(10); pac.stall = 1; Sound.munch(); }
     else { addScore(50); pac.stall = 3; energize(); }
     if (dotsEaten === 70 || dotsEaten === 170) fruit = { ...fruitFor(level), timer: 570 };
     if (dotsLeft === 0) setState('levelDone');
@@ -404,10 +410,10 @@
     if (release) w.state = 'leaving';
   }
 
-  function elroyLevel() {
+  function rageLevel() {
     if (useGlobalCounter && ghosts[3].state === 'house') return 0;
-    if (dotsLeft <= lvl.elroyDots / 2) return 2;
-    if (dotsLeft <= lvl.elroyDots) return 1;
+    if (dotsLeft <= lvl.rageDots / 2) return 2;
+    if (dotsLeft <= lvl.rageDots) return 1;
     return 0;
   }
 
@@ -452,7 +458,7 @@
         let sp = lvl.ghost;
         if (inTunnel(g)) sp = lvl.tunnel;
         else if (g.frightened) sp = lvl.ghostFright;
-        else if (g === blinky) { const e = elroyLevel(); if (e) sp = e === 2 ? lvl.elroy2 : lvl.elroy1; }
+        else if (g === leader) { const e = rageLevel(); if (e) sp = e === 2 ? lvl.rage2 : lvl.rage1; }
         moveGhost(g, BASE * sp);
         break;
       }
@@ -474,21 +480,22 @@
   function ghostTarget(g) {
     if (g.state === 'eaten') return { x: 13, y: 11 };
     const scatter = modeIndex % 2 === 0;
-    if (scatter && !(g === blinky && elroyLevel() > 0)) return g.corner;
+    if (scatter && !(g === leader && rageLevel() > 0)) return g.corner;
     const pc = Math.round(pac.x), pr = Math.round(pac.y);
     switch (g.name) {
-      case 'pinky': {
-        // Salon makinesindeki "yukarı" hatası da korunuyor: 4 karo yukarı + 4 karo sol.
-        const tx = pc + DX[pac.dir] * 4 - (pac.dir === UP ? 4 : 0);
-        return { x: tx, y: pr + DY[pac.dir] * 4 };
+      case 'violet': {
+        // cuts you off: aims three tiles ahead of the Muncher
+        return { x: pc + DX[pac.dir] * 3, y: pr + DY[pac.dir] * 3 };
       }
-      case 'inky': {
-        const ax = pc + DX[pac.dir] * 2 - (pac.dir === UP ? 2 : 0), ay = pr + DY[pac.dir] * 2;
-        return { x: 2 * ax - Math.round(blinky.x), y: 2 * ay - Math.round(blinky.y) };
+      case 'teal': {
+        // flanks: mirrors the red one across a point just ahead of you
+        const ax = pc + DX[pac.dir] * 2, ay = pr + DY[pac.dir] * 2;
+        return { x: 2 * ax - Math.round(leader.x), y: 2 * ay - Math.round(leader.y) };
       }
-      case 'clyde': {
+      case 'amber': {
+        // bold from afar, shy up close
         const dx = pc - Math.round(g.x), dy = pr - Math.round(g.y);
-        return dx * dx + dy * dy > 64 ? { x: pc, y: pr } : g.corner;
+        return dx * dx + dy * dy > 49 ? { x: pc, y: pr } : g.corner;
       }
       default: return { x: pc, y: pr };
     }
@@ -600,64 +607,76 @@
     ctx.fill();
   }
 
+  // The Muncher: a round, horned little beast with a toothy jaw that opens toward where it is going
   function pacShape(x, y, r, dir, mouth) {
-    const a = [-Math.PI / 2, Math.PI, Math.PI / 2, 0][dir];
-    ctx.fillStyle = COLOR.pac;
-    ctx.beginPath();
-    if (mouth <= 0.01) ctx.arc(x, y, r, 0, Math.PI * 2);
-    else { ctx.moveTo(x, y); ctx.arc(x, y, r, a + mouth, a - mouth + Math.PI * 2); ctx.closePath(); }
-    ctx.fill();
+    const c = ctx, flip = dir === LEFT ? -1 : 1, look = [[0, -1], [-1, 0], [0, 1], [1, 0]][dir];
+    c.save(); c.translate(x, y);
+    // horns
+    c.fillStyle = '#5a1e0a';
+    for (const s2 of [-1, 1]) { c.beginPath(); c.moveTo(s2 * r * 0.35, -r * 0.8); c.lineTo(s2 * r * 0.62, -r * 1.25); c.lineTo(s2 * r * 0.7, -r * 0.62); c.closePath(); c.fill(); }
+    // body
+    const grd = c.createRadialGradient(-r * 0.3, -r * 0.35, r * 0.1, 0, 0, r);
+    grd.addColorStop(0, '#ffc07a'); grd.addColorStop(1, COLOR.pac);
+    c.fillStyle = grd; c.beginPath(); c.arc(0, 0, r, 0, Math.PI * 2); c.fill();
+    // jaw: a dark mouth across the lower face, opening with the chew
+    const open = Math.min(1, mouth / 0.86), mw = r * 0.72, mh = r * (0.08 + 0.42 * open), my = r * 0.28;
+    c.fillStyle = '#2a0808'; c.beginPath(); c.ellipse(flip * r * 0.08, my, mw, mh, 0, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#fff6e0';
+    for (let k = -2; k <= 2; k++) {
+      const tx = flip * r * 0.08 + k * mw * 0.36;
+      c.beginPath(); c.moveTo(tx - r * 0.09, my - mh * 0.9); c.lineTo(tx + r * 0.09, my - mh * 0.9); c.lineTo(tx, my - mh * 0.9 + r * 0.16); c.closePath(); c.fill();
+      if (open > 0.3) { c.beginPath(); c.moveTo(tx - r * 0.08, my + mh * 0.9); c.lineTo(tx + r * 0.08, my + mh * 0.9); c.lineTo(tx, my + mh * 0.9 - r * 0.13); c.closePath(); c.fill(); }
+    }
+    // eyes, looking the way it goes
+    for (const s2 of [-1, 1]) {
+      const ex = s2 * r * 0.34, ey = -r * 0.22;
+      c.fillStyle = '#ffffff'; c.beginPath(); c.ellipse(ex, ey, r * 0.2, r * 0.24, 0, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#120818'; c.beginPath(); c.arc(ex + look[0] * r * 0.08, ey + look[1] * r * 0.09, r * 0.1, 0, Math.PI * 2); c.fill();
+    }
+    c.restore();
   }
   const pacMouth = () => 0.08 + Math.abs(Math.sin(pac.anim * Math.PI * 1.25)) * 0.78;
 
+  // A Haunt: a tall hooded sheet with a ragged, drifting hem and hollow eyes
   function ghostBody(x, y, color) {
-    const w = T * 0.78, bottom = y + T * 0.72, depth = T * 0.24;
-    const phase = Math.floor(frame / 8) % 2;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(x - w, bottom);
-    ctx.lineTo(x - w, y);
-    ctx.arc(x, y, w, Math.PI, 0);
-    ctx.lineTo(x + w, bottom);
-    for (let i = 1; i <= 6; i++) {
-      const up = (i + phase) % 2 === 1;
-      ctx.lineTo(x + w - (2 * w * i) / 6, up ? bottom - depth : bottom);
+    const c = ctx, w = T * 0.72, top = y - T * 0.86, bottom = y + T * 0.7, ph = frame / 9;
+    c.fillStyle = color;
+    c.beginPath();
+    c.moveTo(x - w, bottom);
+    c.quadraticCurveTo(x - w * 1.05, y - T * 0.1, x - w * 0.55, top + T * 0.3);
+    c.quadraticCurveTo(x, top - T * 0.1, x + w * 0.55, top + T * 0.3);
+    c.quadraticCurveTo(x + w * 1.05, y - T * 0.1, x + w, bottom);
+    for (let i = 1; i <= 5; i++) {
+      const xx = x + w - (2 * w * i) / 5, dip = (i % 2 ? 0.26 : 0.02) + 0.06 * Math.sin(ph + i);
+      c.quadraticCurveTo(xx + w * 0.2, bottom - T * dip * 0.5, xx, bottom - T * dip);
     }
-    ctx.closePath();
-    ctx.fill();
+    c.closePath();
+    c.fill();
+    c.fillStyle = 'rgba(255,255,255,0.18)';
+    c.beginPath(); c.ellipse(x - w * 0.3, y - T * 0.4, w * 0.18, T * 0.3, -0.3, 0, Math.PI * 2); c.fill();
   }
 
   function ghostEyes(x, y, dir) {
-    const ox = DX[dir] * T * 0.1, oy = DY[dir] * T * 0.1;
-    for (const s of [-1, 1]) {
-      const ex = x + s * T * 0.3 + ox, ey = y - T * 0.15 + oy;
-      ctx.fillStyle = COLOR.white;
-      ctx.beginPath();
-      ctx.ellipse(ex, ey, T * 0.2, T * 0.26, 0, 0, Math.PI * 2);
-      ctx.fill();
-      circle(ex + ox, ey + oy, T * 0.11, COLOR.pupil);
+    const ox = DX[dir] * T * 0.08, oy = DY[dir] * T * 0.08;
+    for (const s2 of [-1, 1]) {
+      const ex = x + s2 * T * 0.26 + ox, ey = y - T * 0.22 + oy;
+      ctx.fillStyle = COLOR.pupil;
+      ctx.beginPath(); ctx.ellipse(ex, ey, T * 0.14, T * 0.22, s2 * 0.25, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.beginPath(); ctx.arc(ex + DX[dir] * T * 0.04, ey - T * 0.08 + DY[dir] * T * 0.04, T * 0.04, 0, Math.PI * 2); ctx.fill();
     }
   }
 
+  // Scared: pale, a wavering open mouth
   function frightFace(x, y, color) {
-    const s = T * 0.16;
     ctx.fillStyle = color;
-    ctx.fillRect(x - T * 0.3 - s / 2, y - T * 0.3, s, s);
-    ctx.fillRect(x + T * 0.3 - s / 2, y - T * 0.3, s, s);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = T * 0.09;
-    ctx.lineJoin = 'miter';
-    ctx.beginPath();
-    for (let i = 0; i < 7; i++) {
-      const xx = x - T * 0.5 + (T * i) / 6, yy = y + T * 0.25 + (i % 2 ? -T * 0.1 : T * 0.06);
-      if (i) ctx.lineTo(xx, yy); else ctx.moveTo(xx, yy);
-    }
-    ctx.stroke();
+    for (const s2 of [-1, 1]) { ctx.beginPath(); ctx.arc(x + s2 * T * 0.24, y - T * 0.22, T * 0.1, 0, Math.PI * 2); ctx.fill(); }
+    ctx.beginPath(); ctx.ellipse(x, y + T * 0.16, T * 0.2, T * 0.14 + Math.sin(frame / 4) * T * 0.04, 0, 0, Math.PI * 2); ctx.fill();
   }
 
   function drawGhost(g) {
     const x = px(g.x), y = py(g.y);
-    if (g.state === 'eaten' || g.state === 'entering') { ghostEyes(x, y, g.dir); return; }
+    if (g.state === 'eaten' || g.state === 'entering') { ctx.globalAlpha = 0.5; ghostEyes(x, y, g.dir); ctx.globalAlpha = 1; return; }
     if (g.frightened) {
       const flash = frightTimer < 120 && Math.floor(frightTimer / 14) % 2 === 0;
       ghostBody(x, y, flash ? COLOR.flash : COLOR.fright);
@@ -668,135 +687,85 @@
     }
   }
 
+  // Bonus prizes that appear under the Haunts' house
   function drawFruit(kind, x, y, s) {
     const c = ctx;
-    c.save();
-    c.translate(x, y);
-    c.scale(s, s);
-    c.lineCap = 'round';
-    c.lineJoin = 'round';
+    c.save(); c.translate(x, y); c.scale(s, s); c.lineCap = 'round'; c.lineJoin = 'round';
+    const rr = (x0, y0, w, h, r0, col) => { c.fillStyle = col; c.beginPath(); c.moveTo(x0 + r0, y0); c.arcTo(x0 + w, y0, x0 + w, y0 + h, r0); c.arcTo(x0 + w, y0 + h, x0, y0 + h, r0); c.arcTo(x0, y0 + h, x0, y0, r0); c.arcTo(x0, y0, x0 + w, y0, r0); c.closePath(); c.fill(); };
     switch (kind) {
-      case 'cherry':
-        c.strokeStyle = '#de9751'; c.lineWidth = 0.1;
-        c.beginPath();
-        c.moveTo(-0.35, 0.15); c.quadraticCurveTo(-0.05, -0.45, 0.5, -0.6);
-        c.moveTo(0.28, 0.3); c.quadraticCurveTo(0.3, -0.2, 0.5, -0.6);
-        c.stroke();
-        circle(-0.35, 0.3, 0.3, '#ff0000'); circle(0.28, 0.45, 0.3, '#ff0000');
-        circle(-0.45, 0.2, 0.07, '#ffffff'); circle(0.18, 0.35, 0.07, '#ffffff');
+      case 'candy': // wrapped sweet
+        c.fillStyle = '#ff4f9a'; c.beginPath(); c.ellipse(0, 0, 0.36, 0.26, 0, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.moveTo(-0.34, 0); c.lineTo(-0.7, -0.25); c.lineTo(-0.7, 0.25); c.closePath(); c.fill();
+        c.beginPath(); c.moveTo(0.34, 0); c.lineTo(0.7, -0.25); c.lineTo(0.7, 0.25); c.closePath(); c.fill();
+        c.strokeStyle = '#ffffff'; c.lineWidth = 0.07; c.beginPath(); c.moveTo(-0.15, -0.2); c.lineTo(0.05, 0.22); c.moveTo(0.1, -0.22); c.lineTo(0.28, 0.12); c.stroke();
         break;
-      case 'strawberry':
-        c.fillStyle = '#ff0000';
-        c.beginPath();
-        c.moveTo(0, 0.7);
-        c.bezierCurveTo(-0.75, 0.2, -0.7, -0.5, 0, -0.42);
-        c.bezierCurveTo(0.7, -0.5, 0.75, 0.2, 0, 0.7);
-        c.fill();
-        c.fillStyle = '#ffffff';
-        for (const [sx, sy] of [[-0.3, -0.12], [0, -0.02], [0.3, -0.12], [-0.16, 0.24], [0.16, 0.24], [0, 0.48], [-0.42, 0.08], [0.42, 0.08]]) c.fillRect(sx - 0.04, sy - 0.04, 0.08, 0.08);
-        c.fillStyle = '#00de00';
-        c.beginPath();
-        c.moveTo(-0.42, -0.45); c.lineTo(-0.1, -0.52); c.lineTo(0, -0.78); c.lineTo(0.1, -0.52); c.lineTo(0.42, -0.45); c.lineTo(0, -0.32);
-        c.closePath(); c.fill();
+      case 'soda': // a can of Star Pop
+        rr(-0.3, -0.6, 0.6, 1.2, 0.1, '#d8263a'); rr(-0.3, -0.62, 0.6, 0.12, 0.05, '#c0c4cc'); rr(-0.3, 0.5, 0.6, 0.12, 0.05, '#c0c4cc');
+        c.fillStyle = '#ffe07a'; c.beginPath(); for (let q = 0; q < 10; q++) { const r0 = q & 1 ? 0.08 : 0.2, a = q * Math.PI / 5 - Math.PI / 2; c.lineTo(Math.cos(a) * r0, Math.sin(a) * r0); } c.closePath(); c.fill();
         break;
-      case 'orange':
-        circle(0, 0.1, 0.58, '#ffb852');
-        circle(-0.22, -0.12, 0.1, '#ffe0a8');
-        c.strokeStyle = '#de9751'; c.lineWidth = 0.1;
-        c.beginPath(); c.moveTo(0, -0.45); c.lineTo(0.05, -0.62); c.stroke();
-        c.fillStyle = '#00de00';
-        c.beginPath(); c.ellipse(0.28, -0.6, 0.24, 0.1, -0.4, 0, Math.PI * 2); c.fill();
+      case 'cupcake':
+        c.fillStyle = '#c47a3a'; c.beginPath(); c.moveTo(-0.4, 0); c.lineTo(0.4, 0); c.lineTo(0.28, 0.6); c.lineTo(-0.28, 0.6); c.closePath(); c.fill();
+        c.fillStyle = '#ffd2e8'; c.beginPath(); c.arc(0, -0.05, 0.44, Math.PI, 0); c.fill();
+        circle(0, -0.5, 0.1, '#ff2a40');
         break;
-      case 'apple':
-        circle(-0.2, 0.12, 0.44, '#ff0000'); circle(0.2, 0.12, 0.44, '#ff0000');
-        circle(-0.28, -0.05, 0.1, '#ffffff');
-        c.strokeStyle = '#de9751'; c.lineWidth = 0.1;
-        c.beginPath(); c.moveTo(0, -0.22); c.lineTo(0.12, -0.62); c.stroke();
+      case 'token': // a gold arcade token
+        circle(0, 0, 0.55, '#e0a420'); circle(0, 0, 0.42, '#ffd24a');
+        c.fillStyle = '#b07810'; c.font = 'bold 0.5px monospace'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('S', 0, 0.03);
         break;
-      case 'melon':
-        circle(0, 0.08, 0.6, '#21c421');
-        c.strokeStyle = '#a8ffa8'; c.lineWidth = 0.07;
-        c.beginPath();
-        c.moveTo(0, -0.5); c.lineTo(0, 0.66);
-        c.moveTo(-0.3, -0.42); c.quadraticCurveTo(-0.5, 0.1, -0.3, 0.58);
-        c.moveTo(0.3, -0.42); c.quadraticCurveTo(0.5, 0.1, 0.3, 0.58);
-        c.stroke();
-        c.strokeStyle = '#de9751'; c.lineWidth = 0.1;
-        c.beginPath(); c.moveTo(0, -0.5); c.lineTo(0.12, -0.72); c.stroke();
+      case 'yoyo':
+        circle(0, 0, 0.5, '#3a8aff'); circle(0, 0, 0.18, '#ffffff');
+        c.strokeStyle = '#ffffff'; c.lineWidth = 0.05; c.beginPath(); c.moveTo(0, 0); c.lineTo(0.2, -0.75); c.stroke();
         break;
-      case 'galaxian':
-        c.fillStyle = '#2121ff';
-        c.beginPath();
-        c.moveTo(-0.72, -0.25); c.lineTo(0, 0.2); c.lineTo(0.72, -0.25); c.lineTo(0.72, 0.18); c.lineTo(0, 0.66); c.lineTo(-0.72, 0.18);
-        c.closePath(); c.fill();
-        c.fillStyle = '#ffff00';
-        c.beginPath(); c.moveTo(0, -0.55); c.lineTo(0.24, 0.1); c.lineTo(0, 0.55); c.lineTo(-0.24, 0.1); c.closePath(); c.fill();
-        c.fillStyle = '#ff0000';
-        c.beginPath(); c.moveTo(0, -0.78); c.lineTo(0.13, -0.42); c.lineTo(-0.13, -0.42); c.closePath(); c.fill();
-        c.fillRect(-0.78, -0.4, 0.12, 0.3); c.fillRect(0.66, -0.4, 0.12, 0.3);
+      case 'robot': // a wind-up toy
+        rr(-0.35, -0.3, 0.7, 0.7, 0.08, '#9aa4b0'); rr(-0.25, -0.62, 0.5, 0.34, 0.06, '#c4ccd6');
+        circle(-0.1, -0.45, 0.06, '#ff3040'); circle(0.1, -0.45, 0.06, '#ff3040');
+        c.strokeStyle = '#6a7480'; c.lineWidth = 0.08; c.beginPath(); c.moveTo(0.35, 0.05); c.lineTo(0.6, 0.05); c.moveTo(0.6, -0.1); c.lineTo(0.6, 0.2); c.stroke();
         break;
-      case 'bell':
-        c.fillStyle = '#ffff00';
-        c.beginPath();
-        c.moveTo(-0.56, 0.4);
-        c.quadraticCurveTo(-0.52, -0.68, 0, -0.66);
-        c.quadraticCurveTo(0.52, -0.68, 0.56, 0.4);
-        c.closePath(); c.fill();
-        c.fillRect(-0.64, 0.34, 1.28, 0.14);
-        circle(0, 0.58, 0.12, '#dedeff');
-        c.strokeStyle = '#ffffff'; c.lineWidth = 0.08;
-        c.beginPath(); c.moveTo(-0.26, -0.3); c.lineTo(-0.32, 0.2); c.stroke();
+      case 'crown':
+        c.fillStyle = '#ffcf33'; c.beginPath(); c.moveTo(-0.6, 0.4); c.lineTo(-0.6, -0.3); c.lineTo(-0.3, 0.05); c.lineTo(0, -0.45); c.lineTo(0.3, 0.05); c.lineTo(0.6, -0.3); c.lineTo(0.6, 0.4); c.closePath(); c.fill();
+        circle(0, 0.15, 0.09, '#3a8aff'); circle(-0.35, 0.18, 0.07, '#ff3040'); circle(0.35, 0.18, 0.07, '#2fe0b8');
         break;
-      case 'key':
-        c.strokeStyle = '#21dede'; c.lineWidth = 0.14;
-        c.beginPath(); c.arc(0, -0.42, 0.24, 0, Math.PI * 2); c.stroke();
-        c.strokeStyle = '#dedeff'; c.lineWidth = 0.12;
-        c.beginPath();
-        c.moveTo(0, -0.16); c.lineTo(0, 0.7);
-        c.moveTo(0, 0.38); c.lineTo(0.22, 0.38);
-        c.moveTo(0, 0.6); c.lineTo(0.22, 0.6);
-        c.stroke();
-        break;
+      default: // trophy
+        c.fillStyle = '#e8c040'; c.beginPath(); c.moveTo(-0.4, -0.55); c.lineTo(0.4, -0.55); c.quadraticCurveTo(0.4, 0.1, 0, 0.15); c.quadraticCurveTo(-0.4, 0.1, -0.4, -0.55); c.fill();
+        rr(-0.08, 0.1, 0.16, 0.3, 0.02, '#c8a030'); rr(-0.32, 0.4, 0.64, 0.16, 0.04, '#8a5a20');
     }
     c.restore();
   }
 
+  // Stars are little four-point sparks; lanterns glow and sway
   function drawDots() {
     const blinkOn = state !== 'playing' || Math.floor(frame / 10) % 2 === 0;
-    const ds = Math.max(2, T * 0.25);
+    const ds = Math.max(2, T * 0.14);
     ctx.fillStyle = COLOR.dot;
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         const v = dots[r * COLS + c];
-        if (v === 1) ctx.fillRect(px(c) - ds / 2, py(r) - ds / 2, ds, ds);
-        else if (v === 2 && blinkOn) {
-          ctx.beginPath();
-          ctx.arc(px(c), py(r), T * 0.42, 0, Math.PI * 2);
-          ctx.fill();
+        const x = px(c), y = py(r);
+        if (v === 1) { ctx.fillRect(x - ds / 2, y - ds * 1.4, ds, ds * 2.8); ctx.fillRect(x - ds * 1.4, y - ds / 2, ds * 2.8, ds); }
+        else if (v === 2) {
+          const sw = Math.sin(frame / 12 + c) * T * 0.05;
+          ctx.fillStyle = '#3a2410'; ctx.fillRect(x - T * 0.05 + sw, y - T * 0.62, T * 0.1, T * 0.14);
+          ctx.fillStyle = blinkOn ? '#ffd27a' : '#c8903a';
+          ctx.beginPath(); ctx.moveTo(x - T * 0.28 + sw, y - T * 0.45); ctx.lineTo(x + T * 0.28 + sw, y - T * 0.45); ctx.lineTo(x + T * 0.34 + sw, y + T * 0.36); ctx.lineTo(x - T * 0.34 + sw, y + T * 0.36); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = blinkOn ? '#fff6d0' : '#ffe0a0'; ctx.fillRect(x - T * 0.12 + sw, y - T * 0.28, T * 0.24, T * 0.46);
+          ctx.fillStyle = COLOR.dot;
         }
       }
     }
   }
 
+  // Caught: the Muncher shivers, shrinks and pops like a soap bubble
   function drawDeath() {
     const x = px(pac.x), y = py(pac.y), t = stateTime;
-    if (t < 60) pacShape(x, y, T * 0.75, pac.dir, pacMouth());
+    if (t < 60) pacShape(x + Math.sin(t) * T * 0.06, y, T * 0.75, pac.dir, 0.1);
     else if (t < 150) {
-      const open = 0.15 + ((t - 60) / 90) * (Math.PI - 0.15);
-      if (open < Math.PI - 0.02) pacShape(x, y, T * 0.75, UP, open);
+      const k = 1 - (t - 60) / 90;
+      ctx.save(); ctx.globalAlpha = 0.4 + 0.6 * k; ctx.translate(x, y); ctx.rotate((1 - k) * 6); pacShape(0, 0, T * 0.75 * Math.max(0.05, k), pac.dir, 0.86 * (1 - k)); ctx.restore();
     } else if (t < 176) {
       const p = (t - 150) / 26;
-      ctx.strokeStyle = COLOR.pac;
-      ctx.lineWidth = T * 0.1;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      for (let i = 0; i < 8; i++) {
-        const a = (i / 8) * Math.PI * 2;
-        const r1 = T * (0.25 + 0.3 * p), r2 = T * (0.45 + 0.35 * p);
-        ctx.moveTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1);
-        ctx.lineTo(x + Math.cos(a) * r2, y + Math.sin(a) * r2);
-      }
-      ctx.stroke();
+      ctx.fillStyle = COLOR.pac;
+      for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2, rr = T * (0.3 + 0.6 * p); ctx.globalAlpha = 1 - p; ctx.beginPath(); ctx.arc(x + Math.cos(a) * rr, y + Math.sin(a) * rr, T * 0.08, 0, Math.PI * 2); ctx.fill(); }
+      ctx.globalAlpha = 1;
     }
   }
 
@@ -821,7 +790,7 @@
   }
 
   function drawHud() {
-    text('SKOR', T, 0.8 * T, COLOR.text);
+    text('SCORE', T, 0.8 * T, COLOR.text);
     text(score ? String(score) : '00', T, 2 * T, COLOR.white);
     text('HIGH SCORE', 14 * T, 0.8 * T, COLOR.text, 1, 'center');
     if (hi) text(String(hi), 14 * T, 2 * T, COLOR.white, 1, 'center');
@@ -857,8 +826,10 @@
     strokeRoundRect(x0 + T * 0.3, y0 + T * 0.3, w - T * 0.6, h - T * 0.6, T * 0.45);
     strokeRoundRect(x0 + T * 0.7, y0 + T * 0.7, w - T * 1.4, h - T * 1.4, T * 0.25);
 
-    text('PACMAN', 14 * T, 13.9 * T, COLOR.pac, 2, 'center');
-    text(`${TOTAL_DOTS} YEM · 4 HAYALET`, 14 * T, 16 * T, COLOR.dot, 0.55, 'center');
+    text('HUNGRY', 14 * T, 13.3 * T, COLOR.pac, 1.6, 'center');
+    text('HOUSE', 14 * T, 15.0 * T, COLOR.pac, 1.6, 'center');
+    text(`${TOTAL_DOTS} STARS · 4 HAUNTS`, 14 * T, 16.5 * T, COLOR.dot, 0.5, 'center');
+    text('© 1981 BRIGHTLINE AMUSEMENTS', 14 * T, 24.4 * T, COLOR.text, 0.4, 'center');
 
     const y = 18.6 * T;
     pacShape(19.6 * T, y, T * 0.75, RIGHT, 0.08 + Math.abs(Math.sin(frame * 0.15)) * 0.7);
@@ -964,7 +935,7 @@
   Sound.muted = PB.Settings ? PB.Settings.data.sfx < 0.05 : false;
   resetDots(); resetActors(); setState('attract');
   resize();
-  if (document.fonts && document.fonts.load) document.fonts.load('16px "Press Start 2P"', 'PACMAN SKOR').catch(() => {});
+  if (document.fonts && document.fonts.load) document.fonts.load('16px "Press Start 2P"', 'HUNGRY HOUSE SCORE').catch(() => {});
   return {
     start() { if (running) return; running = true; Sound.init(); last = performance.now(); raf = requestAnimationFrame(loop); },
     stop() { running = false; cancelAnimationFrame(raf); Sound.setLoop(null); saveHi(); if (PAUSABLE.includes(state)) togglePause(); },

@@ -74,6 +74,10 @@
       return undefined;
     },
     use(g, o) {
+      if (o.type === 'note' && o.item && o.item.data === 'school_pact') {
+        g.readNote('school_pact', () => { if (!g.flags.pactRead) { g.flags.pactRead = true; g.mono('school_pact', 5); } });
+        return true;
+      }
       if (o.type === 'keypad') {
         if (g.flags.closetOpen) return true;
         g.state = 'keypad'; g.input.exitLock(); g.ignoreUnlock = true;
@@ -225,13 +229,13 @@
 
   // ================================================================ MAPLE STREET (April 1987)
   C.maple = {
-    start(g) { g.setObj('maple_clyde'); },
+    start(g) { g.setObj('maple_toby'); },
     afterCard(g) { g.mono('maple_start', 5); g.radio('maple_start', { delay: 6 }); },
     restore(g) {
       if (g.flags.echoDone) { openExit(g, 'workshop'); g.setObj('maple_leave'); }
       else if (g.flags.homeDone) g.setObj('maple_corner');
-      else if (g.flags.clydeDone) g.setObj('maple_home');
-      else g.setObj('maple_clyde');
+      else if (g.flags.tobyDone) g.setObj('maple_home');
+      else g.setObj('maple_toby');
     },
     use(g, o) {
       if (o.type === 'phone' && o.item.data === 'maple_machine') {
@@ -239,8 +243,8 @@
         g.answerPhone(o, () => { if (!g.flags.homeDone) { g.flags.homeDone = true; g.mono('maple_machine', 5); g.setObj('maple_corner'); g.completeStep(); } });
         return true;
       }
-      if (o.type === 'note' && o.item.data === 'maple_clyderoom') {
-        g.readNote('maple_clyderoom', () => { if (!g.flags.clydeDone) { g.flags.clydeDone = true; g.mono('maple_clyderoom', 5); g.setObj(g.flags.homeDone ? 'maple_corner' : 'maple_home'); g.completeStep(); } });
+      if (o.type === 'note' && o.item.data === 'maple_tobyroom') {
+        g.readNote('maple_tobyroom', () => { if (!g.flags.tobyDone) { g.flags.tobyDone = true; g.mono('maple_tobyroom', 5); g.setObj(g.flags.homeDone ? 'maple_corner' : 'maple_home'); g.completeStep(); } });
         return true;
       }
       return false;
@@ -248,14 +252,14 @@
     prompt(g, o) { if (o.type === 'phone') return o.answered ? null : ST.line('maple_machine'); return undefined; },
     update(g) {
       const L = g.level, c = L.cellOf(g.player.pos.x, g.player.pos.z);
-      if (!g.flags.porchSeen) { const s = L.spots.clydeHousePorch && L.spots.clydeHousePorch[0]; if (s && Math.abs(c.x - s.x) <= 1 && Math.abs(c.y - s.y) <= 1) { g.flags.porchSeen = true; g.mono('maple_porch', 4); } }
+      if (!g.flags.porchSeen) { const s = L.spots.tobyHousePorch && L.spots.tobyHousePorch[0]; if (s && Math.abs(c.x - s.x) <= 1 && Math.abs(c.y - s.y) <= 1) { g.flags.porchSeen = true; g.mono('maple_porch', 4); } }
       // The fight, replayed under the streetlight on the corner
       const k = L.spots.corner && L.spots.corner[0];
-      if (!g.flags.echoDone && g.flags.homeDone && g.flags.clydeDone && k && Math.abs(c.x - k.x) <= 1 && Math.abs(c.y - k.y) <= 1) {
+      if (!g.flags.echoDone && g.flags.homeDone && g.flags.tobyDone && k && Math.abs(c.x - k.x) <= 1 && Math.abs(c.y - k.y) <= 1) {
         g.flags.echoDone = true;
         g.player.frozen = true; g.fx.flash = 0.3;
         g.radio('maple_echo', { force: true });
-        const freed = g.save.freed.includes('clyde');
+        const freed = g.save.freed.includes('toby');
         const wait = () => { if (g.talking()) { g.later(500, wait); return; } g.player.frozen = false; g.radio(freed ? 'maple_reconcile' : 'maple_alone', { delay: 0.8, force: true }); openExit(g, 'workshop'); g.setObj('maple_leave'); g.completeStep(); };
         g.later(1500, wait);
       }
@@ -266,6 +270,9 @@
   // ================================================================ THE WORKSHOP (Walt, April 1987)
   C.workshop = {
     start(g) { g.setObj('workshop_key'); },
+    tapeRead(g, id) {
+      if (id === 'workshop_317' && !g.flags.truthHeard) { g.flags.truthHeard = true; g.mono('workshop_317', 4); g.radio('workshop_truth', { delay: 4.5, force: true }); }
+    },
     afterCard(g) { g.mono('workshop_start', 4); g.radio('workshop_start', { delay: 5 }); },
     restore(g) {
       const dials = g.items.filter(i => i.type === 'dial');

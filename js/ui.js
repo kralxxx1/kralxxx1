@@ -406,8 +406,8 @@
       }
       // Kamera ekranı: yaratıklar
       if (opts.entities) for (const e of g.entities) {
-        if (!e.mesh.visible && e.kind !== 'pacman') continue;
-        x.fillStyle = e.kind === 'pacman' ? '#ffd21a' : e.kind === 'ghost' ? ST.charColor(ST.ghostChar(e.type)) : '#cccccc';
+        if (!e.mesh.visible && e.kind !== 'eater') continue;
+        x.fillStyle = e.kind === 'eater' ? '#ffd21a' : e.kind === 'ghost' ? ST.charColor(ST.ghostChar(e.type)) : '#cccccc';
         x.beginPath(); x.arc(e.pos.x / L.cell * cs, e.pos.z / L.cell * cs, cs * 0.45, 0, Math.PI * 2); x.fill();
       }
       // Oyuncu oku
@@ -520,9 +520,9 @@
     if (/lily/i.test(f)) return 'lily';
     if (/eddie|^e\.?$/i.test(f)) return 'eddie';
     if (/^w\b|^w\.|walt/i.test(f)) return 'walt';
-    if (/penny/i.test(f)) return 'penny';
-    if (/clyde/i.test(f)) return 'clyde';
-    if (/billy/i.test(f)) return 'billy';
+    if (/rosie/i.test(f)) return 'rosie';
+    if (/toby/i.test(f)) return 'toby';
+    if (/danny/i.test(f)) return 'danny';
     if (/theo/i.test(f)) return 'theo';
     if (/^sam\b/i.test(f)) return 'sam';
     if (/june|maggie|carol|nora|ruth|ray/i.test(f)) return 'adult';

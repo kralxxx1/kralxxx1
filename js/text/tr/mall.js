@@ -1,122 +1,122 @@
-/* Türkçe — Bölüm 7: Harlow AVM (20 Aralık 1986, en mutlu gün). */
+/* Türkçe — Seviye 7: Harlow AVM (13 Aralık 1986, en mutlu gün). */
 (function (root) {
   'use strict';
   root.PB.I18N.register('tr', 'story', {
     chapters: {
       mall: {
-        name: 'SEVİYE 7', title: 'Harlow AVM', place: 'Cumartesi, 20 Aralık 1986',
-        intro: '1986’nın en güzel cumartesisi. Beş çocuk, hepsinin cebinde toplam yirmi dolar, üç kat yüksekliğinde bir Noel ağacı. AVM artık kapalı ve mankenler cama biraz daha yaklaşmış. Sadece kimse bakmadığında kıpırdıyorlar.',
+        name: 'SEVİYE 7', title: 'Harlow AVM', place: 'Herkesin anısı — Cumartesi, 13 Aralık 1986',
+        intro: '1986’nın en güzel cumartesisi. Beş çocuk, ceplerinde toplam yirmi dolar, üç kat yüksekliğinde bir Noel ağacı.\n\nAVM artık kapalı. Mankenler cama biraz daha yaklaşmış. Sadece kimse bakmazken kıpırdıyorlar.',
       },
     },
     items: {
-      frame: { name: 'Fotoğraf şeridi karesi', desc: 'Kesilip ayrılmış bir fotoğraf kabini şeridinin tek karesi. Kabin onları yeniden bir arada istiyor.' },
+      frame: { name: 'Fotoğraf şeridi karesi', desc: 'Kesilip ayrılmış bir fotoğraf kabini şeridinin tek bir karesi. Kabin onları yeniden bir arada istiyor.' },
       frame1: { name: 'Fotoğraf şeridi karesi', doc: 'mall_frame1' },
       frame2: { name: 'Fotoğraf şeridi karesi', doc: 'mall_frame2' },
       frame3: { name: 'Fotoğraf şeridi karesi', doc: 'mall_frame3' },
       frame4: { name: 'Fotoğraf şeridi karesi', doc: 'mall_frame4' },
     },
     docs: {
-      mall_intro: { title: 'Bir AVM rehberinin arkasına yazılmış', from: 'Eddie', body:
+      mall_intro: { kind: 'note', title: 'Bir AVM rehberinin arkasında', from: 'Eddie', body:
 `Yemek alanının yanındaki fotoğraf kabini bozuk. Fotoğraflarını geri istiyor.
 
-Bir fotoğraf şeridinin dört karesi mağazalara dağılmış. Onları bul, kabine ver, kapılar açılır.
+Bir fotoğraf şeridinin dört karesi mağazalara dağılmış. Onları bul, kabine ver, kapılar açılsın.
 
-Mankenler. Gözünü onlardan ayırma. Kelimenin tam anlamıyla söylüyorum. Sen bakarken kıpırdamıyorlar.
+Mankenler. Gözünü üstlerinden ayırma. Bunu kelimesi kelimesine söylüyorum. Sen bakarken kıpırdamıyorlar.
 
-Bu oyunun içindeki en mutlu yer burası ve en çok da burasından nefret ediyorum.
+Bu bütün oyundaki en mutlu yer ve en çok ondan nefret ediyorum.
 
-—E` },
-      mall_directory: { title: 'AVM rehberi, "BURADASINIZ" yazısı parmaklarla silinmiş', from: 'Harlow AVM', date: '1986', body:
+—E.` },
+      mall_directory: { kind: 'note', title: 'AVM rehberi; "BURADASINIZ" yazısı parmaklarla silinmiş', from: 'Harlow AVM', date: '1986', body:
 `1. KAT
-Spins Records ........ Müzik, kasetler, boş kasetler
-Comic Vault ........... Çizgi roman, kart, oyun
-Toy Parade ............ Her yaşa oyuncak
-Fotoğraf Kabini ...... 4 poz 1$
-Yemek Alanı .......... Orange Julius, Sbarro, Pretzel Time
-Starlight Jr. .......... Mini oyun salonu köşesi (çeşmenin yanında)
+Spins Plak ............ Müzik, kaset, boş kaset
+Çizgi Kasası .......... Çizgi roman, kart, oyun
+Oyuncak Geçidi ........ Her yaşa oyuncak
+Fotoğraf Kabini ....... 4 poz 1 $
+Yemek Alanı ........... Sunny Portakal, Nonna’nın Pizzası, Simit Ambarı
+Starlight Jr. ......... Mini oyun salonu köşesi (fıskiyenin yanında)
 
-Noel arifesine kadar akşam 9’a kadar açık!` },
-      mall_frame1: { title: 'Fotoğraf kabini karesi #1', from: 'Fotoğraf Kabini', date: '20 Aralık 1986', body:
-`Billy ve Penny. Billy sıkılmış gibi yapıyor. Penny DJ’lik taslıyor, bir simidi mikrofon gibi tutup konuşuyor.` },
-      mall_frame2: { title: 'Fotoğraf kabini karesi #2', from: 'Fotoğraf Kabini', date: '20 Aralık 1986', body:
-`Ivy ve Clyde. Ivy gerçekten gülümsüyor, sahici bir gülümseme, kendisi de şaşırmış. Clyde onun başına bir Noel Baba şapkası geçirmiş.` },
-      mall_frame3: { title: 'Fotoğraf kabini karesi #3', from: 'Fotoğraf Kabini', date: '20 Aralık 1986', body:
-`Sen ve Clyde, yanak yanağa, tıpatıp aynı surat ifadesiyle. Gözlerin gülmekten kapanmış.` },
-      mall_frame4: { title: 'Fotoğraf kabini karesi #4', from: 'Fotoğraf Kabini', date: '20 Aralık 1986', body:
-`Beşiniz tek bir tabureye tıkışmışsınız. Billy’nin dirseği kulağına girmiş. Kimse kameraya bakmıyor. Herkes birbirine bakıyor.` },
-      mall_strip: { title: 'Fotoğraf şeridi, hâlâ sıcak', from: 'Fotoğraf Kabini', date: '20 Aralık 1986', body:
-`Dört kare, tek şerit. Arkasında beş imza ve Penny’nin yuvarlak el yazısıyla bir satır:
+Noel arifesine kadar saat 21:00’e kadar açık!` },
+      mall_frame1: { kind: 'photo', photo: 'frame', title: 'Fotoğraf kabini, 1. kare', from: 'Fotoğraf kabini', date: '13 Ara. 1986', body:
+`Danny ve Rosie. Danny sıkılmış gibi yapıyor. Rosie DJ’lik yapıyormuş gibi bir simide mikrofon gibi konuşuyor.` },
+      mall_frame2: { kind: 'photo', photo: 'frame', title: 'Fotoğraf kabini, 2. kare', from: 'Fotoğraf kabini', date: '13 Ara. 1986', body:
+`Nell ve Toby. Nell gerçekten gülümsüyor, sahici bir gülümseme, kendisi bile şaşırmış gibi. Toby onun başına bir Noel Baba şapkası geçirmiş.` },
+      mall_frame3: { kind: 'photo', photo: 'frame', title: 'Fotoğraf kabini, 3. kare', from: 'Fotoğraf kabini', date: '13 Ara. 1986', body:
+`Sen ve Toby, yanak yanağa, birebir aynı surat ifadesiyle. Gülmekten gözleriniz kapanmış.` },
+      mall_frame4: { kind: 'photo', photo: 'frame', title: 'Fotoğraf kabini, 4. kare', from: 'Fotoğraf kabini', date: '13 Ara. 1986', body:
+`Beşiniz tek bir tabureye tıkışmışsınız. Danny’nin dirseği kulağına girmiş. Kimse kameraya bakmıyor. Herkes birbirine bakıyor.` },
+      mall_strip: { kind: 'photo', photo: 'strip', title: 'Fotoğraf şeridi, hâlâ sıcak', from: 'Fotoğraf kabini', date: '13 Ara. 1986', body:
+`Dört kare, tek şerit. Arkasında beş imza ve Rosie’nin yuvarlak el yazısıyla bir satır:
 
-"SONSUZA KADAR ARKADAŞIZ. YAŞLANIP SIKICI OLSAK BİLE.
+"SONSUZA KADAR ARKADAŞ. YAŞLANIP SIKICI OLSAK BİLE.
 TAŞINSAK BİLE.
-OLSA BİLE.
+NE OLURSA OLSUN.
 — Starlight Beşlisi"
 
-Şeridi kimin sakladığını hatırlıyorsun. Clyde saklamıştı. Çakmak kutusunda.` },
-      mall_lists: { title: 'Tek bir defter yaprağında beş Noel listesi', from: 'Starlight Beşlisi', date: 'Aralık 1986', body:
-`BILLY: babama bir iş. (bir de kaykay)
-PENNY: gerçek bir mikrofon. boş kaset (100 tane)
-IVY: X-Men #213. Theo’nun yeniden yüzebilmesi
-CLYDE: hiç bitmeyen bir fener. Sam’in her şeye kızmaması
-SAM: 256. seviye
+Şeridi kimin sakladığını hatırlıyorsun. Toby. Çakmak kutusunda.` },
+      mall_lists: { kind: 'note', title: 'Tek bir defter yaprağına yazılmış beş Noel listesi', from: 'Starlight Beşlisi', date: 'Aralık 1986', body:
+`DANNY: babama bir iş. (bir de kaykay)
+ROSIE: gerçek bir mikrofon. boş kaset (100 tane)
+NELL: Yıldız Korucuları #12. Theo sudan hiç korkmasın
+TOBY: pili hiç bitmeyen bir fener. Sam bir şeylere kızmasın
+SAM: seviye 256
 
-(Biri SAM’in dileğinin üstünü çizmiş ve altına Clyde’ın yazısıyla şunu yazmış: "onu birlikte alacağız")` },
-      mall_receipt: { title: 'Bir plak kutusuna sıkışmış fiş', from: 'Spins Records', date: '20/12/86 15:41', body:
-`MAXELL UR-90 BOŞ KASET x10 ....... 14,90$
-BIG BAND XMAS (ikinci el LP) ...... 1,00$
-TOPLAM .................................... 15,90$
-NAKİT ....................................... 16,00$
-PARA ÜSTÜ ................................ 0,10$
+(Biri SAM’in dileğinin üstünü çizmiş ve altına Toby’nin el yazısıyla yazmış: "birlikte başaracağız")` },
+      mall_receipt: { kind: 'note', title: 'Bir plak kutusuna sıkışmış fiş', from: 'Spins Plak', date: '13/12/86 15:41', body:
+`KEYTONE C-90 BOŞ KASET x10 ........... 14,90 $
+BÜYÜK ORKESTRA NOEL (ikinci el plak) .. 1,00 $
+TOPLAM ................................ 15,90 $
+NAKİT ................................. 16,00 $
+PARA ÜSTÜ ............................. 0,10 $
 
-Arkasına yazılmış: "A yüzü: şimdiye şarkılar. B yüzü: sonrası için. — P."` },
-      mall_guard: { title: 'Güvenlik görevlisi defteri', from: 'Harlow AVM Güvenlik', date: '20 Aralık 1986', body:
-`14:20 — Çeşmede beş çocuk bozuk para atıyor. Durmalarını söyledim. Durdular. Sonra tekrar başladılar. Boş verdim. Noel.
+Arkasında: "A yüzü: şimdilik şarkılar. B yüzü: sonrası için. — R."` },
+      mall_guard: { kind: 'note', title: 'Güvenlik görevlisinin nöbet defteri', from: 'Harlow AVM Güvenlik', date: '13 Aralık 1986', body:
+`14:20 — Fıskiyede bozuk para atan beş çocuk. Durun dedim. Durdular. Sonra yeniden başladılar. Boş verdim. Noel.
 
-16:05 — Aynı beşli fotoğraf kabininde. Kabin sıkıştı. Çocuklar kendileri tamir etti (büyük oğlanın tornavidası vardı). Sormadım.
+16:05 — Aynı beşli fotoğraf kabininde. Kabin sıkıştı. Çocuklar kendileri tamir etti (büyük olanda tornavida vardı). Sormadım.
 
-17:30 — En küçükleri kayboldu. Çeşmenin yanında ağlarken bulundu. Diğer dördü dört ayrı yönden koşarak geldi. Herkes birbirine sarıldı. Güzel olduğu için buraya yazdım.` },
-      mall_kiosk: { title: 'Starlight Jr. köşesindeki bir el ilanı', from: 'Walt', date: '1986', body:
+17:30 — En küçükleri kayboldu. Fıskiyenin yanında ağlarken bulundu. Diğer dördü dört ayrı yönden koşarak geldi. Herkes sarılıyor. Güzeldi diye yazıyorum.` },
+      mall_kiosk: { kind: 'note', title: 'Starlight Jr. köşesindeki el ilanı', from: 'Walt', date: '1986', body:
 `STARLIGHT JR.
-Starlight Oyun Salonu AVM’ye geliyor!
-3 makine • 25¢ • Hafta sonları açık
+Starlight Oyun Salonu AVM’de!
+3 makine • 25 sent • Hafta sonları açık
 
 "Her çocuk bir rekoru hak eder." — Walt, işletme sahibi
 
-(Köşeye elle çizilmiş: gülümseyen, küçük bacaklı sarı bir daire. İmza: LIL.)` },
-      mall_walt: { title: 'Walt’ın günlüğü, lekelenmiş bir sayfa', from: 'W', date: '—', body:
-`AVM. Burada bir köşem vardı. Lily’nin küçük çizimini tabelaya koymuştum. Bacaklı Chompy.
+(Köşede, tabelaya yapıştırılmış eski bir pastel boya çizimi: boynuzlu, kocaman sırıtışlı, minik bacaklı yuvarlak turuncu bir yaratık. İmza: LIL.)` },
+      mall_walt: { kind: 'diary', title: 'Walt’ın günlüğü, lekelenmiş bir sayfa', from: 'Walt', date: 'İçeride', body:
+`AVM. Burada bir köşem vardı. Lily’nin eski çizimini tabelaya yapıştırdım. Bacaklı Chompy.
 
-O kış beşi her cumartesi uğradı. Gürültücü olan, kasetli olan, gözlüklü sessiz olan, çakmaklı küçük olan ve arkadaşı.
+O kış o beşi her cumartesi uğradı. Gürültücü olan, kasetli olan, gözlüklü sessiz olan, çakmaklı ufaklık ve onun arkadaşı.
 
 Arkadaşı. Arkadaşının adını hatırlayamıyorum. S ile başlıyor.
 
 Önemli. Neden önemli olduğunu bilmiyorum.` },
-      mall_lily5: { title: 'Starlight Jr. büfesinin içine bantlanmış bir çizim', from: 'Lily, 8 yaşında', date: 'Aralık 1982', body:
-`Pastel boya. Front Caddesi’ndeki kocaman Noel ağacı ve dibinde, küçük bir kızın elini tutan bacaklı sarı bir daire. Kar yağıyor, mavi noktalar olarak çizilmiş.
+      mall_lily5: { kind: 'drawing', drawing: 5, title: 'Starlight Jr. köşesinin içine bantlanmış çizim', from: 'Lily, 8 yaşında', date: 'Aralık 1982', body:
+`Pastel boya. Front Sokağı’ndaki büyük Noel ağacı. Dibinde boynuzlu, bacaklı yuvarlak turuncu bir yaratık küçük bir kızın elini tutuyor. Kar mavi noktalarla yağıyor.
 
-BABAM BİR GÜN HER KASABADA BİR STARLIGHT OLACAK DİYOR.
-BİR AVM’DE KÜÇÜCÜK BİR TANE BİLE.
-(CHOMPY’Yİ BEN ÇİZDİM) (BABAM ONU BENİM İCAT ETTİĞİMİ SÖYLÜYOR)` },
-      mall_tape: { title: 'Kaset: "Noel mesajı"', from: 'Penny’nin teybi', date: '20 Aralık 1986', body:
-`[Klik. Yemek alanı uğultusu, Noel müziği, bir çeşme.]
+BABAM BİR GÜN HER KASABADA BİR STARLİGHT OLACAK DİYO.
+BİR AVM’DE KÜÇÜK BİR TANE BİLE.
+(CHOMPY’Yİ BEN ÇİZDİM) (BABAM ONU BEN İCAT ETTİM DİYO)` },
+      mall_tape: { kind: 'tape', title: 'Kaset: "Noel mesajı"', from: 'Rosie’nin teyp kaydedicisi', date: '13 Aralık 1986', body:
+`[Klik. Yemek alanı uğultusu, Noel müziği, bir fıskiye.]
 
-PENNY: Burası Radyo Penny, yemek alanından canlı yayın, gelecekteki bizlere bir Noel mesajıyla. Başla.
+ROSIE: Burası Rosie Radyo, yemek alanından canlı, bir Noel mesajıyla... gelecekteki bize. Başla.
 
-BILLY: Gelecekteki ben, zengin olsan iyi olur.
+DANNY: Gelecekteki ben, zengin olsan iyi olur.
 
-IVY: Şey. Gelecekteki Ivy. Umarım bu aptallarla hâlâ arkadaşsındır.
+NELL: Şey. Gelecekteki Nell. Umarım bu salaklarla hâlâ arkadaşsındır.
 
-CLYDE: Gelecekteki Clyde, muhtemelen daha uzunsun. Sonunda.
+TOBY: Gelecekteki Toby, muhtemelen artık daha uzunsun. Sonunda.
 
 SAM: Gelecekteki Sam... bunu unutma.
 
-PENNY: Çok duygusal oldu, Sam.
+ROSIE: Çok duygusal oldu Sam.
 
-SAM: Kes sesini, Noel bu.
+SAM: Kapa çeneni, Noel bu.
 
-[Herkes gülüyor. Birisi tepsi düşürüyor.]
+[Herkes gülüyor. Biri tepsi düşürüyor.]
 
-PENNY: Radyo Penny, yayını kapatıyor. Mutlu Noeller, Harlow.
+ROSIE: Rosie Radyo, yayını kapatıyor. Mutlu Noeller Harlow.
 
 [Klik.]` },
     },
@@ -126,35 +126,35 @@ PENNY: Radyo Penny, yayını kapatıyor. Mutlu Noeller, Harlow.
       mall_leave: 'AVM kapılarından çık',
     },
     mono: {
-      mall_start: 'AVM. Simit ve çam kokuyor. Burada mutluydum. Unutmuşum.',
-      mall_frame1: 'Billy ve Penny. Hep eğlenmiyormuş gibi yapardı.',
-      mall_frame2: 'Ivy ve Clyde. Fotoğraflarda hiç gülümsemezdi. Bunda gülümsemiş.',
-      mall_frame3: 'Ben ve Clyde. Aynı suratı yapmışız. Hep aynı suratı yapardık.',
+      mall_start: 'AVM. Simit ve çam kokusu. Burada mutluydum. Unutmuşum.',
+      mall_frame1: 'Danny ve Rosie. Hep eğlenmiyormuş gibi yapardı.',
+      mall_frame2: 'Nell ve Toby. Fotoğraflarda hiç gülümsemezdi. Bunda gülümsemiş.',
+      mall_frame3: 'Ben ve Toby. Aynı surat. Hep aynı suratı yapardık.',
       mall_frame4: 'Beşimiz tek bir taburede.',
       mall_strip: 'Saklamış. Çakmak kutusunda. Saklamış.',
-      mall_mannequin: 'O manken vitrine bakıyordu. Şimdi bana bakıyor.',
+      mall_mannequin: 'O manken vitrine dönüktü. Şimdi bana dönük.',
     },
     lines: {
       mall_boothUse: 'Kareleri fotoğraf kabinine ver',
-      mall_boothLook: 'Fotoğraf kabini (4 poz 1$)',
-      mall_boothNeed: 'Kabin uğulduyor. {n} tane daha eksik.',
+      mall_boothLook: 'Fotoğraf kabini (4 poz 1 $)',
+      mall_boothNeed: 'Kabin uğulduyor. {n} kare daha eksik.',
     },
     radio: {
       mall_start: [
-        ['eddie', 'AVM. Burada hepsi çok mutluydu, Sam. Buradaki her anı sıcacık.'],
-        ['eddie', 'Oyunun onlara bu kadar kolay tutunabilmesinin sebebi de bu.'],
+        ['eddie', 'AVM. Burada hepsi o kadar mutluydu ki Sam. Buradaki her anı sıcacık.'],
+        ['eddie', 'Oyunun onlara tutunmasını bu kadar kolaylaştıran da bu.'],
       ],
       mall_mannequin: [
-        ['eddie', 'Gözünü kırpma. Ciddiyim. Gerekirse geri geri yürü.'],
+        ['eddie', 'Göz kırpma. Ciddiyim. Gerekirse geri geri yürü.'],
       ],
       mall_frames: [
         ['eddie', 'Dördü de tamam. Kabin yemek alanının yanında.'],
       ],
       mall_booth: [
-        ['eddie', '...Starlight Beşlisi. Walt size böyle derdi. Şimdi hatırladım.'],
-        ['eddie', 'Bunlara fazla bağlanma, Sam. Bunlar yankı. Oyun seni burada tutmak için onları tekrar tekrar oynatıyor.'],
-        ['sam', 'Sana olan bu mu?'],
-        ['eddie', '...Kapılar açıldı. Git.'],
+        ['eddie', '...Starlight Beşlisi. Walt size öyle derdi. Şimdi hatırladım.'],
+        ['eddie', 'Bunlara fazla bağlanma Sam. Bunlar yankı. Oyun seni burada tutmak için onları tekrar tekrar çalıyor.'],
+        ['sam', 'Sana da bu mu oldu?'],
+        ['eddie', '...Kapılar açık. Git.'],
       ],
     },
   });

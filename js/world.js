@@ -328,7 +328,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         case 'lcd': m = E(0x40ff90, 1.5); break;
         case 'keys': m = S(0x999999, 0.5, 0.6); break;
         case 'leds': m = new THREE.MeshBasicMaterial({ map: this.ledsTex(), color: new THREE.Color(1.6, 1.6, 1.6) }); break;
-        case 'pellet': m = E(0xffb8ae, 6); break;
+        case 'pellet': m = E(0xffd28a, 6); break;
         case 'portal': m = E(0xff9ad5, 5); break;
         case 'whiteLight': m = E(0xfff8e8, 9); break;
         case 'elevatorPanel': m = E(0xffb040, 2); break;
@@ -1192,7 +1192,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         if (type.startsWith('cabinet:')) { this.buildCabinets(type.slice(8), list); continue; }
         if (type.startsWith('crt')) {
           const k = +type.slice(3);
-          const lines = [['C:\\> DIR', ' COUNTER  EXE', ' PERSONNL TXT', ' CODE     TXT', '', 'C:\\> _'], ['NO EXIT', 'NO EXIT', 'NO EXIT', 'NO EXIT'], ['REPORT 4/17', '', 'Yellow visitor', 'seen on floor.', '', 'Hide under', 'the desks.'], ['> ', '> waka', '> waka waka', '> _']][k];
+          const lines = [['C:\\> DIR', ' COUNTER  EXE', ' PERSONNL TXT', ' CODE     TXT', '', 'C:\\> _'], ['NO EXIT', 'NO EXIT', 'NO EXIT', 'NO EXIT'], ['REPORT 4/17', '', 'Round visitor', 'seen on floor.', '', 'Hide under', 'the desks.'], ['> ', '> CONTINUE?', '> CONTINUE? Y', '> _']][k];
           const tex = T.crt('desk' + k, lines, k === 1 ? '#ffb040' : '#7dff8a');
           const mat = new THREE.MeshBasicMaterial({ map: tex, color: new THREE.Color(1.4, 1.4, 1.4) });
           this.instanced('crtScreen', P.DEFS.crtScreen, list, { matFn: () => mat, cast: false });

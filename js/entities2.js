@@ -214,7 +214,7 @@
       this.nextCall -= dt;
       if (this.nextCall <= 0 && g.audio && g.audio.sfx && d < 30) {
         this.nextCall = 20 + Math.random() * 25;
-        // On Maple Street it borrows Clyde's voice; in Eddie's motel it calls for him in June's
+        // On Maple Street it borrows Toby's voice; in Eddie's motel it calls for him in June's
         const june = g.levelDef && g.levelDef.id === 'motel';
         g.audio.calloutVoice(june, { x: this.pos.x, y: 1.8, z: this.pos.z }, !this.losToPlayer());
         g.audio.caption('neighbor', PB.t(june ? 'cap.callJune' : 'cap.callName'), this.pos, 10);

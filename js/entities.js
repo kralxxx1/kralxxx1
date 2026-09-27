@@ -8,10 +8,10 @@
   const { DX, DY } = PB.LevelGen;
 
   const GHOST = {
-    blinky: { name: 'billy', color: 0xff2a2a, pitch: 300, speed: 3.9, patrol: 2.2, lose: 7, sight: 26, hear: 1.2 },
-    pinky: { name: 'penny', color: 0xff8fd8, pitch: 390, speed: 3.75, patrol: 2.1, lose: 5, sight: 24, hear: 1.0 },
-    inky: { name: 'ivy', color: 0x39e6ff, pitch: 350, speed: 3.4, patrol: 2.0, lose: 4, sight: 22, hear: 1.3 },
-    clyde: { name: 'clyde', color: 0xffae3b, pitch: 250, speed: 5.3, patrol: 0, lose: 99, sight: 40, hear: 0.6 },
+    red: { name: 'danny', color: 0xff2a2a, pitch: 300, speed: 3.9, patrol: 2.2, lose: 7, sight: 26, hear: 1.2 },
+    violet: { name: 'rosie', color: 0xb46cff, pitch: 390, speed: 3.75, patrol: 2.1, lose: 5, sight: 24, hear: 1.0 },
+    teal: { name: 'nell', color: 0x2fe0b8, pitch: 350, speed: 3.4, patrol: 2.0, lose: 4, sight: 22, hear: 1.3 },
+    amber: { name: 'toby', color: 0xffb020, pitch: 250, speed: 5.3, patrol: 0, lose: 99, sight: 40, hear: 0.6 },
   };
 
   // ------------------------------------------------------------ görseller
@@ -268,7 +268,7 @@
       for (let t = 0; t < 60; t++) {
         const a = r() * Math.PI * 2, d = rMin + r() * (rMax - rMin);
         const x = Math.round(cx + Math.cos(a) * d), y = Math.round(cy + Math.sin(a) * d);
-        if (!L.passable(x, y) || L.floorType[L.i(x, y)] === 1 && this.kind === 'pacman') continue;
+        if (!L.passable(x, y) || L.floorType[L.i(x, y)] === 1 && this.kind === 'eater') continue;
         const f = this.g.nav.playerField;
         if (f && f[L.i(x, y)] < 0) continue;
         if (avoidPlayerLos && L.los(L.cx(x), L.cz(y), this.g.player.pos.x, this.g.player.pos.z)) continue;
@@ -347,9 +347,9 @@
   }
 
   // ------------------------------------------------------------ Yutucu
-  class Pacman extends Entity {
+  class Eater extends Entity {
     constructor(game, o) {
-      super(game, 'pacman', o);
+      super(game, 'eater', o);
       const m = pacmanMesh(game);
       this.vis = m; this.mesh.add(m.group); lit(game, m.group);
       this.catchR = 1.55; this.radius = 0.55;
@@ -418,7 +418,7 @@
       const side = Math.floor(this.chomp * 2);
       if (side !== this.lastChompSide && moving) {
         this.lastChompSide = side;
-        if (g.audio && side % 2 === 0) { const d = this.distToPlayer(); if (d < 45) g.audio.waka({ x: this.pos.x, y: 1.2, z: this.pos.z }, !this.losToPlayer(), U.clamp(1.4 - d / 40, 0.2, 1.4)); }
+        if (g.audio && side % 2 === 0) { const d = this.distToPlayer(); if (d < 45) g.audio.bite({ x: this.pos.x, y: 1.2, z: this.pos.z }, !this.losToPlayer(), U.clamp(1.4 - d / 40, 0.2, 1.4)); }
       }
       const fleeing = this.state === 'flee';
       // Power pellet: the hide goes a sick, bruised blue and its glow dies down
@@ -457,7 +457,7 @@
       this.friendly = !!o.friendly;
       this.hostile = !this.friendly;
       this.selfLit = true;
-      this.state = this.friendly ? 'friendly' : (this.type === 'clyde' ? 'lurk' : 'patrol');
+      this.state = this.friendly ? 'friendly' : (this.type === 'amber' ? 'lurk' : 'patrol');
       this.hearMul = this.cfg.hear;
       this.teleT = 8;
       this.loopKeys = ['ghost:' + this.type];
@@ -466,12 +466,12 @@
       this.eatenT = 0;
     }
     onHear(x, z) {
-      if (this.type === 'clyde') return;
+      if (this.type === 'amber') return;
       this.setState('investigate');
     }
     chaseField() {
       // Pembe: oyuncunun baktığı yönde 4 hücre ilerisini hedefler
-      if (this.type === 'pinky' && this.distToPlayer() > 6) {
+      if (this.type === 'violet' && this.distToPlayer() > 6) {
         const g = this.g, L = this.L, pl = g.player;
         const fx = -Math.sin(pl.yaw), fz = -Math.cos(pl.yaw);
         let tx = pl.pos.x, tz = pl.pos.z;
@@ -488,7 +488,7 @@
     }
     chaseSpeed(sp) {
       let s = sp.speed;
-      if (this.type === 'blinky') s += (this.g.objectivesDone || 0) * 0.12;
+      if (this.type === 'red') s += (this.g.objectivesDone || 0) * 0.12;
       return s;
     }
     update(dt) {
@@ -512,14 +512,14 @@
           this.setGoal(c.x, c.y); this.stateT = 0;
         }
         if (this.goalField) this.advance(dt, d > 14 ? 5 : 2.6, this.goalField);
-        const pac = g.pacman && g.pacman.info();
+        const pac = g.eater && g.eater.info();
         const warn = pac ? U.clamp(1 - Math.hypot(pac.x - this.pos.x, pac.z - this.pos.z) / 18, 0, 1) : 0;
         // Its glow must never flood the camera when it drifts right next to you
         this.vis.light.intensity = (4 + warn * 14 * (0.5 + 0.5 * Math.sin(g.time * 12))) * U.smoothstep(0.6, 2.8, d);
         // Labirentte dost hayaletler Yutucu’yu kısa süre iter
-        if (pac && g.pacman.state !== 'stunned' && Math.hypot(pac.x - this.pos.x, pac.z - this.pos.z) < 2.5 && (this.pushT || 0) <= 0) {
-          g.pacman.frozenT = 2.5; g.pacman.setState('stunned'); this.pushT = 20;
-          g.ui.subtitle(PB.Story.ghostHelp('billy').replace('BILLY', PB.Story.speaker(this.cfg.name)), 3);
+        if (pac && g.eater.state !== 'stunned' && Math.hypot(pac.x - this.pos.x, pac.z - this.pos.z) < 2.5 && (this.pushT || 0) <= 0) {
+          g.eater.frozenT = 2.5; g.eater.setState('stunned'); this.pushT = 20;
+          g.ui.subtitle(PB.Story.ghostHelp('danny').replace('DANNY', PB.Story.speaker(this.cfg.name)), 3);
         }
         this.pushT = (this.pushT || 0) - dt;
         this.faceToward(g.player.pos.x, g.player.pos.z, dt, 3);
@@ -538,12 +538,12 @@
         return;
       }
       u.uAlpha.value = 1;
-      if (this.type === 'clyde') this.clydeAI(dt, dm);
+      if (this.type === 'amber') this.amberAI(dt, dm);
       else {
-        const sp = { sight: this.cfg.sight, fov: 2.6, speed: this.cfg.speed * dm, patrol: this.cfg.patrol * dm, lose: this.cfg.lose, hunt: this.maze || this.type === 'blinky', notice: 2.4 };
+        const sp = { sight: this.cfg.sight, fov: 2.6, speed: this.cfg.speed * dm, patrol: this.cfg.patrol * dm, lose: this.cfg.lose, hunt: this.maze || this.type === 'red', notice: 2.4 };
         if (this.state === 'lurk') this.setState('patrol');
         this.baseAI(dt, sp);
-        if (this.type === 'inky') this.inkyTeleport(dt);
+        if (this.type === 'teal') this.tealTeleport(dt);
       }
       // Oyuncu kaçan hayaleti "yer"
       if (this.state === 'flee' && this.distToPlayer() < 1.3) { this.setState('eaten'); this.eatenT = 12; g.onGhostEaten(this); }
@@ -552,11 +552,11 @@
       if (g.audio) {
         const k = 'ghost:' + this.type;
         const d = this.distToPlayer();
-        if (!g.audio.loops.has(k)) g.audio.loop(k, this.type === 'clyde' ? 'shuffle' : 'wail', { x: this.pos.x, y: 1.2, z: this.pos.z }, { gain: 0, pitch: this.cfg.pitch, ref: 3 });
+        if (!g.audio.loops.has(k)) g.audio.loop(k, this.type === 'amber' ? 'shuffle' : 'wail', { x: this.pos.x, y: 1.2, z: this.pos.z }, { gain: 0, pitch: this.cfg.pitch, ref: 3 });
         let gain = U.clamp(1 - d / 32, 0, 1) * (this.state === 'chase' ? 0.55 : 0.28);
-        if (this.type === 'clyde') gain = this.moving ? U.clamp(1 - d / 20, 0, 1) * 0.8 : 0;
+        if (this.type === 'amber') gain = this.moving ? U.clamp(1 - d / 20, 0, 1) * 0.8 : 0;
         g.audio.setLoop(k, gain, { x: this.pos.x, y: 1.2, z: this.pos.z }, !this.losToPlayer());
-        if (gain > 0.2 && this.type === 'clyde') g.audio.caption('clyde', PB.t('cap.drag'), { x: this.pos.x, y: 1, z: this.pos.z }, 8);
+        if (gain > 0.2 && this.type === 'amber') g.audio.caption('amber', PB.t('cap.drag'), { x: this.pos.x, y: 1, z: this.pos.z }, 8);
         else if (gain > 0.15) g.audio.caption('ghost' + this.type, PB.t('cap.moan'), { x: this.pos.x, y: 1, z: this.pos.z }, 12);
       }
     }
@@ -572,7 +572,7 @@
       local.sub(new THREE.Vector3(0, 1.39, 0)).normalize();
       for (const e of this.vis.eyes) e.p.position.set(local.x * 0.008, local.y * 0.006, Math.max(0, local.z) * 0.006);
     }
-    inkyTeleport(dt) {
+    tealTeleport(dt) {
       this.teleT -= dt;
       if (this.teleT > 0 || this.state === 'chase' && this.losToPlayer()) return;
       this.teleT = 9 + Math.random() * 7;
@@ -584,7 +584,7 @@
       if (this.g.audio) { this.g.audio.loop('inkyWhisper', 'whisper', { x: this.pos.x, y: 1.5, z: this.pos.z }, { gain: 0.5 }); setTimeout(() => this.g.audio && this.g.audio.stopLoop('inkyWhisper', 1), 2200); this.g.audio.caption('whisper', PB.t('cap.whisper'), { x: this.pos.x, y: 1, z: this.pos.z }, 6); }
     }
     // Turuncu: bakıldığında donar, bakılmadığında hızla yaklaşır, fenere uzun süre tutulursa kaçar
-    clydeAI(dt, dm) {
+    amberAI(dt, dm) {
       const g = this.g;
       const obs = this.observed();
       this.moving = false;
@@ -598,7 +598,7 @@
         return;
       }
       if (obs) {
-        if (!this.wasObserved) { g.onClydeSeen(this); }
+        if (!this.wasObserved) { g.onAmberSeen(this); }
         this.wasObserved = true;
         if (this.inFlashBeam(8)) { this.beamT += dt; if (this.beamT > 1.6) { this.retreat(); } }
         else this.beamT = Math.max(0, this.beamT - dt);
@@ -618,7 +618,7 @@
       this.setState('retreat');
       this.beamT = 0;
       if (this.g.audio) this.g.audio.stinger('spot');
-      this.g.ui.subtitle(PB.Story.ghostHelp('clydeWatch'), 3);
+      this.g.ui.subtitle(PB.Story.ghostHelp('amberWatch'), 3);
     }
     makeFriendly() {
       this.friendly = true; this.hostile = false;
@@ -786,5 +786,5 @@
     }
   }
 
-  PB.Entities = { Pacman, Ghost, Grinner, Watcher, Nav, GHOST, lit };
+  PB.Entities = { Eater, Ghost, Grinner, Watcher, Nav, GHOST, lit };
 })(typeof window !== 'undefined' ? window : globalThis);
