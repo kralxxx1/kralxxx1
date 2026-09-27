@@ -1475,6 +1475,7 @@
       if (this.perf) this.perf.begin(now);
       const raw = (now - this.last) / 1000;
       const dt = Math.min(0.05, raw);
+      this.input.pollPad(dt);
       this.last = now;
       this.time += dt;
       // FPS gerçek süreden ölçülür (dt 0.05'te kırpıldığı için ondan ölçülemez)

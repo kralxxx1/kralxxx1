@@ -48,6 +48,11 @@ the arcade.
 | `M` / `Tab` | Map |
 | `Esc` / `P` | Pause |
 
+With a controller (Xbox layout; Steam Input maps PlayStation, Switch and Steam Deck controls to it): left stick
+walk, right stick look, A interact, B crouch, X batteries, Y flashlight, LB/RB lean, RT or L3 run, LT glow
+stick, R3 look back, D-pad journal / Star Pop / items, View map, Menu pause. The menus work with the D-pad,
+A and B, and scares rumble.
+
 On touch screens: a move stick bottom left, drag on the right to look, and action buttons.
 
 ## Chapters

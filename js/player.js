@@ -11,9 +11,24 @@
     flash: ['KeyF'], map: ['KeyM', 'Tab'], journal: ['KeyJ'], pause: ['Escape', 'KeyP'], throw: ['KeyG'], inventory: ['KeyI'], drink: ['KeyQ'], leanL: ['KeyZ'], leanR: ['KeyX'], reload: ['KeyR'], lookBack: ['KeyV', 'Mouse1'], attack: ['Mouse0'],
   };
 
+  // Gamepad, standard mapping (the Xbox layout; Steam Input presents PlayStation, Switch and Steam Deck
+  // controls the same way). In play the buttons stand for the same actions as the keys; the sticks walk
+  // and look. Button numbers: 0 A, 1 B, 2 X, 3 Y, 4 LB, 5 RB, 6 LT, 7 RT, 8 View, 9 Menu, 10/11 stick
+  // clicks, 12-15 D-pad up, down, left, right.
+  const PAD = {
+    interact: [0], crouch: [1], reload: [2], flash: [3], leanL: [4], leanR: [5], throw: [6, 14], sprint: [7, 10],
+    lookBack: [11], map: [8], pause: [9], journal: [12], drink: [13], inventory: [15],
+  };
+  // States where the game reads the actions itself; everywhere else the pad drives the menus
+  const PAD_ACTION_STATES = ['play', 'dying', 'note', 'map', 'bag'];
+  const DIRS = { 12: 'ArrowUp', 13: 'ArrowDown', 14: 'ArrowLeft', 15: 'ArrowRight' };
+  const deadzone = (v, dz) => { const a = Math.abs(v); return a < dz ? 0 : Math.sign(v) * (a - dz) / (1 - dz); };
+
   class Input {
     constructor(game, canvas) {
       this.game = game; this.canvas = canvas;
+      this.pad = { on: false, gp: null, prev: [], down: new Set(), edges: new Set(), mx: 0, my: 0, hold: {}, stickDir: null };
+      this.usingPad = false;
       this.keys = new Set(); this.edges = new Set();
       this.dx = 0; this.dy = 0;
       this.locked = false; this.lockFailed = false; this.dragging = false;
@@ -21,6 +36,7 @@
       this.touchSprint = false; this.touchCrouch = false;
       this.virtual = new Set();
       root.addEventListener('keydown', e => {
+        if (e.isTrusted && this.usingPad) this.setPadMode(false);
         if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) return;
         if (!e.repeat) this.edges.add(e.code);
         this.keys.add(e.code);
@@ -40,6 +56,7 @@
       });
       root.addEventListener('mousemove', e => {
         if (this.locked || this.dragging) { this.dx += e.movementX || 0; this.dy += e.movementY || 0; }
+        if (this.usingPad && Math.abs(e.movementX || 0) + Math.abs(e.movementY || 0) > 3) this.setPadMode(false);
       });
       // Mouse buttons count as keys too (the middle one looks back)
       root.addEventListener('mousedown', e => { if (e.button === 1 || (e.button === 0 && this.locked)) { const k = 'Mouse' + e.button; this.keys.add(k); this.edges.add(k); if (game.state === 'play' && e.button === 1) e.preventDefault(); } });
@@ -62,10 +79,135 @@
       } catch (e) { /* pointerlockerror olayı ele alır */ }
     }
     exitLock() { if (document.pointerLockElement) document.exitPointerLock(); }
-    down(action) { return MAP[action].some(k => this.keys.has(k)) || this.virtual.has(action); }
-    pressed(action) { return MAP[action].some(k => this.edges.has(k)) || this.virtual.has('!' + action); }
+    down(action) { return MAP[action].some(k => this.keys.has(k)) || this.virtual.has(action) || this.pad.down.has(action); }
+    pressed(action) { return MAP[action].some(k => this.edges.has(k)) || this.virtual.has('!' + action) || this.pad.edges.has(action); }
     tap(action) { this.virtual.add('!' + action); }
+    // ---------------------------------------------------------------- gamepad
+    setPadMode(on) {
+      if (this.usingPad === on) return;
+      this.usingPad = on;
+      document.body.classList.toggle('pad-mode', on);
+    }
+    // Once a frame, before the game reads its input
+    pollPad(dt) {
+      const P = this.pad;
+      const list = navigator.getGamepads ? navigator.getGamepads() : [];
+      let gp = null;
+      for (const p of list || []) if (p && p.connected) { if (p.mapping === 'standard') { gp = p; break; } if (!gp) gp = p; }
+      P.gp = gp;
+      if (!gp) { if (P.on) { P.on = false; P.down.clear(); P.mx = P.my = 0; P.prev = []; P.hold = {}; } return; }
+      P.on = true;
+      const now = gp.buttons.map(b => !!b && (b.pressed || b.value > 0.5));
+      const prev = P.prev;
+      const hit = i => now[i] && !prev[i];
+      const ax = i => gp.axes[i] || 0;
+      if (now.some(Boolean) || Math.hypot(ax(0), ax(1)) > 0.5 || Math.hypot(ax(2), ax(3)) > 0.5) this.setPadMode(true);
+      const state = this.game.state;
+      P.down.clear(); P.mx = P.my = 0;
+      if (PAD_ACTION_STATES.includes(state)) {
+        for (const [action, btns] of Object.entries(PAD)) {
+          if (btns.some(i => now[i])) P.down.add(action);
+          if (btns.some(hit)) P.edges.add(action);
+        }
+        // B backs out of a paper, the map and the bag
+        if (state !== 'play' && state !== 'dying' && hit(1)) P.edges.add('pause');
+        if (state === 'play') {
+          // walk: radial dead zone; look: dead zone and a curve for fine aim, independent of the mouse setting
+          const lx = ax(0), ly = ax(1), l = Math.hypot(lx, ly);
+          if (l > 0.18) { const k = Math.min(1, (l - 0.18) / 0.82) / l; P.mx = lx * k; P.my = ly * k; }
+          const S = PB.Settings.data;
+          const curve = v => { const d = deadzone(v, 0.12); return Math.sign(d) * Math.pow(Math.abs(d), 1.6); };
+          const k = 1500 * (S.padSens || 1) / Math.max(0.1, S.mouseSens || 1) * dt;
+          this.dx += curve(ax(2)) * k; this.dy += curve(ax(3)) * k;
+        }
+      } else this.padMenus(now, hit, ax(0), ax(1));
+      P.prev = now;
+    }
+    // Menus: the D-pad (or the left stick) moves the focus, A chooses, B and Menu go back, LB/RB switch tabs.
+    // Screens with their own arrow keys (settings, the arcade cabinet) get arrow keys.
+    padMenus(now, hit, sx, sy) {
+      const P = this.pad, ui = this.game.ui, t = performance.now();
+      const stick = Math.abs(sx) > 0.6 || Math.abs(sy) > 0.6 ? (Math.abs(sx) > Math.abs(sy) ? (sx < 0 ? 14 : 15) : (sy < 0 ? 12 : 13)) : null;
+      for (const i of [12, 13, 14, 15]) {
+        const held = now[i] || stick === i;
+        if (!held) { delete P.hold[i]; continue; }
+        // first press at once, then repeat while held
+        if (P.hold[i] == null) { P.hold[i] = t + 380; this.navigate(DIRS[i]); }
+        else if (t >= P.hold[i]) { P.hold[i] = t + 110; this.navigate(DIRS[i]); }
+      }
+      if (hit(0)) this.choose();
+      if (hit(1) || hit(9)) this.sendKey('Escape');
+      if (hit(4)) this.sendKey('KeyQ');
+      if (hit(5)) this.sendKey('KeyE');
+      if (ui && hit(8) && this.game.state === 'pause') this.sendKey('Escape');
+    }
+    sendKey(code) {
+      const key = { Escape: 'Escape', Enter: 'Enter', ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown', ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', KeyQ: 'q', KeyE: 'e' }[code] || code;
+      const target = document.activeElement && document.activeElement !== document.body ? document.activeElement : document;
+      target.dispatchEvent(new KeyboardEvent('keydown', { code, key, bubbles: true, cancelable: true }));
+      target.dispatchEvent(new KeyboardEvent('keyup', { code, key, bubbles: true, cancelable: true }));
+    }
+    // The screen on top: the last visible screen or overlay that has something to press
+    topScreen() {
+      const ui = this.game.ui;
+      if (!ui) return null;
+      const open = ui.screens().filter(s => !s.hidden && this.focusables(s).length);
+      return open.length ? open[open.length - 1] : null;
+    }
+    focusables(scope) {
+      return Array.from(scope.querySelectorAll('button:not([disabled]):not([hidden]), input[type=range], .set-row, [tabindex="0"]')).filter(b => b.offsetParent !== null);
+    }
+    navigate(code) {
+      const ui = this.game.ui;
+      if (this.game.state === 'cabinet' || (ui && ui.isOpen('scr-settings'))) { this.sendKey(code); return; }
+      const scr = this.topScreen();
+      if (!scr) return;
+      const items = this.focusables(scr), cur = document.activeElement;
+      if (!items.includes(cur)) { items[0].focus({ preventScroll: false }); return; }
+      if (cur.type === 'range' && (code === 'ArrowLeft' || code === 'ArrowRight')) {
+        const step = +cur.step || 0.05, v = Math.min(+cur.max, Math.max(+cur.min, +cur.value + (code === 'ArrowRight' ? step : -step)));
+        cur.value = v; cur.dispatchEvent(new Event('input', { bubbles: true }));
+        return;
+      }
+      // nearest element in that direction; if none, wrap around the list
+      const r = cur.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const vert = code === 'ArrowUp' || code === 'ArrowDown', sign = code === 'ArrowUp' || code === 'ArrowLeft' ? -1 : 1;
+      let best = null, bestScore = Infinity;
+      for (const e of items) {
+        if (e === cur) continue;
+        const q = e.getBoundingClientRect(), dx = q.left + q.width / 2 - cx, dy = q.top + q.height / 2 - cy;
+        const main = (vert ? dy : dx) * sign, side = Math.abs(vert ? dx : dy);
+        if (main <= 4) continue;
+        const score = main + side * 2.5;
+        if (score < bestScore) { bestScore = score; best = e; }
+      }
+      if (!best) {
+        if (!vert) return;
+        const i = items.indexOf(cur);
+        best = items[(i + sign + items.length) % items.length];
+      }
+      best.focus({ preventScroll: false });
+      if (best.scrollIntoView) best.scrollIntoView({ block: 'nearest' });
+      this.game.audio && this.game.audio.uiMove && this.game.audio.uiMove();
+    }
+    choose() {
+      if (this.game.state === 'cabinet') { this.sendKey('Enter'); return; }
+      const scr = this.topScreen(), cur = document.activeElement;
+      if (!scr) return;
+      if (!cur || !scr.contains(cur) || cur === document.body) { const f = this.focusables(scr)[0]; if (f) f.focus(); return; }
+      if (cur.classList.contains('set-row')) { if (cur.dataset.type === 'toggle') this.sendKey('Enter'); else this.sendKey('ArrowRight'); return; }
+      if (cur.tagName === 'BUTTON') cur.click();
+    }
+    // A short rumble for a scare or a hit, scaled by the camera-shake setting
+    rumble(k) {
+      const gp = this.pad.gp;
+      if (!gp || !this.usingPad || !gp.vibrationActuator || !gp.vibrationActuator.playEffect) return;
+      const S = PB.Settings.data, s = Math.min(1, k) * (S.shake != null ? S.shake : 1);
+      if (s < 0.05) return;
+      try { gp.vibrationActuator.playEffect('dual-rumble', { duration: Math.round(120 + 380 * Math.min(1, k)), strongMagnitude: Math.min(1, s), weakMagnitude: Math.min(1, s * 0.7) }).catch(() => {}); } catch (e) { /* no rumble motor */ }
+    }
     endFrame() {
+      this.pad.edges.clear();
       this.edges.clear();
       for (const v of [...this.virtual]) if (v[0] === '!') this.virtual.delete(v);
     }
@@ -257,7 +399,7 @@
         if (inp.down('back')) mz += 1;
         if (inp.down('left')) mx -= 1;
         if (inp.down('right')) mx += 1;
-        mx += inp.move.x; mz += inp.move.y;
+        mx += inp.move.x + inp.pad.mx; mz += inp.move.y + inp.pad.my;
       }
       const ml = Math.hypot(mx, mz);
       if (ml > 1) { mx /= ml; mz /= ml; }
@@ -421,7 +563,10 @@
       if (Math.abs(cam.fov - fovT) > 0.05) { cam.fov = U.damp(cam.fov, fovT, 6, dt || 1); cam.updateProjectionMatrix(); }
       if (this.vm) this.vm.update(dt || 0, this);
     }
-    addTrauma(k) { this.trauma = Math.min(1, this.trauma + k); }
+    addTrauma(k) {
+      this.trauma = Math.min(1, this.trauma + k);
+      if (k >= 0.1 && this.game.input) this.game.input.rumble(k);
+    }
     // ---------------------------------------------------------- saklanma
     hide(spot) {
       this.hidden = { x: spot.x, z: spot.z, eye: spot.eye || 0.72, floor: this.floorY, spot, fromX: this.pos.x, fromZ: this.pos.z, t: 0 };

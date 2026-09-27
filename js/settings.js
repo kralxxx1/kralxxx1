@@ -90,6 +90,7 @@
     { key: 'mouseSens', tab: 'controls', type: 'range', def: 1, min: 0.1, max: 3, step: 0.05, fmt: v => v.toFixed(2) },
     { key: 'invertY', tab: 'controls', type: 'toggle', def: false },
     { key: 'touchSens', tab: 'controls', type: 'range', def: 1, min: 0.2, max: 3, step: 0.05, fmt: v => v.toFixed(2) },
+    { key: 'padSens', tab: 'controls', type: 'range', def: 1, min: 0.2, max: 3, step: 0.05, fmt: v => v.toFixed(2) },
     { key: 'toggleCrouch', tab: 'controls', type: 'toggle', def: false },
     { key: 'toggleSprint', tab: 'controls', type: 'toggle', def: false },
 

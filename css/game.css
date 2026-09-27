@@ -532,3 +532,5 @@ html:is([lang="zh-CN"], [lang="ja"], [lang="ko"], [lang="ar"]) .meter span { fon
 html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) :is(.paper .nb p.narr, .paper.kind-memory .nb) { font-style: normal !important; }
 html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) .subtitle, html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) .boot-title span { letter-spacing: 0.12em; }
 [dir="rtl"] .set-row .ctl { direction: ltr; } [dir="rtl"] .set-row .ctl .cyc-val, [dir="rtl"] .set-row .ctl output { direction: rtl; unicode-bidi: plaintext; }
+/* playing with a controller: no mouse cursor over the game */
+body.pad-mode #game, body.pad-mode canvas { cursor: none; }

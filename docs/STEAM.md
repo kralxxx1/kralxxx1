@@ -115,6 +115,11 @@ gambling. The game has no multiplayer, no user-generated content, no in-game pur
 collection. For age ratings, answer the IARC questionnaire in Steamworks (free). With the answers above,
 expect roughly PEGI 12–16, USK 12–16 and ESRB Teen.
 
+**Controller support:** full. Every action and every menu works with a controller in the Xbox layout,
+and Steam Input maps PlayStation, Switch and Steam Deck controls to it. Tick "Full controller support" in
+Steamworks and choose the Gamepad template as the default Steam Input configuration. On Steam Deck the Linux
+depot runs natively. Test it on a Deck before you apply for "Deck Verified".
+
 **Accessibility (store page and settings):** subtitles, optional sound captions, subtitle size, three
 difficulties, jump-scare intensity, reduced flicker, head-bob and camera-shake sliders, and a colour-grade
 and brightness control.

@@ -53,7 +53,7 @@
         const i = items.indexOf(document.activeElement);
         if (e.code === 'ArrowDown' || (e.code === 'Tab' && !e.shiftKey)) { if (document.activeElement && document.activeElement.type === 'range' && e.code !== 'Tab') { /* kaydırıcı: aşağı = sonraki */ } e.preventDefault(); items[(i + 1) % items.length].focus(); this.g.audio && this.g.audio.uiMove(); }
         else if (e.code === 'ArrowUp' || (e.code === 'Tab' && e.shiftKey)) { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); this.g.audio && this.g.audio.uiMove(); }
-        else if (e.code === 'Escape' && scr.dataset.back) { e.preventDefault(); const b = scr.querySelector('[data-action=back]'); if (b) b.click(); }
+        else if (e.code === 'Escape' && scr.hasAttribute('data-back')) { e.preventDefault(); const b = scr.querySelector('[data-action=back]'); if (b) b.click(); }
       });
       document.addEventListener('click', e => { const b = e.target.closest('button'); if (b && this.g.audio) this.g.audio.uiOk(); });
     }
@@ -308,7 +308,7 @@
       if (!text) { p.hidden = true; return; }
       p.hidden = false;
       this.$('prompt-text').textContent = text;
-      this.$('prompt-key').textContent = this.touch ? t('touch.tap') : 'E';
+      this.$('prompt-key').textContent = this.touch ? t('touch.tap') : this.g.input && this.g.input.usingPad ? 'A' : 'E';
       const ring = this.$('hold');
       if (hold != null) { ring.hidden = false; ring.style.setProperty('--p', hold); } else ring.hidden = true;
     }
@@ -345,8 +345,9 @@
       const box = this.$('inv');
       const chips = [];
       if (inv.batteries) chips.push(esc(t('inv.battery', { n: inv.batteries })));
-      if (inv.almond) chips.push(`${esc(t('inv.almond', { n: inv.almond }))} <kbd>Q</kbd>`);
-      if (inv.glow) chips.push(`${esc(t('inv.glow', { n: inv.glow }))} <kbd>G</kbd>`);
+      const pad = this.g.input && this.g.input.usingPad;
+      if (inv.almond) chips.push(`${esc(t('inv.almond', { n: inv.almond }))} <kbd>${pad ? '↓' : 'Q'}</kbd>`);
+      if (inv.glow) chips.push(`${esc(t('inv.glow', { n: inv.glow }))} <kbd>${pad ? 'LT' : 'G'}</kbd>`);
       for (const k of inv.keys || []) chips.push(esc(k));
       box.innerHTML = chips.map(c => `<span class="chip">${c}</span>`).join('');
     }
