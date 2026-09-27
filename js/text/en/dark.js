@@ -22,7 +22,7 @@ The amber one... keep your light on him. Don't turn your back on him for long.
 
 Danny says I'm in charge of the flashlight. Rosie made a tape. Nell made a map of the Haunt patterns and it's actually really good.
 
-I sat on Sam's walkman today. It went crunch. He doesn't know yet. I'm giving him my allowance for March AND April.
+I sat on Sam's walkman today. It went crunch. Sam doesn't know yet. I'm giving Sam my allowance for March AND April.
 
 Danny says the amber Haunt on #7 is me because it's the chicken one. Walt says it's the smart one. Either way it's MY Haunt.` },
       dark_diary2: { kind: 'diary', title: 'The last page', from: 'Toby', date: 'April 17, 1987, 12:50 AM — at the arcade', body:
