@@ -619,43 +619,80 @@
     return img;
   };
   // Siyah ışıkta parlayan klasik atari salonu halısı (tuval ile çizilir)
+  // 80s "cosmic" arcade carpet: printed planets, rings, stars, squiggles and confetti on a deep
+  // indigo cut pile. The print sits in the fibres (broken up, slightly bled), the pile has tufts,
+  // and the walking lanes are matted and dull. The UV-reactive inks glow faintly.
   R.arcadeCarpet = (n, s) => {
     const c = document.createElement('canvas'); c.width = c.height = n;
     const g = c.getContext('2d');
-    g.fillStyle = '#0b0710'; g.fillRect(0, 0, n, n);
+    g.fillStyle = '#000'; g.fillRect(0, 0, n, n);
     const r = U.rng(s);
-    const cols = ['#ff2bd6', '#2bf0ff', '#fff12b', '#6cff2b', '#ff7b2b', '#8f5bff'];
+    const cols = ['#ff2bb4', '#22e0ff', '#ffe02b', '#7dff2b', '#ff8a2b', '#9b6bff', '#ff4050'];
+    const S0 = n / 1024;
     const shapes = [];
-    for (let k = 0; k < 70; k++) shapes.push({ x: r() * n, y: r() * n, c: r.pick(cols), t: r.int(0, 4), s: n * r.range(0.015, 0.05), a: r() * 6.28 });
+    // big motifs first (planets with rings), then stars and squiggles, then confetti on top
+    for (let k = 0; k < 22; k++) shapes.push({ t: 0, x: r() * n, y: r() * n, s: r.range(30, 55) * S0, c: r.pick(cols), c2: r.pick(cols), a: r() * 6.28 });
+    for (let k = 0; k < 60; k++) shapes.push({ t: 1 + r.int(0, 3), x: r() * n, y: r() * n, s: r.range(14, 30) * S0, c: r.pick(cols), c2: r.pick(cols), a: r() * 6.28 });
+    for (let k = 0; k < 260; k++) shapes.push({ t: 5, x: r() * n, y: r() * n, s: r.range(3, 7) * S0, c: r.pick(cols), a: r() * 6.28 });
     const draw = (sh, ox, oy) => {
       g.save(); g.translate(sh.x + ox, sh.y + oy); g.rotate(sh.a);
-      g.strokeStyle = sh.c; g.fillStyle = sh.c; g.lineWidth = n * 0.006;
-      if (sh.t === 0) { g.beginPath(); g.arc(0, 0, sh.s, 0, 6.28); g.stroke(); }
-      else if (sh.t === 1) { g.beginPath(); g.moveTo(-sh.s, sh.s * 0.7); g.lineTo(0, -sh.s); g.lineTo(sh.s, sh.s * 0.7); g.closePath(); g.stroke(); }
-      else if (sh.t === 2) { g.beginPath(); for (let q = 0; q < 6; q++) { g.lineTo(-sh.s * 1.5 + q * sh.s * 0.6, (q & 1) ? -sh.s * 0.4 : sh.s * 0.4); } g.stroke(); }
-      else if (sh.t === 3) { g.beginPath(); g.arc(0, 0, sh.s * 0.35, 0, 6.28); g.fill(); }
-      else { g.beginPath(); for (let q = 0; q < 10; q++) { const rr = q & 1 ? sh.s * 0.4 : sh.s; g.lineTo(Math.cos(q * 0.628) * rr, Math.sin(q * 0.628) * rr); } g.closePath(); g.stroke(); }
+      g.fillStyle = sh.c; g.strokeStyle = sh.c; g.lineCap = 'round'; g.lineJoin = 'round';
+      const z = sh.s;
+      switch (sh.t) {
+        case 0: { // planet: filled disc with a darker band, and a tilted ring in the second colour
+          g.beginPath(); g.arc(0, 0, z, 0, 6.28); g.fill();
+          g.fillStyle = 'rgba(0,0,0,0.35)'; g.beginPath(); g.arc(z * 0.25, z * 0.2, z * 0.8, 0, 6.28); g.fill();
+          g.strokeStyle = sh.c2; g.lineWidth = z * 0.16; g.beginPath(); g.ellipse(0, 0, z * 1.7, z * 0.45, 0.35, 0, 6.28); g.stroke();
+          break;
+        }
+        case 1: { // four-point star
+          g.beginPath(); for (let q = 0; q < 8; q++) { const rr = q & 1 ? z * 0.28 : z; g.lineTo(Math.cos(q * 0.785) * rr, Math.sin(q * 0.785) * rr); } g.closePath(); g.fill(); break;
+        }
+        case 2: { // thick squiggle
+          g.lineWidth = z * 0.28; g.beginPath(); for (let q = 0; q <= 7; q++) g.lineTo(-z * 1.6 + q * z * 0.46, (q & 1) ? -z * 0.45 : z * 0.45); g.stroke(); break;
+        }
+        case 3: { // triangle outline with a filled centre dot in the other colour
+          g.lineWidth = z * 0.2; g.beginPath(); g.moveTo(-z, z * 0.7); g.lineTo(0, -z); g.lineTo(z, z * 0.7); g.closePath(); g.stroke();
+          g.fillStyle = sh.c2; g.beginPath(); g.arc(0, z * 0.1, z * 0.22, 0, 6.28); g.fill(); break;
+        }
+        case 4: { // comet: a disc with a tapering tail
+          g.beginPath(); g.arc(0, 0, z * 0.45, 0, 6.28); g.fill();
+          g.beginPath(); g.moveTo(0, -z * 0.35); g.quadraticCurveTo(-z * 1.2, -z * 0.1, -z * 2, z * 0.05); g.quadraticCurveTo(-z * 1.2, z * 0.2, 0, z * 0.35); g.fill(); break;
+        }
+        default: g.beginPath(); g.arc(0, 0, z, 0, 6.28); g.fill();
+      }
       g.restore();
     };
     for (const sh of shapes) for (const ox of [-n, 0, n]) for (const oy of [-n, 0, n]) draw(sh, ox, oy);
     const data = g.getImageData(0, 0, n, n).data;
+    const wear = field(n, 2, 3, s + 11), mott = field(n, 9, 3, s + 12), tuft = field(n, 64, 2, s + 13);
     const img = new FImg(n);
     img.e = new Float32Array(n * n * 3);
-    for (let i = 0; i < n * n; i++) {
-      const rr = data[i * 4] / 255, gg = data[i * 4 + 1] / 255, bb = data[i * 4 + 2] / 255;
-      const f = h32(i % n, (i / n) | 0, s);
-      const lit = Math.max(rr, gg, bb) > 0.2 ? 1 : 0;
-      img.set(i, rr * 0.8 + f * 0.03, gg * 0.8 + f * 0.03, bb * 0.8 + f * 0.04);
-      img.e[i * 3] = rr * lit * 0.8; img.e[i * 3 + 1] = gg * lit * 0.8; img.e[i * 3 + 2] = bb * lit * 0.8;
-      img.h[i] = f * 0.6;
-      img.r[i] = 0.97;
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x;
+      // print bleeds a little along the fibres and breaks up where a tuft leans away
+      const j = ((y + (h32(x, y, s + 5) < 0.5 ? 0 : 1)) % n) * n + x;
+      let pr = data[j * 4] / 255, pg = data[j * 4 + 1] / 255, pb = data[j * 4 + 2] / 255;
+      const f = h32(x, y, s), f2 = h32(x >> 1, y >> 1, s + 9);
+      const drop = f < 0.12 ? 0.35 : 1;
+      const w = sm(0.52, 0.8, wear[i]);             // matted, dirty walking lanes
+      const pile = 0.72 + f * 0.2 + f2 * 0.12 + (tuft[i] - 0.5) * 0.25;
+      const ink = Math.max(pr, pg, pb);
+      const fade = (1 - w * 0.45) * drop * pile;
+      const base = [0.028, 0.02, 0.07].map(v => v * pile * (0.85 + (mott[i] - 0.5) * 0.4) * (1 - w * 0.3));
+      const R_ = base[0] + pr * 0.58 * fade, G_ = base[1] + pg * 0.58 * fade, B_ = base[2] + pb * 0.58 * fade;
+      img.set(i, R_ + w * 0.012, G_ + w * 0.01, B_ + w * 0.004);
+      const uv = ink > 0.25 ? 0.11 * drop * (1 - w * 0.6) : 0;
+      img.e[i * 3] = pr * uv; img.e[i * 3 + 1] = pg * uv; img.e[i * 3 + 2] = pb * uv;
+      img.h[i] = f * 0.45 + f2 * 0.3 + tuft[i] * 0.35 - w * 0.2 + ink * 0.04;
+      img.r[i] = 0.97 - w * 0.12;
     }
-    img.normalStrength = 2;
+    img.normalStrength = 1.6; img.aoStrength = 0.8;
     return img;
   };
 
   // Her dokunun dünyadaki tekrar boyu (metre)
-  T.SCALE = { brick: 2.4, cinderblock: 1.6, vinyl: 1.2, hospitalWall: 2, motelWallpaper: 1.6, motelCarpet: 2.4, terrazzo: 2.4, siding: 2.4, grass: 2, asphalt: 3, shingles: 2, planks: 2.4, hexTile: 0.7, subway: 0.9, linoleum: 1.2, wallpaper: 2.12, carpet: 2, ceiling: 1.2, concreteWall: 3, concreteFloor: 3, tile: 1.2, drywall: 2, officeCarpet: 2, fabric: 1, metal: 1.2, wood: 1.2, arcadeWall: 2, mazeWall: 3, mazeFloor: 3, arcadeCarpet: 2.5 };
+  T.SCALE = { brick: 2.4, cinderblock: 1.6, vinyl: 1.2, hospitalWall: 2, motelWallpaper: 1.6, motelCarpet: 2.4, terrazzo: 2.4, siding: 2.4, grass: 2, asphalt: 3, shingles: 2, planks: 2.4, hexTile: 0.7, subway: 0.9, linoleum: 1.2, wallpaper: 2.12, carpet: 2, ceiling: 1.2, concreteWall: 3, concreteFloor: 3, tile: 1.2, drywall: 2, officeCarpet: 2, fabric: 1, metal: 1.2, wood: 1.2, arcadeWall: 2, mazeWall: 3, mazeFloor: 3, arcadeCarpet: 1.8 };
 
   T.init = function (renderer, aniso) {
     T.maxAniso = renderer.capabilities.getMaxAnisotropy();
@@ -851,6 +888,28 @@
           for (let k = 0; k < 4; k++) { g.beginPath(); g.moveTo(gx + k * 22, gy); g.lineTo(gx + k * 22 + r.range(-4, 4), gy + 90); g.stroke(); }
           g.beginPath(); g.moveTo(gx - 10, gy + 70); g.lineTo(gx + 80, gy + 20); g.stroke();
         }
+        break;
+      }
+      case 'lipstick': {
+        // Written with a lipstick on glass: waxy red strokes, doubled edge where it dragged, smears
+        g.clearRect(0, 0, W, H);
+        g.textAlign = 'center'; g.textBaseline = 'middle';
+        const lines = String(text || '').split('\n').filter(Boolean).slice(0, 4);
+        let size = Math.min(150, Math.floor(H / Math.max(2.4, lines.length * 1.25)));
+        g.font = `bold ${size}px ${FONT_HAND}`;
+        const widest = Math.max(1, ...lines.map(l => g.measureText(l).width));
+        if (widest > W * 0.84) { size = Math.floor(size * W * 0.84 / widest); g.font = `bold ${size}px ${FONT_HAND}`; }
+        lines.forEach((ln, k) => {
+          const y = H / 2 + (k - (lines.length - 1) / 2) * size * 1.12, x = W / 2 + r.range(-18, 18);
+          g.save(); g.translate(x, y); g.rotate(r.range(-0.06, 0.06));
+          for (let q = 0; q < 5; q++) { g.fillStyle = `rgba(${150 + r() * 40 | 0},${12 + r() * 12 | 0},${28 + r() * 12 | 0},${0.35 + r() * 0.3})`; g.fillText(ln, r.range(-2.5, 2.5), r.range(-2.5, 2.5)); }
+          g.globalCompositeOperation = 'destination-out';
+          for (let q = 0; q < 160; q++) g.fillRect(r.range(-W * 0.45, W * 0.45), r.range(-size * 0.6, size * 0.6), r.range(1, 5), r.range(1, 3));
+          g.globalCompositeOperation = 'source-over';
+          g.restore();
+        });
+        g.strokeStyle = 'rgba(160,20,36,0.35)'; g.lineWidth = 6; g.lineCap = 'round';
+        for (let k = 0; k < 3; k++) { const x = r.range(W * 0.2, W * 0.8), y = r.range(H * 0.6, H * 0.9); g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + r.range(-30, 30), y + 30, x + r.range(-60, 60), y + r.range(40, 70)); g.stroke(); }
         break;
       }
       case 'graffiti': case 'wallText': {

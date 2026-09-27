@@ -124,29 +124,25 @@
       this.outSize = [bw, bh];
       if (this.ui && this.ui.isOpen('scr-map')) this.ui.drawMap(this);
     }
-    // Frame pacing. V-Sync on: animation frames (the monitor's refresh), skipping frames above the
-    // limit. V-Sync off: a message-loop that draws as fast as possible, or on a timer up to the limit.
+    // Frame pacing. A page can only present on the display's refresh, so frames always come from
+    // requestAnimationFrame; a frame limit skips refreshes. (Drawing from a message loop in between
+    // only queued frames the compositor threw away, and that stalled the GPU: lower FPS, not higher.)
+    // Real V-Sync off exists in the desktop build, which starts the renderer without the refresh cap.
     startLoop() {
-      const mc = new MessageChannel();
       let gen = 0;
       this.lastDraw = 0;
-      const tick = g => {
+      const tick = (g, now) => {
         if (g !== gen) return;
-        const now = performance.now(), lim = +S.data.fpsLimit || 0;
-        if (!lim || now - this.lastDraw >= 1000 / lim - (S.data.vsync ? 1.2 : 0.2)) {
-          this.lastDraw = lim ? Math.max(this.lastDraw + 1000 / lim, now - 1000 / lim) : now;
-          try { this.frame(); } catch (e) { console.error(e); }
-        }
-        schedule(g);
-      };
-      const schedule = g => {
-        if (S.data.vsync || document.hidden) { requestAnimationFrame(() => tick(g)); return; }
+        requestAnimationFrame(t => tick(g, t));
         const lim = +S.data.fpsLimit || 0;
-        const wait = lim ? this.lastDraw + 1000 / lim - performance.now() : 0;
-        if (wait > 4) setTimeout(() => tick(g), wait - 3);
-        else { mc.port1.onmessage = () => tick(g); mc.port2.postMessage(0); }
+        if (lim) {
+          const step = 1000 / lim;
+          if (now - this.lastDraw < step - 1.5) return;
+          this.lastDraw = Math.max(this.lastDraw + step, now - step);
+        } else this.lastDraw = now;
+        try { this.frame(); } catch (e) { console.error(e); }
       };
-      this.restartLoop = () => { gen++; schedule(gen); };
+      this.restartLoop = () => { gen++; const g = gen; requestAnimationFrame(t => tick(g, t)); };
       this.restartLoop();
     }
     // Fullscreen follows the setting; leaving it with Esc or F11 updates the setting
@@ -352,7 +348,7 @@
       this.explored = new Uint8Array(L.w * L.h);
       this.inv = { batteries: 0, almond: 0, glow: 0, fuses: 0, fuel: 0, pellets: 0, keys: [], memento: null, officeKey: false, token: false, keycard: false };
       this.obj = {}; this.flags = {};
-      this.powerT = 0; this.graceUsed = false; this.dyingT = 0;
+      this.powerT = 0; this.graceUsed = false; this.menace = 0; this.dyingT = 0;
       this.exitDoorId = null; this.exitNext = null; this.readyT = 0; this.drainAnim = null; this.holding = null;
       this.objectivesDone = 0;
       this.glowsticks = [];
@@ -387,7 +383,7 @@
       }
       this.ui.loading(0.98, t('load.shaders'));
       await U.nextFrame();
-      this.warmup();
+      await this.warmup();
       this.ui.loading(1, t('load.ready'));
       if (opts.menu) { this.world.U.uLmIntensity.value = 1; return; }
       if (!this.save) this.newSave();
@@ -416,12 +412,13 @@
       if (opts.restore || opts.skipCard) begin();
       else { this.fx.blackout = 1; this.ui.only(null); this.ui.showCard(def, begin); }
     }
-    warmup() {
-      // Gizli yaratıkları geçici olarak görünür yapıp gölgelendiricileri önceden derle
+    async warmup() {
+      // Compile every shader of the level before play, hidden creatures included, without blocking
+      // the page: the driver links programs in the background (KHR_parallel_shader_compile).
       const hidden = [];
       this.scene.traverse(o => { if (!o.visible) { hidden.push(o); o.visible = true; } });
       this.keeper.reset();
-      try { this.post.warm(this.scene, this.camera); this.post.render(this.scene, this.camera, 0); } catch (e) { console.warn(e); }
+      try { await this.post.warmAsync(this.scene, this.camera); this.post.render(this.scene, this.camera, 0); } catch (e) { console.warn(e); }
       for (const o of hidden) o.visible = false;
       this.programsWarm = this.renderer.info.programs ? this.renderer.info.programs.length : 0;
     }
@@ -514,6 +511,14 @@
             stand.position.y = -0.375; grp.add(stand);
             o.pos.y = 0.75;
             this.world.addCollider({ minX: it.wx - 0.35, maxX: it.wx + 0.35, minZ: it.wz - 0.35, maxZ: it.wz + 0.35 });
+          } else if (n.kind === 'wall' && variant === 'mirror') {
+            // Lipstick on the mirror glass
+            const tex = T.decal('lipstick', n.body.split('\n').filter(l => l.trim() && !/^[—-]/.test(l.trim())).slice(0, 3).join('\n'));
+            const m = new THREE.MeshStandardMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: 0.45 });
+            w.patch(m);
+            const pl = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.26), m);
+            pl.position.z = 0.01; pl.renderOrder = 2;
+            grp.add(pl);
           } else if (n.kind === 'wall') {
             const tex = T.decal('wallText', n.body.split('\n').filter(Boolean).slice(0, 3).join('\n'));
             const m = new THREE.MeshStandardMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: 0.9 });
@@ -849,27 +854,65 @@
     }
 
     // ================================================================ ETKİLEŞİM
+    // Where an interactable is, and how big it is, for aiming. Items use their mesh bounds.
+    pickOf(it) {
+      const o = it.ref;
+      if (it.kind === 'item' && o) {
+        if (o.interactPos) return { c: o.interactPos, r: o.pickR || 0.3 };
+        if (o.mesh) {
+          if (!o.pickOff) {
+            const b = new THREE.Box3().setFromObject(o.mesh), c = b.getCenter(new THREE.Vector3()), sz = b.getSize(new THREE.Vector3());
+            o.pickOff = b.isEmpty() ? new THREE.Vector3() : c.sub(o.mesh.position);
+            o.pickR = b.isEmpty() ? 0.15 : U.clamp(sz.length() * 0.5, 0.09, 0.4);
+          }
+          return { c: this._pc.copy(o.mesh.position).add(o.pickOff), r: o.pickR };
+        }
+        return { c: it.pos, r: 0.2 };
+      }
+      return { c: it.pos, r: it.r || (it.kind === 'drawer' ? 0.15 : it.kind === 'door' ? 0.6 : it.kind === 'hide' ? 0.5 : 0.25) };
+    }
+    // The thing under the crosshair: every target is a sphere; the view ray picks the nearest one it
+    // passes through (small things win over big ones they sit on). Only when the ray hits nothing does a
+    // near miss within a few degrees count, so the prompt always names what you are looking at.
     findTarget() {
       const cam = this.camera;
-      const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
-      let best = null, bestScore = Infinity;
+      const fwd = this._fwd || (this._fwd = new THREE.Vector3());
+      this._pc = this._pc || new THREE.Vector3();
+      fwd.set(0, 0, -1).applyQuaternion(cam.quaternion);
       const cp = cam.position;
+      let hit = null, hitKey = Infinity, near = null, nearKey = Infinity;
       for (const it of this.interactables) {
-        const p = it.pos;
-        const dx = p.x - cp.x, dy = p.y - cp.y, dz = p.z - cp.z;
+        const { c, r } = this.pickOf(it);
+        const dx = c.x - cp.x, dy = c.y - cp.y, dz = c.z - cp.z;
         const d = Math.hypot(dx, dz, Math.max(0, Math.abs(dy) - 0.9));
         if (d > (it.reach || 2.5)) continue;
+        let key, isHit;
+        const dg = it.kind === 'door' && this.world.doorObjs.get(it.ref.id);
+        if (dg) {
+          // A door is a flat opening, not a ball: intersect the ray with its plane
+          const g2 = dg.g, nx = g2.az, nz = g2.ax, den = fwd.x * nx + fwd.z * nz;
+          if (Math.abs(den) < 1e-3) continue;
+          const tp = ((g2.cx - cp.x) * nx + (g2.cz - cp.z) * nz) / den;
+          if (tp < 0.05) continue;
+          const px = cp.x + fwd.x * tp, py = cp.y + fwd.y * tp, pz = cp.z + fwd.z * tp;
+          const along = Math.abs((px - g2.cx) * g2.ax + (pz - g2.cz) * g2.az);
+          if (along < g2.width / 2 + 0.08 && py > 0 && py < g2.height + 0.1) { isHit = true; key = tp + 0.3; if (key >= hitKey) continue; }
+          else { isHit = false; key = Math.atan2(Math.max(along - g2.width / 2, py - g2.height, -py, 0), tp); if (key > 0.1 || hit || key >= nearKey) continue; }
+        } else {
+          const tAlong = dx * fwd.x + dy * fwd.y + dz * fwd.z;
+          if (tAlong < 0.05) continue;
+          const d3sq = dx * dx + dy * dy + dz * dz;
+          const perp = Math.sqrt(Math.max(0, d3sq - tAlong * tAlong));
+          if (perp <= r) { isHit = true; key = tAlong + r * 0.8; if (key >= hitKey) continue; }
+          else { isHit = false; key = Math.atan2(perp - r, tAlong); if (key > 0.1 || hit || key >= nearKey) continue; }
+        }
         const text = it.prompt();
         if (!text) continue;
-        const d3 = Math.hypot(dx, dy, dz);
-        const dot = (dx * fwd.x + dy * fwd.y + dz * fwd.z) / Math.max(d3, 1e-3);
         const hd = Math.hypot(dx, dz);
-        if (dot < (hd < 0.9 ? 0.2 : 0.8)) continue;
-        if (it.kind !== 'door' && !this.level.los(cp.x, cp.z, p.x - dx / Math.max(hd, 1e-3) * 0.25, p.z - dz / Math.max(hd, 1e-3) * 0.25)) continue;
-        const score = d * (2 - dot);
-        if (score < bestScore) { bestScore = score; best = { it, text }; }
+        if (it.kind !== 'door' && hd > 0.3 && !this.level.los(cp.x, cp.z, c.x - dx / hd * 0.25, c.z - dz / hd * 0.25)) continue;
+        if (isHit) { hit = { it, text }; hitKey = key; } else { near = { it, text }; nearKey = key; }
       }
-      return best;
+      return hit || near;
     }
     updateInteraction(dt) {
       const pl = this.player;
@@ -904,7 +947,8 @@
         const cam = this.camera, cp = cam.position, v = this.markV || (this.markV = new THREE.Vector3());
         for (const it of this.interactables) {
           if (it.kind !== 'item' || !it.ref.marker || it.ref.taken || (it.ref.mesh && !it.ref.mesh.visible)) continue;
-          const p = it.pos, hd = Math.hypot(p.x - cp.x, p.z - cp.z);
+          this._pc = this._pc || new THREE.Vector3();
+          const p = this.pickOf(it).c, hd = Math.hypot(p.x - cp.x, p.z - cp.z);
           if (hd > 4.5) continue;
           v.copy(p).project(cam);
           if (v.z > 1 || Math.abs(v.x) > 1.1 || Math.abs(v.y) > 1.1) continue;
@@ -916,6 +960,21 @@
         }
       }
       this.ui.marks(out);
+    }
+    // Pacing: a quiet stretch builds menace (creatures patrol toward you), an encounter releases it.
+    // About a minute and a half of calm on Normal before the level starts closing in.
+    updateMenace(dt) {
+      const dif = S.difficulty();
+      let near = false, chase = false;
+      for (const e of this.entities) {
+        if (!e.hostile || e.friendly || ['dormant', 'wait', 'gone', 'display', 'eaten'].includes(e.state)) continue;
+        if (e.state === 'chase') chase = true;
+        if (e.distToPlayer && e.distToPlayer() < 16) near = true;
+      }
+      const m = this.menace || 0;
+      if (chase) this.menace = Math.max(0, m - dt * 0.3);
+      else if (near) this.menace = Math.max(0, m - dt * 0.04);
+      else this.menace = Math.min(1, m + dt * (dif.menace || 1) / 95);
     }
     canHold(it) { return !this.script.canHold || this.script.canHold(this, it.ref); }
     noise(x, z, radius) { for (const e of this.entities) e.hear(x, z, radius); }
@@ -1067,7 +1126,7 @@
       this.player.spawn(cp.x, cp.z, cp.yaw);
       this.player.frozen = false;
       this.player.fear = 0;
-      this.powerT = 0;
+      this.powerT = 0; this.menace = 0;
       this.fx.damage = 0;
       this.nav.dirty = true; this.nav.update();
       // Yaratıkları uzağa yerleştir
@@ -1399,7 +1458,8 @@
       this.updatePost(dt);
       if (this.postDirty) this.configurePost();
       this.keeper.tick(dt);
-      this.keeper.render(() => this.post.render(this.scene, this.camera, this.time));
+      // While a level loads the boot screen covers the view: drawing a half-built scene only slows it
+      if (this.state !== 'loading') this.keeper.render(() => this.post.render(this.scene, this.camera, this.time));
       if (PB.debug) this.watchPrograms();
       inp.endFrame();
     }
@@ -1440,6 +1500,7 @@
       this.powerT = Math.max(0, this.powerT - dt);
       this.ui.powerTimer(this.powerT);
       this.updateEntities(dt);
+      this.updateMenace(dt);
       if (this.state !== 'play') return;
       this.updateScares(dt);
       this.updateItems(dt);

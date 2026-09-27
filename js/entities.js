@@ -96,9 +96,39 @@
       this.id = kind + (o.ghost || '') + Math.floor(Math.random() * 1e6);
     }
     placeCell(x, y) {
-      this.cell = { x, y }; this.next = null;
-      this.pos.set(this.L.cx(x), 0, this.L.cz(y));
+      this.cell = { x, y }; this.next = null; this.stuckT = 0;
+      const f = this.standPoint(x, y);
+      this.pos.set(f.x, 0, f.z);
       this.mesh.position.copy(this.pos);
+    }
+    // Body radius for walls and furniture; 0 = floats through everything (smiles, the Counter)
+    get bodyR() { return this.radius != null ? this.radius : 0.3; }
+    standPoint(x, y) { const w = this.g.world; return w && w.freePoint && this.bodyR > 0 ? w.freePoint(x, y, this.bodyR) : { x: this.L.cx(x), z: this.L.cz(y) }; }
+    // Keep the body out of walls and furniture (ghosts drift through doors, not through desks)
+    settle(p = this.pos) {
+      const w = this.g.world;
+      if (!w || !(this.bodyR > 0)) return p;
+      return w.collide(p, this.bodyR, this.ghostly || this.noDoors ? { noDoors: true } : undefined);
+    }
+    // Move up to len toward (tx, tz). Blocked head-on by furniture, it steps round it, keeping to the
+    // side it picked until it gets where it was going.
+    steer(tx, tz, len) {
+      const ox = this.pos.x, oz = this.pos.z, dx = tx - ox, dz = tz - oz, d = Math.hypot(dx, dz);
+      if (d < 1e-4) return;
+      const ux = dx / d, uz = dz / d;
+      this.pos.x += ux * Math.min(len, d); this.pos.z += uz * Math.min(len, d);
+      this.settle();
+      if (!(this.bodyR > 0) || Math.hypot(this.pos.x - ox, this.pos.z - oz) > len * 0.35) return;
+      const q = this._q || (this._q = new THREE.Vector3());
+      let best = null, bs = Infinity;
+      for (const sgn of this.side ? [this.side, -this.side] : [1, -1]) {
+        q.set(ox - uz * sgn * len + ux * len * 0.25, 0, oz + ux * sgn * len + uz * len * 0.25);
+        this.settle(q);
+        if (Math.hypot(q.x - ox, q.z - oz) < len * 0.3) continue;
+        const sc = Math.hypot(tx - q.x, tz - q.z) - (sgn === this.side ? 0.6 : 0);
+        if (sc < bs) { bs = sc; best = [q.x, q.z, sgn]; }
+      }
+      if (best) { this.pos.x = best[0]; this.pos.z = best[1]; this.side = best[2]; }
     }
     cellOf() { return this.L.cellOf(this.pos.x, this.pos.z); }
     setState(s) { if (this.state !== s) { this.prevState = this.state; this.state = s; this.stateT = 0; this.next = null; if (this.onState) this.onState(s); } }
@@ -122,9 +152,13 @@
       const pi = L.portalMap.get(i);
       if (pi !== undefined && field[pi] >= 0) opts.push({ x: pi % L.w, y: (pi / L.w) | 0, v: field[pi], d: -2, portal: true });
       L.shuffleSeed = (L.shuffleSeed || 1) + 1;
-      for (const o of U.rng(L.shuffleSeed + i).shuffle(opts)) {
+      const sh = U.rng(L.shuffleSeed + i).shuffle(opts);
+      for (const o of sh) {
         if (flee ? o.v > bestV : o.v < bestV) { bestV = o.v; best = o; }
       }
+      // Fleeing into a dead end: cornered. Keep moving (never jitter on the spot) and let the creature know.
+      this.cornered = !!(flee && field[i] >= 0 && best && best.v <= field[i]);
+      if (this.cornered) { const alt = sh.filter(o => o.d !== (this.lastDir + 2) % 4); if (alt.length) best = alt[0]; }
       return best;
     }
     // Hedefe doğru ilerle; varınca true
@@ -147,17 +181,30 @@
         this.next = null;
         return false;
       }
-      const tx = L.cx(this.next.x), tz = L.cz(this.next.y);
+      const fp = this.standPoint(this.next.x, this.next.y), tx = fp.x, tz = fp.z;
       const dx = tx - this.pos.x, dz = tz - this.pos.z, d = Math.hypot(dx, dz);
       const stepLen = speed * dt;
-      if (d <= stepLen || d < 0.02) {
+      if (d <= Math.max(stepLen, 0.12)) {
         this.pos.x = tx; this.pos.z = tz;
         this.cell = { x: this.next.x, y: this.next.y };
-        this.next = null;
+        this.next = null; this.stuckT = 0; this.bestD = null; this.side = 0;
         return field[L.i(this.cell.x, this.cell.y)] === 0 && !flee;
       }
-      this.pos.x += dx / d * stepLen; this.pos.z += dz / d * stepLen;
+      this.steer(tx, tz, stepLen);
       this.heading = U.angleDamp(this.heading, Math.atan2(dx, dz), 8, dt);
+      // Watchdog: no progress toward the next point for a while means something is in the way.
+      // First re-plan from where it stands (keeping the clock), then, out of sight, slip into the next cell.
+      const nd = Math.hypot(tx - this.pos.x, tz - this.pos.z);
+      if (this.bestD == null) this.bestD = nd;
+      else if (nd < this.bestD - 0.05) { this.bestD = nd; this.stuckT = 0; }
+      else {
+        this.stuckT = (this.stuckT || 0) + dt;
+        if (this.stuckT > 1.2 && this.stuckT - dt <= 1.2) { this.cell = L.cellOf(this.pos.x, this.pos.z); this.next = null; this.bestD = null; this.side = -(this.side || 1); }
+        else if (this.stuckT > 2.6) {
+          const seen = this.g.camera && this.observed && this.observed();
+          if (!seen || this.stuckT > 6) { this.pos.x = tx; this.pos.z = tz; this.cell = { x: this.next.x, y: this.next.y }; this.next = null; this.stuckT = 0; this.bestD = null; }
+        }
+      }
       return false;
     }
     faceToward(x, z, dt, k = 6) { this.heading = U.angleDamp(this.heading, Math.atan2(x - this.pos.x, z - this.pos.z), k, dt); }
@@ -225,6 +272,7 @@
         const f = this.g.nav.playerField;
         if (f && f[L.i(x, y)] < 0) continue;
         if (avoidPlayerLos && L.los(L.cx(x), L.cz(y), this.g.player.pos.x, this.g.player.pos.z)) continue;
+        if (this.cellOk && !this.cellOk(x, y)) continue;
         return { x, y };
       }
       return null;
@@ -240,7 +288,8 @@
         case 'patrol': {
           if (!this.goal || this.stateT > 40 || this.arrived) {
             const pc = g.nav.playerCell;
-            const bias = sp.hunt ? this.randomCellNear(pc.x, pc.y, 6, 16, true) : null;
+            // The longer nothing has found the player, the more patrols drift their way (g.menace)
+            const bias = sp.hunt || Math.random() < (g.menace || 0) * 0.85 ? this.randomCellNear(pc.x, pc.y, 5, 14, true) : null;
             const c = bias || this.randomCellNear(this.cell.x, this.cell.y, 5, 18) || { x: this.cell.x, y: this.cell.y };
             this.setGoal(c.x, c.y); this.arrived = false; this.stateT = 0;
           }
@@ -248,6 +297,7 @@
           break;
         }
         case 'investigate': {
+          if (!this.lastKnown) { this.setState('patrol'); break; }
           const c = L.cellOf(this.lastKnown.x, this.lastKnown.z);
           if (!L.passable(c.x, c.y)) { this.setState('patrol'); break; }
           this.setGoal(c.x, c.y);
@@ -266,6 +316,7 @@
           break;
         }
         case 'chase': {
+          if (!this.lastKnown) this.lastKnown = { x: g.player.pos.x, z: g.player.pos.z };
           const los = see > 0 || (this.distToPlayer() < 3 && this.losToPlayer() && !g.player.hidden);
           if (los) { this.lostT = 0; this.lastKnown = { x: g.player.pos.x, z: g.player.pos.z }; }
           else this.lostT += dt;
@@ -276,7 +327,7 @@
           if (arrived && this.lostT > 1.5) this.setState('search');
           // Son metrelerde oyuncuya doğrudan yönel
           const d = this.distToPlayer();
-          if (d < 2.6 && los) { const p = g.player.pos; const k = Math.min(1, (sp.speed * dt) / Math.max(d, 0.01)); this.pos.x += (p.x - this.pos.x) * k * 0.5; this.pos.z += (p.z - this.pos.z) * k * 0.5; this.cell = L.cellOf(this.pos.x, this.pos.z); this.next = null; }
+          if (d < 2.6 && los) { const p = g.player.pos; this.steer(p.x, p.z, sp.speed * dt * 0.5); this.cell = L.cellOf(this.pos.x, this.pos.z); this.next = null; }
           break;
         }
         case 'flee': {
@@ -301,7 +352,7 @@
       super(game, 'pacman', o);
       const m = pacmanMesh(game);
       this.vis = m; this.mesh.add(m.group); lit(game, m.group);
-      this.catchR = 1.55;
+      this.catchR = 1.55; this.radius = 0.55;
       this.turnSlow = 0; this.chomp = 0; this.chompRate = 2; this.lastChompSide = 0;
       this.state = o.dormant ? 'dormant' : 'patrol';
       this.mesh.visible = !o.dormant;
@@ -402,7 +453,7 @@
       const m = ghostMesh(this.cfg.color, this.type);
       this.vis = m; this.mesh.add(m.group); lit(game, m.group);
       this.ghostly = true;
-      this.catchR = 1.1;
+      this.catchR = 1.1; this.radius = 0.35;
       this.friendly = !!o.friendly;
       this.hostile = !this.friendly;
       this.selfLit = true;
@@ -582,7 +633,7 @@
       super(game, 'grinner', o);
       const m = grinnerMesh();
       this.vis = m; this.mesh.add(m.group); lit(game, m.group);
-      this.catchR = 1.0;
+      this.catchR = 1.0; this.radius = 0;
       this.state = 'lurk';
       this.fade = 1;
       this.respawnT = 0;
@@ -637,7 +688,7 @@
       super(game, 'watcher', o);
       const m = watcherMesh();
       this.vis = m; this.mesh.add(m.group); lit(game, m.group);
-      this.catchR = 2.2;
+      this.catchR = 2.2; this.radius = 0;
       this.state = 'wait';
       this.unseenT = 0; this.jumps = 0;
       this.loopKeys = ['watch:' + this.id];

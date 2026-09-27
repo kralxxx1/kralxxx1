@@ -32,7 +32,7 @@
         { type: 'note', id: 'n_photo', data: 'p_photo', place: 'spot', spot: 'officeWall', h: 1.6 },
         { type: 'drawing', id: 'd_lily1', data: 'p_lily1', place: 'spot', spot: 'officeWall', reuse: true, h: 1.25, beside: 0.9 },
         { type: 'note', id: 'n_nora', data: 'p_nora', place: 'spot', spot: 'hall', reuse: true, offset: [0.9, 0.6] },
-        { type: 'note', id: 'n_mirror', data: 'p_mirror', place: 'spot', spot: 'wc' },
+        { type: 'note', id: 'n_mirror', data: 'p_mirror', place: 'spot', spot: 'wcMirror', prop: 'mirror' },
         { type: 'tape', id: 'tape_p', data: 'p_tape', place: 'spot', spot: 'officeDesk', reuse: true, h: 0.82, offset: [0.2, -0.2] },
         { type: 'battery', count: 2, place: 'spot', spot: 'hall', fallback: 'any' },
       ],

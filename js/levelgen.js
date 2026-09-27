@@ -566,6 +566,8 @@
     L.addProp('handDryer', L.cx(12) + 1.4, L.cz(7) + 0.95, -Math.PI / 2, { wall: true, y: 1.25 });
     L.addProp('trashCan', L.cx(12) + 1.05, L.cz(7) - 0.75, 0, { collider: { hw: 0.18, hd: 0.18 } });
     L.addSpot('wc', { x: 11, y: 8 });
+    // The glass of the mirror over the sink (frame 2.5 cm deep, off the tile ledge)
+    L.addSpot('wcMirror', { x: 12, y: 7, d: 1, wx: L.cx(12) + 1.4 - 0.035, wz: L.cz(7), h: 1.62, yaw: -Math.PI / 2 });
     L.addSpot('hall', { x: 3, y: 5 });
     L.addSpot('corridor', { x: 9, y: 4 });
 
@@ -598,7 +600,7 @@
     L.meta.zonesOn = [0];
     // Room finishes: the back rooms are not carpeted like the hall
     L.meta.finishes = [
-      { x0: 10, y0: 6, x1: 12, y1: 9, floor: 'floorTile', wall: 'wallTile', h: 1.45 },
+      { x0: 10, y0: 6, x1: 12, y1: 9, floor: 'floorTile', wall: 'wallTile', h: 1.15 },
       { x0: 10, y0: 0, x1: 12, y1: 2, floor: 'floorWood', wall: 'wainscotWood', h: 0.95 },
       { x0: 10, y0: 3, x1: 12, y1: 5, floor: 'floorConcrete' },
       { x0: 9, y0: 0, x1: 9, y1: 9, floor: 'floorLino' },
@@ -1224,9 +1226,38 @@
         item.yaw = r.range(0, Math.PI * 2);
       }
       if (s.offset) { item.wx += s.offset[0]; item.wz += s.offset[1]; }
+      if (KEY_ITEM.test(item.type) && !(item.wy > 0.05) && item.d < 0 && !cell.spot) raiseItem(L, r, item);
       placed.push(item);
     }
     return placed;
+  }
+  // Things the player needs are never left lying on the floor: they go on furniture in the cell, or
+  // on a piece that fits the place (a crate, a filing cabinet, a nightstand), set back against a wall.
+  const KEY_ITEM = /^(fuse|fuelCan|keycard|key|token|memento|tape)$/;
+  const SURFACE = /^(desk|cubicleDesk|meetingTable|counter|kitchenCounter|crate|crateStack|workbench|nightstand|filing|cafTable|schoolDesk|bench|mallBench|dresserTv|frontDesk|nurseCounter|storeCounter|recordBins|boxes)$/;
+  const PEDESTAL = {
+    arcade: [['nightstand', 0.24, 0.22]], yellow: [['crate', 0.58, 0.58]], dark: [['crate', 0.58, 0.58]],
+    concrete: [['crate', 0.58, 0.58]], tunnel: [['crate', 0.58, 0.58]], pool: [['bench', 1.1, 0.24]], office: [['filing', 0.3, 0.33]],
+    school: [['filing', 0.3, 0.33]], hospital: [['nightstand', 0.24, 0.22]], motel: [['nightstand', 0.24, 0.22]], mall: [['bench', 1.1, 0.24]],
+    street: [['crate', 0.58, 0.58]], workshop: [['crate', 0.58, 0.58]],
+  };
+  function raiseItem(L, r, item) {
+    const C = L.cell;
+    const onCell = L.props.filter(p => SURFACE.test(p.type) && !p.wall && Math.floor(p.x / C) === item.x && Math.floor(p.z / C) === item.y);
+    if (onCell.length) { const p = r.pick(onCell); item.wx = p.x + r.range(-0.12, 0.12); item.wz = p.z + r.range(-0.12, 0.12); item.wy = 1.3; return; }
+    const list = PEDESTAL[L.theme];
+    if (!list) return;
+    const [type, hw, hd] = r.pick(list);
+    const sides = L.wallSides(item.x, item.y);
+    let x = L.cx(item.x), z = L.cz(item.y), rot = r.range(-0.2, 0.2);
+    if (sides.length) {
+      const d = r.pick(sides), off = C / 2 - 0.13 - (d % 2 === 0 ? hd : hd);
+      x += DX[d] * off; z += DY[d] * off;
+      rot = Math.atan2(-DX[d], -DY[d]);
+    }
+    const c = Math.abs(Math.cos(rot)), sn = Math.abs(Math.sin(rot));
+    L.addProp(type, x, z, rot, { collider: { hw: hw * c + hd * sn, hd: hw * sn + hd * c }, pedestal: true });
+    item.wx = x; item.wz = z; item.wy = 1.3;
   }
 
   const GEN = { arcade: genArcade, backrooms: genBackrooms, warehouse: genWarehouse, pools: genPools, office: genOffice, maze: d => genMaze(d, false), killscreen: d => genMaze(d, true) };

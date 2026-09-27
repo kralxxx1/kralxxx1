@@ -859,7 +859,15 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       progress(0.1);
       await U.nextFrame();
       const samples = this.lmRes >= 12 ? 8 : this.lmRes >= 8 ? 4 : this.lmRes >= 6 ? 2 : 1;
+      // A newer bake (another zone switched on) supersedes this one
+      const token = this.bakeToken = (this.bakeToken || 0) + 1;
       const res = World.baker.bake(L, { res: this.lmRes, lights, K: LM_K, samples, ambient: this.theme.ambient, bounce: this.theme.bounce });
+      const total = res.job.tiles.length, perFrame = this.ready ? 2 : 6;
+      while (!World.baker.step(res, perFrame)) {
+        progress(0.1 + 0.85 * res.job.done / total);
+        await U.nextFrame();
+        if (token !== this.bakeToken || this.disposed) { World.baker.abort(res); return; }
+      }
       this.disposeBake();
       this.bakeRes = res;
       this.U.uLvUp.value = res.up.texture; this.U.uLvSide.value = res.side.texture; this.U.uBounce.value = res.bounceTex;
@@ -1053,6 +1061,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
     // ------------------------------------------------------------ DEKOR
     addCollider(b) {
       const C = this.C;
+      if (this._free) this._free.clear();
       const box = Object.assign({ minY: 0, maxY: 3 }, b);
       const x0 = Math.floor(box.minX / C), x1 = Math.floor(box.maxX / C), z0 = Math.floor(box.minZ / C), z1 = Math.floor(box.maxZ / C);
       for (let y = z0; y <= z1; y++) for (let x = x0; x <= x1; x++) {
@@ -1064,6 +1073,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       return box;
     }
     removeCollider(box) {
+      if (this._free) this._free.clear();
       for (const list of this.colGrid.values()) { const k = list.indexOf(box); if (k >= 0) list.splice(k, 1); }
     }
     instanced(defKey, specs, list, opts = {}) {
@@ -1091,6 +1101,20 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       }
       return meshes;
     }
+    // Vertical extent [bottom, top] of a prop model in its own space
+    vExtent(type) {
+      const cache = this._vx || (this._vx = new Map());
+      if (cache.has(type)) return cache.get(type);
+      const def = P.DEFS[type];
+      let e = null;
+      if (def) {
+        const b = new THREE.Box3();
+        for (const part of P.build(type, def)) { if (!part.geo.boundingBox) part.geo.computeBoundingBox(); b.union(part.geo.boundingBox); }
+        if (!b.isEmpty()) e = [b.min.y, b.max.y];
+      }
+      cache.set(type, e);
+      return e;
+    }
     // Floor footprint of a prop model in its own space (x0..x1, z0..z1), ignoring parts well above the floor
     footprint(type) {
       const cache = this._fp || (this._fp = new Map());
@@ -1115,6 +1139,17 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       this.instMap = new Map();
       const byType = new Map();
       const add = (type, p) => { if (!byType.has(type)) byType.set(type, []); byType.get(type).push(p); };
+      // Wall-mounted things in tiled or panelled rooms sit on the panels, not inside them
+      const finishOf = (x, z) => { const c = L.cellOf(x, z); for (const f of L.meta.finishes || []) if (f.wall && c.x >= f.x0 && c.x <= f.x1 && c.y >= f.y0 && c.y <= f.y1) return f; return null; };
+      for (const p of L.props) {
+        if (!p.wall || p.finishPushed) continue;
+        const f = finishOf(p.x, p.z), ext = f && this.vExtent(p.type);
+        if (!ext) continue;
+        const y0 = ext[0] + (p.y || 0), y1 = ext[1] + (p.y || 0);
+        const push = y0 < f.h + 0.045 && y1 > f.h - 0.01 ? 0.034 : y0 < f.h ? 0.008 : 0;
+        if (!push) continue;
+        p.x += Math.sin(p.rot || 0) * push; p.z += Math.cos(p.rot || 0) * push; p.finishPushed = true;
+      }
       for (const p of L.props) {
         if (p.collider) p.colBox = this.addCollider({ minX: p.x - p.collider.hw, maxX: p.x + p.collider.hw, minZ: p.z - p.collider.hd, maxZ: p.z + p.collider.hd, maxY: 2.2, hide: p.hide ? p : null });
         if (p.type === 'collider') continue;
@@ -1628,7 +1663,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
           if (s) hit = box(x * C, (x + 1) * C, y * C, (y + 1) * C) || hit;
           for (let d = 0; d < 4; d++) {
             const k = L.edgeKind(x, y, d);
-            const door = k ? null : L.doorAt(x, y, d);
+            const door = k || opts.noDoors ? null : L.doorAt(x, y, d);
             if (!k && !(door && (!door.open || opts.closedDoors))) continue;
             const th = k ? t : 0.06;
             if (d === 0) hit = box(x * C - t, (x + 1) * C + t, y * C - th, y * C + th) || hit;
@@ -1644,6 +1679,26 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       pos.x = px; pos.z = pz;
       return pos;
     }
+    // A standing point in a cell for a creature of radius r: the free spot nearest the cell center,
+    // clear of furniture colliders (cached). Creatures walk between these instead of cell centers.
+    freePoint(cx, cy, r = 0.3) {
+      const L = this.L, C = this.C, cache = this._free || (this._free = new Map());
+      const key = L.i(cx, cy) * 4 + Math.min(3, Math.round(r * 5));
+      if (cache.has(key)) return cache.get(key);
+      const x0 = L.cx(cx), z0 = L.cz(cy), lim = C / 2 - r - 0.12, pts = [];
+      for (let ox = -lim; ox <= lim + 1e-6; ox += 0.2) for (let oz = -lim; oz <= lim + 1e-6; oz += 0.2) pts.push([ox, oz, ox * ox + oz * oz]);
+      pts.sort((a, b) => a[2] - b[2]);
+      const boxes = [];
+      for (let y = cy - 1; y <= cy + 1; y++) for (let x = cx - 1; x <= cx + 1; x++) { if (!L.inb(x, y)) continue; const list = this.colGrid.get(L.i(x, y)); if (list) for (const b of list) if (b.maxY == null || b.maxY > 0.3) boxes.push(b); }
+      let best = { x: x0, z: z0 };
+      const m = r + 0.06;
+      for (const [ox, oz] of pts) {
+        const px = x0 + ox, pz = z0 + oz;
+        if (!boxes.some(b => px > b.minX - m && px < b.maxX + m && pz > b.minZ - m && pz < b.maxZ + m)) { best = { x: px, z: pz }; break; }
+      }
+      cache.set(key, best);
+      return best;
+    }
     // Footstep surface of a finished room (tiles, planks...), or null
     finishAt(x, z) {
       const L = this.L, fl = L.meta.finishes;
@@ -1658,6 +1713,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       return this.L.floorType[this.L.i(c.x, c.y)] === 1 ? (this.drained ? -0.5 : -0.4) : 0;
     }
     dispose() {
+      this.disposed = true;
       this.group.traverse(o => {
         if (o.geometry) o.geometry.dispose();
       });

@@ -65,7 +65,7 @@
     { key: 'reduceFlicker', tab: 'display', type: 'toggle', def: false },
     { key: 'crosshair', tab: 'display', type: 'toggle', def: true },
     { key: 'subtitles', tab: 'display', type: 'toggle', def: true },
-    { key: 'captions', tab: 'display', type: 'toggle', def: true },
+    { key: 'captions', tab: 'display', type: 'toggle', def: false },
     { key: 'subtitleSize', tab: 'display', type: 'select', def: 'medium',
       options: [['small', 'opt.small'], ['medium', 'opt.medium'], ['large', 'opt.large']] },
 
@@ -146,6 +146,10 @@
       this.fresh = !saved;
       if (saved) for (const s of SCHEMA) if (saved[s.key] !== undefined && !s.transient) this.data[s.key] = this.valid(s, saved[s.key]);
       if (this.fresh) this.autoDetect();
+      // Changed defaults reach settings saved by older versions once
+      const rev = (saved && saved.rev) || 0;
+      if (saved && rev < 4) this.data.captions = false;
+      this.data.rev = 4;
       return this.data;
     },
     save() { U.store.set(STORE_KEY, this.data); },
@@ -169,10 +173,10 @@
     difficulty() {
       const d = this.data.difficulty;
       return {
-        easy: { speed: 0.82, hearing: 0.7, sight: 0.75, battery: 0.6, catchGrace: 0.5, fear: 0.7 },
-        normal: { speed: 1, hearing: 1, sight: 1, battery: 1, catchGrace: 0.25, fear: 1 },
-        nightmare: { speed: 1.12, hearing: 1.35, sight: 1.25, battery: 1.4, catchGrace: 0, fear: 1.3 },
-      }[d] || { speed: 1, hearing: 1, sight: 1, battery: 1, catchGrace: 0.25, fear: 1 };
+        easy: { speed: 0.84, hearing: 0.75, sight: 0.8, battery: 0.65, catchGrace: 0.5, fear: 0.75, menace: 0.55 },
+        normal: { speed: 1.05, hearing: 1.12, sight: 1.08, battery: 1.1, catchGrace: 0.25, fear: 1.05, menace: 1 },
+        nightmare: { speed: 1.16, hearing: 1.4, sight: 1.3, battery: 1.45, catchGrace: 0, fear: 1.3, menace: 1.6 },
+      }[d] || { speed: 1.05, hearing: 1.12, sight: 1.08, battery: 1.1, catchGrace: 0.25, fear: 1.05, menace: 1 };
     },
   };
   S.load();

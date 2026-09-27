@@ -86,8 +86,7 @@
         this.bodies.push(rb);
         // the player pushes it now, instead of stopping against a box
         if (p.colBox) { w.removeCollider(p.colBox); p.colBox.phys = true; }
-        // it is light enough to carry
-        if (k.m <= GRAB_MAX) g.interactables.push({ kind: 'grab', ref: rb, pos: new THREE.Vector3().copy(body.position), reach: 1.9, prompt: () => this.held ? null : PB.t('pr.grab'), act: () => this.grab(rb), live: rb });
+        // (Things are pushed and knocked over by walking into them; they are not picked up and thrown.)
       }
       // kinematic stand-ins for the player and anything solid that walks
       this.playerBody = new C.Body({ type: C.Body.KINEMATIC, mass: 0 });

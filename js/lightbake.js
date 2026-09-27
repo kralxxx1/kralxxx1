@@ -351,19 +351,37 @@ void main() {
       u.uCells.value.set(L.w, L.h); u.uCell.value = C; u.uWorld.value.set(L.w * C, L.ceil, L.h * C);
       u.uTexels.value.set(W, D); u.uTs.value = ts; u.uSamples.value = opts.samples; u.uLW.value = ld.LW; u.uBK.value = ld.BK;
       u.uBounceK.value = bk; u.uAmbient.value.set(amb[0], amb[1], amb[2]);
+      const out = { up, side, bounceTex, cells: cellL, NY, W, D };
+      const job = { L, u, up, side, NY, W, D, done: 0, tiles: [], free: () => { grid.dispose(); occ.dispose(); ld.tex.dispose(); ld.bins.dispose(); } };
+      // Work is split into tiles of one layer each: no single draw is long enough to trip a GPU
+      // watchdog (Windows resets the driver after ~2 s), and the page keeps drawing between them.
+      const px = Math.max(8192, Math.round((opts.budget || 90000) / Math.max(1, opts.samples)));
+      const T = Math.max(32, Math.floor(Math.sqrt(px)));
+      for (const [rt, mode] of [[up, 0], [side, 1]]) for (let k = 0; k < NY; k++) for (let y = 0; y < D; y += T) for (let x = 0; x < W; x += T) job.tiles.push([rt, mode, k, x, y, Math.min(T, W - x), Math.min(T, D - y)]);
+      out.job = job;
+      return out;
+    }
+    // Render the next tiles of a bake job; returns true when it is finished
+    step(res, count = 1) {
+      const job = res.job;
+      if (!job) return true;
+      const r = this.r, u = job.u, L = job.L;
       const prevRT = r.getRenderTarget();
-      for (const [rt, mode] of [[up, 0], [side, 1]]) {
+      for (let n = 0; n < count && job.done < job.tiles.length; n++) {
+        const [rt, mode, k, x, y, w, h] = job.tiles[job.done++];
         u.uMode.value = mode;
-        for (let k = 0; k < NY; k++) {
-          u.uLayerY.value = Math.min(L.ceil - 0.02, Math.max(0.02, k / (NY - 1) * L.ceil));
-          r.setRenderTarget(rt, k);
-          r.render(this.scene, this.cam);
-        }
+        u.uLayerY.value = Math.min(L.ceil - 0.02, Math.max(0.02, k / (job.NY - 1) * L.ceil));
+        rt.scissor.set(x, y, w, h); rt.scissorTest = true;
+        r.setRenderTarget(rt, k);
+        r.render(this.scene, this.cam);
       }
       r.setRenderTarget(prevRT);
-      grid.dispose(); occ.dispose(); ld.tex.dispose(); ld.bins.dispose();
-      return { up, side, bounceTex, cells: cellL, NY, W, D };
+      if (job.done >= job.tiles.length) { job.up.scissorTest = false; job.side.scissorTest = false; job.free(); res.job = null; return true; }
+      return false;
     }
+    // Whole bake at once (tests, tools)
+    bakeNow(L, opts) { const res = this.bake(L, opts); while (!this.step(res, 64)); return res; }
+    abort(res) { if (res && res.job) { res.job.free(); res.job = null; } if (res) { res.up.dispose(); res.side.dispose(); res.bounceTex.dispose(); } }
   }
   PB.LightBake = LightBake;
 })(typeof window !== 'undefined' ? window : globalThis);

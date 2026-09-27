@@ -21,38 +21,70 @@
       this.vis = { group: m.group, mats: m.mats };
       this.legs = m.legs;
       this.mesh.add(m.group); E.lit(game, m.group);
-      this.catchR = 0.95; this.hearMul = 1.6; this.walk = 0; this.fearT = 0;
+      this.catchR = 0.95; this.radius = 0.28; this.hearMul = 1.6; this.walk = 0; this.fearT = 0;
     }
     canSeePlayer(range, fov) { return Base.prototype.canSeePlayer.call(this, range, fov) * 1.3; }
+    // It keeps to the dark: patrols and flanking routes end in unlit cells
+    cellOk(x, y) { return this.frenzyT > 0 || this.g.world.lightAt(this.L.cx(x), this.L.cz(y)) < 0.75; }
     lightScared() {
       const g = this.g;
       if (this.inFlashBeam(9)) return true;
       for (const gs of g.glowsticks || []) if (gs.t > 0.5 && Math.hypot(gs.mesh.position.x - this.pos.x, gs.mesh.position.z - this.pos.z) < 4.5) return true;
       return g.world.lightAt(this.pos.x, this.pos.z) > 0.9;
     }
+    // Close and in the open, it rushes the last few meters
+    chaseSpeed(sp) { const d = this.distToPlayer(); return sp.speed * (d < 4.5 && this.losToPlayer() ? 1.55 : 1) * (this.frenzyT > 0 ? 1.15 : 1); }
     update(dt) {
-      const g = this.g, dm = this.dif.speed;
+      const g = this.g, dm = this.dif.speed, d = this.distToPlayer();
       this.stateT += dt;
-      if (this.lightScared()) {
-        if (this.state !== 'flee') { this.setState('flee'); if (g.audio && this.distToPlayer() < 16) { g.audio.creature('crawler', { x: this.pos.x, y: 0.4, z: this.pos.z }, !this.losToPlayer(), { gain: 0.7 }); g.audio.caption('crawlerHiss', PB.t('cap.hiss'), this.pos, 6); } }
-        this.fearT = 2.5;
+      // Light hurts it: it recoils and circles round to come at you from the dark. It does not stay
+      // scared: pin it in the beam too long, or chase it off too often, and it goes into a frenzy.
+      const lit = this.lightScared();
+      this.litT = lit ? (this.litT || 0) + dt : Math.max(0, (this.litT || 0) - dt * 0.6);
+      this.nerve = Math.max(0, (this.nerve || 0) - dt / 25);
+      if (this.frenzyT > 0) this.frenzyT -= dt;
+      if (lit && !(this.frenzyT > 0) && this.state !== 'flee') {
+        const pos = { x: this.pos.x, y: 0.4, z: this.pos.z };
+        if (this.nerve >= 2.2 || (this.litT > 2.4 && d < 6)) {
+          this.frenzyT = 3.5; this.nerve = 0; this.awareness = 1.2; this.lastKnown = { x: g.player.pos.x, z: g.player.pos.z }; this.setState('chase');
+          g.flashInterference = Math.max(g.flashInterference || 0, 1.2);
+          if (g.audio) g.audio.creature('crawler', pos, !this.losToPlayer(), { gain: 1.1, rate: 0.8 });
+        } else {
+          this.setState('flee'); this.fearT = 0.9 + Math.random() * 0.7; this.nerve += 1;
+          if (g.audio && d < 16) g.audio.creature('crawler', pos, !this.losToPlayer(), { gain: 0.7 });
+        }
       }
       if (this.state === 'flee') {
         this.fearT -= dt;
-        this.advance(dt, 4.6 * dm, g.nav.playerField, true);
-        if (this.fearT <= 0) this.setState('search');
-      } else this.baseAI(dt, { sight: 12, fov: 2.6, speed: 4.1 * dm, patrol: 1.5 * dm, investigate: 3.0 * dm, lose: 6, hunt: true, notice: 1.6, searchTime: 10 });
+        this.advance(dt, 4.4 * dm, g.nav.playerField, true);
+        if (this.cornered && d < 4) { this.frenzyT = 3; this.lastKnown = { x: g.player.pos.x, z: g.player.pos.z }; this.setState('chase'); }
+        else if (this.fearT <= 0) { this.setState('flank'); this.flank = null; }
+      } else if (this.state === 'flank') {
+        // Round to a cell beside or behind the player, out of the beam, then attack
+        if (!this.flank || this.arrived || this.stateT > 7) {
+          const pc = g.nav.playerCell, fw = g.player.forward();
+          let best = null, bs = -1e9;
+          for (let k = 0; k < 16; k++) {
+            const c = this.randomCellNear(pc.x, pc.y, 2, 6);
+            if (!c) continue;
+            const vx = this.L.cx(c.x) - g.player.pos.x, vz = this.L.cz(c.y) - g.player.pos.z, n = Math.hypot(vx, vz) || 1;
+            const sc = -(vx * fw.x + vz * fw.z) / n + Math.random() * 0.3;
+            if (sc > bs) { bs = sc; best = c; }
+          }
+          this.flank = best || pc; this.setGoal(this.flank.x, this.flank.y); this.arrived = false;
+        }
+        this.arrived = this.advance(dt, 3.6 * dm, this.goalField);
+        if (this.arrived || this.stateT > 9 || (d < 3.5 && this.losToPlayer())) { this.awareness = 1.2; this.lastKnown = { x: g.player.pos.x, z: g.player.pos.z }; this.setState('chase'); }
+      } else this.baseAI(dt, { sight: 13, fov: 2.8, speed: 4.2 * dm, patrol: 1.6 * dm, investigate: 3.2 * dm, lose: 7, hunt: true, notice: 1.8, searchTime: 12 });
       // Skittering legs
       const moving = this.next != null;
-      this.walk += dt * (this.state === 'chase' || this.state === 'flee' ? 16 : 8) * (moving ? 1 : 0.1);
+      this.walk += dt * (this.state === 'chase' || this.state === 'flee' || this.state === 'flank' ? 16 : 8) * (moving ? 1 : 0.1);
       for (const l of this.legs) { l.hip.rotation.y = Math.sin(this.walk + l.ph) * 0.45; l.hip.rotation.z = Math.max(0, Math.sin(this.walk + l.ph + H)) * 0.35 * l.side; }
       this.mesh.position.set(this.pos.x, Math.abs(Math.sin(this.walk * 2)) * 0.03, this.pos.z);
       this.mesh.rotation.y = this.heading;
       if (g.audio && moving && (this.stepT = (this.stepT || 0) - dt) <= 0) {
         this.stepT = this.state === 'chase' ? 0.12 : 0.28;
-        const d = this.distToPlayer();
         if (d < 20) g.audio.play('step_tile', 8, 'ent', { x: this.pos.x, y: 0.2, z: this.pos.z }, { rev: 0.4, occl: true, occluded: !this.losToPlayer(), gain: 0.25, rate: 2.2, jitter: 0.3 });
-        if (d < 12) g.audio.caption('crawler', PB.t('cap.skitter'), this.pos, 10);
       }
       if (this.state !== 'flee') this.tryCatch();
     }
@@ -203,7 +235,7 @@
       const m = PB.Monsters.chompy();
       this.vis = { group: m.group, mats: m.mats, head: m.head, arms: m.arms };
       this.mesh.add(m.group); E.lit(game, m.group);
-      this.catchR = 1.3; this.state = o.dormant ? 'display' : 'hunt'; this.walk = 0; this.litT = 0; this.coverT = 0;
+      this.catchR = 1.3; this.radius = 0.45; this.state = o.dormant ? 'display' : 'hunt'; this.walk = 0; this.litT = 0; this.coverT = 0;
     }
     update(dt) {
       const g = this.g, d = this.distToPlayer();

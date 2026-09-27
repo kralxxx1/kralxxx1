@@ -564,6 +564,33 @@
       }
       r.setRenderTarget(prev);
     }
+    // Same as warm(), but lets the driver link programs off the main thread where it can
+    async warmAsync(scene, camera) {
+      const r = this.r;
+      if (!r.compileAsync || !r.extensions.has('KHR_parallel_shader_compile')) { this.warm(scene, camera); return; }
+      const prev = r.getRenderTarget();
+      r.setRenderTarget(this.sceneRT);
+      await r.compileAsync(scene, camera);
+      if (this.gRT) {
+        const swapped = [];
+        scene.traverse(o => {
+          if (!o.isMesh) return;
+          const m = o.material;
+          if (!m || Array.isArray(m) || (m.transparent && !(m.userData && m.userData.prepass)) || o.userData.noPrepass) return;
+          swapped.push([o, m]);
+          o.material = this.prepassMat(m);
+        });
+        const fog = scene.fog, bg = scene.background;
+        scene.fog = null; scene.background = null;
+        r.setRenderTarget(this.gRT);
+        try { await r.compileAsync(scene, camera); } finally {
+          scene.fog = fog; scene.background = bg;
+          for (const [o, m] of swapped) o.material = m;
+        }
+      }
+      r.setRenderTarget(prev);
+      // And the full-screen passes, by drawing one frame now
+    }
     // Per-frame volumetric light inputs (flashlight + nearby fixtures)
     setLights(flash, fixtures) {
       const v = this.vol;
