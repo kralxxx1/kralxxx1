@@ -8,6 +8,7 @@
   const ST = PB.Story;
   const U = PB.U;
   const t = PB.t;
+  const PI = Math.PI;
 
   // ------------------------------------------------------------ helpers shared by every chapter
   const itemOf = (g, id) => g.items.find(i => i.id === id || i.type === id);
@@ -300,6 +301,140 @@
       if (g.eater) g.eater.huntBias = g.inv.pellets >= 4;
       // A hummer close by: the place's hum deepens before you see anything wrong
       if (!f.humHeard) for (const e of species(g, 'hummer')) if (e.distToPlayer() < 8) { f.humHeard = true; g.later(800, () => g.mono('under_humNear', 4)); break; }
+    },
+  };
+
+  // ================================================================ 2. SAINT BRIGID
+  // The ferry in fog. The lie: Captain Aal said the deckhand Pim Rask left the fog bell and ran. The page
+  // he tore out of the logbook says Aal was drunk in his cabin and the boy rang the bell to the end.
+  // Claim: the page back in the logbook. Way out: lifeboat 2 (davit key from the bridge, crank from the
+  // flooded engine room; taking the crank brings up the Drowned).
+  C.ferry = {
+    start(g) {
+      g.setObj('ferry_start');
+      // lifeboat 2 is its own object so it can be lowered
+      const b = g.meshFromDef('lifeboat');
+      b.position.set(8.5 * 3, 1.9, 0.25 * 3); g.world.group.add(b); g.lifeboat = b;
+      g.later(500, () => { for (const e of species(g, 'drowned')) e.sp = Object.assign({}, e.sp, { ambushR: 2.2 }); });
+    },
+    afterCard(g) { g.mono('ferry_start', 5); g.radio('ferry_otto1', { delay: 7 }); },
+    restore(g) {
+      if (has(g, 'bridgeKey') || g.flags.bridgeOpen) unlock(g, 'bridgeDoor');
+      if (g.flags.crank) this.wakeDrowned(g, true);
+      this.refresh(g);
+    },
+    refresh(g) {
+      const f = g.flags;
+      g.setObj(!f.winchSeen ? 'ferry_start' : !f.claimed ? (has(g, 'logPage') ? 'ferry_logbook' : f.bridgeTried || has(g, 'bridgeKey') ? 'ferry_captain' : 'ferry_bridge') : !has(g, 'davitKey') ? 'ferry_key' : !has(g, 'crank') ? 'ferry_crank' : 'ferry_lower');
+    },
+    prompt(g, o) {
+      switch (o.id) {
+        case 'winch2': return g.flags.lowering ? null : ST.line(has(g, 'davitKey') && has(g, 'crank') ? 'ferry_winchGo' : 'ferry_winchLook');
+        case 'logbook': return ST.line(has(g, 'logPage') ? 'ferry_logbookPut' : 'ferry_logbookRead');
+        case 'bell': return ST.line('ferry_bellPrompt');
+      }
+      return undefined;
+    },
+    canHold(g, o) { return o.id !== 'winch2' || (has(g, 'davitKey') && has(g, 'crank') && g.flags.claimed); },
+    holdStart(g, o) { if (o.id === 'winch2' && g.audio.winch) g.audio.winch(o.pos); if (o.id === 'winch2') g.noise(o.pos.x, o.pos.z, 26, 'loud'); },
+    use(g, o) {
+      const f = g.flags;
+      switch (o.id) {
+        case 'winch2': {
+          if (!f.winchSeen) { f.winchSeen = true; g.mono('ferry_winch', 5); this.refresh(g); g.completeStep(); return true; }
+          if (!has(g, 'davitKey') || !has(g, 'crank')) { g.mono(has(g, 'davitKey') ? 'ferry_winchNoCrank' : has(g, 'crank') ? 'ferry_winchNoKey' : 'ferry_winch2', 4); return true; }
+          if (!f.claimed) { g.mono('ferry_brake', 5); return true; }
+          if (!f.lowering) this.lower(g);
+          return true;
+        }
+        case 'logPage':
+          g.takeItem(o); give(g, 'logPage'); g.audio.paper();
+          g.readNote('ferry_logpage', () => { g.mono('ferry_pageAfter', 6); this.refresh(g); g.completeStep(); });
+          return true;
+        case 'logbook': {
+          if (!has(g, 'logPage')) { g.readNote('ferry_logbook', () => g.mono('ferry_logbookGap', 4)); return true; }
+          if (f.claimed) { g.readNote('ferry_logbook'); return true; }
+          // the claim: the page goes back where it was torn from
+          drop(g, 'logPage'); f.claimed = true; g.save.world.claimed = (g.save.world.claimed || 0) + 1;
+          g.audio.paper();
+          g.readNote('ferry_logbookFull', () => {
+            g.mono('ferry_claimed', 6);
+            // far off in the fog, the bell, once
+            g.later(4000, () => { const b = itemOf(g, 'bell'); if (g.audio.shipBell) g.audio.shipBell(b ? b.pos : null, 0.35); g.audio.caption('bell', t('cap.bellFar'), b ? b.pos : null, 5); });
+            g.later(7000, () => g.radio('ferry_otto2'));
+            this.refresh(g); g.completeStep(); g.checkpoint(true);
+          });
+          return true;
+        }
+        case 'bell':
+          if (g.audio.shipBell) g.audio.shipBell(o.pos, 0.6);
+          g.noise(o.pos.x, o.pos.z, 40, 'loud');
+          g.mono(f.claimed ? 'ferry_bellAfter' : 'ferry_bell', 4);
+          return true;
+      }
+      return false;
+    },
+    picked(g, id) {
+      if (id === 'bridgeKey') { unlock(g, 'bridgeDoor'); g.mono('ferry_bridgeKey', 4); this.refresh(g); }
+      if (id === 'davitKey') { g.mono('ferry_davitKey', 4); this.refresh(g); g.completeStep(); }
+      if (id === 'crank') {
+        // the water in the engine room moves: they were waiting for someone to take it
+        g.mono('ferry_crank', 4);
+        g.later(1500, () => this.wakeDrowned(g));
+        this.refresh(g); g.completeStep();
+      }
+    },
+    wakeDrowned(g, quiet) {
+      g.flags.crank = true;
+      for (const e of species(g, 'drowned')) {
+        e.sp = Object.assign({}, e.sp, { ambushR: 9, hunt: true });
+        if (e.state === 'buried' && !quiet) g.later(Math.random() * 2500, () => { if (e.state === 'buried') e.emergeNear(g.player.pos.x, g.player.pos.z); });
+      }
+      if (!quiet) { if (g.audio.waterSurge) g.audio.waterSurge(g.player.pos); g.player.addTrauma(0.2); }
+    },
+    lower(g) {
+      const f = g.flags; f.lowering = true;
+      const pl = g.player, b = g.lifeboat;
+      pl.frozen = true; pl.flashOn = false;
+      g.mono('ferry_lower', 4);
+      g.fadeTo(1, 0.6, () => {
+        // into the boat
+        pl.spawn(b.position.x, b.position.z + 0.2, PI / 2 + 0.3); pl.camLift = b.position.y + 0.2;
+        for (const e of g.entities) e.update = () => {};
+        g.fadeTo(0, 0.8);
+        if (g.audio.winchRun) g.audio.winchRun(9);
+        let t0 = g.time;
+        f.lowerT = 0;
+        this.lowering = () => {
+          const k = Math.min(1, (g.time - t0) / 10);
+          b.position.y = 1.9 - k * 8.2 + Math.sin(g.time * 3) * 0.02 * (1 - k);
+          b.rotation.z = Math.sin(g.time * 1.3) * 0.03;
+          pl.camLift = b.position.y + 0.25; pl.camRoll = b.rotation.z;
+          if (k >= 1 && !f.touched) {
+            f.touched = true;
+            // the boat touches the water; in the fog the bell starts ringing by itself, steadily
+            if (g.audio.splash) g.audio.splash(b.position);
+            g.later(1800, () => { const bell = itemOf(g, 'bell'); if (g.audio.shipBell) g.audio.shipBellRinging(bell ? bell.pos : null); g.mono('ferry_end', 6); });
+            g.later(9000, () => { pl.camLift = 0; pl.camRoll = 0; pl.frozen = false; g.whenPlaying(() => g.exitLevel('pinewood')); });
+          }
+        };
+      });
+    },
+    unlockPrompt(g, d) { if (d.id === 'bridgeDoor' && has(g, 'bridgeKey')) return ST.line('ferry_bridgeUnlock'); return null; },
+    unlockDoor(g, d) { if (d.id === 'bridgeDoor' && has(g, 'bridgeKey')) { unlock(g, 'bridgeDoor', true); g.flags.bridgeOpen = true; return true; } return false; },
+    lockedDoor(g, d) { if (d.id === 'bridgeDoor') { g.mono('ferry_bridgeLocked', 4); if (!g.flags.bridgeTried) { g.flags.bridgeTried = true; this.refresh(g); } } },
+    onSpotted(g, ent) {
+      const f = g.flags;
+      if (ent.kind === 'bellman' && !f.bellmanSeen) { f.bellmanSeen = true; g.later(1200, () => g.radio('ferry_bellman')); }
+      if (ent.kind === 'passenger' && !f.passSeen) { f.passSeen = true; g.later(1500, () => g.mono('ferry_passengers', 4)); }
+      if (ent.kind === 'drowned' && !f.drownedSeen) { f.drownedSeen = true; g.later(1200, () => g.mono('ferry_drowned', 4)); }
+    },
+    update(g, dt) {
+      const f = g.flags;
+      if (this.lowering) { this.lowering(); return; }
+      if (!f.loungeIn && inTrigger(g, 'lounge')) { f.loungeIn = true; g.mono('ferry_lounge', 5); }
+      if (!f.engineIn && inTrigger(g, 'engineIn')) { f.engineIn = true; g.mono('ferry_engineRoom', 4); }
+      if (!f.foreIn && inTrigger(g, 'deckFore')) { f.foreIn = true; g.mono('ferry_fore', 4); }
     },
   };
 })(typeof window !== 'undefined' ? window : globalThis);

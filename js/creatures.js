@@ -83,6 +83,7 @@
     }
     // ---------------------------------------------------------------- where it may go
     allowed(x, y) {
+      if (this.sp.allowCell && !this.sp.allowCell(this, x, y)) return false;
       const c = this.sp.confined || this.cfg.confined;
       if (!c) return true;
       const rooms = this.g.level.meta.rooms || {};
@@ -96,7 +97,7 @@
     }
     pickNext(field, flee) {
       const n = super.pickNext(field, flee);
-      if (n && (this.sp.confined || this.cfg.confined) && !this.allowed(n.x, n.y)) { this.atEdge = true; return null; }
+      if (n && (this.sp.confined || this.cfg.confined || this.sp.allowCell) && !this.allowed(n.x, n.y)) { this.atEdge = true; return null; }
       this.atEdge = false;
       return n;
     }

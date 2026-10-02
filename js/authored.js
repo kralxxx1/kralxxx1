@@ -157,6 +157,8 @@
     // furniture, lights, spots
     const K = kit(L, def);
     if (A.build) A.build(L, K);
+    // stairs: creatures follow through them too
+    for (const st of L.meta.stairs || []) if (L.passable(st.a.x, st.a.y) && L.passable(st.b.x, st.b.y)) { L.portalMap.set(L.i(st.a.x, st.a.y), L.i(st.b.x, st.b.y)); L.portalMap.set(L.i(st.b.x, st.b.y), L.i(st.a.x, st.a.y)); }
     // portal pairs so creatures can follow through linked doors
     for (const [a, b] of L.links) {
       const da = L.doors.find(d => d.id === a), db = L.doors.find(d => d.id === b);
@@ -185,6 +187,7 @@
       const ca = insideOf(L, L.doors.find(d => d.id === a)), cb = insideOf(L, L.doors.find(d => d.id === b));
       if (ca && cb) { link.set(L.i(ca.x, ca.y), L.i(cb.x, cb.y)); link.set(L.i(cb.x, cb.y), L.i(ca.x, ca.y)); }
     }
+    for (const st of L.meta.stairs || []) { link.set(L.i(st.a.x, st.a.y), L.i(st.b.x, st.b.y)); link.set(L.i(st.b.x, st.b.y), L.i(st.a.x, st.a.y)); }
     void dist;
     reach[stack[0]] = 1;
     while (stack.length) {
@@ -256,6 +259,16 @@
       trigger(id, x0, y0, x1, y1, o = {}) { const t = Object.assign({ id, x0, y0, x1, y1 }, o); L.triggers.push(t); return t; },
       // a place a creature starts or lurks
       lair(name, x, y, o = {}) { return K.spot('lair:' + name, x, y, o); },
+      // Stairs (or a ladder, a hatch) between two places on the plan: using one end takes you to the other.
+      // yaw is the way you face when you arrive; label the prompt key for each end.
+      stairs(a, b, o = {}) {
+        const end = e => ({ x: Math.floor(e[0]), y: Math.floor(e[1]), wx: e[0] * C, wz: e[1] * C, yaw: e[2] || 0, label: e[3] || 'pr.stairs', h: e[4] != null ? e[4] : 1.0 });
+        const link = Object.assign({ a: end(a), b: end(b), sound: 'steel' }, o);
+        (L.meta.stairs || (L.meta.stairs = [])).push(link);
+        return link;
+      },
+      // a car (PB.Vehicles): type sedan/wagon/pickup/van, colour, plate, rot
+      vehicle(x, y, rot, o = {}) { const v = Object.assign({ type: 'sedan', color: 0x5a5a5a, key: 'v' + ((L.meta.vehicles || []).length), x: x * C, z: y * C, rot }, o); (L.meta.vehicles || (L.meta.vehicles = [])).push(v); return v; },
       rng: PB.U.rng(def.seed || 1),
     };
     return K;

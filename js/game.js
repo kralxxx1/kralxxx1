@@ -208,6 +208,14 @@
       const d = Math.max(dens, 1.8 / S.data.viewDist);
       this.scene.fog = new THREE.FogExp2(col, d);
       this.scene.background = new THREE.Color(col);
+      this.fogOut = d; this.fogIn = this.levelDef.fogIn != null ? Math.max(this.levelDef.fogIn, 1.8 / S.data.viewDist) : d;
+    }
+    // Fog thins indoors on maps that set fogIn (a ship's lounge is not as foggy as its deck)
+    updateFog(dt) {
+      if (!this.scene.fog || this.fogIn === this.fogOut) return;
+      const L = this.level, od = L.meta.outdoor, c = L.cellOf(this.player.pos.x, this.player.pos.z);
+      const out = od && L.inb(c.x, c.y) && od[L.i(c.x, c.y)];
+      this.scene.fog.density = U.damp(this.scene.fog.density, out ? this.fogOut : this.fogIn, 1.5, dt);
     }
 
     // ================================================================ KAYIT
@@ -391,6 +399,7 @@
       this.physics = PB.Physics ? PB.Physics.create(this) : null;
       this.createDoorInteractions();
       this.createHideSpots();
+      this.createStairs();
       this.menuWorld = !!opts.menu;
       if (!opts.menu) this.createEntities();
       this.glowPool = [];
@@ -636,7 +645,8 @@
         }
         case 'key': {
           const k = it.data || '';
-          if (/^frame/.test(k)) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.002, 0.065), new THREE.MeshStandardMaterial({ map: T.photo('frame'), roughness: 0.3 })); m.position.y = 0.001; grp.add(m); w.patch(m.material); }
+          if (it.model && P.DEFS[it.model]) add(it.model, 0, it.scale || 1);
+          else if (/^frame/.test(k)) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.002, 0.065), new THREE.MeshStandardMaterial({ map: T.photo('frame'), roughness: 0.3 })); m.position.y = 0.001; grp.add(m); w.patch(m.material); }
           else if (/^page/.test(k)) add('note', 0, 1);
           else { add('key', 0, 2.2); const tag = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.002, 0.05), w.mat('keyTag')); tag.position.set(0.06, 0.004, 0.02); grp.add(tag); }
           o.marker = MARK.obj; o.pos.y = Math.max(o.pos.y, 0) ; break;
@@ -822,6 +832,29 @@
           },
         });
       }
+    }
+    // Stairs, ladders and hatches on hand-made maps: one end takes you to the other
+    createStairs() {
+      for (const st of this.level.meta.stairs || []) for (const [from, to] of [[st.a, st.b], [st.b, st.a]]) {
+        this.interactables.push({
+          kind: 'stairs', ref: st, pos: new THREE.Vector3(from.wx, from.h, from.wz), reach: 2.3, r: 0.6,
+          prompt: () => (st.locked && st.locked(this) ? null : t(from.label)),
+          act: () => this.useStairs(st, to),
+        });
+      }
+    }
+    useStairs(st, to) {
+      if (this.exiting || this.player.frozen) return;
+      if (st.check && st.check(this) === false) return;
+      this.player.frozen = true; this.exiting = true;
+      if (this.audio.stairs) this.audio.stairs(st.sound, 1.1); else this.audio.footstep('metal', 0.8);
+      this.fadeTo(1, 0.45, () => {
+        this.player.spawn(to.wx, to.wz, to.yaw);
+        this.nav.dirty = true; this.nav.update();
+        this.exiting = false;
+        this.fadeTo(0, 0.6, () => { this.player.frozen = false; });
+        if (this.script.stairs) this.script.stairs(this, st, to);
+      });
     }
     createHideSpots() {
       for (const p of this.level.props) {
@@ -1625,6 +1658,7 @@
       if (pl.battery < 15 && pl.battery > 0 && this.inv.batteries > 0 && !this.flags.lowTip) { this.flags.lowTip = true; this.ui.hint(t('hint.reload'), true); }
       if (pl.battery > 50) this.flags.lowTip = false;
       if (this.script.update) this.script.update(this, dt);
+      this.updateFog(dt);
       this.updateFear(dt);
       this.updateMusic();
       if (this.drainAnim) {

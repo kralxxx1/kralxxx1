@@ -551,13 +551,15 @@
         const blocked = !L.los(this.pos.x, this.pos.z, ex, ez) || Math.hypot(q.x - ex, q.z - ez) > 0.02;
         if (blocked) { this.lean *= 0.85; lx *= 0.3; lz *= 0.3; }
       }
-      cam.position.set(this.pos.x + right.x * bx + lx, this.pos.y + this.eyeCur + by - Math.abs(this.lean) * 0.05, this.pos.z + right.z * bx + lz);
+      cam.position.set(this.pos.x + right.x * bx + lx, this.pos.y + this.eyeCur + by - Math.abs(this.lean) * 0.05 + (this.camLift || 0), this.pos.z + right.z * bx + lz);
       if (this.hidden) cam.position.set(this.hidden.x, this.hidden.floor + this.eyeCur, this.hidden.z);
       // Look back over your shoulder (hold V or the middle mouse button): the body keeps running the same way
       const lb = inp && !this.hidden && !this.frozen && inp.down('lookBack') ? 1 : 0;
       this.lookBack = U.damp(this.lookBack || 0, lb, 9, dt || 1);
       cam.rotation.order = 'YXZ';
-      cam.rotation.set(this.pitch * (1 - this.lookBack * 0.7) + shy, this.yaw + shx + this.lookBack * 2.75, (Math.sin(this.bob) * 0.006 * bobK) + sh * 0.02 * Math.sin(t * 13) - this.lean * 0.13 + this.lookBack * 0.06);
+      // a listing ship, a tilting world: the chapter can lean the horizon (slowly rolling round it)
+      const lv = this.game.levelDef, list = lv && lv.list ? lv.list * (1 + Math.sin(t * 0.31) * 0.25) + Math.sin(t * 0.73) * lv.list * 0.15 : 0;
+      cam.rotation.set(this.pitch * (1 - this.lookBack * 0.7) + shy, this.yaw + shx + this.lookBack * 2.75, (Math.sin(this.bob) * 0.006 * bobK) + sh * 0.02 * Math.sin(t * 13) - this.lean * 0.13 + this.lookBack * 0.06 + list + (this.camRoll || 0));
       // Koşarken hafif FOV artışı
       const fovT = S.fov + (this.sprinting ? 6 : 0) - (this.fear > 70 ? (this.fear - 70) * 0.15 : 0);
       if (Math.abs(cam.fov - fovT) > 0.05) { cam.fov = U.damp(cam.fov, fovT, 6, dt || 1); cam.updateProjectionMatrix(); }

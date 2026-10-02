@@ -365,6 +365,7 @@
   // Themes of the hand-authored chapters: ambient (the light every place has when nothing is lit) is near
   // black everywhere; the materials come from the map's styles, these are fallbacks
   Object.assign(PB.THEMES, {
+    ferry: { wall: 'shipPaint', floor: 'steelDeck', ceil: 'shipPaint', pillar: 'shipPaint', block: 'shipPaint', trim: 'rubber', trimH: 0.08, ambient: [0.003, 0.0035, 0.004], bounce: 0.35, ceilFactor: 0.6, env: [0.03, 0.035, 0.04], envPanel: [0.8, 0.9, 1.0], dust: 0.2, floorRefl: 0.12 },
     depot: { wall: 'plaster', floor: 'linoleum', ceil: 'plaster', pillar: 'plaster', trim: 'darkWood', trimH: 0.1, ambient: [0.0035, 0.003, 0.0026], bounce: 0.38, ceilFactor: 0.6, env: [0.04, 0.035, 0.03], envPanel: [1.2, 1.0, 0.8], dust: 0.35, floorRefl: 0.1 },
   });
 
@@ -383,5 +384,22 @@
       if (k > 0) { const r = U.hash2(Math.floor(t * 7 + f.light.x * 0.37), Math.floor(f.light.z), 11); b *= U.lerp(1, r < 0.45 ? 0.08 : r < 0.7 ? 0.45 : 0.85, k); }
     }
     return b;
+  };
+
+  // Cars on a hand-made map (a car deck, a drive-in): the street's car materials, lit by the baked light
+  W.buildVehicles = function () {
+    const ex = { carMats: {} }, carMat = PB.Exterior.Street.prototype.carMat;
+    const patched = new Set();
+    const mat = (n, o) => { const m = carMat.call(ex, n, o); if (!patched.has(m) && !m.isMeshBasicMaterial) { patched.add(m); this.patch(m); } return m; };
+    this.vehicles = [];
+    for (const v of this.L.meta.vehicles) {
+      const car = PB.Vehicles.make(v, mat);
+      car.position.set(v.x, v.y || 0, v.z); car.rotation.y = v.rot || 0;
+      if (v.tilt) car.rotation.z = v.tilt;
+      this.group.add(car); this.vehicles.push(car);
+      const t = PB.Vehicles.TYPES[v.type] || PB.Vehicles.TYPES.sedan, c = Math.abs(Math.cos(v.rot || 0)), s = Math.abs(Math.sin(v.rot || 0));
+      const hw = t.len / 2 * c + (t.hw + 0.05) * s, hd = t.len / 2 * s + (t.hw + 0.05) * c;
+      this.addCollider({ minX: v.x - hw, maxX: v.x + hw, minZ: v.z - hd, maxZ: v.z + hd, maxY: 1.6 });
+    }
   };
 })(typeof window !== 'undefined' ? window : globalThis);

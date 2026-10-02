@@ -25,7 +25,7 @@ for (const D of S.LEVELS) {
   const t0 = Date.now();
   const L = G.generate(def);
   const ms = Date.now() - t0;
-  console.log(`${def.id.padEnd(11)} ${def.layout.padEnd(10)} ${L.w}x${L.h}  items=${L.items.length} lights=${L.lights.length} props=${L.props.length} (${ms} ms)`);
+  console.log(`${def.id.padEnd(11)} ${(def.authored ? 'authored' : def.layout || '?').padEnd(10)} ${L.w}x${L.h}  items=${L.items.length} lights=${L.lights.length} props=${L.props.length} (${ms} ms)`);
   const dist = L.bfs(L.spawn.x, L.spawn.y, 'all');
   check(L.passable(L.spawn.x, L.spawn.y), `${def.id}: spawn is in a blocked cell`);
   check(L.floorType[L.i(L.spawn.x, L.spawn.y)] === 0, `${def.id}: spawn is in water`);
