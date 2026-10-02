@@ -261,6 +261,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       const MT = PB.Models.tex;
       const E = (color, k = 1, extra = {}) => { const c = new THREE.Color(color).multiplyScalar(k); return new THREE.MeshBasicMaterial(Object.assign({ color: c }, extra)); };
       let m;
+      if (key.length > 2 && key[1] === ':' && 'WFC'.includes(key[0])) { m = this.styleMat(key); this.mats.set(key, m); return m; }
       switch (key) {
         case 'wall': m = this.macro(this.pbr(th.wall, { vertexColors: true, color: th.wallTint }), th.macro != null ? th.macro : 0.12, th.damp != null ? th.damp : 0.22, th.wave != null ? th.wave : 0.025); m.userData.refl = th.wallRefl || 0; break;
         case 'floor': m = this.macro(this.pbr(th.floor, { vertexColors: true, color: th.floorTint, emissiveIntensity: 0.35 }), 0.1, 0.1, 0); m.userData.refl = th.floorRefl || 0; break;
@@ -396,7 +397,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         default: {
           // Simple colored materials and textured ones from the model library
           const spec = PB.Models.MATS[key];
-          if (spec && spec.tex) { m = new THREE.MeshStandardMaterial({ map: PB.Models.tex[spec.tex](), color: spec.color != null ? spec.color : 0xffffff, roughness: spec.rough != null ? spec.rough : 0.7, metalness: spec.metal || 0, transparent: !!spec.transparent, opacity: spec.opacity != null ? spec.opacity : 1, depthWrite: !spec.transparent, side: spec.double ? THREE.DoubleSide : THREE.FrontSide, emissive: spec.emissive != null ? new THREE.Color(spec.emissive) : new THREE.Color(0), emissiveMap: spec.emissive != null ? PB.Models.tex[spec.tex]() : null, emissiveIntensity: spec.ei != null ? spec.ei : 1 }); this.patch(m); m.userData.refl = spec.refl || 0; if (spec.rep) { m.map = m.map.clone(); m.map.repeat.set(spec.rep, spec.rep); m.map.needsUpdate = true; } }
+          if (spec && spec.tex) { m = new THREE.MeshStandardMaterial({ map: PB.Models.tex[spec.tex](), color: spec.color != null ? spec.color : 0xffffff, roughness: spec.rough != null ? spec.rough : 0.7, metalness: spec.metal || 0, transparent: !!spec.transparent, opacity: spec.opacity != null ? spec.opacity : 1, depthWrite: !spec.transparent, side: spec.double ? THREE.DoubleSide : THREE.FrontSide, alphaTest: spec.alpha || 0, emissive: spec.emissive != null ? new THREE.Color(spec.emissive) : new THREE.Color(0), emissiveMap: spec.emissive != null ? PB.Models.tex[spec.tex]() : null, emissiveIntensity: spec.ei != null ? spec.ei : 1 }); this.patch(m); m.userData.refl = spec.refl || 0; if (spec.rep) { m.map = m.map.clone(); m.map.repeat.set(spec.rep, spec.rep); m.map.needsUpdate = true; } }
           else if (spec && spec.glow) m = E(spec.color, spec.glow);
           else if (spec) m = S(spec.color, spec.rough != null ? spec.rough : 0.6, spec.metal || 0, Object.assign({}, spec.transparent ? { transparent: true, opacity: spec.opacity, depthWrite: false } : {}, spec.double ? { side: THREE.DoubleSide } : {}, spec.refl != null ? { refl: spec.refl } : {}));
           else m = S(0x888888, 0.6);
@@ -429,6 +430,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       if (this.L.meta.finishes) texNames.push('hexTile', 'subway', 'planks', 'linoleum', 'concreteFloor');
       if (this.L.meta.outdoor) texNames.push('siding', 'grass', 'asphalt', 'shingles');
       if (this.L.doors.some(d => d.kind === 'stair')) texNames.push('concreteWall');
+      if (this.L.styles) for (const st of this.L.styles) { texNames.push(st.wall, st.floor, st.ceil || st.wall); if (st.siding) texNames.push(st.siding); if (st.wainscot) texNames.push(st.wainscot.mat); if (st.bed) texNames.push(st.bed); }
       const uniq = [...new Set(texNames)];
       for (let k = 0; k < uniq.length; k++) {
         T.get(uniq[k], this.texRes);
@@ -487,7 +489,8 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       else buf.quad([x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1], [0, -1, 0], [u0, v0], [u1, v0], [u1, v1], [u0, v1], ao, ao, ao, ao);
     }
     // Picket fence along an edge
-    fenceRun(bufs, horiz, line, a0, a1) {
+    fenceRun(bufs, horiz, line, a0, a1, kind) {
+      if (kind && kind !== 'picket') { this.fenceKind(bufs, horiz, line, a0, a1, kind); return; }
       const buf = this.chunkBuf(bufs, 'fence', horiz ? (a0 + a1) / 2 : line, horiz ? line : (a0 + a1) / 2);
       const t = 0.03;
       for (let a = a0 + 0.06; a < a1; a += 0.16) {
@@ -594,8 +597,9 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
           }
         }
       };
+      if (L.styleOf) this.buildAuthored(bufs);
       // Yatay kenarlar (z = y*C)
-      for (let y = 0; y <= L.h; y++) {
+      if (!L.styleOf) for (let y = 0; y <= L.h; y++) {
         let x = 0;
         while (x < L.w) {
           const kind = L.hW[y * L.w + x];
@@ -608,7 +612,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         }
       }
       // Dikey kenarlar (x = x*C)
-      for (let x = 0; x <= L.w; x++) {
+      if (!L.styleOf) for (let x = 0; x <= L.w; x++) {
         let y = 0;
         while (y < L.h) {
           const kind = L.vW[y * (L.w + 1) + x];
@@ -646,7 +650,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       const floorS = scaleOf('floor');
       const finishOf = new Map();
       for (const f of L.meta.finishes || []) for (let y = f.y0; y <= f.y1; y++) for (let x = f.x0; x <= f.x1; x++) finishOf.set(L.i(x, y), f);
-      for (let y = 0; y < L.h; y++) for (let x = 0; x < L.w; x++) {
+      if (!L.styleOf) for (let y = 0; y < L.h; y++) for (let x = 0; x < L.w; x++) {
         const i = L.i(x, y);
         if (!vis(x, y)) continue;
         const x0 = x * C, x1 = (x + 1) * C, z0 = y * C, z1 = (y + 1) * C;
@@ -687,7 +691,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         }
       }
       // Kapı yanı duvar parçaları ve lentolar
-      for (const door of L.doors) this.doorWall(bufs, door);
+      for (const door of L.doors) { if (L.styleOf) this.doorWallAuthored(bufs, door); else this.doorWall(bufs, door); }
       this.buildCorners(bufs);
 
       // Birleştir
@@ -696,12 +700,13 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         if (!b.count) continue;
         let mat;
         if (b.mat === 'water') mat = this.waterMat();
+        else if (b.mat === 'murk') mat = this.waterMat(true);
         else if (b.mat === 'glassPane') mat = this.mat('glass');
         else if (b.mat.startsWith('glitch')) mat = this.glitchMat(+b.mat.slice(6));
         else mat = this.mat(b.mat);
         const mesh = new THREE.Mesh(b.build(), mat);
         mesh.receiveShadow = true;
-        mesh.castShadow = b.mat !== 'floor' && b.mat !== 'ceil' && b.mat !== 'water' && b.mat !== 'glassPane';
+        mesh.castShadow = !/^(floor|ceil|water|murk|glassPane|F:|C:)/.test(b.mat);
         mesh.matrixAutoUpdate = false;
         mesh.userData.kind = b.mat;
         this.group.add(mesh);
@@ -714,7 +719,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
     buildCorners(bufs) {
       const L = this.L, C = this.C, th = this.theme, H = L.ceil, w = L.w, h = L.h, half = 0.1;
       const outdoor = L.meta.outdoor;
-      const vis = (x, y) => L.inb(x, y) && (L.solid[L.i(x, y)] === 0 || L.solid[L.i(x, y)] === SOLID.RACK) && !(outdoor && outdoor[L.i(x, y)]);
+      const vis = (x, y) => L.inb(x, y) && (L.solid[L.i(x, y)] === 0 || L.solid[L.i(x, y)] === SOLID.RACK) && (!!L.styleOf || !(outdoor && outdoor[L.i(x, y)]));
       const kindH = (x, y) => (x < 0 || x >= w || y < 0 || y > h) ? 0 : (L.hW[y * w + x] || (L.doorMap.get((y * w + x) * 2) ? EDGE.WALL : 0));
       const kindV = (x, y) => (x < 0 || x > w || y < 0 || y >= h) ? 0 : (L.vW[y * (w + 1) + x] || (L.doorMap.get((y * (w + 1) + x) * 2 + 1) ? EDGE.WALL : 0));
       const full = k => k === EDGE.WALL || k === EDGE.GLASS;
@@ -748,11 +753,12 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
             // Visible only from the cell on the outside of the corner
             const qx = vx + (sx < 0 ? -1 : 0), qy = vy + (sz < 0 ? -1 : 0);
             if (!vis(qx, qy)) continue;
-            beads[cls].push({ x: cx - sx * 0.014, z: cz - sz * 0.014 });
+            beads[cls].push({ x: cx - sx * 0.014, z: cz - sz * 0.014, qx, qy, vx, vy });
           }
         }
       }
       const r = 0.022;
+      if (L.styleOf) { this.beadsAuthored(beads); return; }
       for (const cls of ['full', 'low']) {
         const list = beads[cls];
         if (!list.length) continue;
@@ -816,7 +822,8 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       this.addCollider(g.ax ? { minX: g.cx + minA, maxX: g.cx - ow, minZ: g.cz - t / 2, maxZ: g.cz + t / 2 } : { minX: g.cx - t / 2, maxX: g.cx + t / 2, minZ: g.cz + minA, maxZ: g.cz - ow });
       this.addCollider(g.ax ? { minX: g.cx + ow, maxX: g.cx + maxA, minZ: g.cz - t / 2, maxZ: g.cz + t / 2 } : { minX: g.cx - t / 2, maxX: g.cx + t / 2, minZ: g.cz + ow, maxZ: g.cz + maxA });
     }
-    waterMat() {
+    waterMat(murky) {
+      if (murky) return this.mats.get('murk') || this.murkMat();
       if (this.mats.has('water')) return this.mats.get('water');
       const nrm = T.get('tile', 256);
       void nrm;
@@ -917,7 +924,9 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         l.phase = U.hash2(i, 3, 9);
         if (['glow', 'street', 'none'].includes(l.kind)) { this.fixtures.push({ light: l, mesh: null, powered: this.zonesOn.has(l.zone) }); return; }
         // Fixtures hang from the ceiling, so the model depends on the drop below it
-        const key = l.kind + ':' + Math.max(0, L.ceil - l.y).toFixed(2);
+        const ch = L.ceilAtW(l.x, l.z);
+        l.ceilH = ch;
+        const key = l.kind + ':' + ch.toFixed(2) + ':' + Math.max(0, ch - l.y).toFixed(2);
         if (!kinds.has(key)) kinds.set(key, []);
         kinds.get(key).push(l);
       });
@@ -927,7 +936,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       const col = new THREE.Color();
       for (const [key, list] of kinds) {
         const kind = list[0].kind;
-        const d = MF(kind, L.ceil, list[0].y) || MF('bulb', L.ceil, list[0].y);
+        const d = MF(kind, list[0].ceilH, list[0].y) || MF('bulb', list[0].ceilH, list[0].y);
         const mat = this.fixtureMat(texOf(d.tex), kind);
         if (d.transparent) { mat.transparent = true; mat.depthWrite = false; }
         const glowGeo = P.build('fxg:' + key, d.glow)[0].geo;
@@ -1166,7 +1175,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       }
       // Raf hücreleri
       const serverSpot = L.spots.server && L.spots.server[0];
-      for (let y = 0; y < L.h; y++) for (let x = 0; x < L.w; x++) {
+      if (!L.styleOf) for (let y = 0; y < L.h; y++) for (let x = 0; x < L.w; x++) {
         if (L.solid[L.i(x, y)] !== SOLID.RACK) continue;
         const horiz = !L.passable(x - 1, y) && !L.passable(x + 1, y) ? false : true;
         const rot = horiz ? 0 : Math.PI / 2;
@@ -1252,7 +1261,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       const L = this.L;
       if (!L.pillars.length) return;
       const H = L.ceil;
-      const list = L.pillars.map(p => ({ x: p.x, z: p.z, rot: 0, sy: H }));
+      const list = L.pillars.map(p => ({ x: p.x, z: p.z, rot: 0, sy: L.ceilAtW(p.x, p.z) }));
       this.instanced('pillarConcrete', P.DEFS.pillarConcrete, list, { matFn: () => this.mat('pillar') });
       for (const p of L.pillars) this.addCollider({ minX: p.x - 0.36, maxX: p.x + 0.36, minZ: p.z - 0.36, maxZ: p.z + 0.36, maxY: H });
     }
@@ -1300,7 +1309,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         } else {
           const pivot = new THREE.Group();
           pivot.position.set(-w / 2, 0, 0);
-          const leaf = new THREE.Mesh(new THREE.BoxGeometry(w - 0.04, h - 0.02, 0.05), leafMat);
+          const leaf = door.kind === 'bars' ? this.barsLeaf(w, h) : door.leaf ? this.leafModel(door.leaf, w, h) : new THREE.Mesh(new THREE.BoxGeometry(w - 0.04, h - 0.02, 0.05), leafMat);
           leaf.position.set(w / 2, h / 2, 0);
           leaf.castShadow = true; leaf.receiveShadow = true;
           pivot.add(leaf);
@@ -1331,7 +1340,8 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
           beyond.position.set(0, 0, sOut * 0.1);
           if (sOut < 0) beyond.rotation.y = Math.PI;
           let def = null;
-          if (door.kind === 'elevator') def = 'elevatorCar';
+          if (door.beyond) def = door.beyond;
+          else if (door.kind === 'elevator') def = 'elevatorCar';
           else if (door.kind === 'stair') def = 'stairsDown';
           else if (door.kind === 'exit') def = 'exitBeyond';
           if (def) {
@@ -1422,7 +1432,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
           const s = d.size || 1;
           layer = (layer + 1) % 20;
           if (d.surface === 'floor') { dummy.position.set(d.x, 0.004 + layer * 0.0004, d.z); dummy.rotation.set(-Math.PI / 2, 0, d.rot || 0); }
-          else if (d.surface === 'ceil') { dummy.position.set(d.x, L.ceil - 0.004 - layer * 0.0004, d.z); dummy.rotation.set(Math.PI / 2, 0, d.rot || 0); }
+          else if (d.surface === 'ceil') { dummy.position.set(d.x, L.ceilAtW(d.x, d.z) - 0.004 - layer * 0.0004, d.z); dummy.rotation.set(Math.PI / 2, 0, d.rot || 0); }
           else { dummy.position.set(d.x + d.nx * (0.004 + layer * 0.0004), d.y, d.z + d.nz * (0.004 + layer * 0.0004)); dummy.rotation.set(0, Math.atan2(d.nx, d.nz), 0); }
           dummy.scale.set(s, s * aspect, 1);
           dummy.updateMatrix();
@@ -1706,6 +1716,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
     // Footstep surface of a finished room (tiles, planks...), or null
     finishAt(x, z) {
       const L = this.L, fl = L.meta.finishes;
+      if (L.styleOf) { const c = L.cellOf(x, z), st = L.styleAt(c.x, c.y); if (st) return (L.meta.stepAt && L.meta.stepAt(c.x, c.y, x, z)) || st.step; }
       if (!fl) return null;
       const cx = Math.floor(x / this.C), cy = Math.floor(z / this.C);
       for (const f of fl) if (cx >= f.x0 && cx <= f.x1 && cy >= f.y0 && cy <= f.y1) return { floorTile: 'tile', floorWood: 'wood', floorLino: 'lino', floorConcrete: 'concrete' }[f.floor] || null;

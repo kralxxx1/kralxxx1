@@ -710,6 +710,8 @@
     return set;
   };
   T.names = () => Object.keys(R);
+  // More recipes live in textures2.js
+  T.R = R; T.lib = { FImg, field, h32, downUp };
   T.dispose = function () {
     for (const set of T.cache.values()) for (const k of ['map', 'normalMap', 'ormMap', 'emissiveMap']) if (set[k]) set[k].dispose();
     T.cache.clear();

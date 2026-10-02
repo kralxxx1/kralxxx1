@@ -375,6 +375,7 @@
       objectives: ['ks_core', 'ks_choice'],
     },
   ];
+  if (PB.Maps && PB.Maps.depot) LEVELS.push({ id: 'depot', authored: PB.Maps.depot, seed: 1998, theme: 'depot', music: 'depot', fog: [0x060606, 0.03], grade: { tint: [1.0, 0.98, 0.95], sat: 0.85 }, noDressing: true, items: [], entities: [] });
   LEVELS.forEach((L, i) => { L.index = i; });
 
   // Ghost type ↔ character

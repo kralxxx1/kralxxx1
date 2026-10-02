@@ -6,7 +6,9 @@
   const U = PB.U;
 
   const DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0]; // K, D, G, B
-  const EDGE = { NONE: 0, WALL: 1, LOW: 2, GLASS: 3, FENCE: 4 };
+  // INVIS: blocks movement, never drawn (the edge of an outdoor map); RAIL: a waist-high railing (ship decks,
+  // bridges, balconies). Lightbake codes 6 and 7 do not block light (5 is a closed door).
+  const EDGE = { NONE: 0, WALL: 1, LOW: 2, GLASS: 3, FENCE: 4, INVIS: 6, RAIL: 7 };
   const SOLID = { NONE: 0, BLOCK: 1, RACK: 2, GLITCH: 3, VOID: 9 };
   const FLOOR = { NORMAL: 0, WATER: 1 };
 
@@ -40,6 +42,10 @@
     cz(y) { return (y + 0.5) * this.cell; }
     cellOf(wx, wz) { return { x: Math.floor(wx / this.cell), y: Math.floor(wz / this.cell) }; }
     passable(x, y) { return this.inb(x, y) && this.solid[y * this.w + x] === 0; }
+    // Ceiling height and style of a cell (hand-authored maps vary them; generated ones use one of each)
+    ceilAt(x, y) { return this.ceilH && this.inb(x, y) ? this.ceilH[y * this.w + x] : this.ceil; }
+    ceilAtW(wx, wz) { return this.ceilAt(Math.floor(wx / this.cell), Math.floor(wz / this.cell)); }
+    styleAt(x, y) { return this.styleOf && this.inb(x, y) ? this.styles[this.styleOf[y * this.w + x]] : null; }
 
     edgeKind(x, y, d) {
       const w = this.w;
@@ -243,7 +249,8 @@
       return out;
     }
     addLight(o) {
-      const l = Object.assign({ y: this.ceil - 0.03, kind: 'panel', color: [1, 0.96, 0.84], intensity: 1, range: 11, flicker: 0, zone: 0, on: true, broken: false }, o);
+      const c0 = this.cellOf(o.x, o.z);
+      const l = Object.assign({ y: this.ceilAt(c0.x, c0.y) - 0.03, kind: 'panel', color: [1, 0.96, 0.84], intensity: 1, range: 11, flicker: 0, zone: 0, on: true, broken: false }, o);
       const c = this.cellOf(l.x, l.z);
       l.cx = c.x; l.cy = c.y;
       this.lights.push(l);
@@ -1266,7 +1273,7 @@
   PB.LevelGen = {
     Level, DX, DY, EDGE, SOLID, FLOOR, HOUSE,
     generate(def) {
-      const fn = GEN[def.layout];
+      const fn = def.authored ? PB.Authored.compile : GEN[def.layout];
       if (!fn) throw new Error('Unknown layout: ' + def.layout);
       const L = fn(def);
       L.def = def;
