@@ -543,6 +543,8 @@ html:is([lang="zh-CN"], [lang="ja"], [lang="ko"], [lang="ar"]) .meter span { fon
 html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) :is(.paper .nb p.narr, .paper.kind-memory .nb) { font-style: normal !important; }
 html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) .subtitle, html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) .boot-title span { letter-spacing: 0.12em; }
 [dir="rtl"] .set-row .ctl { direction: ltr; } [dir="rtl"] .set-row .ctl .cyc-val, [dir="rtl"] .set-row .ctl output { direction: rtl; unicode-bidi: plaintext; }
+/* playing with a controller: no mouse cursor over the game */
+body.pad-mode #game, body.pad-mode canvas { cursor: none; }
 
 </style>
 </head>
@@ -702,6 +704,8 @@ html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) .subtitle, html:is([lang="zh-C
             <dt><kbd>I</kbd> / <kbd>J</kbd></dt><dd data-t="help.bag"></dd>
             <dt><kbd>Esc</kbd> / <kbd>P</kbd></dt><dd data-t="help.pause"></dd>
           </dl>
+          <h3 data-t="help.pad">Controller</h3>
+          <p data-t="help.padText"></p>
           <h3 data-t="help.touch">Touch</h3>
           <p data-t="help.touchText"></p>
         </div>
@@ -1394,6 +1398,7 @@ window.THREE = THREE;
     'set.mouseSens': 'Mouse sensitivity',
     'set.invertY': 'Invert vertical look',
     'set.touchSens': 'Touch look sensitivity',
+    'set.padSens': 'Controller look sensitivity',
     'set.toggleCrouch': 'Crouch: toggle instead of hold',
     'set.toggleSprint': 'Sprint: toggle instead of hold',
     'set.lang': 'Language',
@@ -1467,7 +1472,9 @@ window.THREE = THREE;
     'bag.d.key': 'A key on a paper tag. It opens something here.',
     'help.pause': 'Pause',
     'help.touch': 'Touch',
+    'help.pad': 'Controller',
     'help.touchText': 'Movement stick at the bottom left, drag on the right side of the screen to look. The buttons on the right: interact, flashlight, run, crouch, map.',
+    'help.padText': 'Left stick: walk. Right stick: look. A: interact. B: crouch. X: change batteries. Y: flashlight. LB / RB: lean. RT or left stick click: run. LT: glow stick. Right stick click: look back. D-pad: ↑ journal, ↓ Star Pop, → items. View: map. Menu: pause. In menus the D-pad moves, A chooses and B goes back.',
     'help.survive': 'Staying alive',
     'help.tip1': '<b>The Eater</b> is faster than you in a straight corridor and slow in the turns. Take corners.',
     'help.tip2': 'When the fluorescents start to flicker, <b>it is close</b>.',
@@ -1751,6 +1758,7 @@ window.THREE = THREE;
     'set.mouseSens.help': 'How fast the view turns with the mouse.',
     'set.invertY.help': 'Moving the mouse up looks down.',
     'set.touchSens.help': 'How fast the view turns when you drag on a touch screen.',
+    'set.padSens.help': 'How fast the view turns with the right stick of a controller.',
     'set.toggleCrouch.help': 'Press once to crouch and again to stand, instead of holding the key.',
     'set.toggleSprint.help': 'Press once to run and again to walk, instead of holding the key.',
     'set.lang.help': 'Language of the menus, subtitles and every document in the game.',
@@ -4417,6 +4425,7 @@ I'm sorry, kid.` },
     'set.mouseSens': 'Fare hassasiyeti',
     'set.invertY': 'Dikey bakışı ters çevir',
     'set.touchSens': 'Dokunmatik bakış hassasiyeti',
+    'set.padSens': 'Kol bakış hassasiyeti',
     'set.toggleCrouch': 'Eğilme: basılı tutmak yerine aç/kapa',
     'set.toggleSprint': 'Koşma: basılı tutmak yerine aç/kapa',
     'set.lang': 'Dil',
@@ -4490,7 +4499,9 @@ I'm sorry, kid.` },
     'bag.d.key': 'Kâğıt etiketli bir anahtar. Burada bir şeyi açıyor.',
     'help.pause': 'Duraklat',
     'help.touch': 'Dokunmatik',
+    'help.pad': 'Oyun kolu',
     'help.touchText': 'Sol altta yürüme çubuğu, ekranın sağında parmağını sürükleyerek bakış. Sağdaki düğmeler: etkileşim, fener, koş, eğil, harita.',
+    'help.padText': 'Sol çubuk: yürü. Sağ çubuk: bak. A: etkileşim. B: eğil. X: pilleri değiştir. Y: fener. LB / RB: yana eğil. RT ya da sol çubuğa basmak: koş. LT: ışık çubuğu. Sağ çubuğa basmak: arkana bak. Yön tuşları: ↑ günlük, ↓ Star Pop, → eşyalar. View: harita. Menu: duraklat. Menülerde yön tuşları gezdirir, A seçer, B geri döner.',
     'help.survive': 'Hayatta kalmak',
     'help.tip1': '<b>Yiyici</b> düz koridorlarda senden hızlı, dönüşlerde yavaş. Köşe dön.',
     'help.tip2': 'Floresanlar titremeye başladıysa <b>o yakında</b>.',
@@ -4774,6 +4785,7 @@ I'm sorry, kid.` },
     'set.mouseSens.help': 'Fareyle görüşün ne kadar hızlı döndüğü.',
     'set.invertY.help': 'Fareyi yukarı hareket ettirmek aşağı baktırır.',
     'set.touchSens.help': 'Dokunmatik ekranda sürüklediğinde görüşün ne kadar hızlı döndüğü.',
+    'set.padSens.help': 'Oyun kolunun sağ çubuğuyla görüşün ne kadar hızlı döndüğü.',
     'set.toggleCrouch.help': 'Tuşu basılı tutmak yerine bir kez basıp eğil, bir kez daha basıp kalk.',
     'set.toggleSprint.help': 'Tuşu basılı tutmak yerine bir kez basıp koş, bir kez daha basıp yürü.',
     'set.lang.help': 'Menülerin, alt yazıların ve oyundaki her belgenin dili.',
@@ -7438,6 +7450,7 @@ Bu kapıyı ilk haftamda buldum. Dışarıda bir buçuk yıl geçti. İçeride t
     'set.mouseSens': 'Mausempfindlichkeit',
     'set.invertY': 'Vertikale Achse umkehren',
     'set.touchSens': 'Touch-Empfindlichkeit',
+    'set.padSens': 'Controller-Empfindlichkeit',
     'set.toggleCrouch': 'Ducken: umschalten statt halten',
     'set.toggleSprint': 'Rennen: umschalten statt halten',
     'set.lang': 'Sprache',
@@ -7511,7 +7524,9 @@ Bu kapıyı ilk haftamda buldum. Dışarıda bir buçuk yıl geçti. İçeride t
     'bag.d.key': 'Ein Schlüssel an einem Papieranhänger. Er öffnet hier etwas.',
     'help.pause': 'Pause',
     'help.touch': 'Touch',
+    'help.pad': 'Controller',
     'help.touchText': 'Bewegungsstick unten links, auf der rechten Bildschirmseite ziehen, um sich umzusehen. Die Tasten rechts: benutzen, Taschenlampe, rennen, ducken, Karte.',
+    'help.padText': 'Linker Stick: gehen. Rechter Stick: umsehen. A: interagieren. B: ducken. X: Batterien wechseln. Y: Taschenlampe. LB / RB: lehnen. RT oder linken Stick drücken: rennen. LT: Knicklicht. Rechten Stick drücken: zurückblicken. Steuerkreuz: ↑ Tagebuch, ↓ Star Pop, → Gegenstände. View: Karte. Menu: Pause. In Menüs bewegt das Steuerkreuz, A wählt aus und B geht zurück.',
     'help.survive': 'Am Leben bleiben',
     'help.tip1': '<b>Der Fresser</b> ist auf geraden Gängen schneller als du und in Kurven langsam. Nimm die Ecken.',
     'help.tip2': 'Wenn die Leuchtstoffröhren zu flackern beginnen, <b>ist er nah</b>.',
@@ -7795,6 +7810,7 @@ Bu kapıyı ilk haftamda buldum. Dışarıda bir buçuk yıl geçti. İçeride t
     'set.mouseSens.help': 'Wie schnell sich die Sicht mit der Maus dreht.',
     'set.invertY.help': 'Maus nach oben bewegen sieht nach unten.',
     'set.touchSens.help': 'Wie schnell sich die Sicht dreht, wenn du auf einem Touchscreen ziehst.',
+    'set.padSens.help': 'Wie schnell sich die Sicht mit dem rechten Stick eines Controllers dreht.',
     'set.toggleCrouch.help': 'Einmal drücken zum Ducken, noch einmal zum Aufstehen, statt die Taste zu halten.',
     'set.toggleSprint.help': 'Einmal drücken zum Rennen, noch einmal zum Gehen, statt die Taste zu halten.',
     'set.lang.help': 'Sprache der Menüs, der Untertitel und aller Dokumente im Spiel.',
@@ -10457,6 +10473,7 @@ Tut mir leid, Kleines.` },
     'set.mouseSens': 'Sensibilité de la souris',
     'set.invertY': 'Inverser l’axe vertical',
     'set.touchSens': 'Sensibilité tactile',
+    'set.padSens': 'Sensibilité de la manette',
     'set.toggleCrouch': 'S’accroupir : appuyer au lieu de maintenir',
     'set.toggleSprint': 'Courir : appuyer au lieu de maintenir',
     'set.lang': 'Langue',
@@ -10530,7 +10547,9 @@ Tut mir leid, Kleines.` },
     'bag.d.key': 'Une clé avec une étiquette en papier. Elle ouvre quelque chose ici.',
     'help.pause': 'Pause',
     'help.touch': 'Tactile',
+    'help.pad': 'Manette',
     'help.touchText': 'Stick de déplacement en bas à gauche, glissez sur la droite de l’écran pour regarder. Les boutons à droite : interagir, lampe torche, courir, s’accroupir, carte.',
+    'help.padText': 'Stick gauche : marcher. Stick droit : regarder. A : interagir. B : s’accroupir. X : changer les piles. Y : lampe torche. LB / RB : se pencher. RT ou clic du stick gauche : courir. LT : bâton lumineux. Clic du stick droit : regarder derrière. Croix : ↑ journal, ↓ Star Pop, → objets. View : carte. Menu : pause. Dans les menus, la croix déplace, A valide et B revient en arrière.',
     'help.survive': 'Rester en vie',
     'help.tip1': '<b>Le Dévoreur</b> est plus rapide que vous en ligne droite et lent dans les virages. Prenez les coins.',
     'help.tip2': 'Quand les néons se mettent à clignoter, <b>il est tout près</b>.',
@@ -10814,6 +10833,7 @@ Tut mir leid, Kleines.` },
     'set.mouseSens.help': 'La vitesse à laquelle la vue tourne avec la souris.',
     'set.invertY.help': 'Monter la souris fait regarder vers le bas.',
     'set.touchSens.help': 'La vitesse à laquelle la vue tourne quand vous glissez sur un écran tactile.',
+    'set.padSens.help': 'La vitesse à laquelle la vue tourne avec le stick droit d’une manette.',
     'set.toggleCrouch.help': 'Appuyez une fois pour vous accroupir et une fois pour vous relever, au lieu de maintenir la touche.',
     'set.toggleSprint.help': 'Appuyez une fois pour courir et une fois pour marcher, au lieu de maintenir la touche.',
     'set.lang.help': 'La langue des menus, des sous-titres et de chaque document du jeu.',
@@ -13476,6 +13496,7 @@ Pardon, Sam.` },
     'set.mouseSens': 'Sensibilidad del ratón',
     'set.invertY': 'Invertir eje vertical',
     'set.touchSens': 'Sensibilidad táctil',
+    'set.padSens': 'Sensibilidad del mando',
     'set.toggleCrouch': 'Agacharse: pulsar en vez de mantener',
     'set.toggleSprint': 'Correr: pulsar en vez de mantener',
     'set.lang': 'Idioma',
@@ -13549,7 +13570,9 @@ Pardon, Sam.` },
     'bag.d.key': 'Una llave con una etiqueta de papel. Abre algo de aquí.',
     'help.pause': 'Pausa',
     'help.touch': 'Táctil',
+    'help.pad': 'Mando',
     'help.touchText': 'Joystick de movimiento abajo a la izquierda; arrastra en la parte derecha de la pantalla para mirar. Los botones de la derecha: interactuar, linterna, correr, agacharse, mapa.',
+    'help.padText': 'Stick izquierdo: andar. Stick derecho: mirar. A: interactuar. B: agacharse. X: cambiar las pilas. Y: linterna. LB / RB: asomarse. RT o pulsar el stick izquierdo: correr. LT: barra luminosa. Pulsar el stick derecho: mirar atrás. Cruceta: ↑ diario, ↓ Star Pop, → objetos. View: mapa. Menu: pausa. En los menús, la cruceta mueve, A elige y B vuelve atrás.',
     'help.survive': 'Seguir con vida',
     'help.tip1': '<b>El Devorador</b> es más rápido que tú en los pasillos rectos y lento en las curvas. Toma las esquinas.',
     'help.tip2': 'Cuando los fluorescentes empiezan a parpadear, <b>está cerca</b>.',
@@ -13833,6 +13856,7 @@ Pardon, Sam.` },
     'set.mouseSens.help': 'Lo rápido que gira la vista con el ratón.',
     'set.invertY.help': 'Mover el ratón hacia arriba mira hacia abajo.',
     'set.touchSens.help': 'Lo rápido que gira la vista al arrastrar en una pantalla táctil.',
+    'set.padSens.help': 'Lo rápido que gira la vista con el stick derecho de un mando.',
     'set.toggleCrouch.help': 'Pulsa una vez para agacharte y otra para levantarte, en lugar de mantener la tecla.',
     'set.toggleSprint.help': 'Pulsa una vez para correr y otra para caminar, en lugar de mantener la tecla.',
     'set.lang.help': 'Idioma de los menús, los subtítulos y todos los documentos del juego.',
@@ -16495,6 +16519,7 @@ Lo siento, Sam.` },
     'set.mouseSens': 'Sensibilità del mouse',
     'set.invertY': 'Inverti l’asse verticale',
     'set.touchSens': 'Sensibilità touch',
+    'set.padSens': 'Sensibilità del controller',
     'set.toggleCrouch': 'Accovacciarsi: premi invece di tenere premuto',
     'set.toggleSprint': 'Correre: premi invece di tenere premuto',
     'set.lang': 'Lingua',
@@ -16568,7 +16593,9 @@ Lo siento, Sam.` },
     'bag.d.key': 'Una chiave con un cartellino di carta. Apre qualcosa qui.',
     'help.pause': 'Pausa',
     'help.touch': 'Touch',
+    'help.pad': 'Controller',
     'help.touchText': 'Levetta di movimento in basso a sinistra; trascina sul lato destro dello schermo per guardarti intorno. I pulsanti a destra: interagisci, torcia, corri, accovacciati, mappa.',
+    'help.padText': 'Stick sinistro: camminare. Stick destro: guardarsi intorno. A: interagire. B: accovacciarsi. X: cambiare le batterie. Y: torcia. LB / RB: sporgersi. RT o premere lo stick sinistro: correre. LT: stick luminoso. Premere lo stick destro: guardarsi alle spalle. Croce direzionale: ↑ diario, ↓ Star Pop, → oggetti. View: mappa. Menu: pausa. Nei menu la croce sposta, A sceglie e B torna indietro.',
     'help.survive': 'Restare vivi',
     'help.tip1': '<b>Il Divoratore</b> è più veloce di te nei corridoi dritti e lento nelle curve. Prendi gli angoli.',
     'help.tip2': 'Quando i neon cominciano a tremolare, <b>è vicino</b>.',
@@ -16852,6 +16879,7 @@ Lo siento, Sam.` },
     'set.mouseSens.help': 'Quanto velocemente gira la visuale con il mouse.',
     'set.invertY.help': 'Muovere il mouse in su fa guardare in giù.',
     'set.touchSens.help': 'Quanto velocemente gira la visuale quando trascini su un touchscreen.',
+    'set.padSens.help': 'Quanto velocemente gira la visuale con lo stick destro di un controller.',
     'set.toggleCrouch.help': 'Premi una volta per accovacciarti e un’altra per alzarti, invece di tenere premuto il tasto.',
     'set.toggleSprint.help': 'Premi una volta per correre e un’altra per camminare, invece di tenere premuto il tasto.',
     'set.lang.help': 'La lingua dei menu, dei sottotitoli e di ogni documento del gioco.',
@@ -19514,6 +19542,7 @@ Mi dispiace, Sam.` },
     'set.mouseSens': 'Sensibilidade do mouse',
     'set.invertY': 'Inverter eixo vertical',
     'set.touchSens': 'Sensibilidade do toque',
+    'set.padSens': 'Sensibilidade do controle',
     'set.toggleCrouch': 'Agachar: apertar em vez de segurar',
     'set.toggleSprint': 'Correr: apertar em vez de segurar',
     'set.lang': 'Idioma',
@@ -19587,7 +19616,9 @@ Mi dispiace, Sam.` },
     'bag.d.key': 'Uma chave com uma etiqueta de papel. Abre alguma coisa aqui.',
     'help.pause': 'Pausa',
     'help.touch': 'Toque',
+    'help.pad': 'Controle',
     'help.touchText': 'Analógico de movimento no canto inferior esquerdo; arraste no lado direito da tela para olhar. Os botões à direita: interagir, lanterna, correr, agachar, mapa.',
+    'help.padText': 'Analógico esquerdo: andar. Analógico direito: olhar. A: interagir. B: agachar. X: trocar as pilhas. Y: lanterna. LB / RB: inclinar. RT ou apertar o analógico esquerdo: correr. LT: bastão luminoso. Apertar o analógico direito: olhar para trás. Direcional: ↑ diário, ↓ Star Pop, → itens. View: mapa. Menu: pausa. Nos menus, o direcional move, A escolhe e B volta.',
     'help.survive': 'Continuar vivo',
     'help.tip1': '<b>O Devorador</b> é mais rápido que você em corredores retos e lento nas curvas. Faça as curvas.',
     'help.tip2': 'Quando as lâmpadas fluorescentes começam a piscar, <b>ele está perto</b>.',
@@ -19871,6 +19902,7 @@ Mi dispiace, Sam.` },
     'set.mouseSens.help': 'A velocidade com que a visão gira com o mouse.',
     'set.invertY.help': 'Mover o mouse para cima faz olhar para baixo.',
     'set.touchSens.help': 'A velocidade com que a visão gira quando você arrasta numa tela de toque.',
+    'set.padSens.help': 'A velocidade com que a visão gira com o analógico direito de um controle.',
     'set.toggleCrouch.help': 'Aperte uma vez para agachar e outra para levantar, em vez de segurar a tecla.',
     'set.toggleSprint.help': 'Aperte uma vez para correr e outra para andar, em vez de segurar a tecla.',
     'set.lang.help': 'O idioma dos menus, das legendas e de todos os documentos do jogo.',
@@ -22533,6 +22565,7 @@ Desculpa, Sam.` },
     'set.mouseSens': 'Czułość myszy',
     'set.invertY': 'Odwróć oś pionową',
     'set.touchSens': 'Czułość dotyku',
+    'set.padSens': 'Czułość pada',
     'set.toggleCrouch': 'Kucanie: przełączanie zamiast przytrzymania',
     'set.toggleSprint': 'Bieg: przełączanie zamiast przytrzymania',
     'set.lang': 'Język',
@@ -22606,7 +22639,9 @@ Desculpa, Sam.` },
     'bag.d.key': 'Klucz z papierową zawieszką. Otwiera coś tutaj.',
     'help.pause': 'Pauza',
     'help.touch': 'Dotyk',
+    'help.pad': 'Pad',
     'help.touchText': 'Gałka ruchu w lewym dolnym rogu, przeciągaj po prawej stronie ekranu, żeby się rozglądać. Przyciski po prawej: użyj, latarka, bieg, kucanie, mapa.',
+    'help.padText': 'Lewa gałka: chodzenie. Prawa gałka: rozglądanie się. A: interakcja. B: kucanie. X: wymiana baterii. Y: latarka. LB / RB: wychylanie. RT lub wciśnięcie lewej gałki: bieg. LT: świetlik. Wciśnięcie prawej gałki: spojrzenie za siebie. Krzyżak: ↑ dziennik, ↓ Star Pop, → przedmioty. View: mapa. Menu: pauza. W menu krzyżak przesuwa, A wybiera, a B cofa.',
     'help.survive': 'Jak przeżyć',
     'help.tip1': '<b>Pożeracz</b> jest szybszy od ciebie w prostym korytarzu i wolny na zakrętach. Bierz zakręty.',
     'help.tip2': 'Kiedy świetlówki zaczynają migać, <b>jest blisko</b>.',
@@ -22890,6 +22925,7 @@ Desculpa, Sam.` },
     'set.mouseSens.help': 'Jak szybko widok obraca się myszą.',
     'set.invertY.help': 'Ruch myszy w górę kieruje wzrok w dół.',
     'set.touchSens.help': 'Jak szybko obraca się widok przy przeciąganiu po ekranie dotykowym.',
+    'set.padSens.help': 'Jak szybko obraca się widok prawą gałką pada.',
     'set.toggleCrouch.help': 'Jedno naciśnięcie – kucnięcie, drugie – wstanie, zamiast przytrzymywania klawisza.',
     'set.toggleSprint.help': 'Jedno naciśnięcie – bieg, drugie – marsz, zamiast przytrzymywania klawisza.',
     'set.lang.help': 'Język menu, napisów i wszystkich dokumentów w grze.',
@@ -25554,6 +25590,7 @@ Przepraszam, Sam.` },
     'set.mouseSens': 'Чувствительность мыши',
     'set.invertY': 'Инвертировать ось Y',
     'set.touchSens': 'Чувствительность касаний',
+    'set.padSens': 'Чувствительность геймпада',
     'set.toggleCrouch': 'Присед: нажатие вместо удержания',
     'set.toggleSprint': 'Бег: нажатие вместо удержания',
     'set.lang': 'Язык',
@@ -25627,7 +25664,9 @@ Przepraszam, Sam.` },
     'bag.d.key': 'Ключ с бумажной биркой. Открывает что-то здесь.',
     'help.pause': 'Пауза',
     'help.touch': 'Сенсорный экран',
+    'help.pad': 'Геймпад',
     'help.touchText': 'Стик движения внизу слева, проведите по правой части экрана, чтобы осмотреться. Кнопки справа: взаимодействие, фонарик, бег, присед, карта.',
+    'help.padText': 'Левый стик: идти. Правый стик: осматриваться. A: взаимодействие. B: присесть. X: сменить батарейки. Y: фонарик. LB / RB: выглянуть. RT или нажатие левого стика: бежать. LT: световая палочка. Нажатие правого стика: оглянуться. Крестовина: ↑ дневник, ↓ Star Pop, → вещи. View: карта. Menu: пауза. В меню крестовина перемещает, A выбирает, B возвращает назад.',
     'help.survive': 'Как выжить',
     'help.tip1': '<b>Пожиратель</b> быстрее вас в прямом коридоре и медленный на поворотах. Сворачивайте за углы.',
     'help.tip2': 'Когда лампы начинают мигать, <b>он рядом</b>.',
@@ -25911,6 +25950,7 @@ Przepraszam, Sam.` },
     'set.mouseSens.help': 'Как быстро поворачивается взгляд мышью.',
     'set.invertY.help': 'Движение мыши вверх — взгляд вниз.',
     'set.touchSens.help': 'Как быстро поворачивается взгляд при движении пальцем по экрану.',
+    'set.padSens.help': 'Как быстро поворачивается взгляд правым стиком геймпада.',
     'set.toggleCrouch.help': 'Нажмите один раз, чтобы присесть, и ещё раз, чтобы встать, вместо удержания клавиши.',
     'set.toggleSprint.help': 'Нажмите один раз, чтобы бежать, и ещё раз, чтобы идти шагом, вместо удержания клавиши.',
     'set.lang.help': 'Язык меню, субтитров и всех документов в игре.',
@@ -28575,6 +28615,7 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'set.mouseSens': '鼠标灵敏度',
     'set.invertY': '反转垂直视角',
     'set.touchSens': '触屏灵敏度',
+    'set.padSens': '手柄灵敏度',
     'set.toggleCrouch': '蹲下：按一下切换，而非按住',
     'set.toggleSprint': '奔跑：按一下切换，而非按住',
     'set.lang': '语言',
@@ -28648,7 +28689,9 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'bag.d.key': '一把挂着纸标签的钥匙。能打开这里的某样东西。',
     'help.pause': '暂停',
     'help.touch': '触屏',
+    'help.pad': '手柄',
     'help.touchText': '左下角是移动摇杆，在屏幕右半边拖动来环顾。右侧按钮：互动、手电筒、奔跑、蹲下、地图。',
+    'help.padText': '左摇杆：行走。右摇杆：环顾。A：互动。B：蹲下。X：更换电池。Y：手电筒。LB / RB：探身。RT 或按下左摇杆：奔跑。LT：荧光棒。按下右摇杆：回头看。十字键：↑ 日志，↓ Star Pop，→ 物品。View：地图。Menu：暂停。在菜单中，十字键移动，A 确认，B 返回。',
     'help.survive': '活下去',
     'help.tip1': '<b>吞噬者</b>在直走廊里比你快，转弯时却很慢。多拐弯。',
     'help.tip2': '日光灯开始闪烁时，<b>它就在附近</b>。',
@@ -28932,6 +28975,7 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'set.mouseSens.help': '用鼠标转动视角的速度。',
     'set.invertY.help': '鼠标向上移动时视角向下。',
     'set.touchSens.help': '在触摸屏上拖动时视角转动的速度。',
+    'set.padSens.help': '用手柄右摇杆转动视角的速度。',
     'set.toggleCrouch.help': '按一下蹲下，再按一下站起，无需按住按键。',
     'set.toggleSprint.help': '按一下奔跑，再按一下行走，无需按住按键。',
     'set.lang.help': '菜单、字幕和游戏中所有文件的语言。',
@@ -31594,6 +31638,7 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'set.mouseSens': 'マウス感度',
     'set.invertY': '上下の視点操作を反転',
     'set.touchSens': 'タッチ感度',
+    'set.padSens': 'コントローラー感度',
     'set.toggleCrouch': 'しゃがむ：押し続けずに切り替え',
     'set.toggleSprint': '走る：押し続けずに切り替え',
     'set.lang': '言語',
@@ -31667,7 +31712,9 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'bag.d.key': '紙の札が付いた鍵。ここの何かを開ける。',
     'help.pause': 'ポーズ',
     'help.touch': 'タッチ操作',
+    'help.pad': 'コントローラー',
     'help.touchText': '左下のスティックで移動、画面の右側をドラッグして見回す。右のボタン：調べる、懐中電灯、走る、しゃがむ、マップ。',
+    'help.padText': '左スティック：歩く。右スティック：見回す。A：調べる。B：しゃがむ。X：電池を交換。Y：懐中電灯。LB / RB：体を傾ける。RT または左スティック押し込み：走る。LT：ケミカルライト。右スティック押し込み：振り返る。十字キー：↑ 手帳、↓ Star Pop、→ 持ち物。View：地図。Menu：一時停止。メニューでは十字キーで移動、A で決定、B で戻る。',
     'help.survive': '生き延びるには',
     'help.tip1': '<b>喰らうもの</b>はまっすぐな通路ではこちらより速く、曲がり角では遅い。角を曲がれ。',
     'help.tip2': '蛍光灯がちらつき始めたら、<b>近くにいる</b>。',
@@ -31951,6 +31998,7 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'set.mouseSens.help': 'マウスで視点が回る速さ。',
     'set.invertY.help': 'マウスを上に動かすと下を向きます。',
     'set.touchSens.help': 'タッチスクリーンでドラッグしたときに視点が回る速さ。',
+    'set.padSens.help': 'コントローラーの右スティックで視点が回る速さ。',
     'set.toggleCrouch.help': 'キーを押し続ける代わりに、一度押すとしゃがみ、もう一度押すと立ちます。',
     'set.toggleSprint.help': 'キーを押し続ける代わりに、一度押すと走り、もう一度押すと歩きます。',
     'set.lang.help': 'メニュー、字幕、ゲーム内のすべての資料の言語。',
@@ -34614,6 +34662,7 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'set.mouseSens': '마우스 감도',
     'set.invertY': '세로 시점 반전',
     'set.touchSens': '터치 감도',
+    'set.padSens': '컨트롤러 감도',
     'set.toggleCrouch': '앉기: 누르고 있지 않고 전환',
     'set.toggleSprint': '달리기: 누르고 있지 않고 전환',
     'set.lang': '언어',
@@ -34687,7 +34736,9 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'bag.d.key': '종이 꼬리표가 달린 열쇠. 여기 있는 무언가를 연다.',
     'help.pause': '일시 정지',
     'help.touch': '터치',
+    'help.pad': '컨트롤러',
     'help.touchText': '왼쪽 아래 스틱으로 움직이고, 화면 오른쪽을 드래그해 둘러봅니다. 오른쪽 버튼: 상호작용, 손전등, 달리기, 앉기, 지도.',
+    'help.padText': '왼쪽 스틱: 걷기. 오른쪽 스틱: 둘러보기. A: 상호작용. B: 웅크리기. X: 배터리 교체. Y: 손전등. LB / RB: 몸 기울이기. RT 또는 왼쪽 스틱 누르기: 달리기. LT: 야광봉. 오른쪽 스틱 누르기: 뒤돌아보기. 방향 패드: ↑ 수첩, ↓ Star Pop, → 소지품. View: 지도. Menu: 일시 정지. 메뉴에서는 방향 패드로 이동하고, A로 선택하고, B로 돌아갑니다.',
     'help.survive': '살아남는 법',
     'help.tip1': '<b>포식자</b>는 곧은 복도에서는 나보다 빠르지만 모퉁이에서는 느리다. 모퉁이를 돌아라.',
     'help.tip2': '형광등이 깜빡이기 시작하면 <b>가까이 있다</b>.',
@@ -34971,6 +35022,7 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'set.mouseSens.help': '마우스로 시점이 도는 속도.',
     'set.invertY.help': '마우스를 위로 움직이면 아래를 봅니다.',
     'set.touchSens.help': '터치스크린을 드래그할 때 시점이 도는 속도.',
+    'set.padSens.help': '컨트롤러 오른쪽 스틱으로 시점이 도는 속도.',
     'set.toggleCrouch.help': '키를 누르고 있는 대신 한 번 누르면 앉고, 다시 누르면 일어섭니다.',
     'set.toggleSprint.help': '키를 누르고 있는 대신 한 번 누르면 달리고, 다시 누르면 걷습니다.',
     'set.lang.help': '메뉴, 자막, 게임 속 모든 문서의 언어.',
@@ -37633,6 +37685,7 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'set.mouseSens': 'حساسية الفأرة',
     'set.invertY': 'عكس المحور الرأسي',
     'set.touchSens': 'حساسية اللمس',
+    'set.padSens': 'حساسية ذراع التحكم',
     'set.toggleCrouch': 'الانحناء: بالضغط بدل الإبقاء',
     'set.toggleSprint': 'الركض: بالضغط بدل الإبقاء',
     'set.lang': 'اللغة',
@@ -37706,7 +37759,9 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'bag.d.key': 'مفتاح عليه بطاقة ورقية. يفتح شيئًا هنا.',
     'help.pause': 'إيقاف مؤقت',
     'help.touch': 'اللمس',
+    'help.pad': 'ذراع التحكم',
     'help.touchText': 'عصا الحركة أسفل اليسار، واسحب على الجانب الأيمن من الشاشة للتلفّت. الأزرار على اليمين: تفاعل، مصباح، ركض، انحناء، خريطة.',
+    'help.padText': 'العصا اليسرى: المشي. العصا اليمنى: النظر حولك. A: التفاعل. B: الانحناء. X: تبديل البطاريات. Y: المصباح اليدوي. LB / RB: الميل جانبًا. RT أو الضغط على العصا اليسرى: الركض. LT: عصا ضوئية. الضغط على العصا اليمنى: النظر إلى الخلف. أزرار الاتجاه: ↑ الدفتر، ↓ Star Pop، → الأغراض. View: الخريطة. Menu: الإيقاف المؤقت. في القوائم تنقّل بأزرار الاتجاه، واختر بـ A، وارجع بـ B.',
     'help.survive': 'كيف تبقى حيًّا',
     'help.tip1': '<b>الآكل</b> أسرع منك في الممرات المستقيمة وبطيء عند المنعطفات. انعطف عند الزوايا.',
     'help.tip2': 'حين تبدأ مصابيح الفلورسنت بالارتعاش، <b>يكون قريبًا</b>.',
@@ -37990,6 +38045,7 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     'set.mouseSens.help': 'سرعة دوران المشهد بالفأرة.',
     'set.invertY.help': 'تحريك الفأرة للأعلى يجعلك تنظر للأسفل.',
     'set.touchSens.help': 'سرعة دوران المشهد حين تسحب على شاشة لمس.',
+    'set.padSens.help': 'سرعة دوران المشهد بالعصا اليمنى لذراع التحكم.',
     'set.toggleCrouch.help': 'اضغط مرة للانحناء ومرة للوقوف، بدل الإبقاء على الزر.',
     'set.toggleSprint.help': 'اضغط مرة للركض ومرة للمشي، بدل الإبقاء على الزر.',
     'set.lang.help': 'لغة القوائم والترجمة وكل وثيقة في اللعبة.',
@@ -40574,6 +40630,7 @@ PLAYER 1: S̷A̶M̸ — CONTINUE?` },
     { key: 'mouseSens', tab: 'controls', type: 'range', def: 1, min: 0.1, max: 3, step: 0.05, fmt: v => v.toFixed(2) },
     { key: 'invertY', tab: 'controls', type: 'toggle', def: false },
     { key: 'touchSens', tab: 'controls', type: 'range', def: 1, min: 0.2, max: 3, step: 0.05, fmt: v => v.toFixed(2) },
+    { key: 'padSens', tab: 'controls', type: 'range', def: 1, min: 0.2, max: 3, step: 0.05, fmt: v => v.toFixed(2) },
     { key: 'toggleCrouch', tab: 'controls', type: 'toggle', def: false },
     { key: 'toggleSprint', tab: 'controls', type: 'toggle', def: false },
 
@@ -55965,9 +56022,24 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
     flash: ['KeyF'], map: ['KeyM', 'Tab'], journal: ['KeyJ'], pause: ['Escape', 'KeyP'], throw: ['KeyG'], inventory: ['KeyI'], drink: ['KeyQ'], leanL: ['KeyZ'], leanR: ['KeyX'], reload: ['KeyR'], lookBack: ['KeyV', 'Mouse1'], attack: ['Mouse0'],
   };
 
+  // Gamepad, standard mapping (the Xbox layout; Steam Input presents PlayStation, Switch and Steam Deck
+  // controls the same way). In play the buttons stand for the same actions as the keys; the sticks walk
+  // and look. Button numbers: 0 A, 1 B, 2 X, 3 Y, 4 LB, 5 RB, 6 LT, 7 RT, 8 View, 9 Menu, 10/11 stick
+  // clicks, 12-15 D-pad up, down, left, right.
+  const PAD = {
+    interact: [0], crouch: [1], reload: [2], flash: [3], leanL: [4], leanR: [5], throw: [6, 14], sprint: [7, 10],
+    lookBack: [11], map: [8], pause: [9], journal: [12], drink: [13], inventory: [15],
+  };
+  // States where the game reads the actions itself; everywhere else the pad drives the menus
+  const PAD_ACTION_STATES = ['play', 'dying', 'note', 'map', 'bag'];
+  const DIRS = { 12: 'ArrowUp', 13: 'ArrowDown', 14: 'ArrowLeft', 15: 'ArrowRight' };
+  const deadzone = (v, dz) => { const a = Math.abs(v); return a < dz ? 0 : Math.sign(v) * (a - dz) / (1 - dz); };
+
   class Input {
     constructor(game, canvas) {
       this.game = game; this.canvas = canvas;
+      this.pad = { on: false, gp: null, prev: [], down: new Set(), edges: new Set(), mx: 0, my: 0, hold: {}, stickDir: null };
+      this.usingPad = false;
       this.keys = new Set(); this.edges = new Set();
       this.dx = 0; this.dy = 0;
       this.locked = false; this.lockFailed = false; this.dragging = false;
@@ -55975,6 +56047,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       this.touchSprint = false; this.touchCrouch = false;
       this.virtual = new Set();
       root.addEventListener('keydown', e => {
+        if (e.isTrusted && this.usingPad) this.setPadMode(false);
         if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) return;
         if (!e.repeat) this.edges.add(e.code);
         this.keys.add(e.code);
@@ -55994,6 +56067,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       });
       root.addEventListener('mousemove', e => {
         if (this.locked || this.dragging) { this.dx += e.movementX || 0; this.dy += e.movementY || 0; }
+        if (this.usingPad && Math.abs(e.movementX || 0) + Math.abs(e.movementY || 0) > 3) this.setPadMode(false);
       });
       // Mouse buttons count as keys too (the middle one looks back)
       root.addEventListener('mousedown', e => { if (e.button === 1 || (e.button === 0 && this.locked)) { const k = 'Mouse' + e.button; this.keys.add(k); this.edges.add(k); if (game.state === 'play' && e.button === 1) e.preventDefault(); } });
@@ -56016,10 +56090,135 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       } catch (e) { /* pointerlockerror olayı ele alır */ }
     }
     exitLock() { if (document.pointerLockElement) document.exitPointerLock(); }
-    down(action) { return MAP[action].some(k => this.keys.has(k)) || this.virtual.has(action); }
-    pressed(action) { return MAP[action].some(k => this.edges.has(k)) || this.virtual.has('!' + action); }
+    down(action) { return MAP[action].some(k => this.keys.has(k)) || this.virtual.has(action) || this.pad.down.has(action); }
+    pressed(action) { return MAP[action].some(k => this.edges.has(k)) || this.virtual.has('!' + action) || this.pad.edges.has(action); }
     tap(action) { this.virtual.add('!' + action); }
+    // ---------------------------------------------------------------- gamepad
+    setPadMode(on) {
+      if (this.usingPad === on) return;
+      this.usingPad = on;
+      document.body.classList.toggle('pad-mode', on);
+    }
+    // Once a frame, before the game reads its input
+    pollPad(dt) {
+      const P = this.pad;
+      const list = navigator.getGamepads ? navigator.getGamepads() : [];
+      let gp = null;
+      for (const p of list || []) if (p && p.connected) { if (p.mapping === 'standard') { gp = p; break; } if (!gp) gp = p; }
+      P.gp = gp;
+      if (!gp) { if (P.on) { P.on = false; P.down.clear(); P.mx = P.my = 0; P.prev = []; P.hold = {}; } return; }
+      P.on = true;
+      const now = gp.buttons.map(b => !!b && (b.pressed || b.value > 0.5));
+      const prev = P.prev;
+      const hit = i => now[i] && !prev[i];
+      const ax = i => gp.axes[i] || 0;
+      if (now.some(Boolean) || Math.hypot(ax(0), ax(1)) > 0.5 || Math.hypot(ax(2), ax(3)) > 0.5) this.setPadMode(true);
+      const state = this.game.state;
+      P.down.clear(); P.mx = P.my = 0;
+      if (PAD_ACTION_STATES.includes(state)) {
+        for (const [action, btns] of Object.entries(PAD)) {
+          if (btns.some(i => now[i])) P.down.add(action);
+          if (btns.some(hit)) P.edges.add(action);
+        }
+        // B backs out of a paper, the map and the bag
+        if (state !== 'play' && state !== 'dying' && hit(1)) P.edges.add('pause');
+        if (state === 'play') {
+          // walk: radial dead zone; look: dead zone and a curve for fine aim, independent of the mouse setting
+          const lx = ax(0), ly = ax(1), l = Math.hypot(lx, ly);
+          if (l > 0.18) { const k = Math.min(1, (l - 0.18) / 0.82) / l; P.mx = lx * k; P.my = ly * k; }
+          const S = PB.Settings.data;
+          const curve = v => { const d = deadzone(v, 0.12); return Math.sign(d) * Math.pow(Math.abs(d), 1.6); };
+          const k = 1500 * (S.padSens || 1) / Math.max(0.1, S.mouseSens || 1) * dt;
+          this.dx += curve(ax(2)) * k; this.dy += curve(ax(3)) * k;
+        }
+      } else this.padMenus(now, hit, ax(0), ax(1));
+      P.prev = now;
+    }
+    // Menus: the D-pad (or the left stick) moves the focus, A chooses, B and Menu go back, LB/RB switch tabs.
+    // Screens with their own arrow keys (settings, the arcade cabinet) get arrow keys.
+    padMenus(now, hit, sx, sy) {
+      const P = this.pad, ui = this.game.ui, t = performance.now();
+      const stick = Math.abs(sx) > 0.6 || Math.abs(sy) > 0.6 ? (Math.abs(sx) > Math.abs(sy) ? (sx < 0 ? 14 : 15) : (sy < 0 ? 12 : 13)) : null;
+      for (const i of [12, 13, 14, 15]) {
+        const held = now[i] || stick === i;
+        if (!held) { delete P.hold[i]; continue; }
+        // first press at once, then repeat while held
+        if (P.hold[i] == null) { P.hold[i] = t + 380; this.navigate(DIRS[i]); }
+        else if (t >= P.hold[i]) { P.hold[i] = t + 110; this.navigate(DIRS[i]); }
+      }
+      if (hit(0)) this.choose();
+      if (hit(1) || hit(9)) this.sendKey('Escape');
+      if (hit(4)) this.sendKey('KeyQ');
+      if (hit(5)) this.sendKey('KeyE');
+      if (ui && hit(8) && this.game.state === 'pause') this.sendKey('Escape');
+    }
+    sendKey(code) {
+      const key = { Escape: 'Escape', Enter: 'Enter', ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown', ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', KeyQ: 'q', KeyE: 'e' }[code] || code;
+      const target = document.activeElement && document.activeElement !== document.body ? document.activeElement : document;
+      target.dispatchEvent(new KeyboardEvent('keydown', { code, key, bubbles: true, cancelable: true }));
+      target.dispatchEvent(new KeyboardEvent('keyup', { code, key, bubbles: true, cancelable: true }));
+    }
+    // The screen on top: the last visible screen or overlay that has something to press
+    topScreen() {
+      const ui = this.game.ui;
+      if (!ui) return null;
+      const open = ui.screens().filter(s => !s.hidden && this.focusables(s).length);
+      return open.length ? open[open.length - 1] : null;
+    }
+    focusables(scope) {
+      return Array.from(scope.querySelectorAll('button:not([disabled]):not([hidden]), input[type=range], .set-row, [tabindex="0"]')).filter(b => b.offsetParent !== null);
+    }
+    navigate(code) {
+      const ui = this.game.ui;
+      if (this.game.state === 'cabinet' || (ui && ui.isOpen('scr-settings'))) { this.sendKey(code); return; }
+      const scr = this.topScreen();
+      if (!scr) return;
+      const items = this.focusables(scr), cur = document.activeElement;
+      if (!items.includes(cur)) { items[0].focus({ preventScroll: false }); return; }
+      if (cur.type === 'range' && (code === 'ArrowLeft' || code === 'ArrowRight')) {
+        const step = +cur.step || 0.05, v = Math.min(+cur.max, Math.max(+cur.min, +cur.value + (code === 'ArrowRight' ? step : -step)));
+        cur.value = v; cur.dispatchEvent(new Event('input', { bubbles: true }));
+        return;
+      }
+      // nearest element in that direction; if none, wrap around the list
+      const r = cur.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const vert = code === 'ArrowUp' || code === 'ArrowDown', sign = code === 'ArrowUp' || code === 'ArrowLeft' ? -1 : 1;
+      let best = null, bestScore = Infinity;
+      for (const e of items) {
+        if (e === cur) continue;
+        const q = e.getBoundingClientRect(), dx = q.left + q.width / 2 - cx, dy = q.top + q.height / 2 - cy;
+        const main = (vert ? dy : dx) * sign, side = Math.abs(vert ? dx : dy);
+        if (main <= 4) continue;
+        const score = main + side * 2.5;
+        if (score < bestScore) { bestScore = score; best = e; }
+      }
+      if (!best) {
+        if (!vert) return;
+        const i = items.indexOf(cur);
+        best = items[(i + sign + items.length) % items.length];
+      }
+      best.focus({ preventScroll: false });
+      if (best.scrollIntoView) best.scrollIntoView({ block: 'nearest' });
+      this.game.audio && this.game.audio.uiMove && this.game.audio.uiMove();
+    }
+    choose() {
+      if (this.game.state === 'cabinet') { this.sendKey('Enter'); return; }
+      const scr = this.topScreen(), cur = document.activeElement;
+      if (!scr) return;
+      if (!cur || !scr.contains(cur) || cur === document.body) { const f = this.focusables(scr)[0]; if (f) f.focus(); return; }
+      if (cur.classList.contains('set-row')) { if (cur.dataset.type === 'toggle') this.sendKey('Enter'); else this.sendKey('ArrowRight'); return; }
+      if (cur.tagName === 'BUTTON') cur.click();
+    }
+    // A short rumble for a scare or a hit, scaled by the camera-shake setting
+    rumble(k) {
+      const gp = this.pad.gp;
+      if (!gp || !this.usingPad || !gp.vibrationActuator || !gp.vibrationActuator.playEffect) return;
+      const S = PB.Settings.data, s = Math.min(1, k) * (S.shake != null ? S.shake : 1);
+      if (s < 0.05) return;
+      try { gp.vibrationActuator.playEffect('dual-rumble', { duration: Math.round(120 + 380 * Math.min(1, k)), strongMagnitude: Math.min(1, s), weakMagnitude: Math.min(1, s * 0.7) }).catch(() => {}); } catch (e) { /* no rumble motor */ }
+    }
     endFrame() {
+      this.pad.edges.clear();
       this.edges.clear();
       for (const v of [...this.virtual]) if (v[0] === '!') this.virtual.delete(v);
     }
@@ -56211,7 +56410,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         if (inp.down('back')) mz += 1;
         if (inp.down('left')) mx -= 1;
         if (inp.down('right')) mx += 1;
-        mx += inp.move.x; mz += inp.move.y;
+        mx += inp.move.x + inp.pad.mx; mz += inp.move.y + inp.pad.my;
       }
       const ml = Math.hypot(mx, mz);
       if (ml > 1) { mx /= ml; mz /= ml; }
@@ -56375,7 +56574,10 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       if (Math.abs(cam.fov - fovT) > 0.05) { cam.fov = U.damp(cam.fov, fovT, 6, dt || 1); cam.updateProjectionMatrix(); }
       if (this.vm) this.vm.update(dt || 0, this);
     }
-    addTrauma(k) { this.trauma = Math.min(1, this.trauma + k); }
+    addTrauma(k) {
+      this.trauma = Math.min(1, this.trauma + k);
+      if (k >= 0.1 && this.game.input) this.game.input.rumble(k);
+    }
     // ---------------------------------------------------------- saklanma
     hide(spot) {
       this.hidden = { x: spot.x, z: spot.z, eye: spot.eye || 0.72, floor: this.floorY, spot, fromX: this.pos.x, fromZ: this.pos.z, t: 0 };
@@ -58559,7 +58761,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         const i = items.indexOf(document.activeElement);
         if (e.code === 'ArrowDown' || (e.code === 'Tab' && !e.shiftKey)) { if (document.activeElement && document.activeElement.type === 'range' && e.code !== 'Tab') { /* kaydırıcı: aşağı = sonraki */ } e.preventDefault(); items[(i + 1) % items.length].focus(); this.g.audio && this.g.audio.uiMove(); }
         else if (e.code === 'ArrowUp' || (e.code === 'Tab' && e.shiftKey)) { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); this.g.audio && this.g.audio.uiMove(); }
-        else if (e.code === 'Escape' && scr.dataset.back) { e.preventDefault(); const b = scr.querySelector('[data-action=back]'); if (b) b.click(); }
+        else if (e.code === 'Escape' && scr.hasAttribute('data-back')) { e.preventDefault(); const b = scr.querySelector('[data-action=back]'); if (b) b.click(); }
       });
       document.addEventListener('click', e => { const b = e.target.closest('button'); if (b && this.g.audio) this.g.audio.uiOk(); });
     }
@@ -58814,7 +59016,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       if (!text) { p.hidden = true; return; }
       p.hidden = false;
       this.$('prompt-text').textContent = text;
-      this.$('prompt-key').textContent = this.touch ? t('touch.tap') : 'E';
+      this.$('prompt-key').textContent = this.touch ? t('touch.tap') : this.g.input && this.g.input.usingPad ? 'A' : 'E';
       const ring = this.$('hold');
       if (hold != null) { ring.hidden = false; ring.style.setProperty('--p', hold); } else ring.hidden = true;
     }
@@ -58851,8 +59053,9 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       const box = this.$('inv');
       const chips = [];
       if (inv.batteries) chips.push(esc(t('inv.battery', { n: inv.batteries })));
-      if (inv.almond) chips.push(`${esc(t('inv.almond', { n: inv.almond }))} <kbd>Q</kbd>`);
-      if (inv.glow) chips.push(`${esc(t('inv.glow', { n: inv.glow }))} <kbd>G</kbd>`);
+      const pad = this.g.input && this.g.input.usingPad;
+      if (inv.almond) chips.push(`${esc(t('inv.almond', { n: inv.almond }))} <kbd>${pad ? '↓' : 'Q'}</kbd>`);
+      if (inv.glow) chips.push(`${esc(t('inv.glow', { n: inv.glow }))} <kbd>${pad ? 'LT' : 'G'}</kbd>`);
       for (const k of inv.keys || []) chips.push(esc(k));
       box.innerHTML = chips.map(c => `<span class="chip">${c}</span>`).join('');
     }
@@ -61737,6 +61940,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       if (this.perf) this.perf.begin(now);
       const raw = (now - this.last) / 1000;
       const dt = Math.min(0.05, raw);
+      this.input.pollPad(dt);
       this.last = now;
       this.time += dt;
       // FPS gerçek süreden ölçülür (dt 0.05'te kırpıldığı için ondan ölçülemez)
