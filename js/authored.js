@@ -261,5 +261,66 @@
     return K;
   }
 
-  PB.Authored = { compile, kit, STEP_OF };
+
+  // ------------------------------------------------------------ drawing plans in code
+  // Big maps are easier to draw than to type: fill rectangles with region characters, then let walls
+  // grow between different regions (auto), and set doors, openings, railings and barriers explicitly.
+  // D.grid() returns the thin-wall plan the compiler reads.
+  function MapDraw(w, h) {
+    const cells = Array.from({ length: h }, () => new Array(w).fill(' '));
+    const hE = Array.from({ length: h + 1 }, () => new Array(w).fill(null));   // north edge of (x, y)
+    const vE = Array.from({ length: h }, () => new Array(w + 1).fill(null));   // west edge of (x, y)
+    const joined = new Set();
+    const D = {
+      w, h, cells,
+      fill(x0, y0, x1, y1, ch) { for (let y = Math.max(0, y0); y <= Math.min(h - 1, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(w - 1, x1); x++) cells[y][x] = ch; return D; },
+      at(x, y) { return x >= 0 && y >= 0 && x < w && y < h ? cells[y][x] : ' '; },
+      set(x, y, ch) { if (x >= 0 && y >= 0 && x < w && y < h) cells[y][x] = ch; return D; },
+      // an edge by cell and side (0 N, 1 E, 2 S, 3 W)
+      edge(x, y, d, ch) {
+        if (d === 0) hE[y][x] = ch; else if (d === 2) hE[y + 1][x] = ch; else if (d === 3) vE[y][x] = ch; else vE[y][x + 1] = ch;
+        return D;
+      },
+      // a run of edges: north side of row y from x0 to x1 / west side of column x from y0 to y1
+      hline(y, x0, x1, ch) { for (let x = x0; x <= x1; x++) hE[y][x] = ch; return D; },
+      vline(x, y0, y1, ch) { for (let y = y0; y <= y1; y++) vE[y][x] = ch; return D; },
+      // regions that meet without a wall
+      join(...chars) { for (const a of chars) for (const b of chars) joined.add(a + b); return D; },
+      // every edge between a cell of one of these regions and empty space gets ch (railing, barrier...)
+      border(chars, ch) {
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+          if (!chars.includes(cells[y][x])) continue;
+          if (D.at(x, y - 1) === ' ' && hE[y][x] == null) hE[y][x] = ch;
+          if (D.at(x, y + 1) === ' ' && hE[y + 1][x] == null) hE[y + 1][x] = ch;
+          if (D.at(x - 1, y) === ' ' && vE[y][x] == null) vE[y][x] = ch;
+          if (D.at(x + 1, y) === ' ' && vE[y][x + 1] == null) vE[y][x + 1] = ch;
+        }
+        return D;
+      },
+      grid() {
+        const out = [];
+        const auto = (a, b, horiz) => {
+          if (a === ' ' && b === ' ') return ' ';
+          if (a === ' ' || b === ' ') return horiz ? '-' : '|';
+          if (a === b || joined.has(a + b)) return ' ';
+          return horiz ? '-' : '|';
+        };
+        for (let y = 0; y <= h; y++) {
+          let row = '+';
+          for (let x = 0; x < w; x++) row += (hE[y][x] != null ? hE[y][x] : auto(D.at(x, y - 1), D.at(x, y), true)) + '+';
+          out.push(row);
+          if (y === h) break;
+          row = '';
+          for (let x = 0; x <= w; x++) {
+            row += vE[y][x] != null ? vE[y][x] : auto(D.at(x - 1, y), D.at(x, y), false);
+            if (x < w) row += cells[y][x];
+          }
+          out.push(row);
+        }
+        return out;
+      },
+    };
+    return D;
+  }
+  PB.Authored = { compile, kit, STEP_OF, MapDraw };
 })(typeof window !== 'undefined' ? window : globalThis);

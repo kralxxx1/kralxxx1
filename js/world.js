@@ -868,7 +868,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       const samples = this.lmRes >= 12 ? 8 : this.lmRes >= 8 ? 4 : this.lmRes >= 6 ? 2 : 1;
       // A newer bake (another zone switched on) supersedes this one
       const token = this.bakeToken = (this.bakeToken || 0) + 1;
-      const res = World.baker.bake(L, { res: this.lmRes, lights, K: LM_K, samples, ambient: this.theme.ambient, bounce: this.theme.bounce });
+      const res = World.baker.bake(L, { res: this.lmRes, lights, K: LM_K, samples, ambient: this.theme.ambient, bounce: this.theme.bounce, sky: L.meta.weather && L.meta.weather.sky });
       const total = res.job.tiles.length, perFrame = this.ready ? 2 : 6;
       while (!World.baker.step(res, perFrame)) {
         progress(0.1 + 0.85 * res.job.done / total);
@@ -1455,7 +1455,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         this.street.build();
       }
       if (L.meta.outdoor) {
-        this.street = new PB.Exterior.Open(this);
+        this.street = L.meta.weather ? new PB.Exterior.Wild(this) : new PB.Exterior.Open(this);
         this.street.build();
       }
       if (L.theme === 'concrete') {

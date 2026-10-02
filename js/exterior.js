@@ -815,6 +815,8 @@ diffuseColor.rgb *= mix(mix(1.0, 0.72, uWet), 0.35, pud0);`)
     }
   }
   PB.Exterior.Open = Open;
+  PB.Exterior.SH = { RAIN_VS, RAIN_FS, SPLASH_VS, SPLASH_FS };
+  PB.Exterior.outMat = outMat;
   PB.Exterior.wetPatch = wetPatch;
   PB.Exterior.Street = Street;
   PB.Exterior.TX = TX;

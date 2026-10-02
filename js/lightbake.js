@@ -329,6 +329,11 @@ void main() {
       const cellL = this.cellLight(L, lights, opts.K);
       // Bounce + ambient per cell for the GPU and for ceilings/undersides in the material shader
       const w = L.w, h = L.h, amb = opts.ambient, bk = opts.bounce;
+      // Sky light on outdoor cells (moonlight through cloud, snow glare): added to the bounce term
+      if (opts.sky && L.meta.outdoor) {
+        const od = L.meta.outdoor, k = 1 / Math.max(bk, 0.05);
+        for (let c = 0; c < w * h; c++) if (od[c]) for (let j = 0; j < 3; j++) cellL.bounce[c * 3 + j] += opts.sky[j] * k;
+      }
       const bData = new Uint16Array(w * h * 4), toH = THREE.DataUtils.toHalfFloat;
       for (let c = 0; c < w * h; c++) {
         bData[c * 4] = toH(Math.min(60, cellL.bounce[c * 3]));
