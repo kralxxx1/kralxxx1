@@ -367,4 +367,21 @@
   Object.assign(PB.THEMES, {
     depot: { wall: 'plaster', floor: 'linoleum', ceil: 'plaster', pillar: 'plaster', trim: 'darkWood', trimH: 0.1, ambient: [0.0035, 0.003, 0.0026], bounce: 0.38, ceilFactor: 0.6, env: [0.04, 0.035, 0.03], envPanel: [1.2, 1.0, 0.8], dust: 0.35, floorRefl: 0.1 },
   });
+
+  // Things that make the lights falter where they stand (Hummers, the Choir...): world.disturb is a map
+  // of { x, z, w, r } kept up to date by the creatures
+  W.disturbAt = function (x, z) {
+    let k = 0;
+    for (const d of this.disturb.values()) { const dd = Math.hypot(x - d.x, z - d.z); if (dd < d.r) k = Math.max(k, (1 - dd / d.r) * d.w); }
+    return k;
+  };
+  const fb0 = W.fixtureBrightness;
+  W.fixtureBrightness = function (f, t, pac) {
+    let b = fb0.call(this, f, t, pac);
+    if (this.disturb && this.disturb.size && b > 0.05) {
+      const k = this.disturbAt(f.light.x, f.light.z);
+      if (k > 0) { const r = U.hash2(Math.floor(t * 7 + f.light.x * 0.37), Math.floor(f.light.z), 11); b *= U.lerp(1, r < 0.45 ? 0.08 : r < 0.7 ? 0.45 : 0.85, k); }
+    }
+    return b;
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

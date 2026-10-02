@@ -98,7 +98,7 @@
     bikeRed: { color: 0x7a1414, rough: 0.35, metal: 0.4, refl: 0.15 }, radiatorPaint: { color: 0xcfc6b0, rough: 0.5, metal: 0.3 }, castIron: { color: 0x26282a, rough: 0.6, metal: 0.7 },
     ticketFace: { tex: 'ticketFace', rough: 0.4 }, ticketRed: { color: 0xa8141a, rough: 0.35, metal: 0.2, refl: 0.12 }, clockFace: { tex: 'stationClock', rough: 0.3 },
     lostPosters: { tex: 'lostPosters', rough: 0.9 }, stationMap: { tex: 'stationMap', rough: 0.5, refl: 0.1 }, gateSteel: { color: 0x34383a, rough: 0.5, metal: 0.8 },
-    linenTag: { color: 0xe4dcc4, rough: 0.9 }, linoleumTop: { color: 0x5e6e62, rough: 0.45, refl: 0.08 }, black: { color: 0x0a0a0a, rough: 0.5 }, string: { color: 0x9a8a6a, rough: 1 }, coatWool: { color: 0x2a2a2e, rough: 1 }, coatBeige: { color: 0x9a8a6a, rough: 1 },
+    linenTag: { color: 0xe4dcc4, rough: 0.9 }, parcelPaper: { color: 0x9a7a52, rough: 0.9 }, stampRed: { color: 0xa82020, rough: 0.6 }, caseClear: { color: 0xc8d0d8, rough: 0.1, transparent: true, opacity: 0.4 }, cassetteBody: { color: 0x2a2624, rough: 0.4 }, linoleumTop: { color: 0x5e6e62, rough: 0.45, refl: 0.08 }, black: { color: 0x0a0a0a, rough: 0.5 }, string: { color: 0x9a8a6a, rough: 1 }, coatWool: { color: 0x2a2a2e, rough: 1 }, coatBeige: { color: 0x9a8a6a, rough: 1 },
     hatFelt: { color: 0x2a221c, rough: 0.95 }, conveyorBelt: { color: 0x141414, rough: 0.85 }, rollerSteel: { color: 0x8a8e92, rough: 0.3, metal: 0.9 },
     // railings and window frames used by world2.js
     railSteel: { color: 0xd8d8d0, rough: 0.45, metal: 0.5 }, railIron: { color: 0x141516, rough: 0.55, metal: 0.7 }, railWood: { color: 0x5a4632, rough: 0.8 },
@@ -395,6 +395,30 @@
     ['rbox', 'umbrella', 0.06, 0.06, 0.8, 0.02, -0.4, 1.56, 0.0, 0, 0.1],
   ];
 
+
+  // ------------------------------------------------------------ things in the prologue
+  // The parcel from the chute: brown paper, string, a luggage tag with a typed number
+  D.parcelBox = [
+    ['rbox', 'parcelPaper', 0.34, 0.14, 0.26, 0.012, 0, 0.07, 0],
+    ['box', 'string', 0.345, 0.006, 0.012, 0, 0.141, 0], ['box', 'string', 0.012, 0.006, 0.265, 0, 0.141, 0],
+    ['box', 'string', 0.346, 0.142, 0.012, 0, 0.07, 0], ['box', 'string', 0.012, 0.142, 0.266, 0, 0.07, 0],
+    ['torus', 'string', 0.018, 0.003, 8, 0, 0.0, 0.147, 0, H, 0, 0],
+    ['tube', 'string', [[0.0, 0.145, 0.0], [0.06, 0.15, 0.06], [0.11, 0.146, 0.09]], 0.002, 3],
+    ['box', 'linenTag', 0.06, 0.002, 0.1, 0.13, 0.144, 0.1, 0, 0.5, 0],
+    ['box', 'stampRed', 0.05, 0.002, 0.04, -0.1, 0.1405, -0.08],
+  ];
+  // Grandmother's cassette in its case
+  D.cassette = [
+    ['rbox', 'caseClear', 0.11, 0.017, 0.07, 0.003, 0, 0.0085, 0],
+    ['box', 'cassetteBody', 0.1, 0.012, 0.064, 0, 0.009, 0],
+    ['box', 'linenTag', 0.08, 0.0005, 0.03, 0, 0.0177, 0.006],
+  ];
+  // Otto's brass badge: an oval with the depot number, on a worn strap
+  D.badge = [
+    ['rcyl', 'brass', 0.035, 0.004, 0.0015, 24, 0, 0.002, 0, 0, 0, 0, ],
+    ['torus', 'brass', 0.034, 0.002, 24, 0, 0, 0.004, 0, H, 0, 0],
+    ['box', 'leather', 0.02, 0.003, 0.09, 0, 0.0015, -0.07, 0, 0.2, 0],
+  ];
   // Oak counter top along the glass screen (staff side), with a brass edge and a bell
   D.counterTop = [
     ['rbox', 'woodVarnish', 3.0, 0.05, 0.6, 0.01, 0, 0.88, 0.2],

@@ -215,8 +215,8 @@
       // Arşiv, açılan bölümler ve görülen sonlar yeni oyunda da korunur
       const old = this.save || {};
       const keep = k => (Array.isArray(old[k]) ? old[k].slice() : []);
-      const unlocked = keep('unlocked'); if (!unlocked.includes('prolog')) unlocked.unshift('prolog');
-      this.save = { v: 2, level: 'prolog', unlocked, notes: keep('notes'), drawings: [], freed: [], world: {}, stats: { time: 0, deaths: 0 }, cp: null, completed: !!old.completed, endings: keep('endings') };
+      const unlocked = keep('unlocked').filter(id => PB.Levels.byId(id)); if (!unlocked.includes('depot')) unlocked.unshift('depot');
+      this.save = { v: 2, level: 'depot', unlocked, notes: keep('notes'), drawings: [], freed: [], world: {}, stats: { time: 0, deaths: 0 }, cp: null, completed: !!old.completed, endings: keep('endings') };
       this.writeSave();
     }
     migrateSave(s) {
@@ -228,8 +228,9 @@
       s.freed = s.freed.map(c => OLD[c] || c);
       if (!Array.isArray(s.endings)) s.endings = [];
       if (!Array.isArray(s.notes)) s.notes = [];
-      if (!Array.isArray(s.unlocked)) s.unlocked = ['prolog'];
-      if (s.level && !PB.Levels.byId(s.level)) { s.level = 'prolog'; s.cp = null; }
+      if (!Array.isArray(s.unlocked)) s.unlocked = ['depot'];
+      s.unlocked = s.unlocked.filter(id => PB.Levels.byId(id)); if (!s.unlocked.includes('depot')) s.unlocked.unshift('depot');
+      if (s.level && !PB.Levels.byId(s.level)) { s.level = 'depot'; s.cp = null; }
       s.unlocked = s.unlocked.filter(id => PB.Levels.byId(id));
       if (!s.stats) s.stats = { time: 0, deaths: 0 };
     }
@@ -264,7 +265,7 @@
     // ================================================================ MENÜ
     bindUI() {
       const on = (id, fn) => { const e = $(id); if (e) e.addEventListener('click', fn); };
-      on('m-new', () => { this.audio.init(); if (this.save && this.save.level && this.save.level !== 'prolog') { this.ui.only('scr-confirm'); } else this.ui.only('scr-diff'); });
+      on('m-new', () => { this.audio.init(); if (this.save && this.save.level && this.save.level !== 'depot') { this.ui.only('scr-confirm'); } else this.ui.only('scr-diff'); });
       on('confirm-yes', () => this.ui.only('scr-diff'));
       on('confirm-no', () => this.toMenu());
       on('m-continue', () => { this.audio.init(); this.continueGame(); });
@@ -298,7 +299,7 @@
     }
     async loadMenuScene() {
       // Menü arka planı: gece yarısı atari salonu, elektrik açık
-      await this.loadLevel('prolog', { menu: true });
+      await this.loadLevel('depot', { menu: true });
     }
     toMenu() {
       this.state = 'menu';
@@ -307,18 +308,18 @@
       $('hud').hidden = true;
       this.ui.buildTouch();
       $('touch').hidden = true;
-      if (!this.levelDef || this.levelDef.id !== 'prolog' || !this.menuWorld) { this.loadLevel('prolog', { menu: true }).then(() => this.toMenu()); return; }
+      if (!this.levelDef || this.levelDef.id !== 'depot' || !this.menuWorld) { this.loadLevel('depot', { menu: true }).then(() => this.toMenu()); return; }
       this.ui.buildMenu(this.save);
       this.ui.only('scr-menu');
       this.audio.setMusic('menu');
-      if (this.audio.ctx) this.audio.ambience('arcade');
+      if (this.audio.ctx) this.audio.ambience('depot');
       this.fx.blackout = 0.35;
       this.menuT = 0;
     }
     async newGame() {
       this.newSave();
       this.playTime = 0;
-      await this.loadLevel('prolog');
+      await this.loadLevel('depot');
     }
     async continueGame() {
       if (!this.save || !this.save.level) return this.newGame();
@@ -498,6 +499,7 @@
       if (o.mesh) { o.mesh.position.copy(o.pos); if (o.baseY == null) o.baseY = o.pos.y; this.scene.add(o.mesh); }
       this.items.push(o);
       // Shut in a drawer or a safe: nothing to see or take until it is opened
+      if (it.reach) o.reach = it.reach;
       this.interactables.push({ kind: 'item', ref: o, pos: o.interactPos || o.pos, reach: o.reach || 2.5, prompt: () => (o.taken || (this.containers && this.containers.hidden(o)) ? null : this.itemPrompt(o)), act: () => this.useItem(o), hold: () => o.hold });
       return o;
     }
@@ -647,6 +649,15 @@
           o.knob = knob; o.value = 0; o.marker = MARK.obj; grp.rotation.y = 0; break;
         }
         case 'booth': o.mesh = null; o.marker = MARK.obj; o.pos.y = 1.0; o.reach = 2.4; break;
+        // A thing the chapter script gives meaning to: a model (or just a place to touch), fixed or taken
+        case 'thing': {
+          if (it.model && P.DEFS[it.model]) add(it.model, 0, it.scale || 1);
+          else { o.mesh = null; o.interactPos = new THREE.Vector3(it.wx, (it.wy || 0) + (it.model ? 0 : 0.05), it.wz); }
+          o.marker = it.marker === false ? null : MARK.obj;
+          if (it.hold) o.hold = it.hold;
+          if (it.hiddenUntil) o.hiddenUntil = it.hiddenUntil;
+          break;
+        }
         case 'specialCabinet': case 'freeCabinet': o.mesh = null; o.marker = ty === 'specialCabinet' ? MARK.obj : null; o.pos.y = 1.2; o.reach = 2.2; break;
         default: break;
       }
@@ -655,6 +666,7 @@
       const ty = o.type, it = o.item;
       if (o.hiddenUntil && !this.flags[o.hiddenUntil]) return null;
       if (this.script.prompt) { const p = this.script.prompt(this, o); if (p !== undefined) return p; }
+      if (ty === 'thing') return it.prompt ? ST.line(it.prompt) : t('pr.take', { name: ST.item(it.id).name });
       switch (ty) {
         case 'note': case 'codeClue': { const n = ST.note(it.data); return !n ? null : n.kind === 'wall' ? t('pr.readWall') : n.kind === 'screen' ? t('pr.screen') : t('pr.read', { title: n.title }); }
         case 'drawing': return t('pr.drawing');
@@ -704,7 +716,7 @@
           this.takeItem(o); this.inv.memento = it.data; this.audio.pickup('key');
           const m = ST.memento(it.data);
           this.ui.notify(t('n.found', { name: m.name }), 'key'); this.ui.subtitle(m.line, 5);
-          const rk = PB.ChapterUtil.mementoRadio[it.data]; if (rk) this.radio(rk, { delay: 5.5 });
+          const rk = PB.ChapterUtil && PB.ChapterUtil.mementoRadio[it.data]; if (rk) this.radio(rk, { delay: 5.5 });
           break;
         }
         case 'phone': this.answerPhone(o); break;
@@ -718,6 +730,11 @@
           break;
         }
         case 'freeCabinet': this.enterCabinet(); break;
+        case 'thing':
+          if (it.fixed) break;
+          this.takeItem(o); if (!this.inv.keys.includes(it.id)) this.inv.keys.push(it.id);
+          this.audio.pickup('item'); this.ui.notify(t('n.found', { name: ST.item(it.id).name }), 'key');
+          break;
         default: break;
       }
       this.updateInventoryUI();
@@ -869,6 +886,15 @@
             else { const c = spawnFar(e.ghost === 'amber' ? 14 : 18); ent.placeCell(c.x, c.y); }
           } else if (e.type === 'grinner') { ent = new E.Grinner(this, e); const c = spawnFar(e.near || 12); ent.placeCell(c.x, c.y); }
           else if (e.type === 'watcher') { ent = new E.Watcher(this, e); ent.placeCell(L.spawn.x, L.spawn.y); }
+          else if (PB.Species && PB.Species.get(e.type)) {
+            ent = E.makeSpecies(this, e.type, e);
+            const spotName = e.spot || null, list = spotName ? (L.spots[spotName] || []) : [];
+            const sp = list.length ? list[k % list.length] : null;
+            if (sp) { ent.placeCell(sp.x, sp.y); if (sp.wx != null) { ent.pos.set(sp.wx, 0, sp.wz); ent.mesh.position.copy(ent.pos); } ent.heading = sp.yaw != null ? sp.yaw : (e.heading || 0); }
+            else if (ent.state === 'buried' && ent.lairs().length) ent.bury();
+            else { const c = spawnFar(e.near || 16); ent.placeCell(c.x, c.y); }
+            if (ent.state === 'buried' && !sp) ent.mesh.visible = !!ent.sp.visibleBuried;
+          }
           else if (E.extra && E.extra[e.type]) {
             ent = new E.extra[e.type](this, e);
             const sp = e.spot && L.spots[e.spot] && L.spots[e.spot][0];
@@ -1013,53 +1039,56 @@
       else this.menace = Math.min(1, m + dt * (dif.menace || 1) / 95);
     }
     canHold(it) { return !this.script.canHold || this.script.canHold(this, it.ref); }
-    noise(x, z, radius) { for (const e of this.entities) e.hear(x, z, radius); }
+    // kind: 'step', 'impact', 'door', 'voice', 'loud' (vibration-sensing creatures only feel some of them)
+    noise(x, z, radius, kind) { for (const e of this.entities) e.hear(x, z, radius, kind); }
     // Unscripted scares: every minute or two something happens nearby that is not an attack.
     // A tube bursts, a door slams behind you, someone runs past out of sight, a whisper.
+    // Unscripted unease: every couple of minutes something small happens out of sight. Never loud, never
+    // sudden: a door clicking shut somewhere behind you, a few soft steps far off, a light dying quietly,
+    // a whisper at the edge of hearing. The fright is that it is quiet.
     updateScares(dt) {
       const def = this.levelDef, pl = this.player, t_ = PB.t;
-      if (!def || ['prolog', 'maze', 'killscreen'].includes(def.id) || S.data.jumpscare === 'off') return;
-      if (this.scareT == null) this.scareT = 50 + Math.random() * 40;
+      if (!def || def.noScares || S.data.jumpscare === 'off') return;
+      if (this.scareT == null) this.scareT = 70 + Math.random() * 50;
       this.scareT -= dt;
       if (this.scareT > 0 || pl.hidden || this.talking()) return;
-      // Not while something is actually hunting you
-      if (this.entities.some(e => e.hostile && !e.friendly && e.mesh && e.distToPlayer && e.distToPlayer() < 14 && e.state === 'chase')) { this.scareT = 12; return; }
-      this.scareT = 60 + Math.random() * 70;
-      const cam = this.camera, fwd = pl.forward(), W = this.world, t = this.time;
+      if (this.entities.some(e => e.hostile && e.state === 'chase')) { this.scareT = 20; return; }
+      this.scareT = 80 + Math.random() * 90;
+      const fwd = pl.forward(), W = this.world, t = this.time;
       const behind = (x, z) => ((x - pl.pos.x) * fwd.x + (z - pl.pos.z) * fwd.z) < 0;
       const opts = [];
-      // 1. A fluorescent tube bursts right ahead
-      const fix = W.fixtures.filter(f => f.mesh && f.powered && !f.light.broken && Math.hypot(f.light.x - pl.pos.x, f.light.z - pl.pos.z) < 10 && !behind(f.light.x, f.light.z));
+      // 1. A light somewhere ahead dies quietly (a tick, then dark)
+      const fix = W.fixtures.filter(f => f.mesh && f.powered && !f.light.broken && Math.hypot(f.light.x - pl.pos.x, f.light.z - pl.pos.z) < 14 && Math.hypot(f.light.x - pl.pos.x, f.light.z - pl.pos.z) > 5);
       if (fix.length) opts.push(() => {
         const f = fix[Math.floor(Math.random() * fix.length)];
-        f.light.popT = t + 2.2; W.fixDirty = true;
+        f.light.broken = true; W.fixDirty = true;
         const pos = { x: f.light.x, y: f.light.y || 2.8, z: f.light.z };
-        if (this.audio.ctx) { const a = this.audio, at = a.t, o = a.out('sfx', pos, { rev: 0.5 }); a.burst(o.input, 'highpass', 2500, 0.7, at, 0.12, 0.9, 0.001); for (let k = 0; k < 7; k++) a.tone(o.input, 'sine', 3000 + Math.random() * 3000, 2500, at + 0.05 + Math.random() * 0.4, 0.05, 0.12, 0.001); }
-        this.audio.caption('buzz', t_('cap.pop'), pos, 10);
-        pl.addTrauma(0.25); pl.fear = Math.min(100, pl.fear + 12);
+        if (this.audio.ctx) { const a = this.audio, o = a.out('sfx', pos, { rev: 0.4, gain: 0.25 }); a.burst(o.input, 'highpass', 3500, 0.8, a.t, 0.04, 0.3, 0.001); }
+        pl.fear = Math.min(100, pl.fear + 4);
       });
-      // 2. A door you left open slams behind you
-      const doors = [...W.doorObjs.values()].filter(o => o.door.open && !['exit', 'elevator', 'house', 'stair'].includes(o.door.kind) && o.door.id !== this.exitDoorId && Math.hypot(o.g.cx - pl.pos.x, o.g.cz - pl.pos.z) < 13 && Math.hypot(o.g.cx - pl.pos.x, o.g.cz - pl.pos.z) > 3 && behind(o.g.cx, o.g.cz));
+      // 2. A door you left open swings shut behind you, slowly, and clicks
+      const doors = [...W.doorObjs.values()].filter(o => o.door.open && !['exit', 'elevator', 'house', 'stair', 'open'].includes(o.door.kind) && !o.door.link && o.door.id !== this.exitDoorId && Math.hypot(o.g.cx - pl.pos.x, o.g.cz - pl.pos.z) < 16 && Math.hypot(o.g.cx - pl.pos.x, o.g.cz - pl.pos.z) > 5 && behind(o.g.cx, o.g.cz));
       if (doors.length) opts.push(() => {
         const o = doors[Math.floor(Math.random() * doors.length)];
-        W.closeDoor(o.door.id); this.nav.dirty = true;
+        o.slow = true; W.closeDoor(o.door.id); this.nav.dirty = true;
         const pos = new THREE.Vector3(o.g.cx, 1.2, o.g.cz);
-        this.audio.door(o.door.kind, pos, false, 1.8);
-        this.audio.caption('door', t_('cap.slam'), pos, 10);
-        pl.addTrauma(0.3); pl.fear = Math.min(100, pl.fear + 15);
+        this.later(1600, () => this.audio.door(o.door.kind, pos, false, 0.3));
+        this.audio.caption('door', t_('cap.doorShut'), pos, 10);
+        pl.fear = Math.min(100, pl.fear + 6);
       });
-      // 3. Somebody runs past, out of sight
+      // 3. Soft steps far away, walking, stopping
       opts.push(() => {
-        const a = Math.atan2(-fwd.x, -fwd.z) + (Math.random() - 0.5) * 1.2, d = 9 + Math.random() * 5;
+        const a = Math.atan2(-fwd.x, -fwd.z) + (Math.random() - 0.5) * 1.6, d = 14 + Math.random() * 8;
         const sx = pl.pos.x + Math.sin(a) * d, sz = pl.pos.z + Math.cos(a) * d, dir = a + Math.PI / 2;
         const surf = pl.surface ? pl.surface() : 'carpet';
-        for (let k = 0; k < 9; k++) this.later(k * 260, () => this.audio.footstep(surf, 1.2, { x: sx + Math.sin(dir) * k * 0.9, y: 0, z: sz + Math.cos(dir) * k * 0.9 }));
-        this.audio.caption('run', t_('cap.run'), { x: sx, y: 1, z: sz }, 10);
-        pl.fear = Math.min(100, pl.fear + 8);
+        for (let k = 0; k < 5; k++) this.later(k * 620, () => this.audio.footstep(surf, 0.35, { x: sx + Math.sin(dir) * k * 0.7, y: 0, z: sz + Math.cos(dir) * k * 0.7 }));
+        this.audio.caption('steps', t_('cap.stepsFar'), { x: sx, y: 1, z: sz }, 10);
+        pl.fear = Math.min(100, pl.fear + 5);
       });
-      // 4. A whisper right at your ear
-      opts.push(() => { this.audio.echoVoice(1.4, 'voice'); this.audio.caption('whisper', t_('cap.whisper'), null, 10); pl.fear = Math.min(100, pl.fear + 10); });
+      // 4. A whisper, barely there
+      opts.push(() => { this.audio.echoVoice(1.1, 'voice'); this.audio.caption('whisper', t_('cap.whisper'), null, 10); pl.fear = Math.min(100, pl.fear + 6); });
       opts[Math.floor(Math.random() * opts.length)]();
+      void t;
     }
     openDoorBy(door, ent) {
       this.world.openDoor(door.id, ent.pos.x, ent.pos.z);
@@ -1071,17 +1100,17 @@
     onSpotted(ent) {
       const key = ent.kind === 'ghost' ? ent.type : ent.kind;
       const now = this.time;
-      if (!this.lastStinger || now - this.lastStinger > 22) { this.audio.stinger('spot'); this.lastStinger = now; }
-      // A sharp intake of breath when you realise it has seen you
-      if (!this.lastGasp || now - this.lastGasp > 8) { this.lastGasp = now; this.audio.breathe('gasp', 0.6); this.player.breathT = 0.5; this.player.breathIn = true; }
+      // No sting: a short, held intake of breath when you realise it has seen you
+      if (!this.lastGasp || now - this.lastGasp > 8) { this.lastGasp = now; this.audio.breathe('gasp', 0.35); this.player.breathT = 0.5; this.player.breathIn = true; }
       this.player.fear = Math.min(100, this.player.fear + 22);
       // It lets you know it has you: a roar, a wail, a whistle, and your view jolts
-      if (!ent.lastVoice || now - ent.lastVoice > 6) {
+      if (ent.sp) { if (!ent.lastVoice || now - ent.lastVoice > 6) { ent.lastVoice = now; ent.voice('spot'); } }
+      else if (!ent.lastVoice || now - ent.lastVoice > 6) {
         ent.lastVoice = now;
         this.audio.creature(ent.kind, { x: ent.pos.x, y: ent.kind === 'crawler' ? 0.4 : 1.4, z: ent.pos.z }, !ent.losToPlayer(), { rate: ent.kind === 'ghost' && ent.cfg ? ent.cfg.pitch / 330 : 1 });
       }
-      this.player.addTrauma(ent.kind === 'eater' ? 0.45 : 0.3);
-      this.fx.punch = 1;
+      this.player.addTrauma(ent.sp ? 0.12 : ent.kind === 'eater' ? 0.45 : 0.3);
+      if (!ent.sp) this.fx.punch = 1;
       if (!this.spottedOnce[key]) {
         this.spottedOnce[key] = true;
         if (this.script.onSpotted) this.script.onSpotted(this, ent);
@@ -1124,8 +1153,8 @@
       this.killer = ent;
       this.player.frozen = true;
       this.player.unhide();
-      this.audio.stinger(S.data.jumpscare === 'full' ? 'jump' : 'spot');
       this.audio.setMusic('none');
+      this.killRun = PB.Kills ? PB.Kills.start(this, ent) : null;
       this.save.stats.deaths++;
       this.writeSave();
       this.fx.damage = 1;
@@ -1134,6 +1163,17 @@
     updateDying(dt) {
       this.dyingT += dt;
       const k = this.killer, pl = this.player;
+      if (this.killRun) {
+        const done = this.killRun.update(dt);
+        if (done && this.state === 'dying') {
+          this.state = 'dead';
+          this.input.exitLock();
+          $('hud').hidden = true;
+          const kind = k ? (k.sp ? k.kind : k.kind === 'ghost' ? k.type : k.kind) : 'eater';
+          this.ui.showDeath(kind, () => this.respawn(), () => this.toMenu());
+        }
+        return;
+      }
       if (k) {
         const a = Math.atan2(k.pos.x - pl.pos.x, k.pos.z - pl.pos.z);
         pl.yaw = U.angleDamp(pl.yaw, a + Math.PI, 10, dt);
@@ -1158,6 +1198,8 @@
     }
     respawn() {
       this.ui.only(null);
+      if (this.killRun) { this.killRun.end(); this.killRun = null; }
+      this.fx.flash = 0;
       const cp = this.cpPos;
       this.player.spawn(cp.x, cp.z, cp.yaw);
       this.player.frozen = false;
@@ -1172,6 +1214,7 @@
         const c = e.randomCellNear(this.nav.playerCell.x, this.nav.playerCell.y, 18, 30, true) || e.randomCellNear(this.nav.playerCell.x, this.nav.playerCell.y, 12, 40);
         if (c) e.placeCell(c.x, c.y);
         e.awareness = 0;
+        if (e.sp) { if (e.state === 'dormant' || e.state === 'asleep') continue; if (e.ambush || e.traits.has('stillnessHunter')) { e.bury(); continue; } e.setState('patrol'); continue; }
         if (e.kind === 'watcher') e.vanish();
         else if (e.kind === 'grinner') e.setState('lurk');
         else if (e.kind === 'ghost' && e.type === 'amber') e.setState('retreat');
@@ -1352,7 +1395,7 @@
       if (!seq || !this.save) return;
       const fk = 'r_' + key;
       if (this.flags[fk] && !opts.repeat) return;
-      if (!opts.force && !this.save.world.radio && seq.some(l => l[0] === 'eddie')) return;
+      if (!opts.force && !this.save.world.radio && seq.some(l => l[0] === 'otto')) return;
       this.flags[fk] = true;
       this.talkQ.push({ seq: seq.slice(), i: 0, wait: opts.delay || 0 });
     }
@@ -1367,9 +1410,9 @@
       const [who, text] = c.seq[c.i++];
       const dur = U.clamp(1.4 + text.length * 0.052, 2.2, 9);
       c.t = dur + 0.25;
-      this.ui.subtitle(text, dur, who === 'sam' ? null : ST.speaker(who), who);
-      if (who === 'eddie' || who === 'radio') this.audio.radioVoice(dur, who);
-      else if (who !== 'sam') this.audio.echoVoice(dur, who);
+      this.ui.subtitle(text, dur, who === 'ada' ? null : ST.speaker(who), who);
+      if (who === 'otto' || who === 'radio') this.audio.radioVoice(dur, who);
+      else if (who !== 'ada') this.audio.echoVoice(dur, who);
     }
     // Modal choice (e.g. at the final door)
     choice(options, onCancel) {

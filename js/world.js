@@ -154,7 +154,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       this.game = game;
       this.L = level;
       this.C = level.cell;
-      this.theme = THEMES[level.theme] || THEMES.yellow;
+      this.theme = Object.assign({}, THEMES[level.theme] || THEMES.yellow, (level.def && level.def.themeOver) || {});
       this.group = new THREE.Group();
       this.group.name = 'world';
       this.mats = new Map();
@@ -1009,7 +1009,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         if (!force && !this.fixDirty && cam) {
           const dx = l.x - cam.x, dz = l.z - cam.z;
           if (dx * dx + dz * dz > range2) continue;
-          if (!l.flicker && !(l.popT && t < l.popT + 0.3) && !(pac && pac.w > 0 && Math.abs(l.x - pac.x) < 18 && Math.abs(l.z - pac.z) < 18) && f.cur >= 0) continue;
+          if (!l.flicker && !(l.popT && t < l.popT + 0.3) && !(pac && pac.w > 0 && Math.abs(l.x - pac.x) < 18 && Math.abs(l.z - pac.z) < 18) && !(this.disturb && this.disturbAt(l.x, l.z) > 0) && f.cur >= 0) continue;
         }
         const b = this.fixtureBrightness(f, t, pac) * f.base;
         f.bright = b / f.base;

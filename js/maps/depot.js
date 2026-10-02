@@ -12,14 +12,14 @@
     ceil: 3,
     styles: {
       public: { wall: 'subway', wallTint: 0xe6dcc0, floor: 'terrazzo', floorTint: 0xb8b0a0, ceil: 'plaster', ceilTint: 0xb8b2a4, h: 3.6, wainscot: { mat: 'subway', tint: 0x4f6a58, h: 1.3 }, trimH: 0 },
-      staff: { wall: 'plaster', wallTint: 0xcfc8ae, floor: 'linoleum', floorTint: 0x8a8068, ceil: 'plaster', ceilTint: 0xb0aa98, h: 3.0, wainscot: { mat: 'woodPanel', h: 1.1 }, trimH: 0 },
-      corridor: { wall: 'cinderblock', wallTint: 0xc8c4ae, floor: 'linoleum', floorTint: 0x6e6a5a, ceil: 'concreteWall', ceilTint: 0x8a8a84, h: 2.8, wainscot: { mat: 'subway', tint: 0x5a6a52, h: 1.2 } },
+      staff: { wall: 'plaster', wallTint: 0xcfc8ae, floor: 'vinyl', floorTint: 0x9a9480, ceil: 'plaster', ceilTint: 0xb0aa98, h: 3.0, wainscot: { mat: 'woodPanel', h: 1.1 }, trimH: 0 },
+      corridor: { wall: 'cinderblock', wallTint: 0xc8c4ae, floor: 'vinyl', floorTint: 0x7a7668, ceil: 'concreteWall', ceilTint: 0x8a8a84, h: 2.8, wainscot: { mat: 'subway', tint: 0x5a6a52, h: 1.2 } },
       archive: { wall: 'brick', wallTint: 0x8a7e74, floor: 'concreteFloor', floorTint: 0x8a867c, ceil: 'concreteWall', ceilTint: 0x6a6a66, h: 5.6 },
       otto: { wall: 'woodPanel', wallTint: 0xc8b8a0, floor: 'parquet', ceil: 'plaster', ceilTint: 0xa8a090, h: 3.0, trimH: 0.12 },
       store: { wall: 'plaster', wallTint: 0xb8b09a, floor: 'planks', floorTint: 0x8a7a68, ceil: 'plaster', ceilTint: 0x9a9488, h: 2.7 },
       sorting: { wall: 'brick', wallTint: 0xd0c8b0, floor: 'concreteFloor', ceil: 'concreteWall', ceilTint: 0x8a8a84, h: 3.6 },
       wash: { wall: 'subway', wallTint: 0xe8e8e0, floor: 'hexTile', ceil: 'plaster', ceilTint: 0xc8c8c0, h: 2.7 },
-      kitchen: { wall: 'subway', wallTint: 0xd8e0cc, floor: 'linoleum', floorTint: 0x9a6a50, ceil: 'plaster', ceilTint: 0xc0bcb0, h: 2.7 },
+      kitchen: { wall: 'subway', wallTint: 0xd8e0cc, floor: 'linoleum', floorTint: 0x7a6a5a, ceil: 'plaster', ceilTint: 0xc0bcb0, h: 2.7 },
     },
     regions: {
       p: { style: 'public', tag: 'public' }, c: { style: 'staff', tag: 'staff', zone: 1 }, h: { style: 'corridor', tag: 'corridor', zone: 1 },
@@ -158,7 +158,7 @@
       K.spot('desk', 6.55, 10.6, { h: 0.79 });
       K.spot('locker', 8.4, 7.6, { h: 1.0 });
       K.spot('breaker', 12.86, 8.6, { h: 1.55, yaw: -H });
-      K.spot('ledger', 9.9, 3.45, { h: 1.33, yaw: -H });
+      K.spot('ledger', 9.96, 3.45, { x: 10, h: 1.35, yaw: -H });
       K.spot('ottoDesk', 1.6, 4.05, { h: 0.79 });
       K.spot('ottoDrawer', 1.25, 4.2, { h: 0.6 });
       K.spot('tube', 3.55, 3.6, { h: 1.2, yaw: -H });
@@ -169,8 +169,10 @@
       K.spot('sorting', 10.8, 10.4, { h: 0.94 });
       K.spot('wcMirror', 15.9, 7.6, { h: 1.5, yaw: -H });
       K.spot('elevator', 14.5, 0.8, { h: 0 });
+      K.spot('callPanel', 15.8, 0.5, { h: 1.3, yaw: -H });
       K.spot('wren', 14.5, 1.2, { h: 0 });
-      K.lair('sorter', 12.5, 0.5);
+      K.lair('sorter', 12.5, 0.55, { yaw: H });
+      L.meta.zonesOn = [0, 1];
       K.trigger('archiveIn', 4, 0, 15, 5);
       K.trigger('elevatorNear', 13, 0, 15, 1);
       K.trigger('ottoIn', 0, 3, 3, 5);

@@ -1214,6 +1214,7 @@
       }
       if (!s.reuse) used.add(L.i(cell.x, cell.y));
       const item = { type: s.type, id: s.id ? (s.count > 1 ? s.id + (s._k + 1) : s.id) : s.type + placed.length, x: cell.x, y: cell.y, d: cell.d, group: s.group, data: s.data || null, spot: cell.spot || null, clue: !!s.clue, prop: s.prop || null };
+      for (const k of ['model', 'fixed', 'prompt', 'hold', 'reach', 'hiddenUntil', 'scale', 'marker', 'label', 'yawFix']) if (s[k] !== undefined) item[k] = s[k];
       const C = L.cell;
       if (cell.spot && cell.spot.wx != null) {
         item.wx = cell.spot.wx; item.wz = cell.spot.wz; item.wy = cell.spot.h != null ? cell.spot.h : (s.h != null ? s.h : 0);

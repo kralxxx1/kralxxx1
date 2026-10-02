@@ -52,8 +52,9 @@
   };
 
   // Speaker voices: pitch and style. Kids get smaller formants.
-  const RADIO_PITCH = { eddie: 118, walt: 96, radio: 110, rosie: 205, nell: 190 };
-  const ECHO_PITCH = { toby: 262, danny: 180, rosie: 236, nell: 244, lily: 300, walt: 98, voice: 140, june: 205, sam: 150 };
+  // Otto is an old man on a walkie-talkie; the voices in the places are the people who were lost there
+  const RADIO_PITCH = { otto: 96, radio: 110, clerk: 180 };
+  const ECHO_PITCH = { wren: 300, ingrid: 190, pim: 165, mikkel: 280, lina: 230, pipo: 120, signe: 185, voice: 140, ada: 205, clerk: 175 };
   const VOICE = {
     radio: who => { const pitch = RADIO_PITCH[who] || 115; return ['radio:' + pitch, { pitch, radio: true }]; },
     echo: who => { const pitch = ECHO_PITCH[who] || 220; return ['echo:' + pitch, { pitch, echo: true, breathy: true, fscale: pitch > 170 ? (who === 'june' ? 1.12 : 1.2) : 1 }]; },

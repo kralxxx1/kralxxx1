@@ -127,7 +127,20 @@
         L.setEdge(x, y, d, outdoor[L.i(x, y)] ? EDGE.INVIS : EDGE.WALL, true);
       }
     }
-    // Wainscots and floor finishes are carried by the style; the world reads them per cell
+    // Wainscots: runs of cells of one style along each row (the world draws them on the walls of those cells)
+    const fin = [];
+    for (let y = 0; y < Hh; y++) {
+      let x = 0;
+      while (x < W) {
+        const i = L.i(x, y), st = L.solid[i] === 0 ? L.styles[L.styleOf[i]] : null;
+        if (!st || !st.wainscot || outdoor[i]) { x++; continue; }
+        let x1 = x;
+        while (x1 + 1 < W && L.solid[L.i(x1 + 1, y)] === 0 && L.styleOf[L.i(x1 + 1, y)] === L.styleOf[i]) x1++;
+        fin.push({ x0: x, y0: y, x1, y1: y, wall: st.wainscotKey, h: st.wainscot.h || 1.1 });
+        x = x1 + 1;
+      }
+    }
+    if (fin.length) L.meta.finishes = fin;
     L.meta.authored = true;
     L.meta.noCeilingOut = anyOut;
     // spawn

@@ -378,7 +378,7 @@
     const line = 0.62;                                          // tide mark height in the tile (tile = 3 m)
     for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
       const i = y * n + x, v = y / n;
-      const sp = sm(0.66, 0.7, spall[i]);                        // plaster fallen off: stone shows
+      const sp = sm(0.74, 0.77, spall[i]) * sm(0.6, 0.75, low[i]);  // plaster fallen off here and there: stone shows
       const joint = 1 - sm(0.02, 0.06, stones.f2[i] - stones.f1[i]);
       const k = 0.92 + (low[i] - 0.5) * 0.12 + (mid[i] - 0.5) * 0.08 + (fine[i] - 0.5) * 0.05;
       let r_ = 0.82 * k, g_ = 0.79 * k, b_ = 0.72 * k;
