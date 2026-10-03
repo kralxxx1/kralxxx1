@@ -1,4 +1,4 @@
-# LEVEL 256 — Game Design (V5)
+# LEVEL 256 — Game Design (V6)
 
 Gameplay companion to `STORY.md`. Every chapter is a hand-authored map (`js/maps/*.js`, ASCII grid
 compiled by `js/authored.js`), with its own creatures (`js/species/*.js`), its own way out, and one
@@ -8,8 +8,21 @@ chase that starts when the thing you need is taken.
 
 - **Dark by default.** Most light comes from the player's flashlight and a few practical lights per
   map. Ambient is near black; fog colour matches the place.
-- **Quiet by default.** Room tone is low. No stingers, no sudden loud one-shots. Creatures announce
-  themselves by small sounds (a rustle, a drip, a bell far off), then by being there.
+- **Quiet by default.** Room tone is near silence (a low air presence, a faint mains hum). No phantom
+  footsteps, no static, no stingers, no random "scare" events. Creatures announce themselves by small
+  sounds (a rustle, a drip, a bell far off), then by being there.
+- **No faces.** No creature ever shows a face: wet hair hangs over it, a shroud or a veil covers it, a
+  sack is tied over it, or a hood has nothing inside but dark.
+- **Giants.** The creatures that were people stand 2.2–2.9 m. They stoop under low ceilings and duck
+  through doorways; their footfalls jolt the view when they are close; they cannot follow into a
+  crawlway.
+- **Headroom.** Under a roof lower than 1.85 m you stoop, under 1.45 m you crawl (eye height from the
+  roof, slower, narrower view, louder breath).
+- **Dark places.** A region can swallow light: the torch gutters and dies inside it and comes back
+  outside. Only phosphorescent paint glows there.
+- **Doors** are joinery and sound like what they are made of: handle spring and follower, latch tongue,
+  the leaf's own modes (panelled, hollow, boarded, steel, cold-room, iron gate), the frame taking the
+  slam, a dry hinge on some, timed to the leaf's eased swing.
 - **Appearances.** Creatures are placed out of sight and move silently until they are close, so they
   are *found* rather than heard coming. Each species has an ambush (floor, wall, water, ceiling, seat,
   snow) that makes it appear right there.
@@ -99,6 +112,10 @@ chase that starts when the thing you need is taken.
   → generator (loud) → cage up.
 - **Set pieces:** gas (keep low or cough, and coughing is heard); the knocking; the cage stops halfway up
   and must be restarted with the lever while a Timber Crawler comes down the wall.
+- **Phobias:** the squeeze (the fallen cross-cut between the gas drift and the east drift: a metre of
+  headroom, a channel a metre wide between cribs and fallen rock, a crawler in the roof, burrowers under
+  the mud; the short way to the diesel); the old stope, where no lamp works and the escape-route arrows
+  glow.
 - **Creatures:** Burrowers ×7 (`vibration`, `ambush:floor`, dirt only); Lamplighters ×3 (`lightSeeker`, their
   own cap lamps); Timber Crawlers ×3 (`ambush:ceiling`, visible in the timbers if you look up).
 - **Kills:** dragged into the earth; lamp in the eyes, hand over the mouth; dropped on from above.

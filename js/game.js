@@ -1832,7 +1832,11 @@
       const def = this.levelDef || { grade: { tint: [1, 1, 1], sat: 1 } };
       p.bloomStrength.value = d.bloom ? d.bloomStrength * 0.55 : 0;
       this.post.enabled.bloom = d.bloom;
-      p.exposure.value = def.exposure || ({ dark: 1.2, maze: 1.1, glitch: 1.1, yellow: 0.6, pool: 0.24, office: 0.52, concrete: 0.95, arcade: 1.05 }[def.theme] || 1);
+      this.baseExposure = def.exposure || ({ dark: 1.2, maze: 1.1, glitch: 1.1, yellow: 0.6, pool: 0.24, office: 0.52, concrete: 0.95, arcade: 1.05 }[def.theme] || 1);
+      // the eye stops down a little when the torch lights something right in front of it
+      const pl = this.player, near = pl && pl.flashOn && pl.flashNear != null ? pl.flashNear : 1;
+      this.eyeK = U.damp(this.eyeK || 1, 0.6 + 0.4 * Math.sqrt(near), 1.6, dt);
+      p.exposure.value = this.baseExposure * this.eyeK;
       p.grain.value = d.grain; p.chroma.value = d.chromatic; p.vignette.value = d.vignette;
       p.brightness.value = d.brightness; p.contrast.value = d.contrast; p.saturation.value = d.saturation * (def.grade ? def.grade.sat : 1);
       const tint = def.grade ? def.grade.tint : [1, 1, 1];

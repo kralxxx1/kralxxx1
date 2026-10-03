@@ -454,6 +454,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       if (this.L.meta.vehicles) this.buildVehicles();
       await step(0.9, PB.t('load.decals'));
       this.buildDecals();
+      if (this.buildWallArt) this.buildWallArt();
       this.buildThemeExtras();
       this.buildParticles();
       this.buildEnvironment();

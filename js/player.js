@@ -521,11 +521,11 @@
           if (y < 0.02 || y > ceil - 0.02 || !L.los(cam.position.x, cam.position.z, x, z) || this.beamBlocked(x, y, z)) { hit = s; break; }
         }
         // the light on a surface goes with the square of the distance: the eye takes most of that back
-        this.flashNear = U.damp(this.flashNear == null ? 1 : this.flashNear, U.clamp(Math.pow(hit / 4, 1.8), 0.14, 1), 5, dt);
+        this.flashNear = U.damp(this.flashNear == null ? 1 : this.flashNear, U.clamp(Math.pow(hit / 4, 2), 0.1, 1), 5, dt);
         k *= this.flashNear;
       }
       // Brighter where the chapter's exposure is low, so the beam always reads on screen
-      const expo = g.post && g.post.p ? g.post.p.exposure.value : 1;
+      const expo = g.baseExposure || (g.post && g.post.p ? g.post.p.exposure.value : 1);
       const base = 110 * U.clamp(1 / Math.max(expo, 0.05), 1, 2.6);
       this.flash.intensity = U.damp(this.flash.intensity, k * base, 25, dt);
       this.fill.intensity = this.flash.intensity * 0.012;

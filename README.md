@@ -86,7 +86,16 @@ eight of Wren's drawings and Otto's badge brought down from his desk to the Inde
 - **Creatures:** 28 species, three of their own on every shelf, each with one rule to learn: some only
   hear, some only see light, some only move while you move, some only while nobody is watching them, some
   come up out of the ground or the water where you stand. Every one has its own model, its own sounds
-  and its own way of killing you.
+  and its own way of killing you. The ones that were people stand 2.2–2.9 m tall, stoop under low
+  ceilings and through doorways, and never show a face (wet hair, a shroud, a veil, a sack, a hood with
+  nothing in it).
+- **Places that work on fears:** a crawlway in the mine with the roof a metre up (you go through on your
+  hands and knees, and the big ones cannot follow), and the old stope, where no lamp works and only the
+  miners' phosphorescent arrows glow; flooded decks, thin ice, a dam ladder in the rain.
+- **Things in the world:** furniture comes in variants made from each place's own woods and paints, desks
+  carry different things, walls of rooms people used have their own pictures (paintings, photographs
+  with the faces gone, maps, calendars on the right month and year, samplers, notices); doors are built
+  as joinery (panels, glazing, handles, hinges, frames, closers) and every one sounds like what it is.
 - **Survival:** sprinting and breath, crouching, leaning, hiding under beds, bunks and desks and in
   lockers (and holding your breath when something comes close), quiet doors, the torch and its
   batteries, fear, glow sticks, barley sugar, the cold outside the Weisshorn, rising water.
@@ -94,9 +103,10 @@ eight of Wren's drawings and Otto's badge brought down from his desk to the Inde
   light, screen-space ambient occlusion and reflections, volumetric light, motion blur, bloom with
   lens dirt, ACES tone mapping, fog, rain and snow, sculpted creature and vehicle models, first-person
   hands.
-- **Sound:** every sound is synthesized at load time (footsteps per surface, doors, weather, room
-  tones, breathing, creatures, the radio), with 3D positioning, occlusion, per-room reverb and a score
-  for each chapter. A creature close behind you is heard at your neck before it is seen.
+- **Sound:** every sound is synthesized at load time (footsteps per surface, doors from their handle,
+  latch, leaf and hinge, weather, room tones, breathing, creatures, the radio), with 3D positioning,
+  occlusion, per-room reverb and a score for each chapter. Room tone is near silence: no phantom steps,
+  no static, no cheap scares. A creature close behind you is heard at your neck before it is seen.
 - **Settings:** graphics, display, audio (separate channels, HRTF), controls, gameplay (three
   difficulties, jump-scare intensity, hints), subtitles, optional sound captions, language.
 
