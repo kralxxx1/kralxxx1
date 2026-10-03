@@ -199,6 +199,26 @@
       if (['viewDist', 'preset', '*'].includes(key)) this.applyFog();
       if (['anisotropy', 'preset', '*'].includes(key)) T.aniso = Math.min(S.data.anisotropy, T.maxAniso || 1);
       if (['dynLights', 'preset', '*'].includes(key) && this.world) { for (const p of this.world.pool || []) this.world.group.remove(p.pl); this.world.buildLightPool(); }
+      // These change which shaders every lit surface needs (shadow-casting lights, the number of lights,
+      // the post passes): compile them in the background instead of all at once on the next frame
+      if (['shadows', 'dynLights', 'ao', 'ssr', 'volumetric', 'motionBlur', 'lensDirt', 'dof', 'antialias', 'preset', '*'].includes(key)) this.rewarm();
+    }
+    // Recompile in the background after a graphics change; the last frame stays on screen meanwhile
+    async rewarm() {
+      if (this.rewarming) { this.rewarmAgain = true; return; }
+      if (this.state === 'loading' || !this.world || !this.post || !this.post.warmAsync) return;
+      this.rewarming = true;
+      document.body.classList.add('gfx-busy');
+      try {
+        await U.nextFrame();
+        if (this.postDirty) this.configurePost();
+        const hidden = [];
+        this.scene.traverse(o => { if (!o.visible && !o.userData.noWarm) { hidden.push(o); o.visible = true; } });
+        try { await this.post.warmAsync(this.scene, this.camera); } finally { for (const o of hidden) o.visible = false; }
+      } catch (e) { console.warn(e); }
+      this.rewarming = false;
+      document.body.classList.remove('gfx-busy');
+      if (this.rewarmAgain) { this.rewarmAgain = false; this.rewarm(); }
     }
     applyFog() {
       if (!this.levelDef) return;
@@ -976,9 +996,50 @@
       }
       return { c: it.pos, r: it.r || (it.kind === 'drawer' ? 0.15 : it.kind === 'door' ? 0.6 : it.kind === 'hide' ? 0.5 : 0.25) };
     }
-    // The thing under the crosshair: every target is a sphere; the view ray picks the nearest one it
-    // passes through (small things win over big ones they sit on). Only when the ray hits nothing does a
-    // near miss within a few degrees count, so the prompt always names what you are looking at.
+    // The exact shape to aim at, where there is one: an item's own box (in its own frame, so a sheet of
+    // paper is a sheet and not a ball that swallows the drawer beside it), a drawer's front panel.
+    pickBoxOf(it) {
+      const o = it.ref;
+      if (it.kind === 'item' && o && o.mesh && !o.interactPos) {
+        if (!o.pickBoxL) {
+          const mesh = o.mesh; mesh.updateWorldMatrix(true, true);
+          const inv = new THREE.Matrix4().copy(mesh.matrixWorld).invert(), box = new THREE.Box3(), rel = new THREE.Matrix4();
+          mesh.traverse(ch => {
+            if (!ch.isMesh || !ch.geometry || !ch.visible) return;
+            if (!ch.geometry.boundingBox) ch.geometry.computeBoundingBox();
+            box.union(ch.geometry.boundingBox.clone().applyMatrix4(rel.multiplyMatrices(inv, ch.matrixWorld)));
+          });
+          if (box.isEmpty()) { o.pickBoxL = null; return null; }
+          // a little margin, and never thinner than a finger
+          const c = box.getCenter(new THREE.Vector3()), h = box.getSize(new THREE.Vector3()).multiplyScalar(0.5);
+          h.set(Math.max(h.x + 0.012, 0.03), Math.max(h.y + 0.012, 0.03), Math.max(h.z + 0.012, 0.03));
+          o.pickBoxL = new THREE.Box3(c.clone().sub(h), c.clone().add(h));
+        }
+        return o.pickBoxL ? { m: o.mesh.matrixWorld, box: o.pickBoxL } : null;
+      }
+      if (it.kind === 'drawer' && o && !o.s.door) {
+        const s = o.s, n = s.n, out = 0.03 + o.open * (s.travel || 0), th = 0.035;
+        const cx = s.c[0] + n[0] * out, cz = s.c[2] + n[2] * out;
+        const hx = Math.abs(n[0]) > 0.5 ? th : s.w / 2, hz = Math.abs(n[2]) > 0.5 ? th : s.w / 2;
+        const box = o.pickBox || (o.pickBox = new THREE.Box3());
+        box.min.set(cx - hx, s.c[1] - s.h / 2, cz - hz); box.max.set(cx + hx, s.c[1] + s.h / 2, cz + hz);
+        return { m: o.c.m, box };
+      }
+      return null;
+    }
+    // Distance along the view ray to a box given in its own frame, or -1
+    rayBoxT(cp, fwd, pb) {
+      const inv = this._pbInv || (this._pbInv = new THREE.Matrix4()), ray = this._pbRay || (this._pbRay = new THREE.Ray()), hit = this._pbHit || (this._pbHit = new THREE.Vector3());
+      inv.copy(pb.m).invert();
+      ray.origin.copy(cp); ray.direction.copy(fwd); ray.applyMatrix4(inv);
+      ray.direction.normalize();
+      if (!ray.intersectBox(pb.box, hit)) return -1;
+      return hit.applyMatrix4(pb.m).distanceTo(cp);
+    }
+    // The thing under the crosshair. Items and drawers are their real boxes and fronts, doors their opening,
+    // the rest spheres; the view ray takes the first one it meets (so the key lying on the letter wins over
+    // the letter, and the drawer front over the paper on the desk above it). Only when the ray hits nothing
+    // does a near miss within a few degrees count, so the prompt always names what you are looking at.
     findTarget() {
       const cam = this.camera;
       const fwd = this._fwd || (this._fwd = new THREE.Vector3());
@@ -1006,10 +1067,15 @@
         } else {
           const tAlong = dx * fwd.x + dy * fwd.y + dz * fwd.z;
           if (tAlong < 0.05) continue;
-          const d3sq = dx * dx + dy * dy + dz * dz;
-          const perp = Math.sqrt(Math.max(0, d3sq - tAlong * tAlong));
-          if (perp <= r) { isHit = true; key = tAlong + r * 0.8; if (key >= hitKey) continue; }
-          else { isHit = false; key = Math.atan2(perp - r, tAlong); if (key > 0.1 || hit || key >= nearKey) continue; }
+          const pb = this.pickBoxOf(it), tb = pb ? this.rayBoxT(cp, fwd, pb) : -1;
+          if (tb > 0) { isHit = true; key = tb; if (key >= hitKey) continue; }
+          else {
+            const d3sq = dx * dx + dy * dy + dz * dz;
+            const perp = Math.sqrt(Math.max(0, d3sq - tAlong * tAlong));
+            // a thing with a real shape is hit only through it; its sphere is only for a near miss
+            if (perp <= r && !pb) { isHit = true; key = tAlong + r * 0.8; if (key >= hitKey) continue; }
+            else { isHit = false; key = Math.atan2(Math.max(0, perp - (pb ? r * 0.5 : r)), tAlong); if (key > (pb ? 0.06 : 0.1) || hit || key >= nearKey) continue; }
+          }
         }
         const text = it.prompt();
         if (!text) continue;
@@ -1584,8 +1650,9 @@
       this.updatePost(dt);
       if (this.postDirty) this.configurePost();
       this.keeper.tick(dt);
-      // While a level loads the boot screen covers the view: drawing a half-built scene only slows it
-      if (this.state !== 'loading') {
+      // While a level loads the boot screen covers the view: drawing a half-built scene only slows it.
+      // While new shaders compile after a settings change, the last frame stays up.
+      if (this.state !== 'loading' && !this.rewarming) {
         if (S.data.dof && S.data.dof !== 'off') this.post.focusTarget = this.focusDistance();
         if (this.perf) this.perf.gpuBegin();
         this.keeper.render(() => this.post.render(this.scene, this.camera, this.time));

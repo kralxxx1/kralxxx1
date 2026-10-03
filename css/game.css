@@ -120,6 +120,9 @@ em { color: var(--yellow); font-style: normal; }
 
 /* ------------------------------------------------ ayarlar */
 .panel.settings { width: min(1180px, 100%); }
+/* new shaders compiling after a graphics change */
+body.gfx-busy #scr-settings h2::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 12px; vertical-align: -2px; border: 2px solid rgba(255,255,255,0.25); border-top-color: var(--yellow); border-radius: 50%; animation: gfxspin 0.8s linear infinite; }
+@keyframes gfxspin { to { transform: rotate(360deg); } }
 .tabs { display: flex; flex-wrap: wrap; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
 .tabs button { padding: 5px 10px 6px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; font-size: 20px; letter-spacing: 0.01em; white-space: nowrap; }
 .tabs button:hover { color: var(--text); }

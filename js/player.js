@@ -47,6 +47,7 @@
       document.addEventListener('pointerlockchange', () => {
         const was = this.locked;
         this.locked = document.pointerLockElement === canvas;
+        if (this.locked && !was) { this.lockAt = performance.now(); this.dx = 0; this.dy = 0; }
         if (was && !this.locked) game.onPointerUnlock();
       });
       // Tıklamasız istekler (bölüm başı, devam) sessizce reddedilebilir; ipucu yalnızca tıklamayla gelen hata için
@@ -54,9 +55,20 @@
         if (this.lockGesture && !this.lockHint) { this.lockHint = true; game.ui && game.ui.hint(PB.t('n.lockFail'), true); }
         this.lockGesture = false;
       });
+      this.lockAt = 0; this.mAvg = 0; this.mLast = 0;
       root.addEventListener('mousemove', e => {
-        if (this.locked || this.dragging) { this.dx += e.movementX || 0; this.dy += e.movementY || 0; }
-        if (this.usingPad && Math.abs(e.movementX || 0) + Math.abs(e.movementY || 0) > 3) this.setPadMode(false);
+        const mx = e.movementX || 0, my = e.movementY || 0, m = Math.abs(mx) + Math.abs(my), now = performance.now();
+        if (this.usingPad && m > 3) this.setPadMode(false);
+        if (!(this.locked || this.dragging)) return;
+        // Browsers sometimes report a jump that the hand never made: the first events after the lock (the
+        // pointer's way back to the centre), and lone spikes on some mice and drivers. A single event far
+        // beyond how fast the mouse was just moving is dropped, so the view never swings on its own.
+        if (this.locked && now - this.lockAt < 90) return;
+        if (now - this.mLast > 120) this.mAvg = 0;
+        this.mLast = now;
+        if (m > 140 && m > 10 * (this.mAvg + 3)) return;
+        this.mAvg = this.mAvg * 0.75 + m * 0.25;
+        this.dx += mx; this.dy += my;
       });
       // Mouse buttons count as keys too (the middle one looks back)
       root.addEventListener('mousedown', e => { if (e.button === 1 || (e.button === 0 && this.locked)) { const k = 'Mouse' + e.button; this.keys.add(k); this.edges.add(k); if (game.state === 'play' && e.button === 1) e.preventDefault(); } });
@@ -100,7 +112,15 @@
       const now = gp.buttons.map(b => !!b && (b.pressed || b.value > 0.5));
       const prev = P.prev;
       const hit = i => now[i] && !prev[i];
-      const ax = i => gp.axes[i] || 0;
+      // Things that call themselves gamepads but are not (a wheel, a headset, a tablet, a virtual device) can
+      // rest with an axis far from centre, which would turn the view by itself. An axis only counts once it
+      // has moved away from where it was first read; a pad with a non-standard layout only once it has also
+      // pressed a button.
+      const id = gp.index + ':' + gp.id;
+      if (P.restId !== id) { P.restId = id; P.rest = gp.axes.map(v => v || 0); P.live = new Set(); P.trusted = gp.mapping === 'standard'; }
+      for (let i = 0; i < gp.axes.length; i++) if (!P.live.has(i) && Math.abs((gp.axes[i] || 0) - (P.rest[i] || 0)) > 0.35) P.live.add(i);
+      if (!P.trusted && now.some(Boolean)) P.trusted = true;
+      const ax = i => P.trusted && P.live.has(i) ? gp.axes[i] || 0 : 0;
       if (now.some(Boolean) || Math.hypot(ax(0), ax(1)) > 0.5 || Math.hypot(ax(2), ax(3)) > 0.5) this.setPadMode(true);
       const state = this.game.state;
       P.down.clear(); P.mx = P.my = 0;
