@@ -141,8 +141,8 @@ chase that starts when the thing you need is taken.
   ride the ghost train out.
 - **Chase:** the carousel music starts when the nose is taken; the horses come off their poles.
 - **Creatures:** Masks ×6 (`freezeWhenSeen`); Carousel Horses ×4 (`musicRule`, `sight`);
-  Laughing Sal ×1 (`hearing`, huge, slow, unstoppable).
-- **Kills:** the masks press in from all sides; trampled; Sal lifts you to her laughing mouth.
+  Laughing Lotte ×1 (the funhouse's laughing automaton come down off her stand; `hearing`, huge, slow, unstoppable).
+- **Kills:** the masks press in from all sides; trampled; Lotte lifts you to her laughing mouth.
 
 ### 9 Lake Ostra — finale
 - **Map:** grandmother's house (warm, safe), the shore, the pier, the boathouse, the huts, open ice,

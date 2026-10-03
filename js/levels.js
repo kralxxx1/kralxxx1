@@ -210,6 +210,63 @@
       ],
       objectives: ['village_start', 'village_key', 'village_box', 'village_mantel', 'village_run', 'village_climb'],
     },
+    // ------------------------------------------------------------ 7. Nordlys Express (the night sleeper north)
+    {
+      id: 'train', authored: MAP('train'), seed: 1990, theme: 'train', music: 'train', ambience: 'train',
+      fog: [0x07090c, 0.045], fogIn: 0.012, grade: { tint: [0.96, 0.98, 1.06], sat: 0.6 }, exposure: 0.9, noDressing: true, drawing: 7,
+      items: [
+        { type: 'thing', id: 'board', place: 'spot', spot: 'board', fixed: true, reach: 2.6 },
+        { type: 'thing', id: 'ticket', model: 'railTicket', place: 'spot', spot: 'ticket', reach: 2.0 },
+        { type: 'thing', id: 'linaTicket', model: 'railTicket', place: 'spot', spot: 'linaTicket', reach: 2.2 },
+        { type: 'thing', id: 'punch', model: 'ticketPunch', place: 'spot', spot: 'punch', fixed: true, reach: 1.9 },
+        { type: 'thing', id: 'brake', place: 'spot', spot: 'brake', fixed: true, hold: 2.2, reach: 1.9 },
+        doc('train_route', 'route', { wall: true }),
+        doc('train_notice', 'notice'),
+        doc('train_menu', 'menu'),
+        doc('train_waiter', 'waiter'),
+        doc('train_paper', 'paper'),
+        doc('train_lina', 'linaLetter'),
+        doc('train_saether', 'saether'),
+        doc('train_inquiry', 'inquiry'),
+        doc('train_docket', 'docket'),
+        doc('train_cabLog', 'cabLog'),
+        { type: 'drawing', id: 'd_wren7', data: 'wren7', place: 'spot', spot: 'drawing' },
+      ].concat(supplies(4, 3, 2, 'sup')),
+      entities: [
+        { type: 'conductor', spot: 'lair:conductor' },
+        { type: 'sleeper', count: 6, spot: 'lair:sleeper' },
+        { type: 'underhand', count: 5, spot: 'lair:underhand' },
+      ],
+      objectives: ['train_start', 'train_ticket', 'train_who', 'train_lina', 'train_punch', 'train_brake'],
+    },
+    // ------------------------------------------------------------ 8. Falk's Carnival (the fair on the harbour after closing)
+    {
+      id: 'carnival', authored: MAP('carnival'), seed: 1984, theme: 'carnival', music: 'carnival', ambience: 'carnival',
+      fog: [0x0a0c10, 0.03], fogIn: 0.02, grade: { tint: [1.02, 0.98, 1.02], sat: 0.7 }, exposure: 0.92, noDressing: true, drawing: 8,
+      items: [
+        { type: 'key', id: 'fuse', data: 'fuse', model: 'fuse', place: 'spot', spot: 'fuse' },
+        { type: 'thing', id: 'booth', place: 'spot', spot: 'fuseSocket', fixed: true, reach: 2.2 },
+        { type: 'thing', id: 'nose', model: 'clownNose', place: 'spot', spot: 'nose', reach: 2.0 },
+        { type: 'thing', id: 'mirror', place: 'spot', spot: 'mirror', fixed: true, reach: 1.9 },
+        { type: 'thing', id: 'ride', place: 'spot', spot: 'ride', fixed: true, reach: 2.4 },
+        doc('carnival_poster', 'poster'),
+        doc('carnival_closing', 'closing'),
+        doc('carnival_fire', 'fireReport'),
+        doc('carnival_kasper', 'kasper'),
+        doc('carnival_ledger', 'ledger'),
+        doc('carnival_rosa', 'rosa'),
+        doc('carnival_hugo', 'hugo'),
+        doc('carnival_fan', 'fan'),
+        doc('carnival_paper', 'paper'),
+        { type: 'drawing', id: 'd_wren8', data: 'wren8', place: 'spot', spot: 'drawing' },
+      ].concat(supplies(4, 3, 3, 'sup')),
+      entities: [
+        { type: 'mask', count: 6, spot: 'lair:mask', dormant: true },
+        { type: 'horse', count: 4, spot: 'lair:horse', dormant: true },
+        { type: 'lotte', spot: 'lair:lotte' },
+      ],
+      objectives: ['carnival_start', 'carnival_power', 'carnival_fuse', 'carnival_fit', 'carnival_why', 'carnival_mirror', 'carnival_ride'],
+    },
   ].filter(L => L.layout || L.authored);
   LEVELS.forEach((L, i) => {
     L.index = i; L.chapter = i;

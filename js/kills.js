@@ -413,8 +413,8 @@
       if (Math.sin(t * 9) > 0.95) r.shake(dt * 8);
       r.vig(sm(t, 0.6, 2.2)); r.dark(sm(t, 2.0, 2.7));
     } }),
-    // Laughing Sal: lifted up to the laughing mouth
-    sal: r => ({ dur: 3.4, update(t) {
+    // Laughing Lotte: lifted up to the laughing mouth
+    lotte: r => ({ dur: 3.4, update(t) {
       r.once('a', () => r.voice('kill'));
       r.off.set(0, sm(t, 0.3, 1.8) * 2.4, 0).add(r.ahead(sm(t, 0.3, 1.8) * 0.4).sub(r.eye));
       r.look = r.ahead(2, 2.6);

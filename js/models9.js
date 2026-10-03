@@ -19,7 +19,7 @@
       g.fillStyle = '#d8ccb0'; g.fillRect(0, h * 0.62, w, 14);
       g.fillStyle = '#9a1e1a'; g.fillRect(0, h * 0.68, w, 6);
       for (let k = 0; k < 11; k++) {
-        const x = 60 + k * 180, lit = r() < 0.55;
+        const x = 60 + k * 180, lit = r() < 0.9;
         g.fillStyle = '#0a0c10'; g.fillRect(x, 40, 130, 100);
         if (lit) { const gr = g.createLinearGradient(0, 40, 0, 140); gr.addColorStop(0, '#f0c070'); gr.addColorStop(1, '#a87030'); g.fillStyle = gr; g.fillRect(x + 4, 44, 122, 92); if (r() < 0.6) { g.fillStyle = 'rgba(80,40,20,0.75)'; g.fillRect(x + 4, 44, 122 * r.range(0.3, 0.9), 92); } }
         g.strokeStyle = '#8a8e94'; g.lineWidth = 4; g.strokeRect(x, 40, 130, 100);
@@ -28,6 +28,7 @@
       for (let k = 0; k < 200; k++) { g.fillStyle = `rgba(255,255,255,${r.range(0.02, 0.08)})`; g.fillRect(r() * w, r() * h, r.range(1, 6), r.range(1, 30)); }
     }),
     stationSign: () => T.canvas('m9:station', 1024, 256, (g, w, h) => { g.fillStyle = '#e8e4d8'; g.fillRect(0, 0, w, h); g.strokeStyle = '#1a3a6a'; g.lineWidth = 12; g.strokeRect(10, 10, w - 20, h - 20); g.fillStyle = '#1a2a4a'; g.font = `bold 140px ${T.FONTS.FONT_SANS || 'sans-serif'}`; g.textAlign = 'center'; g.fillText('BRENNA', w / 2, 175); }),
+    stationSignK: () => T.canvas('m9:stationK', 1024, 256, (g, w, h) => { const r = U.rng(1220); g.fillStyle = '#d8d4c8'; g.fillRect(0, 0, w, h); g.strokeStyle = '#1a3a6a'; g.lineWidth = 12; g.strokeRect(10, 10, w - 20, h - 20); g.fillStyle = '#1a2a4a'; g.font = `bold 116px ${T.FONTS.FONT_SANS || 'sans-serif'}`; g.textAlign = 'center'; g.fillText('KVITFJELL', w / 2, 170); for (let k = 0; k < 900; k++) { g.fillStyle = `rgba(250,252,255,${r.range(0.3, 0.9)})`; g.fillRect(r() * w, r() < 0.6 ? r() * 40 : r() * h, r.range(2, 9), r.range(2, 7)); } }),
     routeBoard: () => T.canvas('m9:route', 512, 256, (g, w, h) => {
       g.fillStyle = '#1a1a1a'; g.fillRect(0, 0, w, h); g.fillStyle = '#f0d070'; g.font = `bold 34px ${T.FONTS.FONT_SANS || 'sans-serif'}`; g.textAlign = 'center'; g.fillText('NORDLYS EXPRESS', w / 2, 52);
       g.fillStyle = '#e8e4d8'; g.font = `24px ${T.FONTS.FONT_SANS || 'sans-serif'}`; ['Halvard  21.10', 'Brenna  23.40', 'Kvitfjell  (request stop)', 'Nordvik  06.15'].forEach((s, i) => g.fillText(s, w / 2, 100 + i * 38));
@@ -36,8 +37,8 @@
   });
   Object.assign(M.MATS, {
     trainPanel: { color: 0x8a7a62, rough: 0.5, refl: 0.06 }, trainCream: { color: 0xd8ccb0, rough: 0.55 }, trainBlue: { color: 0x1e2c48, rough: 0.45, metal: 0.3, refl: 0.1 }, trainRed: { color: 0x9a1e1a, rough: 0.5 },
-    berthBlanket: { color: 0x3a3e5a, rough: 0.95 }, berthSheet: { color: 0xe0dcd0, rough: 0.9 }, curtainBlue: { color: 0x2a3a5a, rough: 0.95, double: true }, curtainRed: { color: 0x6a1a18, rough: 0.95, double: true },
-    carSide: { tex: 'carSide', rough: 0.45, emissive: 0xffffff, ei: 0.25 }, stationSign: { tex: 'stationSign', rough: 0.6 }, routeBoard: { tex: 'routeBoard', rough: 0.5, emissive: 0xffffff, ei: 0.2 }, berthNo: { tex: 'berthNo', rough: 0.5 },
+    berthBlanket: { color: 0x3a3e5a, rough: 0.95 }, berthSheet: { color: 0xe0dcd0, rough: 0.9 }, curtainBlue: { color: 0x2a3a5a, rough: 0.95, double: true }, curtainRed: { color: 0x4a1614, rough: 0.95, double: true },
+    carSide: { tex: 'carSide', rough: 0.45, emissive: 0xffffff, ei: 0.25 }, stationSign: { tex: 'stationSign', rough: 0.6 }, stationSignK: { tex: 'stationSignK', rough: 0.7 }, routeBoard: { tex: 'routeBoard', rough: 0.5, emissive: 0xffffff, ei: 0.2 }, berthNo: { tex: 'berthNo', rough: 0.5 },
     bogieGrey: { color: 0x2a2c2e, rough: 0.6, metal: 0.7 }, lampWarm: { color: 0xffd8a0, glow: 1.6 }, lampHead: { color: 0xfff4d8, glow: 3.0 }, bellows: { color: 0x1a1a1a, rough: 0.8 }, gapDark: { color: 0x020202, rough: 1 },
   });
 
@@ -80,8 +81,10 @@
   // Bellows round the passage between two cars (passage along x), floor plates over the coupling gap
   D.gangway = (() => {
     const s = [];
-    for (let k = -3; k <= 3; k++) { const x = k * 0.32; s.push(['box', 'bellows', 0.08, 2.3, 0.08, x, 1.15, -0.62], ['box', 'bellows', 0.08, 2.3, 0.08, x, 1.15, 0.62], ['box', 'bellows', 0.08, 0.08, 1.3, x, 2.3, 0]); }
-    s.push(['box', 'bogieGrey', 0.9, 0.03, 1.0, -0.65, 0.02, 0], ['box', 'bogieGrey', 0.9, 0.03, 1.0, 0.65, 0.02, 0], ['box', 'gapDark', 0.42, 0.005, 1.0, 0, 0.002, 0]);
+    // the bellows' folds the whole 3 m between the two end doors, the steel plates, the gap between them
+    for (let k = -4; k <= 4; k++) { const x = k * 0.36; s.push(['box', 'bellows', 0.1, 2.3, 0.1, x, 1.15, -0.64], ['box', 'bellows', 0.1, 2.3, 0.1, x, 1.15, 0.64], ['box', 'bellows', 0.1, 0.1, 1.38, x, 2.3, 0]); }
+    for (let k = -4; k < 4; k++) { const x = k * 0.36 + 0.18; s.push(['box', 'bellows', 0.26, 2.2, 0.03, x, 1.12, -0.6], ['box', 'bellows', 0.26, 2.2, 0.03, x, 1.12, 0.6], ['box', 'bellows', 0.26, 0.03, 1.2, x, 2.22, 0]); }
+    s.push(['box', 'bogieGrey', 1.25, 0.03, 1.2, -0.85, 0.02, 0], ['box', 'bogieGrey', 1.25, 0.03, 1.2, 0.85, 0.02, 0], ['box', 'gapDark', 0.46, 0.005, 1.2, 0, 0.002, 0]);
     s.push(['box', 'chrome', 0.03, 1.0, 0.03, 0, 1.0, -0.55], ['box', 'chrome', 0.03, 1.0, 0.03, 0, 1.0, 0.55]);
     return s;
   })();
@@ -113,5 +116,6 @@
   D.platformLamp = [['cyl', 'castIron', 0.06, 0.09, 4.0, 10, 0, 2.0, 0], ['tube', 'castIron', [[0, 4.0, 0], [0, 4.3, 0.3], [0, 4.25, 0.7]], 0.03, 6], ['lathe', 'castIron', [[0.001, 0.15], [0.2, 0.05], [0.24, -0.05]], 14, 0, 4.15, 0.75], ['sph', 'lampWarm', 0.07, 0, 4.05, 0.75, 10, 8]];
   D.stationSign = [['box', 'castIron', 0.08, 2.6, 0.08, -1.4, 1.3, 0], ['box', 'castIron', 0.08, 2.6, 0.08, 1.4, 1.3, 0], ['box', 'stationSign', 3.0, 0.75, 0.05, 0, 2.6, 0]];
   D.routeBoard = [['rbox', 'castIron', 1.1, 0.6, 0.06, 0.01, 0, 0, 0.03], ['box', 'routeBoard', 1.0, 0.5, 0.004, 0, 0, 0.062]];
+  D.stationSignK = [['box', 'castIron', 0.08, 2.4, 0.08, -1.4, 1.2, 0], ['box', 'castIron', 0.08, 2.4, 0.08, 1.4, 1.2, 0], ['box', 'stationSignK', 3.0, 0.75, 0.05, 0, 2.4, 0], ['box', 'snowPack', 3.1, 0.08, 0.12, 0, 2.8, 0]];
   D.telegraphPole = [['cyl', 'timber', 0.11, 0.14, 8.0, 8, 0, 4.0, 0], ['box', 'timber', 1.4, 0.1, 0.1, 0, 7.4, 0], ...[-0.55, -0.2, 0.2, 0.55].map(x => ['cyl', 'porcelainW', 0.03, 0.03, 0.1, 6, x, 7.5, 0])];
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1306,4 +1306,463 @@
       if (!f.houseIn && inTrigger(g, 'signe')) { f.houseIn = true; g.mono('village_house', 4); if (!has(g, 'musicBox')) g.later(5000, () => { if (!g.flags.claimed) { g.mono('village_dust', 5); g.flags.dustSeen = true; this.refresh(g); } }); }
     },
   };
+
+  // ============================================================ 7. NORDLYS EXPRESS
+  // The train itself never moves: the night does. Trees, poles and the snow on the ground slide back past
+  // the windows, the flakes stream, the floor rocks. The halt at Kvitfjell comes past with them.
+  const RUN_V = 22, SPAN = 520, KVIT_T = 75;
+  C.train = {
+    start(g) {
+      this.v = 0; this.targetV = 0; this.dist = 0; this.clack = 0; this.kvit = null; this.brake = null;
+      g.setObj('train_start');
+      const L = g.level, P = PB.Props, r = U.rng(1990);
+      // ---- the night outside, in one group that slides back as the train runs
+      const scen = this.scen = new THREE.Group(); scen.position.x = -150; g.world.group.add(scen);
+      const trees = [[], []], poles = [], banks = [];
+      for (let k = 0; k < 560; k++) {
+        const north = r() < 0.5, x = r() * SPAN, s = r.range(0.7, 1.4);
+        const z = north ? -5 - Math.pow(r(), 1.5) * 70 : 13 + Math.pow(r(), 1.5) * 60;
+        const t = { x, z, rot: r.range(0, 6.28), sx: s, sy: s * r.range(0.85, 1.3), sz: s };
+        trees[k % 2].push(t, Object.assign({}, t, { x: x + SPAN }));
+      }
+      for (let x = 0; x < SPAN; x += 52) poles.push({ x, z: -3.2, rot: 0 }, { x: x + SPAN, z: -3.2, rot: 0 });
+      for (let k = 0; k < 40; k++) { const x = r() * SPAN, z = r() < 0.5 ? -2 - r() * 3 : 12.5 + r() * 3, s = r.range(0.8, 2.2); banks.push({ x, z, rot: r.range(0, 6), sx: s, sy: s * 0.5, sz: s }, { x: x + SPAN, z, rot: 0, sx: s, sy: s * 0.5, sz: s }); }
+      const own = ms => { for (const m of ms) { g.world.group.remove(m); scen.add(m); } };
+      ['pineSnowFar', 'pineSnow'].forEach((d, k) => { if (P.DEFS[d]) own(g.world.instanced(d, P.DEFS[d], trees[k], { cast: false })); });
+      if (P.DEFS.telegraphPole) own(g.world.instanced('telegraphPole', P.DEFS.telegraphPole, poles, { cast: false }));
+      if (P.DEFS.snowPile) own(g.world.instanced('snowPile', P.DEFS.snowPile, banks, { cast: false }));
+      // ---- the snow on the ground scrolls with them (its own copy of the textures)
+      const sm = g.world.mats && g.world.mats.get('F:snow:');
+      this.snowMat = null;
+      if (sm) { for (const k of ['map', 'normalMap', 'roughnessMap', 'bumpMap', 'aoMap']) if (sm[k]) { sm[k] = sm[k].clone(); sm[k].needsUpdate = true; } sm.needsUpdate = true; this.snowMat = sm; }
+      // ---- Kvitfjell halt: a strip of platform under snow, one lamp, the sign, a bench
+      const halt = this.halt = new THREE.Group(); halt.visible = false; g.world.group.add(halt);
+      const slab = new THREE.Mesh(new THREE.BoxGeometry(28, 0.55, 3.2), g.world.mat('snowPack')); slab.position.set(0, 0.27, 0); halt.add(slab);
+      const add = (key, x, z, ry) => { const m = g.meshFromDef(key); m.position.set(x, 0.55, z); m.rotation.y = ry; halt.add(m); return m; };
+      add('platformLamp', -3, 1.0, PI); add('stationSignK', 4, 1.1, PI); add('stationBench', 8, 1.2, PI); add('snowPile', -9, 0.8, 0.4);
+      const hl = new THREE.PointLight(0xffd8a0, 2.4, 16, 1.6); hl.position.set(-3, 4.4, 0.4); halt.add(hl);
+      halt.position.set(400, 0, 9.1);
+      if (g.world.street && g.world.street.snowU) this.snowU = g.world.street.snowU;
+    },
+    afterCard(g) { g.mono('train_start', 5); },
+    restore(g) {
+      const f = g.flags;
+      if (f.boarded) { this.v = this.targetV = f.stopped ? 0 : RUN_V; g.world.setZone(3, false); }
+      if (has(g, 'ticket')) g.inv.ticket = true;
+      if (f.claimed) { this.seatConductor(g); this.kvit = { t: 0 }; }
+      this.refresh(g);
+    },
+    refresh(g) {
+      const f = g.flags;
+      if (!f.boarded) return g.setObj('train_start');
+      if (!f.found) {
+        if (!(g.inv && g.inv.ticket)) return g.setObj('train_ticket');
+        return g.setObj(f.reportRead || f.letterRead || f.waiterRead ? 'train_lina' : 'train_who');
+      }
+      if (!f.claimed) return g.setObj('train_punch');
+      g.setObj('train_brake');
+    },
+    prompt(g, o) {
+      const f = g.flags;
+      switch (o.id) {
+        case 'board': return f.boarded ? null : ST.line('train_boardPrompt');
+        case 'punch': return f.claimed ? null : ST.line(has(g, 'linaTicket') ? 'train_punchPrompt' : 'train_punchLook');
+        case 'brake': return this.brake ? null : ST.line(f.claimed ? 'train_brakePrompt' : 'train_brakeLook');
+      }
+      return undefined;
+    },
+    canHold(g, o) { if (o.id === 'brake') return g.flags.claimed && !this.brake; return true; },
+    holdStart(g, o) { if (o.id === 'brake' && g.audio.click) g.audio.click(o.pos); },
+    use(g, o) {
+      const f = g.flags;
+      switch (o.id) {
+        case 'board': if (!f.boarded) this.board(g); return true;
+        case 'ticket':
+          g.takeItem(o); give(g, 'ticket'); g.inv.ticket = true; g.audio.pickup('item'); g.audio.paper();
+          g.mono('train_ticket', 4); this.refresh(g); g.completeStep();
+          return true;
+        case 'linaTicket':
+          g.takeItem(o); give(g, 'linaTicket'); g.audio.paper();
+          f.found = true; f.ticketVoid = true;
+          g.mono('train_found', 4);
+          // the lamp stops in the corridor somewhere; then it comes your way
+          { const c = species(g, 'conductor')[0]; if (c && c.state !== 'seated') { c.lastKnown = { x: g.player.pos.x, z: g.player.pos.z }; c.awareness = 0.9; c.setState('investigate'); if (c.voice) c.voice('turn'); g.later(2600, () => g.mono('train_turn', 3)); } }
+          this.refresh(g); g.completeStep(); g.checkpoint(true);
+          return true;
+        case 'punch':
+          if (f.claimed) return true;
+          if (!has(g, 'linaTicket')) { g.mono('train_punchWait', 3); return true; }
+          this.claim(g, o); return true;
+        case 'brake':
+          if (this.brake) return true;
+          if (!f.claimed) { g.mono('train_brakeWait', 3); return true; }
+          this.pullBrake(g); return true;
+      }
+      return false;
+    },
+    noteRead(g, id) {
+      const f = g.flags;
+      if (id === 'train_lina' && !f.letterRead) { f.letterRead = true; g.later(400, () => g.mono('train_letter', 4)); this.refresh(g); }
+      if (id === 'train_saether' && !f.reportRead) { f.reportRead = true; g.later(400, () => g.mono('train_report', 6)); this.refresh(g); }
+      if (id === 'train_waiter') { f.waiterRead = true; this.refresh(g); }
+      if (id === 'train_docket' && !f.docketRead) { f.docketRead = true; g.later(400, () => g.mono('train_docket', 7)); g.radio('train_otto2', { delay: 9 }); }
+    },
+    // ---- the Conductor's hooks (species7.js)
+    ticketCheck(g) { if (!g.flags.checkSeen) { g.flags.checkSeen = true; g.mono('train_check', 3); } },
+    ticketPunched(g) { g.mono('train_punched', 4); this.refresh(g); },
+    gangwayStep(g) { if (!g.flags.gangwaySeen) { g.flags.gangwaySeen = true; g.later(300, () => g.mono('train_gangway', 3)); } },
+    board(g) {
+      const f = g.flags, pl = g.player;
+      f.boarded = true;
+      pl.frozen = true;
+      if (g.audio.door) g.audio.door('metal', g.level.spots.board[0] ? new THREE.Vector3(g.level.spots.board[0].wx, 1.2, g.level.spots.board[0].wz) : pl.pos, true);
+      g.fadeTo(1, 0.8, () => {
+        const sp = g.level.spots.boarded[0];
+        pl.spawn(sp.wx, sp.wz, -H);
+        g.later(600, () => {
+          g.fadeTo(0, 1.2);
+          pl.frozen = false;
+          g.mono('train_board', 3);
+          if (g.audio.door) g.audio.door('metal', pl.pos.clone(), false);
+          g.checkpoint(true);
+          g.world.setZone(3, false);
+          // a jolt, the couplings taking up one after another down the train, and away
+          g.later(3500, () => { this.targetV = RUN_V; pl.addTrauma(0.25); if (g.audio.trainStart) g.audio.trainStart(); g.mono('train_moving', 3); });
+          g.radio('train_otto1', { delay: 12 });
+          this.refresh(g); g.completeStep();
+        });
+      });
+    },
+    seatConductor(g) {
+      const c = species(g, 'conductor')[0]; if (!c) return;
+      const sp = g.level.spots.inquiry[0];
+      c.pos.set(sp.wx - 2.4, 0, 4.25); c.heading = H; c.setState('seated'); c.awareness = 0; c.mesh.visible = true;
+    },
+    claim(g, o) {
+      const f = g.flags;
+      drop(g, 'linaTicket'); f.claimed = true; f.ticketVoid = false; g.save.world.claimed = (g.save.world.claimed || 0) + 1;
+      g.player.frozen = true;
+      g.mono('train_punchIt', 2);
+      // in the dark: one click of the punch. When the lights come back he is sitting across from you
+      g.later(1800, () => g.fadeTo(1, 0.4, () => {
+        if (g.audio.click) g.audio.click(o.pos);
+        this.seatConductor(g);
+        g.later(1300, () => {
+          g.fadeTo(0, 1.6); g.player.frozen = false;
+          g.mono('train_claimed', 4);
+          g.later(5000, () => g.mono('train_sat', 4));
+          g.later(10000, () => this.startKvitfjell(g));
+          g.later(14000, () => g.radio('train_otto3'));
+        });
+      }));
+      this.refresh(g); g.completeStep(); g.checkpoint(true);
+    },
+    startKvitfjell(g) {
+      this.kvit = { t: 0, passed: false };
+      g.ui.subtitle(ST.line('pa_kvitfjell'), 3.5);
+      if (g.audio.pa) g.audio.pa();
+      g.later(3800, () => g.mono('train_kvitfjell', 3));
+      // the whole train wakes: the bunks empty, one after another, behind you
+      species(g, 'sleeper').forEach((e, k) => g.later(1500 + k * 1700, () => { if (e.state === 'buried') { const p = g.player.pos; e.hear(p.x, p.z, 40, 'loud'); } }));
+      this.refresh(g);
+    },
+    pullBrake(g) {
+      const f = g.flags;
+      this.brake = { t: 0 };
+      f.braking = true;
+      if (g.audio.trainBrake) g.audio.trainBrake();
+      g.player.addTrauma(0.6); g.mono('train_brake', 2);
+      // where the halt must be so that it comes to rest by the cab
+      const stop = (this.v * this.v) / (2 * (RUN_V / 7));
+      this.halt.visible = true; this.halt.position.x = 151 + stop;
+    },
+    updateRun(g, dt) {
+      const pl = g.player, f = g.flags;
+      if (this.brake) { this.brake.t += dt; this.v = Math.max(0, this.v - RUN_V / 7 * dt); }
+      else this.v = U.damp(this.v, this.targetV, this.targetV > this.v ? 0.12 : 1, dt);
+      const dx = this.v * dt;
+      this.dist += dx;
+      this.scen.position.x = -150 - (this.dist % SPAN);
+      if (this.snowMat && this.snowMat.map) { const sc = this.snowMat.userData.scale || 3; for (const k of ['map', 'normalMap', 'roughnessMap', 'bumpMap', 'aoMap']) if (this.snowMat[k]) this.snowMat[k].offset.x += dx / sc; }
+      if (this.snowU) this.snowU.uWind.value = U.lerp(0.8, -16, U.clamp(this.v / RUN_V, 0, 1));
+      if (g.audio.trainRun) g.audio.trainRun(this.v / RUN_V);
+      // the floor: a sway, the rail joints coming up through your feet
+      const k = U.clamp(this.v / RUN_V, 0, 1);
+      if (!pl.hidden) { pl.camRoll = Math.sin(g.time * 1.25) * 0.006 * k + Math.sin(g.time * 3.1) * 0.002 * k; }
+      this.clack += dx;
+      if (this.clack > 13) { this.clack -= 13; if (g.audio.trainClack) g.audio.trainClack(k); if (k > 0.5 && Math.random() < 0.2) pl.addTrauma(0.03); }
+      if (this.halt.visible) this.halt.position.x -= dx;
+      // Kvitfjell coming
+      const K = this.kvit;
+      if (K && !this.brake) {
+        K.t += dt;
+        const left = (KVIT_T - K.t) * this.v;
+        if (left < 400 && !K.passed) { this.halt.visible = true; this.halt.position.x = 154 + left; }
+        if (K.t > KVIT_T + 9 && !K.passed) { K.passed = true; g.mono('train_passed', 4); }
+        if (K.passed && this.halt.position.x < -60) {
+          // round again: the same halt, the same announcement
+          this.halt.visible = false; this.kvit = { t: 0, passed: false };
+          g.later(4000, () => { g.ui.subtitle(ST.line('pa_kvitfjell'), 3.5); if (g.audio.pa) g.audio.pa(); g.later(3500, () => g.mono('train_again', 3)); });
+          species(g, 'sleeper').forEach((e, i) => g.later(6000 + i * 1500, () => { if (e.state === 'buried') { const p = g.player.pos; e.hear(p.x, p.z, 40, 'loud'); } }));
+        }
+      }
+      if (this.brake && this.v <= 0 && !this.brake.done) {
+        this.brake.done = true; f.stopped = true;
+        if (g.audio.trainRun) g.audio.trainRun(0);
+        for (const e of g.entities) e.update = () => {};
+        g.mono('train_stopped', 3);
+        g.later(3500, () => g.mono('train_out', 7));
+        g.later(11000, () => g.whenPlaying(() => { pl.camRoll = 0; g.exitLevel('carnival'); }));
+      }
+    },
+    respawned(g) {
+      // back where you were: the passengers back in their bunks, the hands under the plates, the
+      // conductor somewhere far down the train
+      for (const e of species(g, 'sleeper')) if (e.bed) { e.pos.set(e.bed.x, 0, e.bed.z); e.heading = 0; e.lastKnown = null; e.spotted = false; e.setState('buried'); }
+      for (const e of species(g, 'underhand')) if (e.home) { e.pos.set(e.home.x, 0, e.home.z); e.onT = 0; e.setState('buried'); }
+      const c = species(g, 'conductor')[0], pl = g.player.pos;
+      if (c && c.state !== 'seated') {
+        const x = U.clamp(pl.x + (pl.x < 70 ? 45 : -45), 4, 134);
+        c.pos.set(x, 0, PB.TrainNav.laneZ(x)); c.cell = g.level.cellOf(c.pos.x, c.pos.z); c.goalX = null; c.awareness = 0; c.setState('patrol');
+      }
+      if (this.kvit && !this.brake) { this.kvit.t = Math.min(this.kvit.t, 20); this.kvit.passed = false; this.halt.visible = false; }
+    },
+    onSpotted(g, ent) {
+      const f = g.flags;
+      if (ent.kind === 'conductor' && !f.chasedOnce) { f.chasedOnce = true; }
+    },
+    update(g, dt) {
+      const f = g.flags, pl = g.player;
+      this.updateRun(g, dt);
+      if (!f.boarded) return;
+      // first meetings, each learned when it matters
+      if (!f.condSeen) {
+        const c = species(g, 'conductor')[0];
+        if (c && c.distToPlayer() < 16 && c.losToPlayer()) { f.condSeen = true; g.mono('train_conductor', 4); }
+      }
+      if (!f.sleeperSeen) {
+        for (const e of species(g, 'sleeper')) if (e.state === 'buried' && e.distToPlayer() < 3.6 && Math.abs(pl.pos.x - e.pos.x) < 1.2) { f.sleeperSeen = true; g.mono('train_sleeper', 4); break; }
+      }
+    },
+  };
+
+  // ============================================================ 8. FALK'S CARNIVAL
+  // The way out is the ghost train: its track runs out through the back of the ride and the fence. It
+  // needs a fuse; it will not run until Pipo's nose is back on his mirror; taking the nose starts the
+  // organ, and while the organ plays the carousel horses run.
+  const ORGAN_ON = 24, ORGAN_OFF = 11, CAR_R = 4.8;
+  C.carnival = {
+    start(g) {
+      const L = g.level, sp = L.spots.carousel[0], f = g.flags;
+      this.ride = null; this.organ = { on: false, t: 0 }; this.carRot = 0;
+      f.music = false;
+      g.setObj('carnival_start');
+      // the carousel: the map leaves it to the chapter so that it can turn
+      const car = this.carousel = g.meshFromDef('carousel'); car.position.set(sp.wx, 0, sp.wz); g.world.group.add(car);
+      const paint = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.38, vertexColors: true }); g.world.patch && g.world.patch(paint);
+      this.deco = [];
+      for (let k = 0; k < 16; k++) {
+        if (k % 4 === 0 || !PB.carouselHorseGeo) continue;   // the four empty poles are the live ones' places
+        const a = (k + 0.5) / 16 * PI * 2, m = new THREE.Mesh(PB.carouselHorseGeo(k), paint);
+        m.position.set(Math.cos(a) * CAR_R, 0.0, Math.sin(a) * CAR_R); m.rotation.y = -a; m.castShadow = true; car.add(m);
+        this.deco.push({ m, ph: k * 0.7 });
+      }
+      // the ride car to leave in, waiting at the platform
+      const rs = L.spots.ride[0];
+      this.rideCar = g.meshFromDef('ghostCar'); this.rideCar.position.set(rs.wx, 0, rs.wz); this.rideCar.rotation.y = PI; g.world.group.add(this.rideCar);
+      this.rideCol = g.world.addCollider({ minX: rs.wx - 0.8, maxX: rs.wx + 0.8, minZ: rs.wz - 0.5, maxZ: rs.wz + 0.5, maxY: 1.1 });
+      this.placeHorses(g);
+    },
+    afterCard(g) { g.mono('carnival_start', 4); g.radio('carnival_otto1', { delay: 10 }); },
+    restore(g) {
+      const f = g.flags;
+      if (f.power) g.world.setZone(3, true);
+      if (f.noseTaken && !f.claimed) this.organ = { on: true, t: 0 };
+      this.refresh(g);
+    },
+    refresh(g) {
+      const f = g.flags;
+      if (this.ride) return;
+      if (f.claimed) return g.setObj(f.power ? 'carnival_ride' : has(g, 'fuse') ? 'carnival_fit' : f.boothSeen ? 'carnival_fuse' : 'carnival_power');
+      if (f.noseTaken) return g.setObj('carnival_mirror');
+      if (!f.power) {
+        if (has(g, 'fuse')) return g.setObj('carnival_fit');
+        if (f.boothSeen) return g.setObj('carnival_fuse');
+        return g.setObj(f.ghostSeen ? 'carnival_power' : 'carnival_start');
+      }
+      g.setObj(f.rosaRead ? 'carnival_nose' : 'carnival_why');
+    },
+    prompt(g, o) {
+      const f = g.flags;
+      switch (o.id) {
+        case 'booth': return f.power ? null : ST.line(has(g, 'fuse') ? 'carnival_boothPrompt' : 'carnival_boothLook');
+        case 'mirror': return f.claimed ? null : ST.line(has(g, 'nose') ? 'carnival_mirrorPut' : 'carnival_mirrorLook');
+        case 'ride': return this.ride ? null : ST.line(f.power && f.claimed ? 'carnival_ridePrompt' : 'carnival_rideLook');
+      }
+      return undefined;
+    },
+    use(g, o) {
+      const f = g.flags;
+      switch (o.id) {
+        case 'booth':
+          if (f.power) return true;
+          if (!has(g, 'fuse')) { g.mono('carnival_noPower', 4); if (!f.boothSeen) { f.boothSeen = true; this.refresh(g); } return true; }
+          drop(g, 'fuse'); f.power = true;
+          if (g.audio.click) g.audio.click(o.pos);
+          g.world.setZone(3, true);
+          if (g.audio.generatorStart) g.audio.generatorStart(o.pos);
+          g.noise(o.pos.x, o.pos.z, 30, 'loud');
+          g.mono(f.claimed ? 'carnival_running' : 'carnival_power', 4);
+          this.wakeMasks(g, 'all');
+          this.refresh(g); g.completeStep(); g.checkpoint(true);
+          return true;
+        case 'nose':
+          g.takeItem(o); give(g, 'nose'); g.audio.pickup('item');
+          f.noseTaken = true;
+          g.mono('carnival_nose', 4);
+          // the organ starts up by itself; the carousel turns; four of its horses step down
+          g.later(2500, () => { this.organ = { on: true, t: 0 }; this.setMusic(g, true); g.mono('carnival_music', 3); });
+          g.later(6500, () => { this.loseHorses(g); g.mono('carnival_horses', 3); });
+          this.wakeMasks(g, 'all');
+          this.refresh(g); g.completeStep(); g.checkpoint(true);
+          return true;
+        case 'mirror':
+          if (f.claimed) return true;
+          if (!has(g, 'nose')) { g.mono('carnival_mirrorLook', 4); return true; }
+          this.claim(g, o); return true;
+        case 'ride':
+          if (this.ride) return true;
+          if (!f.power) { g.mono('carnival_notYet', 4); return true; }
+          if (!f.claimed) { g.mono('carnival_power', 4); return true; }
+          this.board(g); return true;
+      }
+      return false;
+    },
+    picked(g, id) { if (id === 'fuse') { g.mono('carnival_fuse', 3); this.refresh(g); g.completeStep(); } },
+    noteRead(g, id) {
+      const f = g.flags;
+      if (id === 'carnival_rosa' && !f.rosaRead) { f.rosaRead = true; this.refresh(g); }
+      if (id === 'carnival_kasper' && !f.kasperRead) { f.kasperRead = true; g.later(400, () => g.mono('carnival_kasper', 4)); }
+      if (id === 'carnival_closing' && !f.ghostSeen) { f.ghostSeen = true; this.refresh(g); }
+    },
+    // the horses that are alive ride round with the carousel until they get off it
+    placeHorses(g) {
+      const sp = g.level.spots.carousel[0], th = this.carousel ? this.carousel.rotation.y : 0;
+      species(g, 'horse').forEach((e, k) => {
+        if (e.state !== 'dormant') return;
+        const a = (k * 4 + 0.5) / 16 * PI * 2;
+        e.pos.set(sp.wx + Math.cos(a - th) * CAR_R, 0, sp.wz + Math.sin(a - th) * CAR_R); e.heading = th - a; e.mesh.visible = true;
+        e.cell = g.level.cellOf(e.pos.x, e.pos.z);
+      });
+    },
+    loseHorses(g) {
+      if (g.flags.claimed) return;
+      const sp = g.level.spots.carousel[0], pl = g.player.pos;
+      for (const e of species(g, 'horse')) {
+        if (e.state !== 'dormant') continue;
+        // off the deck, outward, and away
+        const a = Math.atan2(e.pos.z - sp.wz, e.pos.x - sp.wx);
+        e.pos.set(sp.wx + Math.cos(a) * 7.4, 0, sp.wz + Math.sin(a) * 7.4); e.cell = g.level.cellOf(e.pos.x, e.pos.z);
+        e.lastKnown = { x: pl.x, z: pl.z }; e.awareness = 1.2; e.setState('chase');
+      }
+      const first = species(g, 'horse')[0]; if (first) g.onSpotted(first);
+    },
+    wakeMasks(g, which) {
+      species(g, 'mask').forEach((e, k) => {
+        if (e.state !== 'dormant') return;
+        if (which === 'funhouse' && k !== 3 && k !== 4) return;
+        e.setState('patrol'); e.mesh.visible = true;
+      });
+    },
+    setMusic(g, on) {
+      g.flags.music = on;
+      g.world.setZone(2, on);
+      if (g.audio.carousel) g.audio.carousel(on);
+      if (!on && species(g, 'horse').some(e => e.state !== 'dormant')) g.mono('carnival_stopped', 3);
+    },
+    claim(g, o) {
+      const f = g.flags;
+      drop(g, 'nose'); f.claimed = true; g.save.world.claimed = (g.save.world.claimed || 0) + 1;
+      const nose = g.meshFromDef('clownNose'); nose.position.set(o.pos.x, 0.79, o.pos.z + 0.05); g.world.group.add(nose);
+      g.audio.pickup('item');
+      g.mono('carnival_placed', 4);
+      // the organ stops for good; the horses stand where they are
+      this.organ = { on: false, t: 0, done: true }; if (g.flags.music) this.setMusic(g, false);
+      g.later(4500, () => { g.mono('carnival_claimed', 4); g.world.setZone(4, false); });
+      g.later(9000, () => { if (g.flags.power) { g.mono('carnival_running', 4); if (g.audio.rideRun) g.audio.rideRun(true); } else g.mono('carnival_notYet', 4); this.refresh(g); });
+      g.later(13000, () => g.radio('carnival_otto3'));
+      this.refresh(g); g.completeStep(); g.checkpoint(true);
+    },
+    board(g) {
+      const pl = g.player, rs = g.level.spots.ride[0];
+      g.world.removeCollider(this.rideCol);
+      for (const e of g.entities) e.update = () => {};
+      pl.frozen = true; pl.freeLook = true; pl.yaw = -PI / 2 + PI;   // facing along the car, west
+      pl.pos.set(rs.wx, 0, rs.wz); pl.camLift = -0.55;
+      g.mono('carnival_board', 2);
+      // the route: round the platform's U, in at the entrance, along the dark, the cabin, and out
+      const P = [[84.6, 31.5], [81.6, 31.5], [80.7, 30.4], [80.7, 26.6], [81.6, 25.5], [92.5, 25.5], [121.5, 25.5], [121.5, 28.5], [129.5, 28.5]];
+      const seg = []; let len = 0;
+      for (let k = 1; k < P.length; k++) { const l = Math.hypot(P[k][0] - P[k - 1][0], P[k][1] - P[k - 1][1]); seg.push([P[k - 1], P[k], len, l]); len += l; }
+      this.ride = { t: 0, s: 0, v: 0, seg, len, ev: {} };
+      if (g.audio.rideRun) g.audio.rideRun(true);
+      this.refresh(g);
+    },
+    updateRide(g, dt) {
+      const R = this.ride, pl = g.player, car = this.rideCar, L = g.level;
+      R.t += dt;
+      const vT = R.t < 1.5 ? 0 : R.s > 72 ? 5.5 : 2.6;
+      R.v = U.damp(R.v, vT, 1.5, dt); R.s = Math.min(R.len, R.s + R.v * dt);
+      const sg = R.seg.find(q => R.s <= q[2] + q[3]) || R.seg[R.seg.length - 1];
+      const k = U.clamp((R.s - sg[2]) / sg[3], 0, 1), x = U.lerp(sg[0][0], sg[1][0], k), z = U.lerp(sg[0][1], sg[1][1], k);
+      const yaw = Math.atan2(sg[1][0] - sg[0][0], sg[1][1] - sg[0][1]);
+      car.position.set(x, Math.sin(R.t * 9) * 0.006, z); car.rotation.y = U.angleDamp(car.rotation.y, yaw - H, 4, dt);
+      pl.pos.set(x, 0, z); pl.camLift = -0.55 + car.position.y; pl.camRoll = Math.sin(R.t * 2.3) * 0.01;
+      const once = (key, fn) => { if (!R.ev[key]) { R.ev[key] = true; fn(); } };
+      // the doors bang open as it reaches them
+      if (x > 88) once('in', () => { const d = g.level.doors.find(q => q.id === 'ghostIn'); if (d) { g.world.openDoor(d.id, x, z); g.audio.door(d.kind, new THREE.Vector3(93, 1.2, 25.5), true); } });
+      if (x > 117) once('cab', () => { const d = L.doorAt(40, 9, 1); if (d) { g.world.openDoor(d.id, x, z); g.audio.door(d.kind, new THREE.Vector3(123, 1.2, 28.5), true); } });
+      // inside: the lamps flare and die; someone laughing very close; the smell of smoke
+      if (x > 100) once('flare', () => { pl.addTrauma(0.2); g.fearAdd(15); const lo = species(g, 'lotte')[0]; if (lo) lo.voice('spot'); });
+      if (x > 110) once('dark', () => { g.world.setZone(3, false); });
+      if (z > 27 && x > 121) once('turn', () => { g.world.setZone(3, true); });
+      if (x > 124) once('crash', () => { pl.addTrauma(0.9); if (g.audio.crash) g.audio.crash(); g.mono('carnival_fence', 3); g.fadeTo(1, 0.6); });
+      if (R.s >= R.len && !R.done) {
+        R.done = true;
+        g.later(1800, () => g.mono('carnival_out', 6));
+        g.later(8500, () => g.whenPlaying(() => { pl.camLift = 0; pl.camRoll = 0; pl.freeLook = false; g.exitLevel('lake'); }));
+      }
+    },
+    respawned(g) {
+      if (this.organ.on) this.organ.t = 0;
+    },
+    onSpotted(g, ent) {
+      const f = g.flags;
+      if (ent.kind === 'mask' && !f.masksSeen) { f.masksSeen = true; g.later(300, () => g.mono('carnival_masks', 4)); g.radio('carnival_otto2', { delay: 6 }); }
+    },
+    update(g, dt) {
+      const f = g.flags, pl = g.player;
+      if (this.ride) { this.updateRide(g, dt); return; }
+      // the organ: it plays a while and stops a while, until the nose is home
+      const O = this.organ;
+      if (O.on && !f.claimed) {
+        O.t += dt;
+        const cyc = O.t % (ORGAN_ON + ORGAN_OFF), want = cyc < ORGAN_ON;
+        if (want !== f.music) this.setMusic(g, want);
+      }
+      if (f.music) this.carRot += dt * 0.32;
+      if (this.carousel) {
+        this.carousel.rotation.y = this.carRot;
+        for (const d of this.deco) d.m.position.y = f.music ? (Math.sin(g.time * 2.4 + d.ph) * 0.5 + 0.5) * 0.35 : d.m.position.y;
+      }
+      this.placeHorses(g);
+      // first sights
+      if (!f.gateSeen && pl.pos.z > 36.2 * 3 && Math.abs(pl.pos.x - 22.5 * 3) < 6) { f.gateSeen = true; g.mono('carnival_gate', 4); }
+      if (!f.boothNear && inTrigger(g, 'booth')) { f.boothNear = true; g.mono('carnival_booth', 4); g.later(6000, () => g.mono('carnival_lotte', 4)); }
+      if (!f.ghostSeen && inTrigger(g, 'station')) { f.ghostSeen = true; g.mono('carnival_ghost', 5); this.refresh(g); }
+      if (!f.funIn && inTrigger(g, 'funhouse')) { f.funIn = true; this.wakeMasks(g, 'funhouse'); }
+      if (!f.mazeIn && inTrigger(g, 'maze')) { f.mazeIn = true; g.mono('carnival_maze', 5); }
+      if (!f.trailerIn && inTrigger(g, 'trailer')) { f.trailerIn = true; g.mono('carnival_trailer', 3); }
+    },
+  };
 })(typeof window !== 'undefined' ? window : globalThis);
