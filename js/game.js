@@ -463,7 +463,7 @@
       if (this.world) { this.scene.remove(this.world.group); this.world.dispose(); this.world = null; }
       this.audio.stopAllLoops();
       this.player.hidden = null;
-      this.player.frozen = false; this.player.freeLook = false; this.player.camLift = 0; this.player.camRoll = 0;
+      this.player.frozen = false; this.player.freeLook = false; this.player.camLift = 0; this.player.camRoll = 0; this.player.speedMul = null;
     }
     applySnapshot(s) {
       for (const id of s.taken || []) { const it = this.items.find(i => i.id === id); if (it) this.takeItem(it, true); }
@@ -777,6 +777,7 @@
         this.ignoreUnlock = false;
         if (!this.ui.touch && !this.input.lockFailed) this.input.requestLock();
         if (after) after();
+        if (this.script.noteRead) this.script.noteRead(this, id);
       });
     }
     answerPhone(o, after) {

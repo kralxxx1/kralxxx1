@@ -155,9 +155,11 @@
       if (Math.abs(hA - hB) < 0.01) continue;
       lowC = hA < hB ? -1 : 1;       // -1: the (x, y) side is lower
       y0 = Math.min(hA, hB); y1 = Math.max(hA, hB);
-      const lowStyle = lowC < 0 ? st(x, y) : st(nx, ny);
-      key = lowStyle.wallKey;
-      this.stepFace(bufs, x, y, d, y0, y1, key, lowC, scaleOf(key));
+      // the step is a piece of the tall room's wall above the opening: it faces into the tall room and
+      // wears that room's wall
+      const highStyle = lowC < 0 ? st(nx, ny) : st(x, y);
+      key = highStyle.wallKey;
+      this.stepFace(bufs, x, y, d, y0, y1, key, -lowC, scaleOf(key));
     }
     // Floors, water and ceilings
     for (let y = 0; y < L.h; y++) for (let x = 0; x < L.w; x++) {

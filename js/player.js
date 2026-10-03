@@ -420,6 +420,8 @@
       const water = this.surface() === 'water';
       let speed = this.crouching ? 1.35 : this.sprinting ? 4.35 : 2.4;
       if (water) speed *= 0.62;
+      // a scene can slow you down (rising water, deep snow)
+      if (this.speedMul != null) speed *= this.speedMul;
       if (this.fear > 85) speed *= 0.92;
       if (this.exhausted) speed = Math.min(speed, 1.9);
       // Dayanıklılık

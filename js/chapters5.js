@@ -1142,4 +1142,168 @@
       }
     },
   };
+
+  // ============================================================ 6. GAMMEL OSTRA
+  C.village = {
+    start(g) {
+      this.flood = null; this.climb = null; this.drownT = 0;
+      g.choir = { phase: 'sing', t: 0, quietT: 0 };
+      g.setObj('village_start');
+      if (g.audio.choir) g.audio.choir(true);
+      // the water that comes back: one sheet over the whole valley, rising
+      const L = g.level, W = L.w * L.cell, D = L.h * L.cell;
+      const m = new THREE.MeshPhysicalMaterial({ color: 0x14201e, roughness: 0.12, metalness: 0.1, transparent: true, opacity: 0.88, clearcoat: 1, clearcoatRoughness: 0.2 });
+      this.water = new THREE.Mesh(new THREE.PlaneGeometry(W + 200, D + 200, 1, 1), m);
+      this.water.rotation.x = -H; this.water.position.set(W / 2, -0.6, D / 2); this.water.visible = false; this.water.renderOrder = 1;
+      g.world.group.add(this.water);
+    },
+    afterCard(g) { g.mono('village_start', 5); g.radio('village_otto1', { delay: 9 }); },
+    restore(g) {
+      const f = g.flags;
+      if (has(g, 'signeKey') || f.signeOpen) unlock(g, 'signeDoor');
+      this.refresh(g);
+    },
+    refresh(g) {
+      const f = g.flags;
+      if (f.flooding) return g.setObj(this.climb ? 'village_climb' : 'village_run');
+      if (!f.signeOpen) return g.setObj(f.lockedSeen && !has(g, 'signeKey') ? 'village_key' : 'village_start');
+      if (!f.claimed) return g.setObj(has(g, 'musicBox') ? 'village_mantel' : 'village_box');
+    },
+    prompt(g, o) {
+      const f = g.flags;
+      switch (o.id) {
+        case 'mantel': return f.claimed ? null : ST.line(has(g, 'musicBox') ? 'village_mantelPut' : 'village_mantelLook');
+        case 'ladder': return f.flooding && !this.climb ? ST.line('village_ladderPrompt') : null;
+      }
+      return undefined;
+    },
+    use(g, o) {
+      const f = g.flags;
+      switch (o.id) {
+        case 'musicBox':
+          g.takeItem(o); give(g, 'musicBox'); g.audio.pickup('item');
+          if (g.audio.musicBox) g.audio.musicBox(o.pos, 3);
+          g.mono('village_box', 5); this.refresh(g); g.completeStep();
+          return true;
+        case 'mantel':
+          if (f.claimed) return true;
+          if (!has(g, 'musicBox')) { g.mono('village_dust', 5); f.dustSeen = true; this.refresh(g); return true; }
+          this.claim(g, o); return true;
+        case 'ladder':
+          if (f.flooding && !this.climb) this.startClimb(g, o);
+          return true;
+      }
+      return false;
+    },
+    picked(g, id) { if (id === 'signeKey') { g.mono('village_key', 4); unlock(g, 'signeDoor'); this.refresh(g); g.completeStep(); } },
+    noteRead(g, id) {
+      if (id === 'village_removal' && !g.flags.listRead) { g.flags.listRead = true; g.later(400, () => g.mono('village_list', 6)); g.later(7500, () => g.mono('village_gran', 4)); }
+    },
+    unlockPrompt(g, d) { if (d.id === 'signeDoor' && has(g, 'signeKey')) return t('pr.unlock'); return null; },
+    unlockDoor(g, d) { if (d.id === 'signeDoor' && has(g, 'signeKey')) { unlock(g, 'signeDoor', true); g.flags.signeOpen = true; this.refresh(g); return true; } return false; },
+    lockedDoor(g, d) { if (d.id === 'signeDoor') { g.mono('village_locked', 4); if (!g.flags.lockedSeen) { g.flags.lockedSeen = true; this.refresh(g); } } },
+    claim(g, o) {
+      const f = g.flags;
+      drop(g, 'musicBox'); f.claimed = true; g.save.world.claimed = (g.save.world.claimed || 0) + 1;
+      // the box on the mantel, playing by itself
+      const box = g.meshFromDef('musicBox'); box.position.set(o.pos.x, 1.38, o.pos.z); box.rotation.y = 0.6; g.world.group.add(box);
+      if (g.audio.musicBox) g.audio.musicBox(o.pos, 12);
+      g.mono('village_placed', 4);
+      g.later(4500, () => { g.mono('village_claimed', 5); if (g.audio.clockStrike) g.audio.clockStrike(o.pos, 6); });
+      g.later(11000, () => this.startFlood(g));
+      g.later(14000, () => g.radio('village_otto2'));
+      this.refresh(g); g.completeStep(); g.checkpoint(true);
+    },
+    startFlood(g) {
+      const f = g.flags; f.flooding = true;
+      if (g.audio.choir) g.audio.choir(false);
+      if (g.audio.floodRoar) g.audio.floodRoar();
+      g.mono('village_water', 4); g.player.addTrauma(0.3);
+      this.water.visible = true;
+      this.flood = { t: 0, level: -0.6 };
+      // everything in the water wakes
+      for (const e of species(g, 'longone')) if (e.state === 'buried') g.later(Math.random() * 4000, () => { if (e.state === 'buried') e.emergeNear(g.player.pos.x, g.player.pos.z); });
+      this.refresh(g);
+    },
+    startClimb(g, o) {
+      const pl = g.player, sp = g.level.spots.ladder[0];
+      pl.frozen = true; pl.freeLook = true;
+      pl.spawn(sp.wx, sp.wz - 0.15, PI); pl.pitch = 0.4;
+      this.climb = { y: 0 };
+      g.mono('village_ladder', 3); this.refresh(g);
+    },
+    updateFlood(g, dt) {
+      const F = this.flood, pl = g.player;
+      F.t += dt;
+      // slow at first, then the valley fills in earnest
+      const rate = F.t < 25 ? 0.045 : F.t < 60 ? 0.09 : 0.16;
+      F.level += rate * dt;
+      this.water.position.y = F.level;
+      const C = this.climb;
+      if (C) {
+        if (g.input.down('forward')) { C.y = Math.min(24.2, C.y + 1.15 * dt); if (g.audio.ladderStep && Math.floor(C.y / 0.6) !== Math.floor((C.y - 1.15 * dt) / 0.6)) g.audio.ladderStep(); }
+        pl.camLift = C.y;
+        if (C.y >= 24 && !C.done) { C.done = true; g.mono('village_top', 4); g.later(3500, () => g.whenPlaying(() => { pl.camLift = 0; pl.frozen = false; pl.freeLook = false; g.exitLevel('train'); })); }
+        if (F.level > C.y + 1.5 && !C.done) this.drown(g, dt);
+        return;
+      }
+      // wading slows you; over your head you go under
+      const depth = F.level - g.world.floorAt(pl.pos.x, pl.pos.z);
+      pl.speedMul = depth > 0.3 ? U.clamp(1 - (depth - 0.3) * 0.5, 0.35, 1) : 1;
+      if (depth > 1.45) this.drown(g, dt); else this.drownT = Math.max(0, this.drownT - dt);
+    },
+    drown(g, dt) {
+      this.drownT += dt;
+      g.fx.blackout = Math.max(g.fx.blackout, U.clamp(this.drownT / 3, 0, 0.8));
+      if (this.drownT > 3) {
+        this.drownT = 0;
+        const e = species(g, 'longone')[0];
+        g.killPlayer(e || { kind: 'water', killKind: () => 'coil', pos: g.player.pos.clone() });
+      }
+    },
+    respawned(g) {
+      // back at the checkpoint (the mantel): the water starts again from the bottom
+      if (this.flood) { this.flood = { t: 0, level: -0.6 }; this.climb = null; this.drownT = 0; g.player.speedMul = 1; }
+    },
+    updateChoir(g, dt) {
+      const C = g.choir, pl = g.player, inChurch = inTrigger(g, 'church');
+      const choir = species(g, 'choir');
+      C.t += dt;
+      if (C.phase === 'sing') {
+        if (!inChurch) return;
+        // what stops the hymn: running, a step close behind them, or walking out in front of them
+        const near = choir.some(e => e.distToPlayer() < 2.6);
+        const front = pl.pos.z < 3.75 * 3;
+        if ((pl.sprinting && pl.moving) || (near && pl.moving && !pl.crouching) || front) {
+          C.phase = 'silence'; C.t = 0;
+          if (g.audio.choir) g.audio.choir(false);
+          g.mono('village_silence', 2);
+        }
+      } else if (C.phase === 'silence') {
+        if (C.t > 2.4) {
+          C.phase = 'hunt'; C.t = 0; C.quietT = 0;
+          g.mono('village_turn', 2);
+          for (const e of choir) { e.lastKnown = { x: pl.pos.x, z: pl.pos.z }; e.awareness = 1.2; e.setState('chase'); }
+          g.onSpotted(choir[0]);
+        }
+      } else if (C.phase === 'hunt') {
+        const anyChase = choir.some(e => e.state === 'chase');
+        C.quietT = anyChase ? 0 : C.quietT + dt;
+        if (C.quietT > 9 && !inChurch) {
+          C.phase = 'sing'; C.t = 0;
+          if (g.audio.choir && !g.flags.flooding) g.audio.choir(true);
+          if (Math.hypot(pl.pos.x - 21.5 * 3, pl.pos.z - 5 * 3) < 40) g.mono('village_resume', 3);
+        }
+      }
+    },
+    update(g, dt) {
+      const f = g.flags;
+      if (this.flood) this.updateFlood(g, dt);
+      if (!f.flooding) this.updateChoir(g, dt);
+      if (!f.churchIn && inTrigger(g, 'church')) { f.churchIn = true; g.mono('village_church', 4); }
+      if (!f.schoolIn && inTrigger(g, 'school')) { f.schoolIn = true; g.mono('village_school', 4); }
+      if (!f.atticIn && inTrigger(g, 'attic')) { f.atticIn = true; g.mono('village_attic', 4); }
+      if (!f.houseIn && inTrigger(g, 'signe')) { f.houseIn = true; g.mono('village_house', 4); if (!has(g, 'musicBox')) g.later(5000, () => { if (!g.flags.claimed) { g.mono('village_dust', 5); g.flags.dustSeen = true; this.refresh(g); } }); }
+    },
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

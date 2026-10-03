@@ -120,7 +120,7 @@
       const u = this.skyU = {
         uTime: this.uTime, uFlash: { value: 0 }, uSil: { value: Wd.silhouette ? silTex(Wd.silhouette) : null }, uHasSil: { value: Wd.silhouette ? 1 : 0 }, uSilH: { value: dome.silH || 0.12 },
         uZenith: { value: col(dome.zenith, [0.006, 0.008, 0.014]) }, uHorizon: { value: col(dome.horizon, [0.03, 0.035, 0.045]) }, uGlow: { value: col(dome.glow, [0, 0, 0]) },
-        uMoonDir: { value: new THREE.Vector3().fromArray(dome.moon || [0.4, 0.5, -0.7]) }, uMoonK: { value: dome.moonK != null ? dome.moonK : 0.6 }, uStars: { value: dome.stars != null ? dome.stars : 0.5 }, uCloud: { value: dome.cloud != null ? dome.cloud : 0.8 },
+        uMoonDir: { value: new THREE.Vector3().fromArray(dome.moon || [0.4, 0.5, -0.7]) }, uMoonK: { value: dome.moon === null ? 0 : dome.moonK != null ? dome.moonK : 0.6 }, uStars: { value: dome.stars != null ? dome.stars : 0.5 }, uCloud: { value: dome.cloud != null ? dome.cloud : 0.8 },
         uSilCol: { value: col(dome.silCol, [0.005, 0.006, 0.008]) },
       };
       const sky = new THREE.ShaderMaterial({ vertexShader: DOME_VS, fragmentShader: DOME_FS, uniforms: u, side: THREE.BackSide, depthWrite: false, fog: false });

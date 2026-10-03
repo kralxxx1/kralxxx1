@@ -17,18 +17,23 @@
   const outdoors = (cr, x, y) => !!(cr.L.meta.outdoor && cr.L.meta.outdoor[cr.L.i(x, y)]);
 
   // ============================================================ THE FROZEN
-  const SUITS = [['#a8141a', [1, 1, 1]], ['#1a7a8a', [1, 1, 1]], ['#5a2a8a', [1, 1, 1]], ['#d8a818', [1, 1, 1]], ['#1a3a9a', [1, 1, 1]], ['#e8e4dc', [0.9, 0.95, 1]]];
+  const SUITS = [['#7a2024', [1, 1, 1]], ['#2a5a62', [1, 1, 1]], ['#4a3060', [1, 1, 1]], ['#9a7a2a', [1, 1, 1]], ['#2a3a6a', [1, 1, 1]], ['#a8a49a', [0.9, 0.95, 1]]];
+  // frost on the cloth: white crystals gathered in the folds and along the seams
+  const frostPaint = (g, w, h, r) => {
+    for (let k = 0; k < 420; k++) { const x = r() * w, y = r() * h, rr = r.range(2, 14); const gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, `rgba(235,242,250,${r.range(0.35, 0.8)})`); gr.addColorStop(1, 'rgba(235,242,250,0)'); g.fillStyle = gr; g.fillRect(x - rr, y - rr, rr * 2, rr * 2); }
+    for (let y = 0; y < h; y += 64) { g.fillStyle = 'rgba(230,238,248,0.35)'; g.fillRect(0, y, w, 3); }
+  };
   let fIdx = 0;
   function frozenModel() {
     const [base] = SUITS[fIdx++ % SUITS.length];
     const r = K.humanoid({
       key: 'frozen' + (fIdx % SUITS.length), h: 1.7 + (fIdx % 3) * 0.06, build: 1.0 + (fIdx % 2) * 0.12, coat: 0.0,
-      clothBase: base, skin: { base: '#c8d4dc', mottle: ['200,214,224', '170,184,198', '230,236,240', '150,160,180'], mottleA: 0.5, veins: '110,130,170', veinCount: 20, spots: 40, spotColor: '220,230,240' },
+      bodyMat: K.cloth('frozen:suit' + (fIdx % SUITS.length), base, { stains: 20, rough: 0.75, rep: 2, paint: frostPaint, stain: '200,210,220' }), skin: { base: '#c8d4dc', mottle: ['200,214,224', '170,184,198', '230,236,240', '150,160,180'], mottleA: 0.5, veins: '110,130,170', veinCount: 20, spots: 40, spotColor: '220,230,240' },
       head: { eyes: 'hollow', mouth: 0.25, hair: true, hairLong: 2 }, skinVC: [0.95, 0.98, 1.05],
       // frost creeping over the suit from the edges
       clothVC: p => { const f = U.clamp(S.fbm(p[0] * 9, p[1] * 9, p[2] * 9, 2) * 2.2 + (p[1] > 0.4 ? 0.35 : 0), 0, 1); return [1 + f * 1.4, 1 + f * 1.5, 1 + f * 1.7]; },
     });
-    for (const m of r.mats) { m.roughness = 0.35; }
+    r.mats[1].roughness = 0.4;
     // icicles hanging from the chin and the brim of the hair, a scarf frozen stiff
     const ice = new THREE.MeshPhysicalMaterial({ color: 0xdfeaf2, roughness: 0.05, transmission: 0, clearcoat: 1, transparent: true, opacity: 0.85 });
     for (let k = 0; k < 6; k++) { const ic = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.05 + (k % 3) * 0.025, 5), ice); ic.rotation.x = PI; ic.position.set(-0.05 + k * 0.02, 0.0 - (k % 3) * 0.01, 0.07); r.head.add(ic); }
@@ -117,7 +122,7 @@
   function cookModel() {
     const r = K.humanoid({
       key: 'cook', h: 2.02, build: 1.45, belly: 1.3, coat: 0.55, long: 1.05,
-      clothBase: '#d8d4c8', skin: { base: '#b8b0a8', mottle: ['160,150,140', '200,190,180', '130,120,120'], veins: '90,80,110', veinCount: 18 },
+      clothBase: '#9a968a', skin: { base: '#a8a098', mottle: ['160,150,140', '200,190,180', '130,120,120'], veins: '90,80,110', veinCount: 18 },
       head: { eyes: 'milky', mouth: 0.15, swell: 0.6 }, skinVC: [0.92, 0.9, 0.95],
       // the apron, stained down the front; frost on the shoulders
       clothVC: p => (p[2] > 0.05 && p[1] < 0.35 ? [0.85, 0.78, 0.7] : p[1] > 0.45 ? [1.08, 1.1, 1.14] : [1, 1, 1]),

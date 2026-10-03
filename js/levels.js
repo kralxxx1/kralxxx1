@@ -185,6 +185,31 @@
       ],
       objectives: ['lodge_start', 'lodge_find', 'lodge_telegram', 'lodge_pin', 'lodge_key', 'lodge_power', 'lodge_board'],
     },
+    // ------------------------------------------------------------ 6. Gammel Ostra (the village before the flood)
+    {
+      id: 'village', authored: MAP('village'), seed: 1964, theme: 'village', music: 'village', ambience: 'village',
+      fog: [0x0c0e0e, 0.034], fogIn: 0.03, grade: { tint: [0.97, 1.0, 1.0], sat: 0.62 }, exposure: 0.88, noDressing: true, drawing: 6,
+      items: [
+        { type: 'key', id: 'signeKey', data: 'signeKey', place: 'spot', spot: 'key' },
+        { type: 'thing', id: 'musicBox', model: 'musicBox', place: 'spot', spot: 'musicBox' },
+        { type: 'thing', id: 'mantel', place: 'spot', spot: 'mantel', fixed: true, reach: 2.0 },
+        { type: 'thing', id: 'ladder', place: 'spot', spot: 'ladder', fixed: true, reach: 2.4, marker: false },
+        doc('village_notice', 'notice'),
+        doc('village_torLetter', 'torLetter'),
+        doc('village_diary', 'diary'),
+        doc('village_ingrid', 'ingrid'),
+        doc('village_removal', 'removal'),
+        doc('village_parish', 'parish'),
+        doc('village_shop', 'shop'),
+        { type: 'drawing', id: 'd_wren6', data: 'wren6', place: 'spot', spot: 'drawing' },
+      ].concat(supplies(4, 2, 3)),
+      entities: [
+        { type: 'silted', count: 7, spot: 'lair:silted' },
+        { type: 'longone', count: 4, spot: 'lair:longone' },
+        { type: 'choir', count: 5, spot: 'lair:choir' },
+      ],
+      objectives: ['village_start', 'village_key', 'village_box', 'village_mantel', 'village_run', 'village_climb'],
+    },
   ].filter(L => L.layout || L.authored);
   LEVELS.forEach((L, i) => {
     L.index = i; L.chapter = i;
