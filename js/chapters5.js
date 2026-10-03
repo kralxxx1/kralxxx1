@@ -364,6 +364,8 @@
           if (f.claimed) { g.readNote('ferry_logbook'); return true; }
           // the claim: the page goes back where it was torn from
           drop(g, 'logPage'); f.claimed = true; claim(g);
+          // the logbook has been read, whole: it counts once in the papers found, whichever way round
+          if (!g.save.notes.includes('ferry_logbook')) g.save.notes.push('ferry_logbook');
           g.audio.paper();
           g.readNote('ferry_logbookFull', () => {
             g.mono('ferry_claimed', 6);

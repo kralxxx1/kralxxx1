@@ -329,7 +329,7 @@
       if (!L.passable(cx, cy) || (L.floorType && L.floorType[L.i(cx, cy)]) || (L.meta && L.meta.outdoor && L.meta.outdoor[L.i(cx, cy)])) continue;
       const walls = L.wallSides(cx, cy);
       if (!walls.length) continue;
-      const d = r.pick(walls), along = r.range(-0.7, 0.7), off = C / 2 - 0.02;
+      const d = r.pick(walls), along = r.range(-0.7, 0.7), off = C / 2 - 0.105;   // on the wall's face (walls are 0.1 thick each side)
       const x = L.cx(cx) + DX[d] * off + (d % 2 === 0 ? along : 0), z = L.cz(cy) + DY[d] * off + (d % 2 === 1 ? along : 0);
       if (!far(x, z)) continue;
       const kind = n < target - 2 ? 'wallText' : n === target - 2 ? 'hands' : 'missing';

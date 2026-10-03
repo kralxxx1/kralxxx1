@@ -18,6 +18,8 @@
     // ------------------------------------------------------------ 0. Depot 9 (prologue)
     {
       id: 'depot', authored: MAP('depot'), seed: 1998, theme: 'depot', music: 'depot', ambience: 'depot',
+      // documents that are read through the chapter script rather than picked up where they lie
+      extraDocs: ['depot_tag', 'wren1', 'depot_ledger'],
       fog: [0x050505, 0.028], grade: { tint: [1.0, 0.97, 0.92], sat: 0.8 }, exposure: 0.9, noDressing: true, noScares: true,
       startFlashlight: false, drawing: 1,
       items: [
@@ -73,6 +75,8 @@
     // ------------------------------------------------------------ 2. Saint Brigid (ferry in fog)
     {
       id: 'ferry', authored: MAP('ferry'), seed: 1987, theme: 'ferry', music: 'ferry', ambience: 'ferry',
+      // documents that are read through the chapter script rather than picked up where they lie
+      extraDocs: ['ferry_logpage', 'ferry_logbook', 'ferry_logbookFull'],
       fog: [0x141a1e, 0.05], fogIn: 0.022, grade: { tint: [0.94, 1.0, 1.04], sat: 0.72 }, exposure: 0.85, list: 0.045, noDressing: true, drawing: 3,
       items: [
         { type: 'thing', id: 'winch2', place: 'spot', spot: 'winch2', fixed: true, hold: 3.5, reach: 2.2 },
@@ -130,6 +134,8 @@
     // ------------------------------------------------------------ 4. Hollow Creek (copper mine)
     {
       id: 'mine', authored: MAP('mine'), seed: 1956, theme: 'mine', music: 'mine', ambience: 'mine',
+      // documents that are read through the chapter script rather than picked up where they lie
+      extraDocs: ['mine_confession'],
       fog: [0x0a0b0d, 0.034], fogIn: 0.055, grade: { tint: [1.03, 0.99, 0.92], sat: 0.68 }, exposure: 0.85, noDressing: true, drawing: 5,
       items: [
         { type: 'thing', id: 'canary', model: 'canaryCage', place: 'spot', spot: 'canary' },
@@ -162,6 +168,8 @@
     // ------------------------------------------------------------ 5. Weisshorn (mountain hotel in a blizzard)
     {
       id: 'lodge', authored: MAP('lodge'), seed: 1983, theme: 'lodge', music: 'lodge', ambience: 'lodge',
+      // documents that are read through the chapter script rather than picked up where they lie
+      extraDocs: ['lodge_guestBook', 'lodge_telegram'],
       fog: [0x1a1e22, 0.06], fogIn: 0.02, grade: { tint: [0.95, 1.0, 1.07], sat: 0.66 }, exposure: 0.9, noDressing: true,
       items: [
         { type: 'thing', id: 'guestBook', place: 'spot', spot: 'guestBook', fixed: true },
@@ -270,6 +278,8 @@
     // ------------------------------------------------------------ 9. Lake Ostra (14 January 1979)
     {
       id: 'lake', authored: MAP('lake'), seed: 1979, theme: 'lake', music: 'lake', ambience: 'lake',
+      // documents that are read through the chapter script rather than picked up where they lie
+      extraDocs: ['lake_radio', 'lake_tape'],
       fog: [0x5a6068, 0.028], fogIn: 0.012, grade: { tint: [0.96, 0.99, 1.05], sat: 0.55 }, exposure: 1.0, noDressing: true,
       items: [
         { type: 'thing', id: 'radio', place: 'spot', spot: 'radio', fixed: true, reach: 2.0, prompt: 'lake_radioPrompt' },
