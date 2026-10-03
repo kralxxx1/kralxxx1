@@ -88,6 +88,13 @@
       this.master.connect(this.comp).connect(c.destination);
       this.bus = {};
       for (const name of ['music', 'sfx', 'amb', 'ent', 'ui']) { const g = c.createGain(); g.connect(this.master); this.bus[name] = g; }
+      // The room tones and weather go through a dark filter: no hiss or crackle reaches the ear, only the
+      // body of the sound (a storm through a wall, a building at night). Silence should be silence.
+      {
+        const shelf = c.createBiquadFilter(); shelf.type = 'highshelf'; shelf.frequency.value = 2200; shelf.gain.value = -16;
+        const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5200; lp.Q.value = 0.5;
+        this.bus.amb.disconnect(); this.bus.amb.connect(shelf).connect(lp).connect(this.master);
+      }
       this.reverb = c.createConvolver();
       this.reverbOut = c.createGain();
       this.reverb.connect(this.reverbOut).connect(this.master);
@@ -313,12 +320,12 @@
     radioVoice(dur, who) {
       if (!this.ctx || !this.sfx) return;
       const t = this.t;
-      this.play('squelch', 3, 'sfx', null, { rev: 0, gain: 0.5 });
+      this.play('squelch', 3, 'sfx', null, { rev: 0, gain: 0.18, lowpass: 3000 });
       const o = this.out('sfx', null, { rev: 0.05, gain: 0.32 });
       this.voiceLine(VOICE.radio(who), Math.min(9, dur), o.input, t + 0.12);
-      const st = this.play('radioStatic', 2, 'sfx', null, { rev: 0, gain: 0.07 });
+      const st = this.play('radioStatic', 2, 'sfx', null, { rev: 0, gain: 0.012, lowpass: 2400 });
       if (st) { st.loop = true; st.stop(t + dur + 0.2); }
-      this.play('squelch', 3, 'sfx', null, { rev: 0, gain: 0.4, delay: Math.min(9, dur) + 0.15 });
+      this.play('squelch', 3, 'sfx', null, { rev: 0, gain: 0.14, lowpass: 3000, delay: Math.min(9, dur) + 0.15 });
       this.duckFor(dur + 0.3);
     }
     // A voice in the room with you, not on the radio: memory echoes of the kids, Walt, the Neighbor.
@@ -405,9 +412,16 @@
       if (!this.ctx) return;
       this.play(kind === 'metal' ? 'drawerMetalShut' : 'drawerWoodShut', 3, 'sfx', pos, { rev: 0.3, gain: 0.75 });
     }
-    door(kind, pos, open = true, loud = 1) {
+    // kind: the door's kind (or 'locked'); snd: what it is made of and whether its hinge is dry (world.doorSound)
+    door(kind, pos, open = true, loud = 1, snd = null) {
       if (!this.ctx) return;
       const t = this.t, o0 = { rev: 0.4, gain: 0.8 * loud, rate: loud < 1 ? 0.8 : 1 };
+      if (snd && kind !== 'elevator' && kind !== 'house') {
+        const name = kind === 'locked' ? 'door' + snd.kind + 'Locked' : 'door' + snd.kind + (open ? 'Open' : 'Close') + (snd.creak ? 'Creak' : '');
+        const heavy = snd.kind === 'Steel' || snd.kind === 'Gate' || snd.kind === 'Cold';
+        // a door eased open while crouching: slower, and only the hinge and the latch are heard
+        if (this.play(name, 3, 'sfx', pos, { rev: heavy ? 0.55 : 0.45, gain: (open ? 0.75 : 0.9) * loud, rate: loud < 1 ? 0.82 : 1, jitter: 0.02, lowpass: loud < 1 ? 2400 : 0 })) return;
+      }
       if (kind === 'elevator') {
         const o = this.out('sfx', pos, { rev: 0.4 });
         this.tone(o.input, 'sine', 1318, 1318, t, 1.2, 0.25); this.tone(o.input, 'sine', 1046, 1046, t + 0.25, 1.4, 0.2);
@@ -603,7 +617,7 @@
       this.setReverb(theme);
       this.ambTheme = theme;
       const L = (k, name, gain, o = {}) => this.bufLoop('amb:' + k, name, o.pos || null, Object.assign({ bus: 'amb', gain, rev: 0.1 }, o));
-      if (theme === 'yellow') { L('hum', 'fluorescent', 0.16); L('air', 'hvac', 0.22); }
+      if (theme === 'yellow') { L('hum', 'loopHumSoft', 0.07); L('air', 'loopQuiet', 0.3); }
       if (theme === 'office') { L('hum', 'fluorescent', 0.08); L('air', 'hvac', 0.3); }
       if (theme === 'pool') { L('water', 'poolRoom', 0.35, { rev: 0.5 }); L('hum', 'fluorescent', 0.06); }
       if (theme === 'concrete') { L('room', 'warehouse', 0.4, { rev: 0.4 }); }
@@ -640,6 +654,8 @@
     // child humming somewhere, a board taking weight, the building groaning, a scream a long way off.
     // They come more often as the game's menace rises. (this.dread 0..1 is set by the game.)
     dreadTick(cam) {
+      // Retired: random whispers, far steps and creaks read as phantom noises. The quiet does this job better.
+      if (this.ctx) return;
       if (this.t < (this.nextDread || (this.nextDread = this.t + 40))) return;
       const dread = U.clamp(this.dread || 0, 0, 1);
       this.nextDread = this.t + (70 - 40 * dread) * (0.7 + Math.random() * 0.6);
@@ -660,6 +676,8 @@
       else if (kind === 'musicBoxDown') this.play('musicBoxDown', 1, 'amb', at(8 + Math.random() * 6, 3, false), { rev: 0.7, gain: 0.4, ref: 3 });
     }
     ambienceTick(cam) {
+      // No random events in the old themes either (Level 256 uses 'yellow'): nothing falls, nobody walks
+      if (this.ctx && this.ambTheme && this.quietThemes && this.quietThemes[this.ambTheme]) return;
       if (this.ctx && this.ambTheme) this.dreadTick(cam);
       if (!this.ctx || !this.ambTheme || this.t < this.nextAmb) return;
       this.nextAmb = this.t + 6 + Math.random() * 10;

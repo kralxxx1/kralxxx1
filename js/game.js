@@ -411,6 +411,12 @@
       if (!opts.menu) {
         this.ui.loading(0.975, t('boot.sounds'));
         await PB.sfxLib.prerender(PB.Audio.loopsFor ? PB.Audio.loopsFor(L.theme, def) : PB.sfxLib.loops());
+        // this place's doors: only the joinery and hinges it has
+        if (this.world.doorSound) {
+          const names = new Set();
+          for (const d of L.doors) { const s = this.world.doorSound(d.id); if (!s) continue; const c = s.creak ? 'Creak' : ''; names.add('door' + s.kind + 'Open' + c); names.add('door' + s.kind + 'Close' + c); names.add('door' + s.kind + 'Locked'); }
+          await PB.sfxLib.prerender([...names]);
+        }
         await this.audio.warmMusic(def.music || 'default');
       }
       this.ui.loading(0.98, t('load.shaders'));
@@ -819,16 +825,17 @@
           act: () => {
             if (door.locked) {
               if (this.script.unlockDoor && this.script.unlockDoor(this, door)) { this.nav.dirty = true; return; }
-              this.ui.hint(t(door.lockKey || 'lock.default')); this.audio.door('locked', pos); if (this.script.lockedDoor) this.script.lockedDoor(this, door); return;
+              this.ui.hint(t(door.lockKey || 'lock.default')); this.audio.door('locked', pos, true, 1, this.world.doorSound && this.world.doorSound(door.id)); if (this.script.lockedDoor) this.script.lockedDoor(this, door); return;
             }
             if (['exit', 'elevator', 'stair', 'house'].includes(door.kind)) return;
-            if (door.open) { this.world.closeDoor(door.id); this.audio.door(door.kind, pos, false); }
+            const snd = this.world.doorSound && this.world.doorSound(door.id);
+            if (door.open) { this.world.closeDoor(door.id); this.audio.door(door.kind, pos, false, 1, snd); }
             else {
               // Crouching eases a door open: slower, and far quieter
               const soft = this.player.crouching;
               this.world.openDoor(door.id, this.player.pos.x, this.player.pos.z);
               if (soft) { const ob = this.world.doorObjs.get(door.id); if (ob) ob.slow = true; }
-              this.audio.door(door.kind, pos, true, soft ? 0.35 : 1);
+              this.audio.door(door.kind, pos, true, soft ? 0.35 : 1, snd);
               this.noise(pos.x, pos.z, soft ? 2.5 : 8);
             }
             this.nav.dirty = true;
@@ -1077,21 +1084,17 @@
     canHold(it) { return !this.script.canHold || this.script.canHold(this, it.ref); }
     // kind: 'step', 'impact', 'door', 'voice', 'loud' (vibration-sensing creatures only feel some of them)
     noise(x, z, radius, kind) { for (const e of this.entities) e.hear(x, z, radius, kind); }
-    // Unscripted scares: every minute or two something happens nearby that is not an attack.
-    // A tube bursts, a door slams behind you, someone runs past out of sight, a whisper.
-    // Unscripted unease: every couple of minutes something small happens out of sight. Never loud, never
-    // sudden: a door clicking shut somewhere behind you, a few soft steps far off, a light dying quietly,
-    // a whisper at the edge of hearing. The fright is that it is quiet.
+    // Unscripted unease, and only one kind: every few minutes a light somewhere ahead dies quietly.
+    // Nothing walks, whispers or slams. The fright is that it is quiet.
     updateScares(dt) {
-      const def = this.levelDef, pl = this.player, t_ = PB.t;
+      const def = this.levelDef, pl = this.player;
       if (!def || def.noScares || S.data.jumpscare === 'off') return;
       if (this.scareT == null) this.scareT = 70 + Math.random() * 50;
       this.scareT -= dt;
       if (this.scareT > 0 || pl.hidden || this.talking()) return;
       if (this.entities.some(e => e.hostile && e.state === 'chase')) { this.scareT = 20; return; }
       this.scareT = 80 + Math.random() * 90;
-      const fwd = pl.forward(), W = this.world, t = this.time;
-      const behind = (x, z) => ((x - pl.pos.x) * fwd.x + (z - pl.pos.z) * fwd.z) < 0;
+      const W = this.world;
       const opts = [];
       // 1. A light somewhere ahead dies quietly (a tick, then dark)
       const fix = W.fixtures.filter(f => f.mesh && f.powered && !f.light.broken && Math.hypot(f.light.x - pl.pos.x, f.light.z - pl.pos.z) < 14 && Math.hypot(f.light.x - pl.pos.x, f.light.z - pl.pos.z) > 5);
@@ -1102,34 +1105,15 @@
         if (this.audio.ctx) { const a = this.audio, o = a.out('sfx', pos, { rev: 0.4, gain: 0.25 }); a.burst(o.input, 'highpass', 3500, 0.8, a.t, 0.04, 0.3, 0.001); }
         pl.fear = Math.min(100, pl.fear + 4);
       });
-      // 2. A door you left open swings shut behind you, slowly, and clicks
-      const doors = [...W.doorObjs.values()].filter(o => o.door.open && !['exit', 'elevator', 'house', 'stair', 'open'].includes(o.door.kind) && !o.door.link && o.door.id !== this.exitDoorId && Math.hypot(o.g.cx - pl.pos.x, o.g.cz - pl.pos.z) < 16 && Math.hypot(o.g.cx - pl.pos.x, o.g.cz - pl.pos.z) > 5 && behind(o.g.cx, o.g.cz));
-      if (doors.length) opts.push(() => {
-        const o = doors[Math.floor(Math.random() * doors.length)];
-        o.slow = true; W.closeDoor(o.door.id); this.nav.dirty = true;
-        const pos = new THREE.Vector3(o.g.cx, 1.2, o.g.cz);
-        this.later(1600, () => this.audio.door(o.door.kind, pos, false, 0.3));
-        this.audio.caption('door', t_('cap.doorShut'), pos, 10);
-        pl.fear = Math.min(100, pl.fear + 6);
-      });
-      // 3. Soft steps far away, walking, stopping
-      opts.push(() => {
-        const a = Math.atan2(-fwd.x, -fwd.z) + (Math.random() - 0.5) * 1.6, d = 14 + Math.random() * 8;
-        const sx = pl.pos.x + Math.sin(a) * d, sz = pl.pos.z + Math.cos(a) * d, dir = a + Math.PI / 2;
-        const surf = pl.surface ? pl.surface() : 'carpet';
-        for (let k = 0; k < 5; k++) this.later(k * 620, () => this.audio.footstep(surf, 0.35, { x: sx + Math.sin(dir) * k * 0.7, y: 0, z: sz + Math.cos(dir) * k * 0.7 }));
-        this.audio.caption('steps', t_('cap.stepsFar'), { x: sx, y: 1, z: sz }, 10);
-        pl.fear = Math.min(100, pl.fear + 5);
-      });
-      // 4. A whisper, barely there
-      opts.push(() => { this.audio.echoVoice(1.1, 'voice'); this.audio.caption('whisper', t_('cap.whisper'), null, 10); pl.fear = Math.min(100, pl.fear + 6); });
+      // (The steps far off, the whisper and the door swinging shut are gone: they read as phantom noises.
+      // What is left is a light dying, quietly, somewhere ahead. If none is near, nothing happens.)
+      if (!opts.length) return;
       opts[Math.floor(Math.random() * opts.length)]();
-      void t;
     }
     openDoorBy(door, ent) {
       this.world.openDoor(door.id, ent.pos.x, ent.pos.z);
       const obj = this.world.doorObjs.get(door.id);
-      if (obj) this.audio.door(door.kind, new THREE.Vector3(obj.g.cx, 1.2, obj.g.cz), true);
+      if (obj) this.audio.door(door.kind, new THREE.Vector3(obj.g.cx, 1.2, obj.g.cz), true, 1, this.world.doorSound && this.world.doorSound(door.id));
     }
 
     // ================================================================ OLAYLAR

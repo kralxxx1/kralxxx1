@@ -54,7 +54,7 @@
     const L = (k, name, gain, o = {}) => this.bufLoop('amb:' + k, name, o.pos || null, Object.assign({ bus: 'amb', gain, rev: 0.1 }, o));
     this.ambOut = { theme, k: -1 };
     switch (theme) {
-      case 'depot': L('rain', 'rainInside', 0.22, { lowpass: 2600 }); L('hum', 'fluorescent', 0.05); L('air', 'hvac', 0.12); break;
+      case 'depot': L('room', 'loopQuiet', 0.34); break;
       case 'ferry': L('sea', 'loopSea', 0.5); this.loop('amb:wind', 'wind', null, { bus: 'amb', gain: 0.04, rev: 0.2 }); break;
       case 'pinewood': L('out', 'loopForest', 0.45); break;
       case 'mine': L('out', 'loopMine', 0.55, { rev: 0.3 }); break;
@@ -66,6 +66,7 @@
     }
     this.nextAmb = this.t + 5;
   };
+  P.quietThemes = { yellow: 1, depot: 1 };
   // Inside or out: the storm is muffled through walls, the stove only heard indoors
   P.ambOutdoor = function () {
     const g = PB.game, L = g && g.level, lp = this.listenerPos;
@@ -93,21 +94,22 @@
         if (M.inn && this.loops.get('amb:in')) this.setLoop('amb:in', M.inn * (1 - k));
       }
     }
-    this.dreadTickV5(cam);
+    // Nothing random walks, falls, knocks or whispers: only the two sounds a place is made of, rarely and far
+    if (th !== 'ferry' && th !== 'lake') return;
     if (this.t < this.nextAmb) return;
-    this.nextAmb = this.t + 9 + Math.random() * 14;
+    this.nextAmb = this.t + 25 + Math.random() * 30;
     const a = Math.random() * Math.PI * 2, d = 10 + Math.random() * 18, pos = { x: cam.position.x + Math.cos(a) * d, y: 1.4, z: cam.position.z + Math.sin(a) * d };
     const r = Math.random();
     const far = (name, gain, o = {}) => this.play(name, 2, 'amb', pos, Object.assign({ rev: 0.7, gain, ref: 6, roll: 1, occl: true, occluded: this.los ? !this.los(cam.position.x, cam.position.z, pos.x, pos.z) : false, jitter: 0.1 }, o));
     switch (th) {
-      case 'ferry': if (r < 0.4) far('cCreakBranch', 0.35, { rate: 0.6 }); else if (r < 0.6) far('sfxShipBell', 0.12, { rate: 0.5, lowpass: 900 }); break;
+      case 'ferry': if (r < 0.5) far('sfxShipBell', 0.08, { rate: 0.5, lowpass: 700 }); break;
       case 'pinewood': if (r < 0.4) far('dropWood', 0.35, { rate: 1.6 }); else if (r < 0.6) far('cCreakBranch', 0.3); break;
       case 'mine': if (r < 0.5) far('sfxKnockSteel', 0.12, { rate: 0.7 }); else if (r < 0.75) far('dropDebris', 0.35); break;
       case 'lodge': if (r < 0.45) far('floorCreak', 0.4); else if (r < 0.65) far('sfxClunk', 0.15, { rate: 0.7 }); break;
       case 'village': if (r < 0.4) far('floorCreak', 0.3, { rate: 0.8 }); else if (r < 0.6) far('sfxSplash', 0.1, { rate: 0.7 }); break;
       case 'train': if (r < 0.5) far('sfxClunk', 0.12, { rate: 1.3 }); break;
       case 'carnival': if (r < 0.35) far('sfxChain', 0.12); else if (r < 0.6) far('floorCreak', 0.3, { rate: 0.7 }); else if (r < 0.75) far('cLaughLotte', 0.07, { lowpass: 1200 }); break;
-      case 'lake': if (r < 0.45) far('sfxIceCrack', 0.18, { ref: 14, roll: 0.5 }); break;
+      case 'lake': if (r < 0.6) far('sfxIceCrack', 0.1, { ref: 14, roll: 0.5, lowpass: 1500 }); break;
       case 'depot': if (r < 0.5) far('farSteps', 0.35); else if (r < 0.7) far('dropWood', 0.3); break;
     }
   };
@@ -127,7 +129,7 @@
 
   // Only the room tones a chapter uses are rendered while it loads (the rest when they are first needed)
   const THEME_LOOPS = {
-    depot: ['rainInside', 'fluorescent', 'hvac'], yellow: ['fluorescent', 'hvac'], ferry: ['loopSea'], pinewood: ['loopForest', 'radioStatic'], mine: ['loopMine', 'loopCable'],
+    depot: ['loopQuiet'], yellow: ['loopHumSoft', 'loopQuiet'], ferry: ['loopSea'], pinewood: ['loopForest', 'radioStatic'], mine: ['loopMine', 'loopCable'],
     lodge: ['loopBlizzard', 'loopHouse', 'loopCable'], village: ['rainOutside', 'loopRiver', 'rainInside', 'loopChoir', 'loopFlood'], train: ['hvac', 'loopTrain', 'radioStatic'],
     carnival: ['loopHarbour', 'rainInside', 'loopOrgan', 'loopLotte', 'loopRide'], lake: ['loopIceWind', 'loopHouse'],
   };
@@ -247,7 +249,7 @@
     engineStart(pos) { if (!this.ctx) return; this.play('sfxEngineCatch', 1, 'sfx', at(pos), { rev: 0.3, gain: 0.85, ref: 3 }); setTimeout(() => this.loop('eng:car', 'engine', at(pos), { bus: 'sfx', gain: 0.25, rev: 0.2 }), 2400); },
     fuelTap(pos) { if (!this.ctx) return; this.play('sfxClink', 1, 'sfx', at(pos), { rev: 0.2, gain: 0.6 }); this.play('sfxPour', 1, 'sfx', at(pos), { rev: 0.2, gain: 0.45, delay: 0.3 }); },
     fuelPour: one('sfxPour', 1, 0.55),
-    speakerField() { if (!this.ctx) return; this.bufLoop('spk', 'radioStatic', null, { bus: 'sfx', gain: 0.22, rev: 0.4 }); setTimeout(() => this.stopLoop('spk', 1.5), 3200); },
+    speakerField() { if (!this.ctx) return; this.bufLoop('spk', 'radioStatic', null, { bus: 'sfx', gain: 0.07, rev: 0.4, lowpass: 2600 }); setTimeout(() => this.stopLoop('spk', 1.5), 3200); },
     gateChain: one('sfxChain', 1, 0.7),
     carHood: one('sfxClunk', 1, 0.8),
     click(pos) { if (this.ctx) this.play('flashClick', 3, 'sfx', at(pos), { rev: 0.15, gain: 0.7 }); },
@@ -288,7 +290,7 @@
     },
     trainClack(k = 1) { if (this.ctx) this.play('sfxClack', 3, 'sfx', null, { rev: 0.1, gain: 0.42 * k, lowpass: 1400 }); },
     trainBrake() { if (!this.ctx) return; this.play('sfxBrake', 1, 'sfx', null, { rev: 0.3, gain: 0.75 }); this.caption('brake', PB.t('cap.brake'), null, 6); },
-    pa() { if (!this.ctx) return; this.play('sfxChime', 1, 'sfx', null, { rev: 0.25, gain: 0.45 }); this.caption('pa', PB.t('cap.pa'), null, 4); this.bufLoop('pa', 'radioStatic', null, { bus: 'sfx', gain: 0.08, rev: 0.2 }); setTimeout(() => this.stopLoop('pa', 0.6), 3200); },
+    pa() { if (!this.ctx) return; this.play('sfxChime', 1, 'sfx', null, { rev: 0.25, gain: 0.45 }); this.caption('pa', PB.t('cap.pa'), null, 4); this.bufLoop('pa', 'radioStatic', null, { bus: 'sfx', gain: 0.025, rev: 0.2, lowpass: 2600 }); setTimeout(() => this.stopLoop('pa', 0.6), 3200); },
     carousel(on) {
       if (!this.ctx) return;
       if (!on) {

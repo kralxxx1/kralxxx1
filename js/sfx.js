@@ -70,11 +70,15 @@
   function add(dst, src, gain = 1, offset = 0) { for (let i = 0; i < src.length && i + offset < dst.length; i++) if (i + offset >= 0) dst[i + offset] += src[i] * gain; return dst; }
   function normalize(x, peak = 0.9) { let m = 0; for (let i = 0; i < x.length; i++) m = Math.max(m, Math.abs(x[i])); if (m > 0) { const k = peak / m; for (let i = 0; i < x.length; i++) x[i] *= k; } return x; }
   // Sum of exponentially decaying sine partials: [[freq, tau, amp], ...]
+  // (a rotating phasor shrinking by the decay each sample: amp * e^(-t/tau) * sin(w t + ph), without a sin or
+  // an exp per sample)
   function modes(n, sr, list, t0 = 0, r) {
     const a = new Float32Array(n), i0 = Math.floor(t0 * sr);
     for (const [f, tau, amp] of list) {
-      const ph = r ? r() * TAU : 0, w = TAU * f / sr;
-      for (let i = i0; i < n; i++) { const t = (i - i0) / sr, e = Math.exp(-t / tau); if (e < 1e-4) break; a[i] += Math.sin(w * (i - i0) + ph) * e * amp; }
+      const ph = r ? r() * TAU : 0, w = TAU * f / sr, d = Math.exp(-1 / (tau * sr)), cr = d * Math.cos(w), ci = d * Math.sin(w);
+      let re = Math.cos(ph) * amp, im = Math.sin(ph) * amp;
+      const end = Math.min(n, i0 + Math.ceil(tau * sr * 9.22));
+      for (let i = Math.max(0, i0); i < end; i++) { a[i] += im; const nr = re * cr - im * ci; im = re * ci + im * cr; re = nr; }
     }
     return a;
   }
@@ -649,6 +653,23 @@
     add(out, biquad(brown(n, r), 'lp', 120, 0.7, sr), 0.9);
     add(out, sweep(pink(n, r), 'bp', t => 500 + 300 * Math.sin(t * TAU * 1.5), 2, sr), 0.08);
     return normalize(loopify(out, sr, 1.2), 0.4);
+  };
+  // --- Quiet rooms. No hiss, no crackle, nothing on top: the building itself, felt more than heard.
+  // A big masonry building at night: a deep, slow rumble (the city and the trains far above), and under
+  // it the faintest mains hum. This is what silence sounds like underground.
+  R.loopQuiet = (sr, r) => {
+    const n = S(sr * 16), out = new Float32Array(n);
+    add(out, biquad(biquad(brown(n, r), 'lp', 70, 0.7, sr), 'lp', 70, 0.7, sr), 1.0);
+    for (let i = 0; i < n; i++) out[i] *= 0.75 + 0.25 * Math.sin(i / sr * TAU * 0.05 + 1.3);
+    const w = TAU * 50 / sr; for (let i = 0; i < n; i++) out[i] += Math.sin(w * i) * 0.012 + Math.sin(w * 2 * i + 0.7) * 0.004;
+    return normalize(loopify(out, sr, 1.5), 0.4);
+  };
+  // A fluorescent tube heard through a ceiling tile: only its low hum, steady, with no ballast buzz
+  R.loopHumSoft = (sr, r) => {
+    const n = S(sr * 6), out = new Float32Array(n);
+    for (const [f, a] of [[100, 0.5], [200, 0.22], [300, 0.08], [400, 0.03]]) { const w = TAU * f / sr, ph = r() * TAU; for (let i = 0; i < n; i++) out[i] += Math.sin(w * i + ph) * a; }
+    for (let i = 0; i < n; i++) out[i] *= 1 + 0.05 * Math.sin(TAU * (1 / 6) * i / sr);
+    return normalize(out, 0.35);
   };
   // --- Room tones for the later chapters
   // A water drop into a puddle: a short upward chirp

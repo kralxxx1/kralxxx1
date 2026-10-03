@@ -786,7 +786,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       let ax, az, cx, cz;
       if (d === 0 || d === 2) { ax = 1; az = 0; cz = (d === 0 ? y : y + 1) * C; cx = (x + 0.5) * C; }
       else { ax = 0; az = 1; cx = (d === 3 ? x : x + 1) * C; cz = (y + 0.5) * C; }
-      const width = door.kind === 'house' ? C : door.kind === 'elevator' ? 1.8 : door.kind === 'glass' ? 1.5 : 1.15;
+      const width = door.width || (door.kind === 'house' ? C : door.kind === 'elevator' ? 1.8 : door.kind === 'glass' ? 1.5 : 1.15);
       const height = door.kind === 'house' ? L.ceil : door.kind === 'elevator' ? 2.4 : 2.25;
       // Hücrenin içine doğru normal
       const nIn = { x: -DX[d], z: -DY[d] };
@@ -1312,19 +1312,23 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         } else {
           const pivot = new THREE.Group();
           pivot.position.set(-w / 2, 0, 0);
-          const leaf = door.kind === 'bars' ? this.barsLeaf(w, h) : door.leaf ? this.leafModel(door.leaf, w, h) : new THREE.Mesh(new THREE.BoxGeometry(w - 0.04, h - 0.02, 0.05), leafMat);
+          const leaf = door.kind === 'bars' ? this.barsLeaf(w, h) : door.leaf ? this.leafModel(door.leaf, w, h) : this.doorLeaf ? this.doorLeaf(door, w, h) : new THREE.Mesh(new THREE.BoxGeometry(w - 0.04, h - 0.02, 0.05), leafMat);
           leaf.position.set(w / 2, h / 2, 0);
           leaf.castShadow = true; leaf.receiveShadow = true;
           pivot.add(leaf);
-          const knob = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 8), this.mat('brass'));
-          knob.position.set(w - 0.12, 1.0, 0.05);
-          pivot.add(knob);
-          const knob2 = knob.clone(); knob2.position.z = -0.05; pivot.add(knob2);
+          if (!leaf.userData.hasHandles) {
+            const knob = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 8), this.mat('brass'));
+            knob.position.set(w - 0.12, 1.0, 0.05);
+            pivot.add(knob);
+            const knob2 = knob.clone(); knob2.position.z = -0.05; pivot.add(knob2);
+          }
+          obj.style = leaf.userData.style || null;
           grp.add(pivot);
           obj.pivot = pivot;
         }
         // Kasa
-        if (door.kind !== 'house') {
+        if (door.kind !== 'house' && obj.style && this.doorFrame) this.doorFrame(door, g, w, h, grp, obj.style);
+        else if (door.kind !== 'house') {
           const fm = door.kind === 'glass' ? this.mat('chrome') : this.mat(door.kind === 'wood' ? 'darkWood' : 'darkMetal');
           for (const sgn of [-1, 1]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.07, h, 0.24), fm); post.position.set(sgn * (w / 2 + 0.035), h / 2, 0); grp.add(post); }
           const top = new THREE.Mesh(new THREE.BoxGeometry(w + 0.14, 0.07, 0.24), fm); top.position.set(0, h + 0.035, 0); grp.add(top);
@@ -1383,9 +1387,21 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       this.mats.set('exitSignMat', m);
       return m;
     }
-    applyDoor(obj) {
+    applyDoor(obj, dt) {
       const a = obj.amt;
-      if (obj.pivot) obj.pivot.rotation.y = -a * 1.75 * (obj.swing || 1);
+      if (obj.pivot) {
+        let v = a;
+        if (obj.timing) {
+          // a hand on the handle: the latch lets go (a few millimetres), the push, the swing slowing out;
+          // shutting, it gathers speed and lands
+          if (obj.target === 1) v = a < 0.1 ? 0.012 * a / 0.1 : 0.012 + 0.988 * (1 - Math.pow(1 - (a - 0.1) / 0.9, 2.2));
+          else v = 1 - Math.pow(1 - a, 1.8);
+          if (obj.vis != null && dt) v = obj.vis + U.clamp(v - obj.vis, -dt * 5, dt * 5);
+          obj.vis = v;
+          if (obj.bounce > 0 && obj.target === 0) v += 0.012 * Math.abs(Math.sin((0.28 - obj.bounce) * 34)) * obj.bounce / 0.28;
+        }
+        obj.pivot.rotation.y = -v * 1.75 * (obj.swing || 1);
+      }
       if (obj.slides) for (const s of obj.slides) s.leaf.position.x = s.sgn * (obj.g.width / 4 + a * obj.g.width * 0.48);
       if (obj.curtain) { obj.curtain.visible = a < 0.99; obj.curtain.material.opacity = 0.55 * (1 - a); }
       if (obj.beyond) obj.beyond.visible = a > 0.01;
@@ -1619,9 +1635,15 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       this.updateLightPool(cam, t, dt);
       for (const obj of this.doorObjs.values()) {
         if (obj.target == null) continue;
-        const sp = (obj.door.kind === 'elevator' ? 0.6 : obj.door.kind === 'house' ? 0.8 : 1.6) * (obj.slow ? 0.35 : 1);
+        if (obj.timing === undefined) obj.timing = obj.pivot && this.doorSound && PB.DoorTiming ? PB.DoorTiming[this.doorSound(obj.door.id).kind] || null : null;
+        const tm = obj.timing;
+        const sp = (tm ? 1 / (obj.target > obj.amt ? tm.open : tm.close) : obj.door.kind === 'elevator' ? 0.6 : obj.door.kind === 'house' ? 0.8 : 1.6) * (obj.slow ? 0.35 : 1);
         const na = U.clamp(obj.amt + Math.sign(obj.target - obj.amt) * dt * sp, 0, 1);
-        if (na !== obj.amt) { obj.amt = na; this.applyDoor(obj); if (na === obj.target) obj.slow = false; }
+        if (na !== obj.amt) {
+          // a leaf that shuts rebounds a hair off the stop before the latch holds it
+          if (na === 0 && obj.amt > 0 && tm) obj.bounce = 0.28;
+          obj.amt = na; this.applyDoor(obj, dt); if (na === obj.target) obj.slow = false;
+        } else if (obj.bounce > 0) { obj.bounce = Math.max(0, obj.bounce - dt); this.applyDoor(obj, dt); }
       }
       // Kabin ekranları (yakındakiler, 12 fps)
       if (this.screens.length && t - (this.lastScr || 0) > 1 / 12) {

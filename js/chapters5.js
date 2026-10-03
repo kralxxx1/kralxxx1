@@ -17,7 +17,7 @@
   const unlock = (g, id, open) => {
     const d = doorOf(g, id); if (!d) return;
     d.locked = false;
-    if (open) { g.world.openDoor(d.id); g.audio.door(d.kind, doorPos(g, id), true); }
+    if (open) { g.world.openDoor(d.id); g.audio.door(d.kind, doorPos(g, id), true, 1, g.world.doorSound && g.world.doorSound(d.id)); }
     g.nav.dirty = true;
   };
   const exitThrough = (g, id, next) => { unlock(g, id, true); g.exitDoorId = id; g.exitNext = next; };
@@ -1728,8 +1728,8 @@
       pl.pos.set(x, 0, z); pl.camLift = -0.55 + car.position.y; pl.camRoll = Math.sin(R.t * 2.3) * 0.01;
       const once = (key, fn) => { if (!R.ev[key]) { R.ev[key] = true; fn(); } };
       // the doors bang open as it reaches them
-      if (x > 88) once('in', () => { const d = g.level.doors.find(q => q.id === 'ghostIn'); if (d) { g.world.openDoor(d.id, x, z); g.audio.door(d.kind, new THREE.Vector3(93, 1.2, 25.5), true); } });
-      if (x > 117) once('cab', () => { const d = L.doorAt(40, 9, 1); if (d) { g.world.openDoor(d.id, x, z); g.audio.door(d.kind, new THREE.Vector3(123, 1.2, 28.5), true); } });
+      if (x > 88) once('in', () => { const d = g.level.doors.find(q => q.id === 'ghostIn'); if (d) { g.world.openDoor(d.id, x, z); g.audio.door(d.kind, new THREE.Vector3(93, 1.2, 25.5), true, 1, g.world.doorSound(d.id)); } });
+      if (x > 117) once('cab', () => { const d = L.doorAt(40, 9, 1); if (d) { g.world.openDoor(d.id, x, z); g.audio.door(d.kind, new THREE.Vector3(123, 1.2, 28.5), true, 1, g.world.doorSound(d.id)); } });
       // inside: the lamps flare and die; someone laughing very close; the smell of smoke
       if (x > 100) once('flare', () => { pl.addTrauma(0.2); g.fearAdd(15); const lo = species(g, 'lotte')[0]; if (lo) lo.voice('spot'); });
       if (x > 110) once('dark', () => { g.world.setZone(3, false); });

@@ -28,10 +28,10 @@
     },
     doors: {
       E: { id: 'elevator', kind: 'elevator', locked: true, nameKey: 'door.elevator', lockKey: 'lock.elevator' },
-      O: { id: 'ottoDoor', kind: 'glass', locked: true, nameKey: 'door.otto', lockKey: 'lock.otto' },
-      R: { id: 'storeDoor', kind: 'wood' },
-      '1': { id: 'archiveA', kind: 'metal' }, '2': { id: 'archiveB', kind: 'metal' },
-      S: { id: 'staffDoor', kind: 'wood' }, C: { id: 'counterDoor', kind: 'wood' },
+      O: { id: 'ottoDoor', kind: 'glass', width: 1.1, letter: 'SUPERINTENDENT', letterSub: 'DEPOT 9', locked: true, nameKey: 'door.otto', lockKey: 'lock.otto' },
+      R: { id: 'storeDoor', kind: 'wood', style: 'panel2', color: 'doorPaintBrown' },
+      '1': { id: 'archiveA', kind: 'metal', plate: 'ARCHIVE  A' }, '2': { id: 'archiveB', kind: 'metal', plate: 'ARCHIVE  B' },
+      S: { id: 'staffDoor', kind: 'wood', style: 'glazed', color: 'doorPaintCream' }, C: { id: 'counterDoor', kind: 'wood', style: 'panel4', color: 'darkWood' },
       G: { id: 'concourseGate', kind: 'bars', locked: true, nameKey: 'door.concourse', lockKey: 'lock.concourse', beyond: 'stairsUpLit' },
     },
     grid: [

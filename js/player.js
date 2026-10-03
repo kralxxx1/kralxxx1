@@ -482,11 +482,12 @@
       if (this.flashOn) {
         const L = g.level, cam = this.cam, d0 = this.flashDir, ceil = (L && L.ceil) || 3;
         let hit = 4;
-        if (L) for (let s = 0.3; s <= 4; s += 0.3) {
+        if (L) for (let s = 0.25; s <= 4; s += 0.25) {
           const x = cam.position.x + d0.x * s, y = cam.position.y + d0.y * s, z = cam.position.z + d0.z * s;
-          if (y < 0.02 || y > ceil - 0.02 || !L.los(cam.position.x, cam.position.z, x, z)) { hit = s; break; }
+          if (y < 0.02 || y > ceil - 0.02 || !L.los(cam.position.x, cam.position.z, x, z) || this.beamBlocked(x, y, z)) { hit = s; break; }
         }
-        this.flashNear = U.damp(this.flashNear == null ? 1 : this.flashNear, 0.42 + 0.58 * U.smoothstep(0.4, 3.2, hit), 6, dt);
+        // the light on a surface goes with the square of the distance: the eye takes most of that back
+        this.flashNear = U.damp(this.flashNear == null ? 1 : this.flashNear, U.clamp(Math.pow(hit / 4, 1.8), 0.14, 1), 5, dt);
         k *= this.flashNear;
       }
       // Brighter where the chapter's exposure is low, so the beam always reads on screen
@@ -508,6 +509,19 @@
       this.flashTarget.position.copy(this.flash.position).addScaledVector(this.flashDir, 10);
       this.fill.position.copy(cam.position).addScaledVector(this.flashDir, 1.2);
       this.updateBeam(dt, base);
+    }
+    // Is this point inside something the beam would light: a closed door leaf or a piece of furniture
+    beamBlocked(x, y, z) {
+      const W = this.game.world, L = this.game.level;
+      if (!W) return false;
+      for (const o of W.doorObjs.values()) {
+        if (o.amt > 0.4) continue;
+        const G = o.g, dx = x - G.cx, dz = z - G.cz;
+        if (Math.abs(dx * G.ax + dz * G.az) < G.width / 2 && Math.abs(dx * G.nIn.x + dz * G.nIn.z) < 0.12 && y < G.height) return true;
+      }
+      const list = W.colGrid.get(L.i(Math.floor(x / L.cell), Math.floor(z / L.cell)));
+      if (list) for (const b of list) if (x > b.minX && x < b.maxX && z > b.minZ && z < b.maxZ && y > b.minY && y < Math.min(b.maxY, 2.6)) return true;
+      return false;
     }
     updateBeam(dt, base) {
       const b = this.beam, g = this.game, L = g.level;

@@ -237,7 +237,7 @@
       if (!L.inb(c.x, c.y) || !(L.solid[L.i(c.x, c.y)] === 0)) return null;
       const s = L.styles[L.styleOf[L.i(c.x, c.y)]], out = !!(od && od[L.i(c.x, c.y)]);
       if (out) { const oo = L.inb(o.x, o.y) && L.solid[L.i(o.x, o.y)] === 0 ? L.styles[L.styleOf[L.i(o.x, o.y)]] : s; const oOut = !!(od && L.inb(o.x, o.y) && od[L.i(o.x, o.y)]); return { key: (!oOut && oo.sidingKey) || oo.wallKey, h: oOut ? (s.wallH || 2.4) : L.ceilAt(o.x, o.y) + (oo.parapet != null ? oo.parapet : 0.45), out: true }; }
-      return { key: s.wallKey, h: L.ceilAt(c.x, c.y), out: false };
+      return { key: s.wallKey, h: L.ceilAt(c.x, c.y), out: false, wain: s.wainscot ? { key: s.wainscotKey, h: s.wainscot.h || 1.1 } : null };
     };
     const cA = cellAt(nxA, nzA), cB = cellAt(-nxA, -nzA);
     const A = info(cA, cB), B = info(cB, cA);
@@ -251,6 +251,14 @@
         const p0x = g.cx + g.ax * a0, p0z = g.cz + g.az * a0, p1x = g.cx + g.ax * a1, p1z = g.cz + g.az * a1;
         const nx = nxA * sgn, nz = nzA * sgn;
         this.vface(buf, p0x + nx * t / 2, p0z + nz * t / 2, p1x + nx * t / 2, p1z + nz * t / 2, y0, y1, nx, nz, s, y0 > 0 || S.out ? null : ao);
+        // the room's tiles or panelling run on up to the architrave, with their ledge
+        if (S.wain && y0 === 0) {
+          const wb = this.chunkBuf(bufs, S.wain.key, g.cx, g.cz), tb = this.chunkBuf(bufs, 'trimPaint', g.cx, g.cz), ws = this.mat(S.wain.key).userData.scale || 2;
+          const o = t / 2 + 0.006, lo = o + 0.022, hh = S.wain.h;
+          this.vface(wb, p0x + nx * o, p0z + nz * o, p1x + nx * o, p1z + nz * o, 0, hh, nx, nz, ws, null);
+          this.vface(tb, p0x + nx * lo, p0z + nz * lo, p1x + nx * lo, p1z + nz * lo, hh, hh + 0.035, nx, nz, 1, null);
+          this.hface(tb, Math.min(p0x + nx * o, p1x + nx * lo), Math.min(p0z + nz * o, p1z + nz * lo), Math.max(p0x + nx * o, p1x + nx * lo), Math.max(p0z + nz * o, p1z + nz * lo), hh + 0.035, true, 1, 1);
+        }
       }
     }
     const M = A || B, mb = this.chunkBuf(bufs, M.key, g.cx, g.cz), ms = this.mat(M.key).userData.scale || 2;
