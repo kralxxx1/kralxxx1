@@ -33,6 +33,8 @@
   const WOOD = /^(woodVarnish|darkWood|drawerWood|mahogany|pewWood|pineWood|carvedPine|crateWood|deskTop|stallWood|logWood|folkBlue|folkRed)$/;
   const PAINT = /^(paintMetal|stallPaint|lockerPaint)$/;
   // what varies, and how many variants (besides the original)
+  // pieces things stand on keep their height, so nothing on top floats or sinks
+  const SUPPORT = { desk: 1, shelf: 1, bookshelf: 1, cafTable: 1, folkTable: 1, stationBench: 1, pew: 1, motelBed: 1, bunks: 1, nightstand: 1, crateStack: 1, barrel: 1, filing: 1 };
   const VARY = { chair: 3, alpineChair: 2, desk: 3, shelf: 2, bookshelf: 2, wardrobe: 3, cafTable: 2, folkTable: 2, stationBench: 2, pew: 2, motelBed: 2, bunks: 2, nightstand: 2, crateStack: 2, barrel: 2, filing: 2, staffLockers: 2, coatStand: 2 };
 
   // ------------------------------------------------------------ things on desks
@@ -111,7 +113,7 @@
       p.vk = k;
       if (sub) return Variety.sub(sub, p.type, theme, k);
       // a little bigger or smaller than the next one
-      if (p.sx == null && p.sy == null && p.sz == null) { const j = U.hash2(Math.round(p.x * 5), Math.round(p.z * 5), 7); p.sx = p.sz = 0.96 + j * 0.08; p.sy = 0.97 + j * 0.06; }
+      if (p.sx == null && p.sy == null && p.sz == null) { const j = U.hash2(Math.round(p.x * 5), Math.round(p.z * 5), 7); p.sx = p.sz = 0.96 + j * 0.08; p.sy = SUPPORT[p.type] ? 1 : 0.97 + j * 0.06; }
       return (p.vtype = variant(p.type, theme, k));
     },
     // a drawer front or door of a varied piece, in the same wood
