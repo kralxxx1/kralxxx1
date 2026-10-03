@@ -206,6 +206,8 @@
   }
 
   // ------------------------------------------------------------ the build kit
+  // Things that are scattered over the ground (and may stand close together)
+  const VEG = /^(pine|spruce|birch|tree|bush|fern|stump|fallenLog|rock|reeds|grass|snowPine|deadTree|shrub|hedge)/i;
   function kit(L, def) {
     const C = L.cell;
     const K = {
@@ -223,6 +225,19 @@
           delete p.col;
         }
         return p;
+      },
+      // Is there room here for something scattered (a tree, a rock)? No furniture, sign, light or building
+      // part within `rad` metres of (x, y) (cell coords), and no other scattered thing within `gap`.
+      clear(x, y, rad = 1.0, gap = 0.9) {
+        const wx = x * C, wz = y * C;
+        for (const p of L.props) {
+          if (p.wall) continue;
+          if (VEG.test(p.type)) { if (Math.hypot(p.x - wx, p.z - wz) < gap) return false; continue; }
+          const hw = p.collider ? p.collider.hw : 0.3, hd = p.collider ? p.collider.hd : 0.3;
+          const dx = Math.max(0, Math.abs(wx - p.x) - hw), dz = Math.max(0, Math.abs(wz - p.z) - hd);
+          if (Math.hypot(dx, dz) < rad) return false;
+        }
+        return true;
       },
       // rows and grids of the same thing
       row(type, x0, y0, x1, y1, n, rot = 0, o = {}) {

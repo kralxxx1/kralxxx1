@@ -33,7 +33,7 @@
         { type: 'key', id: 'elevatorKey', data: 'elevatorKey', place: 'spot', spot: 'elevatorKey' },
         { type: 'thing', id: 'callPanel', place: 'spot', spot: 'callPanel', fixed: true, prompt: 'depot_callPrompt', reach: 2.4 },
         doc('depot_handover', 'desk', { offset: [0.35, -0.2] }),
-        doc('depot_log', 'desk', { offset: [-0.4, 0.15] }),
+        doc('depot_log', 'desk', { offset: [-0.09, 0.6] }),
         doc('depot_ottoNotes', 'ottoDesk'),
         doc('depot_memo', 'tube', { h: 1.22 }),
         doc('depot_calendar', 'store'),

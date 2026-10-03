@@ -1163,7 +1163,19 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         p.x += Math.sin(p.rot || 0) * push; p.z += Math.cos(p.rot || 0) * push; p.finishPushed = true;
       }
       for (const p of L.props) {
-        if (p.collider) p.colBox = this.addCollider({ minX: p.x - p.collider.hw, maxX: p.x + p.collider.hw, minZ: p.z - p.collider.hd, maxZ: p.z + p.collider.hd, maxY: 2.2, hide: p.hide ? p : null });
+        if (p.collider) {
+          // The collider follows the model. A hand-typed size that disagrees with it by more than a hand
+          // (axes swapped, a guess) is an invisible wall on one side and a walk-through on the other.
+          let c = p.collider, cx = p.x, cz = p.z;
+          const f = !p.colExact && PB.Placement && this.footprint(p.type === 'cabinet' ? 'cabinetBody' : p.type);
+          if (f) {
+            const ob = PB.Placement.obbOf(p, f);
+            const ex = Math.abs(ob.u[0]) * ob.hx + Math.abs(ob.v[0]) * ob.hz, ez = Math.abs(ob.u[1]) * ob.hx + Math.abs(ob.v[1]) * ob.hz;
+            const off = Math.max(Math.abs((ob.x - ex) - (p.x - c.hw)), Math.abs((ob.x + ex) - (p.x + c.hw)), Math.abs((ob.z - ez) - (p.z - c.hd)), Math.abs((ob.z + ez) - (p.z + c.hd)));
+            if (off > 0.2) { c = { hw: Math.max(0.06, ex - 0.03), hd: Math.max(0.06, ez - 0.03) }; cx = ob.x; cz = ob.z; }
+          }
+          p.colBox = this.addCollider({ minX: cx - c.hw, maxX: cx + c.hw, minZ: cz - c.hd, maxZ: cz + c.hd, maxY: 2.2, hide: p.hide ? p : null });
+        }
         if (p.type === 'collider') continue;
         if (p.type === 'cabinet') { add('cabinet:' + p.game, p); continue; }
         add(p.type, p);

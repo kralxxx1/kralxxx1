@@ -114,7 +114,7 @@
       // kitchen
       P('kitchenCounter', 13.6, 40.0, 0, { col: [0.38, 1.4], sz: 0.55 });
       P('folkTable', 11.5, 40.6, 0, { col: [0.75, 0.4] }); P('alpineChair', 11.0, 41.1, PI, { col: [0.2, 0.2] }); P('alpineChair', 12.0, 40.1, 0, { col: [0.2, 0.2] });
-      P('cassetteRecorder', 11.8, 40.55, 0.3, { y: 0.785 });
+      P('cassetteRecorder', 11.65, 40.55, 0.3, { y: 0.785 });
       K.light(11.5, 40.5, { kind: 'bulb', color: [1, 0.85, 0.6], intensity: 0.22, range: 6, zone: 1 });
       // hall: the hooks, the boots, the empty peg
       P('coatHooks', 9.5, 42.03, 0, { wall: true }); P('bootRow', 9.5, 42.25, 0, {});

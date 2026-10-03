@@ -112,15 +112,16 @@
         const y = side ? 10.0 : 1.0, rot = side ? PI : 0;
         P('davits', x, side ? 9.6 : 1.4, rot);
         if (!(x === 8.5 && !side)) P('lifeboat', x, side ? 10.75 : 0.25, rot, { y: 1.9 });
-        P('davitWinch', x - 1.2, side ? 9.25 : 1.75, rot, { col: [0.36, 0.26] });
+        P('davitWinch', x - 1.24, side ? 9.25 : 1.75, rot, { col: [0.36, 0.26] });
         void y;
       }
       P('funnel', 11.5, 5.5, 0, { col: [2.0, 2.0] });
       for (const [x, y] of [[9.2, 3.2], [13.8, 3.2], [9.2, 7.8], [13.8, 7.8]]) P('ventCowl', x, y, x < 11 ? 0.6 : -2.4, { col: [0.24, 0.24] });
-      for (const [x, y] of [[2.2, 5.5], [6.5, 5.5], [27.5, 5.5]]) P('ventMushroom', x, y, 0, { col: [0.18, 0.18] });
+      for (const [x, y] of [[2.2, 5.5], [6.5, 5.5], [26.3, 6.4]]) P('ventMushroom', x, y, 0, { col: [0.18, 0.18] });
       for (const [x, y] of [[1.3, 2.2], [1.3, 8.8], [29.2, 4.3], [29.2, 6.7], [26.5, 2.4], [26.5, 8.6]]) P('bollard', x, y, x > 20 ? H : 0, { col: [0.4, 0.2] });
       P('windlass', 28.0, 5.5, H, { col: [0.5, 0.75] });
-      P('foremast', 27.2, 5.5, 0, { col: [0.25, 0.25] });
+      // (the forestay runs forward to the stem, the shrouds out to the rails)
+      P('foremast', 27.2, 5.5, H, { col: [0.25, 0.25] });
       P('shipBell', 27.2, 5.5, -H);
       P('raftCanister', 14.0, 2.35, 0, { col: [0.8, 0.35] }); P('raftCanister', 14.0, 8.65, PI, { col: [0.8, 0.35] });
       P('deckBench', 3.0, 7.6, PI, { col: [0.9, 0.3] }); P('deckBench', 7.0, 3.3, 0, { col: [0.9, 0.3] });
@@ -138,7 +139,7 @@
       // captain's cabin
       P('desk', 20.6, 3.55, PI, { col: [0.9, 0.43] }); P('chair', 20.6, 4.1, 0, { col: [0.25, 0.25] });
       P('bunks', 18.5, 3.5, H, { col: [0.42, 1.0], hide: true, hideKind: 'bed', hideAt: [0, 0], hideYaw: H });
-      P('whisky', 20.1, 3.45, 0.4, { y: 0.785 });
+      P('whisky', 20.8, 3.467, 0.4, { y: 0.785 });
       P('wardrobe', 21.7, 4.5, -H, { col: [0.3, 0.55] });
       K.light(20.0, 4.0, { kind: 'bulb', color: [1, 0.8, 0.5], intensity: 0.45, range: 5 });
       // radio room

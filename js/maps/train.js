@@ -78,7 +78,7 @@
       // ------------------------------------------- the platform
       for (const x of [10.2, 18.4, 26.6]) P('carExterior', x, 27.55, 0, { fixed: true });
       P('locoExterior', 33.4, 27.55, 0, { fixed: true });
-      for (const x of [10, 15, 20, 25, 30]) { P('platformLamp', x, 28.3, PI, { col: [0.1, 0.1] }); K.light(x, 28.55, { kind: 'none', y: 4.0, color: [1, 0.82, 0.55], intensity: 0.38, range: 10, zone: 3, flicker: x === 20 ? 0.4 : 0 }); }
+      for (const x of [10, 15, 20, 25, 30]) { P('platformLamp', x, 28.62, PI, { col: [0.1, 0.1] }); K.light(x, 28.32, { kind: 'none', y: 4.0, color: [1, 0.82, 0.55], intensity: 0.38, range: 10, zone: 3, flicker: x === 20 ? 0.4 : 0 }); }
       P('stationSign', 18.5, 30.6, 0, { col: [1.4, 0.1] });
       P('routeBoard', 15.5, 30.98, PI, { wall: true, y: 1.6 });
       P('stationBench', 12, 30.4, PI, { col: [0.8, 0.3] }); P('stationBench', 24, 30.4, PI, { col: [0.8, 0.3] });

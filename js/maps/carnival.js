@@ -121,7 +121,7 @@
       P('shootingStall', 27.6, 27, -H, { col: [1.05, 1.55] }); P('ringStall', 27.6, 30.2, -H, { col: [1.05, 1.55] }); P('highStriker', 27.4, 33.6, -H, { col: [0.6, 0.6] });
       // a bulb left burning in most of the stalls
       for (const [x, y, c] of [[17.6, 27, [1, 0.7, 0.85]], [17.6, 30.2, [1, 0.75, 0.5]], [27.4, 27, [0.8, 1, 0.7]], [27.4, 30.2, [1, 0.8, 0.5]], [17.6, 33.4, [0.7, 0.85, 1]]]) K.light(x, y, { kind: 'none', y: 2.3, color: c, intensity: 0.2, range: 6, flicker: x > 20 && y > 29 ? 0.4 : 0.05 });
-      P('balloonBunch', 18.1, 25.9, 0, {}); P('prizeBear', 27.0, 26.6, 0.4, { y: 1.06 });
+      P('balloonBunch', 18.1, 25.9, 0, {}); P('prizeBear', 26.9, 26.45, 0.9, { y: 0 });
       for (const y of [22, 25.5, 29, 32.5]) {
         P('lightPole', 19.4, y, 0, { col: [0.15, 0.15], fixed: true }); P('lightPole', 25.6, y, PI, { col: [0.15, 0.15], fixed: true });
         P('festoon6', 22.5, y, 0, { y: 5.75, fixed: true });
@@ -191,7 +191,7 @@
       P('vanityMirror', 38.5, 25.85, PI, { col: [0.5, 0.25] });
       P('trailerBed', 37.4, 25.7, 0, { col: [0.95, 0.38] });
       P('costumeRack', 38.85, 25.2, 0, { col: [0.6, 0.15] });
-      P('wigStand', 38.15, 25.85, 0, { y: 0.79 });
+      P('wigStand', 38.4, 25.85, 0, { y: 0.79 });
       P('clownShoes', 38.9, 25.6, 0.3, {});
       K.light(38.5, 25.75, { kind: 'none', y: 1.3, color: [1, 0.8, 0.55], intensity: 0.32, range: 6, zone: 4, flicker: 0.05 });
       for (const [x, y] of [[36, 27], [40, 26.5], [35.5, 25], [39.5, 22.8]]) P(r() < 0.5 ? 'crateStack' : 'barrel', x, y, r.range(0, 6), { col: [0.5, 0.5] });

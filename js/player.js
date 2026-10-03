@@ -539,6 +539,7 @@
         const G = o.g, dx = x - G.cx, dz = z - G.cz;
         if (Math.abs(dx * G.ax + dz * G.az) < G.width / 2 && Math.abs(dx * G.nIn.x + dz * G.nIn.z) < 0.12 && y < G.height) return true;
       }
+      for (const e of this.game.entities) if (e.mesh && e.mesh.visible && e.pos && Math.hypot(x - e.pos.x, z - e.pos.z) < (e.radius || 0.3) + 0.12 && y < ((e.sp && e.sp.height) || 1.8)) return true;
       const list = W.colGrid.get(L.i(Math.floor(x / L.cell), Math.floor(z / L.cell)));
       if (list) for (const b of list) if (x > b.minX && x < b.maxX && z > b.minZ && z < b.maxZ && y > b.minY && y < Math.min(b.maxY, 2.6)) return true;
       return false;

@@ -305,7 +305,7 @@
     ['tube', 'castIron', [[3.0, 0.5, -0.6], [3.9, 0.45, 0], [3.0, 0.5, 0.6]], 0.05, 6, 10], ['cyl', 'castIron', 0.04, 0.04, 0.5, 8, 3.9, 0.25, 0],
   ];
   D.pipoSign = [['box', 'pipoSign', 1.0, 0.5, 0.03, 0, 0, 0]];
-  D.trailerStep = [['box', 'stallWood', 0.7, 0.18, 0.45, 0, 0.18, 0], ['box', 'stallWood', 0.7, 0.18, 0.3, 0, 0.36, -0.08]];
+  D.trailerStep = [['box', 'stallWood', 0.7, 0.27, 0.45, 0, 0.135, 0], ['box', 'stallWood', 0.7, 0.18, 0.3, 0, 0.36, -0.08], ['box', 'cinderBlock', 0.36, 0.06, 0.2, -0.15, 0.03, 0.12]];
   // inside: the dressing table with its mirror ringed with bulbs, greasepaint, a powder puff
   D.vanityMirror = [
     ['rbox', 'mahogany', 1.0, 0.75, 0.45, 0.02, 0, 0.375, 0], ['box', 'mahogany', 1.04, 0.04, 0.5, 0, 0.77, 0],
@@ -360,6 +360,8 @@
   ];
   D.litterCup = [['cyl', 'paperCup', 0.04, 0.03, 0.1, 10, 0, 0.04, 0, H, 0.3, 0]];
   D.popcornBox = [['box', 'popcornRed', 0.1, 0.15, 0.06, 0, 0.03, 0, H, 0, 0.4], ...[0, 1, 2].map(k => ['sph', 'popcorn', 0.015, 0.1 + k * 0.03, 0.01, 0.02 * k, 6, 4])];
-  D.balloonBunch = [...[[0, 0, 'balloonRed'], [0.2, 0.15, 'balloonBlue'], [-0.18, 0.2, 'balloonYellow'], [0.05, 0.35, 'balloonRed']].flatMap(([x, z, m], k) => [['sph', m, 0.16, x, 2.2 + k * 0.1, z, 12, 10, [1, 1.15, 1]], ['tube', 'cordBlack', [[0, 1.0, 0], [x * 0.5, 1.6, z * 0.5], [x, 2.04 + k * 0.1, z]], 0.003, 3, 8]])];
+  D.balloonBunch = [...[[0, 0, 'balloonRed'], [0.2, 0.15, 'balloonBlue'], [-0.18, 0.2, 'balloonYellow'], [0.05, 0.35, 'balloonRed']].flatMap(([x, z, m], k) => [['sph', m, 0.16, x, 2.2 + k * 0.1, z, 12, 10, [1, 1.15, 1]], ['tube', 'cordBlack', [[0, 0.1, 0], [x * 0.2, 0.9, z * 0.2], [x * 0.6, 1.7, z * 0.6], [x, 2.04 + k * 0.1, z]], 0.003, 3, 12]]),
+    // tied to a sandbag on the ground
+    ['rbox', 'canvasSack', 0.2, 0.1, 0.14, 0.04, 0, 0.05, 0]];
   D.prizeBear = [['sph', 'plushBrown', 0.14, 0, 0.14, 0, 12, 10], ['sph', 'plushBrown', 0.1, 0, 0.33, 0.02, 12, 10], ...[-1, 1].map(s => ['sph', 'plushBrown', 0.035, s * 0.07, 0.42, 0.0, 8, 6]), ['sph', 'black', 0.012, 0.03, 0.35, 0.09, 6, 4], ['sph', 'black', 0.012, -0.03, 0.35, 0.09, 6, 4]];
 })(typeof window !== 'undefined' ? window : globalThis);

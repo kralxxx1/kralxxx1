@@ -124,6 +124,12 @@
       const curve = new THREE.CatmullRomCurve3(a[0].map(p => V3(p[0], p[1], p[2])), !!a[4], 'catmullrom', 0.5);
       return { g: new THREE.TubeGeometry(curve, a[3] || Math.max(8, a[0].length * 6), a[1], a[2] || 8, !!a[4]) };
     },
+    // A plane showing one cell of an atlas texture: w, h, u0, v0, u1, v1, x, y, z, rx, ry, rz
+    uvplane: a => {
+      const g = new THREE.PlaneGeometry(a[0], a[1]), uv = g.attributes.uv;
+      for (let i = 0; i < uv.count; i++) uv.setXY(i, a[2] + uv.getX(i) * (a[4] - a[2]), a[3] + uv.getY(i) * (a[5] - a[3]));
+      return { g, pos: R3(a, 6), rot: R3(a, 9) };
+    },
     cap: a => ({ g: new THREE.CapsuleGeometry(a[0], a[1], 4, 12), pos: R3(a, 2), rot: R3(a, 5) }),
     disc: a => ({ g: new THREE.CircleGeometry(a[0], a[7] || 24), pos: R3(a, 1), rot: R3(a, 4) }),
     ring: a => ({ g: new THREE.RingGeometry(a[0], a[1], a[8] || 32), pos: R3(a, 2), rot: R3(a, 5) }),
@@ -149,7 +155,7 @@
   };
 
   // Move and turn a finished list of specs as one object (positions and rotations composed)
-  const PIDX = { box: [3, 6], rbox: [4, 7], cyl: [4, 7], torus: [4, 7], cone: [3, 6], lathe: [2, 5], cap: [2, 5], rcyl: [4, 7], disc: [1, 4], ring: [2, 5], plane: [2, 5], ext: [3, 6] };
+  const PIDX = { box: [3, 6], rbox: [4, 7], cyl: [4, 7], torus: [4, 7], cone: [3, 6], lathe: [2, 5], cap: [2, 5], rcyl: [4, 7], disc: [1, 4], ring: [2, 5], plane: [2, 5], ext: [3, 6], uvplane: [6, 9] };
   M.place = (specs, px, py, pz, rx = 0, ry = 0, rz = 0) => {
     const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), qp = new THREE.Quaternion(), e = new THREE.Euler();
     return specs.map(sp => {
@@ -466,7 +472,9 @@
     ['lathe', 'greenGlass', [[0.001, 0.07], [0.04, 0.068], [0.1, 0.05], [0.14, 0.01], [0.142, 0], [0.138, 0], [0.098, 0.044], [0.04, 0.062], [0.001, 0.064]], 32, 0, 1.06, 0.06, 0, 0, 0, [1, 1, 0.55]],
     ['cyl', 'chrome', 0.004, 0.004, 0.08, 6, 0.05, 1.0, 0.09],
     ['sph', 'brass', 0.008, 0.05, 0.96, 0.09],
-    ['tube', 'blackPlastic', [[0, 0.79, -0.05], [0.02, 0.785, -0.2], [0.1, 0.78, -0.35], [0.12, 0.6, -0.42], [0.1, 0.1, -0.42]], 0.004, 5],
+    // the flex runs back over the desk, down behind it to the floor and along to a plug
+    ['tube', 'blackPlastic', [[0, 0.79, -0.05], [0.02, 0.788, -0.2], [0.1, 0.788, -0.36], [0.12, 0.74, -0.45], [0.12, 0.35, -0.47], [0.13, 0.03, -0.5], [0.2, 0.006, -0.6], [0.34, 0.006, -0.64]], 0.004, 5, 48],
+    ['rbox', 'blackPlastic', 0.045, 0.028, 0.06, 0.006, 0.37, 0.014, -0.645, 0, 0.3, 0],
   ];
   // Wooden side chair: rear legs run up into the back posts, curved back rail with a leather pad
   D.chair = [

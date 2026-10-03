@@ -132,11 +132,12 @@
       for (const [x, y] of [[21.0, 2.45], [22.0, 2.45]]) K.light(x, y, { kind: 'none', y: 1.25, color: [1, 0.7, 0.4], intensity: 0.22, range: 6, zone: 1, flicker: 0.35 });
       K.light(21.5, 4.5, { kind: 'none', y: 4.2, color: [1, 0.7, 0.4], intensity: 0.14, range: 9, zone: 1, flicker: 0.4 });
       // vestry: robes on a rail, a key board, the parish book
-      P('coatStand', 24.7, 3.3, 0, { col: [0.2, 0.2] });
+      P('coatStand', 24.8, 3.1, 0, { col: [0.2, 0.2] });
       P('keyBoard', 24.97, 4.5, -H, { wall: true, y: 1.5 });
       P('desk', 24.5, 3.55, -H, { col: [0.35, 0.75] });
       // ------------------------------------------- the school, and its attic
-      for (let k = 0; k < 8; k++) P('schoolDesk', 25.2 + (k % 4) * 0.9, 12.4 + Math.floor(k / 4) * 1.1, PI, { col: [0.35, 0.3] });
+      // three rows of three, clear of the attic stairs in the corner
+      for (let k = 0; k < 6; k++) P('schoolDesk', 24.9 + (k % 3) * 0.9, 12.4 + Math.floor(k / 3) * 1.1, PI, { col: [0.35, 0.3] });
       P('teacherDesk', 26.5, 11.3, 0, { col: [0.75, 0.38] });
       P('chalkboard', 26.5, 11.03, 0, { wall: true, y: 1.6 });
       P('crateStack', 28.4, 14.4, 0.2, { col: [0.55, 0.55] }); P('crateStack', 24.6, 14.4, -0.3, { col: [0.55, 0.55] });
@@ -150,8 +151,8 @@
       P('cornerFireplace', 4.6, 9.15, 0.6, { col: [0.6, 0.45] });
       P('rockingChair', 5.6, 10.2, 2.4, { col: [0.3, 0.45] });
       P('folkTable', 6.4, 9.7, 0, { col: [0.75, 0.4] }); P('alpineChair', 6.4, 10.2, PI, { col: [0.2, 0.2] });
-      P('oilLamp', 6.85, 9.55, 0, { y: 0.785 });
-      K.light(6.85, 9.55, { kind: 'none', y: 1.05, color: [1, 0.72, 0.4], intensity: 0.45, range: 9, zone: 2, flicker: 0.12 });
+      P('oilLamp', 6.6, 9.6, 0, { y: 0.785 });
+      K.light(6.6, 9.6, { kind: 'none', y: 1.12, color: [1, 0.72, 0.4], intensity: 0.45, range: 9, zone: 2, flicker: 0.12 });
       P('grandfatherClock', 4.15, 11.6, H, { col: [0.2, 0.28] });
       P('woodStove', 7.6, 12.3, -H, { col: [0.3, 0.3] });
       P('kitchenCounter', 6.5, 13.7, 0, { col: [0.6, 0.3] });
@@ -170,7 +171,7 @@
       for (const [x, y] of [[8.6, 8.3], [18.6, 16.4], [24.2, 9.5]]) P('wellStone', x, y, r.range(0, 6), { col: [0.65, 0.65], fixed: true });
       P('footbridge', 16, 12.5, 0, { fixed: true });
       for (const [x, y] of [[14.2, 10.2], [17.5, 21.2]]) P('rowBoat', x, y, r.range(-0.5, 0.5), { col: [1.0, 0.5] });
-      for (const [x, y, rr] of [[2.5, 8.9, 0], [8.5, 11.3, H], [13.0, 15.9, 0], [19.5, 15.9, 0], [25.5, 15.9, 0], [3.0, 17.9, 0]]) P('stoneWall', x, y, rr, { col: rr ? [0.3, 1.45] : [1.45, 0.3] });
+      for (const [x, y, rr] of [[2.5, 8.9, 0], [8.5, 11.3, H], [13.0, 15.9, 0], [19.5, 15.9, 0], [25.5, 15.9, 0], [3.0, 17.9, 0]]) P('stoneWall', x, y, rr, { y: -0.08, col: rr ? [0.3, 1.45] : [1.45, 0.3] });
       for (const [x, y] of [[13.5, 2.0], [8.4, 6.6], [19.6, 10.5], [13.8, 18.4], [23.6, 21.2]]) P('noticePost', x, y, r.range(-0.3, 0.3) + (x < 15 ? H : -H), { col: [0.1, 0.1] });
       P('depthGauge', 14.6, 24.6, 0, { fixed: true });
       // the trees were felled before the water: stumps everywhere, a few logs left lying

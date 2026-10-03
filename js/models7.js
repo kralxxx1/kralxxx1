@@ -135,7 +135,13 @@
     ['box', 'wheelSteel', 0.2, 1.4, 0.2, 0, 2.85, 0], ['box', 'wheelSteel', 1.0, 0.25, 0.3, 0, 3.6, 0], ...[-0.35, 0.35].map(x => ['cyl', 'wheelSteel', 0.12, 0.12, 0.08, 14, x, 3.75, 0, H, 0, 0]),
   ];
   // The bull wheel the cable turns round, lying flat under the station roof, and the haul rope
-  D.bullWheel = [['torus', 'wheelSteel', 2.0, 0.09, 40, 0, 0, 0, 0, H, 0, 0], ...[0, 1, 2, 3, 4, 5].map(k => ['box', 'wheelSteel', 4.0, 0.08, 0.12, 0, 0, 0, 0, k * PI / 6, 0]), ['cyl', 'wheelSteel', 0.25, 0.25, 0.6, 16, 0, 0, 0], ['cyl', 'drumRed', 0.15, 0.15, 2.0, 12, 0, 1.0, 0]];
+  // The bull wheel turns flat on its shaft, carried by a cantilever from a lattice column on the east side
+  // (clear of the dock); the column stands on the platform 5.2 m below
+  D.bullWheel = [['torus', 'wheelSteel', 2.0, 0.09, 40, 0, 0, 0, 0, H, 0, 0], ...[0, 1, 2, 3, 4, 5].map(k => ['box', 'wheelSteel', 4.0, 0.08, 0.12, 0, 0, 0, 0, k * PI / 6, 0]), ['cyl', 'wheelSteel', 0.25, 0.25, 0.6, 16, 0, 0, 0], ['cyl', 'drumRed', 0.15, 0.15, 2.0, 12, 0, 1.0, 0],
+    ['box', 'castIron', 3.1, 0.32, 0.32, 1.45, 0.46, 0], ['box', 'castIron', 0.5, 0.6, 0.5, 0, 0.45, 0],
+    ...[-0.22, 0.22].flatMap(z => [['box', 'castIron', 0.12, 5.9, 0.12, 2.82, -2.35, z], ['box', 'castIron', 0.12, 5.9, 0.12, 3.2, -2.35, z]]),
+    ...[-4.6, -3.4, -2.2, -1.0, 0.2].flatMap(y => [['box', 'castIron', 0.5, 0.06, 0.06, 3.01, y, -0.22], ['box', 'castIron', 0.5, 0.06, 0.06, 3.01, y, 0.22], ['box', 'castIron', 0.06, 0.06, 0.5, 2.82, y, 0], ['box', 'castIron', 0.06, 0.06, 0.5, 3.2, y, 0]]),
+    ['box', 'castIron', 0.08, 1.9, 0.08, 2.2, -0.45, 0, 0, 0, -0.62], ['box', 'castIron', 0.8, 0.12, 0.8, 3.01, -5.14, 0]];
   D.controlDesk = [['rbox', 'consoleCream', 1.4, 0.95, 0.6, 0.03, 0, 0.475, 0], ['rbox', 'consoleCream', 1.4, 0.06, 0.45, 0.02, 0, 1.0, -0.05, -0.35, 0, 0], ...[-0.45, -0.15, 0.15].map(x => ['cyl', 'black', 0.04, 0.04, 0.03, 12, x, 1.04, 0.0, -0.35, 0, 0]), ['cyl', 'drumRed', 0.06, 0.06, 0.04, 14, 0.45, 1.04, 0.0, -0.35, 0, 0], ['box', 'dialFace', 0.3, 0.18, 0.004, -0.2, 1.08, -0.18, -0.35, 0, 0], ['box', 'chrome', 0.06, 0.06, 0.06, 0.5, 1.0, 0.15], ['box', 'black', 0.03, 0.03, 0.08, 0.5, 1.0, 0.2]];
   // Snowed lamp post, piste signpost
   D.lampPostSnow = [['cyl', 'castIron', 0.06, 0.08, 3.4, 10, 0, 1.7, 0], ['lathe', 'castIron', [[0.001, 0.3], [0.15, 0.25], [0.2, 0.05], [0.12, 0.0]], 12, 0, 3.4, 0], ['sph', 'snowCapM', 0.17, 0, 3.72, 0, 10, 6, [1, 0.45, 1]]];

@@ -175,8 +175,11 @@
       for (const [x, y, s] of [[1, 12, 1.2], [3, 16, 1], [10, 13, 1.1], [16, 14, 1.3], [12, 18, 1], [20, 12, 1.2], [24, 15, 1], [19, 1.5, 1]]) P('snowPile', x, y, r.range(0, 6), { col: [1.1 * s, 0.9 * s], sx: s, sy: s, sz: s });
       for (let k = 0; k < 26; k++) {
         const x = r.range(0.5, 25.5), y = r.range(12.5, 21.5);
+        const kind = r() < 0.5 ? 'pineSnow' : 'pineSnow2', rot = r.range(0, 6), sx = r.range(0.7, 1.1), sy = r.range(0.7, 1.1), sz = r.range(0.7, 1.1);
         if (Math.abs(x - 6.5) < 2.5 && y < 17) continue;
-        P(r() < 0.5 ? 'pineSnow' : 'pineSnow2', x, y, r.range(0, 6), { col: [0.4, 0.4], sx: r.range(0.7, 1.1), sy: r.range(0.7, 1.1), sz: r.range(0.7, 1.1) });
+        // not through a sign, a snow drift or another tree, and only on open ground
+        if (!K.clear(x, y, 1.4, 1.2) || !L.passable(Math.floor(x), Math.floor(y))) continue;
+        P(kind, x, y, rot, { col: [0.4, 0.4], sx, sy, sz });
       }
       // the station: the gondola in its dock, the bull wheel above, the control desk
       // the gondola itself is the chapter's own object (it leaves); here only the space it takes

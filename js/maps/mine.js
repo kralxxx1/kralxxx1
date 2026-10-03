@@ -133,7 +133,7 @@
       P('filing', 4.6, 7.3, -H, { col: [0.33, 0.3] }); P('coatStand', 2.3, 7.3, 0, { col: [0.2, 0.2] });
       K.light(3.2, 8.4, { kind: 'lamp', y: 0.95, color: [1, 0.75, 0.45], intensity: 0.22, range: 4 });
       // the yard: rails from the collar to the ore bins, tubs in the snow, snow drifts
-      for (let x = 10.5; x <= 13.5; x += 1) P('railTrack', x, 4.5, H, {});
+      for (let x = 10.5; x <= 13.5; x += 1) P('railTrack', x, 4.5, H, { fixed: true });
       P('mineTub', 11.5, 4.5, H, { col: [0.7, 0.55] }); P('mineTub', 12.8, 4.5, H + 0.04, { col: [0.7, 0.55] });
       for (const [x, y, s] of [[2, 2, 1.2], [5, 1.5, 0.9], [18, 4, 1.1], [1.5, 5, 1], [10, 2, 0.8], [18.3, 8.5, 0.9]]) P('snowPile', x, y, r.range(0, 6), { col: [1.2 * s, 1.0 * s], sx: s, sy: s, sz: s });
       K.light(17.5, 1.5, { kind: 'none', y: 4, color: [0.6, 0.7, 0.9], intensity: 0.12, range: 10 });
@@ -158,7 +158,7 @@
       P('barrel', 10.3, 15.6, 0, { col: [0.3, 0.3] });
       K.light(11.2, 14.4, { kind: 'cage', color: [1, 0.7, 0.4], intensity: 0.3, range: 6, zone: 2 });
       // ------------------------------------------- haulage, drifts, workings
-      for (let x = 2.5; x <= 26.5; x += 1) P('railTrack', x, 16.5, H, {});
+      for (let x = 2.5; x <= 26.5; x += 1) P('railTrack', x, 16.5, H, { fixed: true });
       for (let x = 2.5; x <= 27.5; x += 0.66) if (Math.abs(x - 13.9) > 1.2 && Math.abs(x - 21.5) > 0.7 && Math.abs(x - 17.5) > 0.7 && Math.abs(x - 8.5) > 0.7) P('timberSet', x, 16.5, H, {});
       P('mineLoco', 5.0, 16.5, H, { col: [1.3, 0.5] });
       for (const x of [6.6, 7.9, 9.2]) P('mineTub', x, 16.5, H, { col: [0.7, 0.55] });
@@ -183,7 +183,7 @@
       P('rubble', 10.4, 19.6, 0.4, { col: [1.0, 0.8] });
       P('mineTub', 9.8, 24.4, 0.2, { col: [0.55, 0.7] });
       // the flooded working: the plank walk on trestles, an old punt
-      for (let x = 1.5; x <= 6.5; x += 1) P('railTrack', x, 18.5, H, {});
+      for (let x = 1.5; x <= 6.5; x += 1) P('railTrack', x, 18.5, H, { fixed: true });
       P('rubble', 5.4, 22.4, 1.2, { col: [1.0, 0.8] });
       // fuel store and powder magazine
       P('barrel', 16.4, 27.4, 0, { col: [0.3, 0.3] }); P('barrel', 16.4, 28.1, 0, { col: [0.3, 0.3] }); P('barrel', 18.6, 28.5, 0, { col: [0.3, 0.3] });

@@ -62,7 +62,8 @@
   D.compartment = compartment(true);
   D.compartmentShut = compartment(false);
   // Corridor fittings along the window wall (+z side at 1.45): handrail, two fold-down seats, curtains
-  D.corridorKit = [['cyl', 'chrome', 0.015, 0.015, 3.0, 8, 0, 1.0, 1.38, 0, 0, H], ...[-0.8, 0.8].flatMap(x => [['rbox', 'trainBlue', 0.36, 0.05, 0.3, 0.02, x, 0.5, 1.3], ['box', 'chrome', 0.02, 0.3, 0.02, x, 0.35, 1.4]]), ...[-1.3, 1.3].map(x => ['box', 'curtainRed', 0.35, 1.0, 0.02, x, 1.55, 1.44])];
+  // one compartment's length (2 m) of the corridor side: the handrail, two flap seats, the window curtains
+  D.corridorKit = [['cyl', 'chrome', 0.015, 0.015, 2.0, 8, 0, 1.0, 1.38, 0, 0, H], ...[-0.5, 0.5].flatMap(x => [['rbox', 'trainBlue', 0.36, 0.05, 0.3, 0.02, x, 0.5, 1.3], ['box', 'chrome', 0.02, 0.48, 0.02, x, 0.25, 1.4]]), ...[-0.82, 0.82].map(x => ['box', 'curtainRed', 0.3, 1.0, 0.02, x, 1.55, 1.44])];
   // ------------------------------------------------------------ dining car
   D.diningBay = [
     ['rbox', 'trainCream', 0.8, 0.04, 0.75, 0.01, 0, 0.74, -0.95], ['box', 'chrome', 0.05, 0.72, 0.05, 0, 0.36, -0.8], ['box', 'berthSheet', 0.82, 0.004, 0.78, 0, 0.765, -0.95],

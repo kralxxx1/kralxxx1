@@ -130,7 +130,7 @@
       P('concessionCounter', 16.5, 21.55, 0, { col: [1.5, 0.36] });
       P('popcornMachine', 15.4, 21.25, 0, { col: [0.36, 0.3] });
       P('sodaFountain', 18.6, 21.2, 0, { col: [0.3, 0.3], y: 0 });
-      P('hotdogRoller', 17.3, 21.55, 0, { y: 0.97 });
+      P('hotdogRoller', 16.9, 21.55, 0, { y: 0.97 });
       P('menuBoard', 16.5, 21.04, 0, { wall: true, y: 1.95 });
       P('cafTable', 14.4, 22.4, 0, { col: [1.2, 0.45] }); P('cafTable', 18.6, 22.4, 0, { col: [1.2, 0.45] });
       P('trashCan', 13.25, 22.75, 0, { col: [0.25, 0.25] });
@@ -193,14 +193,16 @@
         const n = r() < 0.35 ? 2 : 1;
         for (let k = 0; k < n; k++) {
           if (r() < 0.25) continue;
-          const tx = x + r.range(0.2, 0.8), ty = y + r.range(0.2, 0.8), s = r.range(0.8, 1.25);
-          P(kinds[r.int(0, 2)], tx, ty, r.range(0, 6.28), { col: [0.4 * s, 0.4 * s], sx: s, sy: s * r.range(0.9, 1.2), sz: s });
+          const tx = x + r.range(0.2, 0.8), ty = y + r.range(0.2, 0.8), s = r.range(0.8, 1.25), kind = kinds[r.int(0, 2)], rot = r.range(0, 6.28), sy = s * r.range(0.9, 1.2);
+          // never through a sign, a light pole, a table or another trunk
+          if (!K.clear(tx, ty, 1.6 * s, 1.1)) continue;
+          P(kind, tx, ty, rot, { col: [0.4 * s, 0.4 * s], sx: s, sy, sz: s });
         }
-        const q = r();
-        if (q < 0.06) P('stump', x + 0.5, y + 0.5, r.range(0, 6), { col: [0.3, 0.3] });
-        else if (q < 0.1) P('fallenLog', x + 0.5, y + 0.5, r.range(0, 6), {});
-        else if (q < 0.15) P(r() < 0.5 ? 'rockA' : 'rockB', x + r.range(0.3, 0.7), y + r.range(0.3, 0.7), r.range(0, 6), { col: [0.5, 0.5] });
-        else if (q < 0.45) P(r() < 0.7 ? 'fern' : 'fern2', x + r.range(0.15, 0.85), y + r.range(0.15, 0.85), r.range(0, 6), { sx: r.range(0.8, 1.3), sy: r.range(0.8, 1.2), sz: r.range(0.8, 1.3) });
+        const q = r(), ox = r.range(0.3, 0.7), oy = r.range(0.3, 0.7), rot = r.range(0, 6), pick = r(), sc = [r.range(0.8, 1.3), r.range(0.8, 1.2), r.range(0.8, 1.3)];
+        if (q < 0.06) { if (K.clear(x + 0.5, y + 0.5, 0.6, 0.7)) P('stump', x + 0.5, y + 0.5, rot, { col: [0.3, 0.3] }); }
+        else if (q < 0.1) { if (K.clear(x + 0.5, y + 0.5, 1.4, 1.6)) P('fallenLog', x + 0.5, y + 0.5, rot, {}); }
+        else if (q < 0.15) { if (K.clear(x + ox, y + oy, 0.8, 0.9)) P(pick < 0.5 ? 'rockA' : 'rockB', x + ox, y + oy, rot, { col: [0.5, 0.5] }); }
+        else if (q < 0.45) { if (K.clear(x + ox, y + oy, 0.5, 0.3)) P(pick < 0.7 ? 'fern' : 'fern2', x + ox, y + oy, rot, { sx: sc[0], sy: sc[1], sz: sc[2] }); }
       }
       // the clearing: the tree stand, the boy's torch in the leaves
       P('treeStand', 2.5, 8.2, 0.2, { col: [1.1, 1.1] });

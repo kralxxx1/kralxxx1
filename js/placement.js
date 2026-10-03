@@ -141,6 +141,9 @@
       for (const p of order) {
         const f = fp(p);
         if (!f) continue;
+        // A piece set inside a blocked cell is what blocks it (an archive stack in its rack cell): it stays
+        const cc = L.cellOf ? L.cellOf(p.x, p.z) : { x: Math.floor(p.x / L.cell), y: Math.floor(p.z / L.cell) };
+        if (L.inb(cc.x, cc.y) && !L.passable(cc.x, cc.y)) continue;
         const x0 = p.x, z0 = p.z;
         let ok = false;
         for (let it = 0; it < 10; it++) {
