@@ -115,9 +115,10 @@ chase that starts when the thing you need is taken.
   close, a shape in the snow; `hearing`); the Cook ×1 (`confined:kitchen`, `hearing`).
 - **Kills:** frost closes over the eyes (the Frozen, and the cold itself); the snow swallows; the hook.
 
-### 6 Gammel Ostra — drained village
-- **Map:** mud streets, a bridge over the old river channel, the church, Signe's house, the school,
-  houses with waterlines, the dam wall with its service ladder.
+### 6 Gammel Ostra — the village on the night it drowned (1964)
+- **Map:** muddy lanes and felled trees in the rain, a bridge over the river already over its banks, the
+  church, Signe's house with the lamp lit, the school and its attic, the shop, the dam wall with its
+  service ladder.
 - **Objectives:** Signe's house key → music box (school attic) → mantel → climb the dam ladder.
 - **Chase:** the water comes back: a rising-water run to the ladder.
 - **Creatures:** the Silted ×8 (`stillnessHunter`, `ambush:floor` in mud); Long Ones ×4 (`ambush:water`
@@ -126,7 +127,7 @@ chase that starts when the thing you need is taken.
 
 ### 7 Nordlys Express — night train
 - **Map:** platform (start), sleeping cars ×3, dining car, baggage car, locomotive; gangways between.
-- **Objectives:** a valid ticket (dining car) → Lina's ticket (sleeping car 2, under the seat) →
+- **Objectives:** a valid ticket (dining car) → Lina's ticket (sleeping car 2, under the bunk) →
   conductor's punch (baggage car) → emergency brake (locomotive).
 - **Chase:** taking Lina's ticket turns the Conductor.
 - **Creatures:** the Conductor ×1 (`ticketRule`); Sleepers ×6 (`hearing`, blind); Underhands
@@ -147,7 +148,7 @@ chase that starts when the thing you need is taken.
 ### 9 Lake Ostra — finale
 - **Map:** grandmother's house (warm, safe), the shore, the pier, the boathouse, the huts, open ice,
   the thin ice over the river channel, the church spire in the ice.
-- **Objectives:** follow Wren's mitten trail → the huts (remember) → the thin ice → choose.
+- **Objectives:** follow Wren's footprints out onto the ice → the huts (remember) → the thin ice → choose.
 - **Creatures:** the Hush ×1 (`hearing`; sound fades near it); Under-ice ×4 (`ambush:ice` when running
   on thin ice); the Laughers ×3 (`alarm`).
 - **Kills:** the scarf; through the ice.

@@ -297,7 +297,7 @@
 
   // Kept for the old ghost companions, which this story does not have
   const GHOSTS = {};
-  const CHAR_COLOR = { ada: '#6fa86a', wren: '#d8282c', otto: '#d8b060', clerk: '#a8a8c0', lyle: '#b8a890' };
+  const CHAR_COLOR = { ada: '#6fa86a', wren: '#d8282c', otto: '#d8b060', ingrid: '#8fa6c8', clerk: '#a8a8c0', lyle: '#b8a890' };
 
   PB.Levels = { LEVELS, GHOSTS, CHAR_COLOR, byId: id => LEVELS.find(l => l.id === id), supplies, doc };
 })(typeof window !== 'undefined' ? window : globalThis);

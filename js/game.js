@@ -798,7 +798,7 @@
       const counted = {};
       for (const k of inv.keys || []) { const base = k.replace(/\d+$/, ''); if (/^(frame|page)$/.test(base)) counted[base] = (counted[base] || 0) + 1; else keys.push(ST.item(k).name.toLocaleUpperCase(PB.I18N.lang)); }
       for (const b in counted) keys.push(ST.item(b).name.toLocaleUpperCase(PB.I18N.lang) + ' ×' + counted[b]);
-      if (inv.pellets && this.levelDef && this.levelDef.id === 'lobby' && !this.flags.exitOpen) keys.push(t('inv.pellets', { n: inv.pellets }));
+      if (inv.pellets && this.levelDef && this.levelDef.id === 'under' && !this.flags.exitOpen) keys.push(t('inv.pellets', { n: inv.pellets }));
       this.ui.setInventory({ batteries: inv.batteries, almond: inv.almond, glow: inv.glow, keys });
     }
     createDoorInteractions() {
@@ -1494,7 +1494,7 @@
       this.save.level = null; this.save.cp = null;
       this.writeSave();
       this.fx.blackout = 1;
-      this.ui.showEnding(kind, { time: this.playTime, deaths: this.save.stats.deaths, notes: this.save.notes.length, freed: this.save.freed.length, drawings: this.save.drawings.length }, () => this.toMenu());
+      this.ui.showEnding(kind, { time: this.playTime, deaths: this.save.stats.deaths, notes: this.save.notes.length, claimed: (this.save.world.shelves || []).length, drawings: this.save.drawings.length }, () => this.toMenu());
     }
     freeGhost(ch) {
       if (!this.save.freed.includes(ch)) this.save.freed.push(ch);

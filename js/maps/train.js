@@ -54,7 +54,7 @@
       baggage: { wall: 'corrugated', wallTint: 0x7a7e78, floor: 'boards', floorTint: 0x5a4a3a, ceil: 'corrugated', ceilTint: 0x5a5e58, h: 2.6, siding: 'shipPaint', sidingTint: 0x1e2c48 },
       gangway: { wall: 'rustSteel', wallTint: 0x2a2a2a, floor: 'steelDeck', floorTint: 0x5a5a58, ceil: 'rustSteel', ceilTint: 0x1a1a1a, h: 2.3, step: 'grating' },
       engine: { wall: 'shipPaint', wallTint: 0x6a7068, floor: 'steelDeck', floorTint: 0x5a5e5a, ceil: 'shipPaint', ceilTint: 0x4a4e4a, h: 2.7, siding: 'shipPaint', sidingTint: 0x9a1e1a },
-      cab: { wall: 'shipPaint', wallTint: 0x7a7a70, floor: 'steelDeck', floorTint: 0x4a4a48, ceil: 'shipPaint', ceilTint: 0x5a5a54, h: 2.6, siding: 'shipPaint', sidingTint: 0x9a1e1a },
+      cab: { wall: 'shipPaint', wallTint: 0x7a7a70, floor: 'steelDeck', floorTint: 0x4a4a48, ceil: 'plaster', ceilTint: 0x66665e, h: 2.6, siding: 'shipPaint', sidingTint: 0x9a1e1a },
       waiting: { wall: 'woodPanel', wallTint: 0x9a8a6a, floor: 'boards', ceil: 'planks', ceilTint: 0x6a5a48, h: 3.0, siding: 'planks', sidingTint: 0x8a2a1e },
     },
     regions: {

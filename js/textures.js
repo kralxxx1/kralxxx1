@@ -801,21 +801,24 @@
   };
   T.poster = key => T.canvas('poster:' + key, 384, 512, (g, w, h) => {
     if (key === 'missing87') {
-      // the flyer that went up on every pole in Harlow in April 1987, gone soft with rain
-      const r = U.rng(87);
+      // the notice that went up on every post round Lake Ostra in January 1979, gone soft with damp
+      const r = U.rng(79);
       g.fillStyle = '#ece6d4'; g.fillRect(0, 0, w, h);
       g.fillStyle = '#111'; g.textAlign = 'center'; g.font = `bold 64px ${FONT_TYPE}`; g.fillText('MISSING', w / 2, 70);
-      const kids = [['DANNY K., 16', '#3a4a6a', '#3a2a1a'], ['ROSIE A., 15', '#8a3a6a', '#4a2a1a'], ['NELL P., 15', '#2a6a6a', '#1a1210'], ['TOBY M., 13', '#c86a20', '#b04a18']];
-      kids.forEach(([name, shirt, hair], k) => {
-        const x = 30 + (k % 2) * 172, y = 96 + Math.floor(k / 2) * 178;
-        g.fillStyle = '#8a8478'; g.fillRect(x, y, 150, 140);
-        g.fillStyle = shirt; g.fillRect(x + 35, y + 95, 80, 45);
-        g.fillStyle = '#c8b09a'; g.beginPath(); g.ellipse(x + 75, y + 70, 28, 34, 0, 0, 6.283); g.fill();
-        g.fillStyle = hair; g.beginPath(); g.ellipse(x + 75, y + 52, 30, 22, 0, Math.PI, 0); g.fill();
-        g.fillStyle = 'rgba(40,40,40,0.35)'; g.fillRect(x, y, 150, 140);
-        g.fillStyle = '#111'; g.font = `bold 16px ${FONT_TYPE}`; g.fillText(name, x + 75, y + 160);
-      });
-      g.font = `15px ${FONT_TYPE}`; g.fillStyle = '#222'; g.fillText('LAST SEEN APRIL 16, 1987 — FRONT STREET', w / 2, h - 44); g.fillText('HARLOW P.D.', w / 2, h - 22);
+      // one school photograph: a seven-year-old in a red snowsuit hood, gap-toothed, squinting at the flash
+      const x = 92, y = 92, pw = 200, ph = 230;
+      g.fillStyle = '#9a948a'; g.fillRect(x, y, pw, ph);
+      g.fillStyle = '#b02a22'; g.beginPath(); g.ellipse(x + pw / 2, y + 112, 74, 84, 0, 0, 6.283); g.fill();
+      g.fillStyle = '#d7b8a0'; g.beginPath(); g.ellipse(x + pw / 2, y + 116, 46, 54, 0, 0, 6.283); g.fill();
+      g.fillStyle = '#6a4a2a'; g.beginPath(); g.ellipse(x + pw / 2, y + 78, 44, 20, 0, Math.PI, 0); g.fill();
+      g.fillStyle = '#2a1a14'; for (const d of [-1, 1]) { g.beginPath(); g.ellipse(x + pw / 2 + d * 17, y + 112, 4, 3, 0, 0, 6.283); g.fill(); }
+      g.strokeStyle = '#7a3a30'; g.lineWidth = 2.5; g.beginPath(); g.arc(x + pw / 2, y + 134, 14, 0.2, Math.PI - 0.2); g.stroke();
+      g.fillStyle = '#b02a22'; g.fillRect(x + 30, y + 190, pw - 60, 40);
+      g.fillStyle = 'rgba(40,40,40,0.3)'; g.fillRect(x, y, pw, ph);
+      g.fillStyle = '#111'; g.font = `bold 26px ${FONT_TYPE}`; g.fillText('WREN LIND, 7', w / 2, y + ph + 34);
+      g.font = `15px ${FONT_TYPE}`; g.fillStyle = '#222';
+      g.fillText('RED SNOWSUIT · RED MITTENS', w / 2, y + ph + 58);
+      g.fillText('LAST SEEN SUN. 14 JANUARY 1979', w / 2, h - 66); g.fillText('LAKE OSTRA, SOUTH SHORE', w / 2, h - 46); g.fillText('OSTRA DISTRICT POLICE', w / 2, h - 22);
       for (let k = 0; k < 14; k++) { g.fillStyle = 'rgba(90,70,40,0.18)'; g.fillRect(r() * w, r.range(0.2, 0.9) * h, r.range(3, 10), r.range(40, 180)); }
       for (let k = 0; k < 1500; k++) { g.fillStyle = `rgba(90,70,40,${r() * 0.07})`; g.fillRect(r() * w, r() * h, 2, 2); }
       return;

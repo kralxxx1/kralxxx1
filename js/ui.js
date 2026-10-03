@@ -628,7 +628,7 @@
           this.endT = setTimeout(next, 3200);
         } else {
           const st = this.$('end-stats');
-          st.innerHTML = `<div><b>${U.fmtTime(stats.time)}</b><span>${esc(t('end.time'))}</span></div><div><b>${stats.deaths}</b><span>${esc(t('end.deaths'))}</span></div><div><b>${stats.notes} / ${ST.noteCount()}</b><span>${esc(t('end.docs'))}</span></div><div><b>${stats.freed} / 4</b><span>${esc(t('end.freed'))}</span></div><div><b>${stats.drawings || 0} / ${ST.drawingCount()}</b><span>${esc(t('end.drawings'))}</span></div>`;
+          st.innerHTML = `<div><b>${U.fmtTime(stats.time)}</b><span>${esc(t('end.time'))}</span></div><div><b>${stats.deaths}</b><span>${esc(t('end.deaths'))}</span></div><div><b>${stats.notes} / ${ST.noteCount()}</b><span>${esc(t('end.docs'))}</span></div><div><b>${stats.claimed || 0} / 7</b><span>${esc(t('end.claimed'))}</span></div><div><b>${stats.drawings || 0} / ${ST.drawingCount()}</b><span>${esc(t('end.drawings'))}</span></div>`;
           st.hidden = false;
           st.scrollIntoView({ behavior: 'smooth', block: 'center' });
           const cr = this.$('end-credits');
@@ -687,15 +687,12 @@
     // the writer is named in the English text; translations may spell the names in their own script
     const en = n.id && PB.Story ? PB.Story.note(n.id, 'en') : null;
     const f = String((en && en.from) || n.from || '');
-    if (/lily/i.test(f)) return 'lily';
-    if (/eddie|^e\.?$/i.test(f)) return 'eddie';
-    if (/^w\b|^w\.|walt/i.test(f)) return 'walt';
-    if (/rosie/i.test(f)) return 'rosie';
-    if (/toby/i.test(f)) return 'toby';
-    if (/danny/i.test(f)) return 'danny';
-    if (/theo/i.test(f)) return 'theo';
-    if (/^sam\b/i.test(f)) return 'sam';
-    if (/june|maggie|carol|nora|ruth|ray/i.test(f)) return 'adult';
+    if (/^wren\b/i.test(f)) return 'lily';                                   // Wren's crayon capitals
+    if (/age \d\b|, 1[0-2]$|older kids/i.test(f)) return 'toby';              // the other children
+    if (/^otto\b|^o\.\s?b\.?$|^o\.$|hugo brecht/i.test(f)) return 'walt';      // old men's careful hands
+    if (/^lina$|^margit$|fankhauser|^k\.$/i.test(f)) return 'rosie';           // the young ones
+    if (/^benny$|^tor$|^bo$|solberg|hardy|lund|moe\b/i.test(f)) return 'eddie'; // working men, in a hurry
+    if (/^gran$|^i\.$|^mamma$|^mor$|^dad$|elin|ruth h|^rosa|greta|pastor|^a\.$/i.test(f)) return 'adult';
     return n.kind === 'wall' ? 'wall' : null;
   }
   function kindLabel(k) { const s = t('kind.' + k); return s === 'kind.' + k ? t('kind.doc') : s; }

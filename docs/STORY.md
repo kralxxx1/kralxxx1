@@ -98,7 +98,7 @@ go, and each one brings her closer to the forty minutes of her own life she cann
 | Hollow Creek | mine, 3 Mar 1956 | seven miners | foreman Arvid Lund wedged the fire door on men who were still knocking and took their tags off the tally board so the rescue went elsewhere | seven brass tally tags back on the board |
 | Weisshorn | ski lodge, 28 Feb 1983 | five skiers and their instructor | hotelier Greta Imhof put the avalanche telegram in her stove, sent the ski school up, and told the inquiry no warning came | the telegram pinned at reception |
 | Gammel Ostra | drowned village, 2 Oct 1964 | Signe Holm, 71 | her son Tor told her the flooding was a week later than it was | her music box back on her mantel |
-| Nordlys Express | night train, 19 Dec 1990 | Lina Berg, 15 | conductor Edvin Saether put her off at a snowed-in halt for having no ticket; she had bought one and lost it | her ticket, found and punched |
+| Nordlys Express | night train, 19 Dec 1990 | Lina Berg, 15 | conductor Edvin Saether put her off at a snowed-in halt for having no ticket; she had bought one, and it was under her bunk; he told the inquiry nobody was put off | her ticket, found and punched |
 | Falk's Carnival | fairground, 30 Sep 1984 | Hugo Brecht, "Pipo" the clown | Kasper Falk started the ghost-train fire and let Hugo take the blame | Pipo's red nose back on his trailer mirror |
 | Lake Ostra | the ice, 14 Jan 1979, 15:40 | Wren Lind, 7 | Ada | the truth, said out loud |
 
@@ -123,8 +123,8 @@ takes the fourth, the Eater wakes fully. Run.
 
 ### Chapter 2 — Saint Brigid ("Fog Bell")
 The ferry as it sank: fog, listing decks, the car deck half flooded, the lounge full of passengers in
-life jackets who do not move until a light touches them. Pim Rask's mother wrote to the inquiry that
-her son was a good boy. Captain Aal's testimony says otherwise. The bridge logbook has a page torn
+life jackets who do not move until a light touches them. Captain Aal's testimony says Pim Rask, sixteen,
+left the fog bell in a panic; his mother wrote to the inquiry asking for his name to be put back the right way round. The bridge logbook has a page torn
 out; Ada finds it in the captain's cabin, in his whisky drawer. To leave she must lower lifeboat 2:
 the davit key is on the bridge, the winch crank in the flooded engine room. Taking the crank wakes
 everything under the water. When she puts the page back and the boat touches the water, somewhere
@@ -187,26 +187,43 @@ comes across the snow after the sound of the motor. The cold outside is its own 
 only while she is warm.
 
 ### Chapter 6 — Gammel Ostra ("Low Water")
-The drowned village under the reservoir, drained: mud streets, a church, houses with the waterline
-across the wallpaper, boats on rooftops. Ada's great-grandmother Signe Holm refused to leave. Her son
-Tor, the dam's engineer, told her the gates would close on the ninth of October. They closed on the
-second. Ingrid never spoke of it. The Lind women forget. Signe's music box goes back on her mantel;
-then the water starts coming back, and the only way out is up the dam's service ladder.
+The village on the night it drowned, Friday 2 October 1964, in the rain: felled trees, an empty school
+with the removal list on the teacher's desk, a church where the choir still sings the evening hymn in the
+dark facing the altar (they stop if you run, step close behind them or pass in front, and then they turn
+round), the shop, the attic full of labelled crates, the river already over its banks in the low places,
+and one house, Stuegata 4, with a lamp lit in the window. Ada's great-grandmother Signe Holm, 71, would
+not leave. The board brought the closure forward a week, to the 2nd at 06:00, and announced it on the
+wireless; Signe had no wireless. Her son Tor, the dam's resident engineer, had told her the 9th, meant to
+tell her himself when he fetched her on the 8th, could not get away from the spillway pour, and never went
+up to the house. Ingrid, in Halvard, thought Tor was fetching her; she had taken her mother's music box
+"so she will have a reason to come and get it". Nobody ever said any of it out loud. The house key hangs
+on the vestry board; the music box is in a crate in the school attic. Ada puts it back on the mantel, in
+the clean square in the dust: it plays by itself, the clock strikes six, and the water comes. The only
+way out is up the dam's service ladder while the valley fills.
 
 ### Chapter 7 — Nordlys Express ("Last Stop")
 A night sleeper train that never arrives: platform, sleeping cars, dining car, baggage car, locomotive.
 On 19 December 1990 conductor Edvin Saether put fifteen-year-old Lina Berg off at Kvitfjell halt, in the
-snow, at night, because she had no ticket. She had bought one; it was under her seat. He said nothing
-about the girl at the inquiry into the "missing passenger". The Conductor checks tickets. Ada finds a
-ticket in the dining car; then she finds Lina's, and the Conductor stops checking and starts hunting.
-The way out is the emergency brake in the locomotive, before the train passes Kvitfjell again.
+snow, at night, because she could not find her ticket. She had bought it herself with her café money;
+it had slipped under her bunk. His duty report says so, gone over carefully in other ink; the driver's
+log (torn out and put back) records the stop; at the inquiry Saether said nobody was put off and the
+train never stopped at Kvitfjell. The cleaners found the unpunched ticket at Nordvik and sent it to Depot 9,
+where in January 1991 a new clerk in her second week filed it as unclaimed: A. Lind. The Conductor checks
+tickets: Ada needs one (someone else's, from under a saucer in the dining car) to get past him; then she
+finds Lina's, has it punched with his own punch, and the train, which only goes round, must be stopped
+with the emergency brake in the cab when Kvitfjell comes past again.
 
 ### Chapter 8 — Falk's Carnival ("Bright Lights")
 A travelling fair on Halvard harbour after closing: carousel, mask stall, funhouse, ferris wheel,
-ghost train. In 1984 the ghost train burned. Owner's son Kasper Falk, nineteen, had been smoking in it;
-the old clown Hugo Brecht, "Pipo", was blamed, fired, and walked off into the October night with his
-suitcase. Pipo's red nose goes back on his trailer mirror; the ghost train starts by itself, and it is
-the only way through the fence.
+ghost train. On the night of 29 September 1984 the ghost train burned. Owner's son Kasper Falk, nineteen,
+had been in the operator's cabin with Mette after closing and put the ashtray tin in the bin; his father
+told the fire brigade it was the old clown Hugo Brecht, "Pipo", and the insurers the same, paid Hugo two
+weeks' money and let him go after twenty-one seasons. Hugo said nothing. At midnight on the 30th he left his
+nose with Rosa at the mask stall ("Mind that for me, Rosa"), walked out of the gate with his suitcase, and
+the suitcase was found on the harbour steps on Monday morning. The masks move only while nobody watches
+them; the carousel horses run only while the band organ plays; Laughing Lotte, blind, hears everything.
+Pipo's nose goes back on his trailer mirror, where it lived. With a fuse from the funhouse workroom in the
+ride's control booth, the ghost train runs out through the back wall and the fence: the only way out.
 
 ### Chapter 9 — Lake Ostra ("The Ice")
 14 January 1979, 15:40, a snowstorm coming. Grandmother's house on the shore, warm, with the radio on.

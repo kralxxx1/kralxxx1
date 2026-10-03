@@ -26,6 +26,8 @@
   const has = (g, id) => g.inv.keys.includes(id);
   const give = (g, id) => { if (!g.inv.keys.includes(id)) g.inv.keys.push(id); g.updateInventoryUI(); };
   const drop = (g, id) => { g.inv.keys = g.inv.keys.filter(k => k !== id); g.updateInventoryUI(); };
+  // A shelf counts as claimed once, however many times its chapter is replayed
+  const claim = g => { const w = g.save.world, id = g.levelDef.id; w.shelves = w.shelves || []; if (!w.shelves.includes(id)) w.shelves.push(id); };
   // A drawing of Wren's that is not lying anywhere (it came in the parcel, it is in a pocket)
   const giveDrawing = (g, id, after) => {
     if (!g.save.drawings.includes(id)) g.save.drawings.push(id);
@@ -83,8 +85,10 @@
       if (g.flags.ottoOpen) g.world.setZone(3, true);
       this.refresh(g);
     },
+    // Always worked out from what has happened, so a late timer can never put an old objective back
     refresh(g) {
       const f = g.flags;
+      if (f.parcelTaken && !f.dark && !f.power) return g.setObj('depot_parcel');   // the parcel is open; the lights have not gone yet
       g.setObj(!f.logDone ? 'depot_log' : !f.parcelTaken ? 'depot_parcel' : !g.player.hasFlashlight ? 'depot_torch' : !f.power ? 'depot_power' : !has(g, 'ottoKey') && !f.ottoOpen ? 'depot_ledger' : !has(g, 'elevatorKey') ? 'depot_otto' : 'depot_elevator');
     },
     prompt(g, o) {
@@ -117,7 +121,7 @@
               const pos = { x: p.pos.x, y: 1.2, z: p.pos.z };
               if (g.audio.chute) g.audio.chute(pos); else g.audio.impact('cardboard', pos, 1);
               g.audio.caption('chute', t('cap.chute'), pos, 5);
-              g.later(1400, () => { g.mono('depot_chute', 4); g.setObj('depot_parcel'); });
+              g.later(1400, () => { g.mono('depot_chute', 4); this.refresh(g); });
             });
           });
           return true;
@@ -133,7 +137,7 @@
               f.dark = true;
               if (g.audio.powerDown) g.audio.powerDown(); else g.audio.mech('breaker');
               g.world.setZone(1, false);
-              g.later(1400, () => { g.mono('depot_dark', 4); step(g, 'depot_torch'); });
+              g.later(1400, () => { g.mono('depot_dark', 4); this.refresh(g); g.completeStep(); });
             });
           }));
           return true;
@@ -141,7 +145,7 @@
         case 'torch':
           g.takeItem(o); g.player.hasFlashlight = true; g.player.battery = 80; g.player.toggleFlash(true);
           g.audio.pickup(); g.mono('depot_torch', 3); g.ui.hint(t('hint.flash'));
-          if (f.dark) step(g, 'depot_power');
+          this.refresh(g); if (f.dark) g.completeStep();
           return true;
         case 'gmaTape':
           g.mono(f.tapeSeen ? 'depot_tape2' : 'depot_tape', 4); f.tapeSeen = true;
@@ -158,7 +162,7 @@
             const pos = doorPos(g, 'ottoDoor');
             if (g.audio.tube) g.audio.tube(pos); else g.audio.impact('metal', pos, 0.6);
             g.audio.caption('tube', t('cap.tube'), pos, 5);
-            g.later(1800, () => { g.mono('depot_tube', 5); step(g, 'depot_ledger'); });
+            g.later(1800, () => { g.mono('depot_tube', 5); this.refresh(g); g.completeStep(); });
           });
           return true;
         }
@@ -192,7 +196,7 @@
             const d = doorPos(g, 'elevator');
             if (d) glimpseWren(g, d.x, d.z + 1.4, Math.PI, 900);
             g.later(1100, () => { g.world.setZone(2, false); g.later(250, () => g.world.setZone(2, true)); });
-            g.later(1600, () => { g.mono('depot_wren', 4); step(g, 'depot_elevator'); });
+            g.later(1600, () => { g.mono('depot_wren', 4); this.refresh(g); g.completeStep(); });
           });
           return true;
         }
@@ -359,7 +363,7 @@
           if (!has(g, 'logPage')) { g.readNote('ferry_logbook', () => g.mono('ferry_logbookGap', 4)); return true; }
           if (f.claimed) { g.readNote('ferry_logbook'); return true; }
           // the claim: the page goes back where it was torn from
-          drop(g, 'logPage'); f.claimed = true; g.save.world.claimed = (g.save.world.claimed || 0) + 1;
+          drop(g, 'logPage'); f.claimed = true; claim(g);
           g.audio.paper();
           g.readNote('ferry_logbookFull', () => {
             g.mono('ferry_claimed', 6);
@@ -604,7 +608,7 @@
     // The draw: the stub goes in the can, and every speaker on the field reads the number
     claim(g) {
       const f = g.flags;
-      drop(g, 'stub'); f.claimed = true; g.save.world.claimed = (g.save.world.claimed || 0) + 1;
+      drop(g, 'stub'); f.claimed = true; claim(g);
       g.audio.paper();
       g.mono('pine_claimed', 5);
       g.later(3500, () => {
@@ -838,7 +842,7 @@
     },
     claim(g) {
       const f = g.flags;
-      f.claimed = true; g.save.world.claimed = (g.save.world.claimed || 0) + 1;
+      f.claimed = true; claim(g);
       g.mono('mine_claimed', 5);
       g.later(5000, () => { g.mono('mine_knockStop', 3); });
       g.later(9000, () => { f.drawingOut = true; g.radio('mine_ottoClaim'); });
@@ -981,7 +985,6 @@
           this.knockT = 9 + Math.random() * 5;
           if (dd < 45) {
             if (g.audio.knockSeven) g.audio.knockSeven(new THREE.Vector3(fd.wx, 1.2, fd.wz), dd);
-            g.audio.caption('knock', t('cap.knock'), new THREE.Vector3(fd.wx, 1.2, fd.wz), 8);
             if (dd < 30 && !f.knockHeard) { f.knockHeard = true; g.later(3500, () => g.mono('mine_knock', 4)); }
           }
         }
@@ -1068,7 +1071,7 @@
     picked(g, id) { if (id === 'masterKey') { g.mono('lodge_key', 2); this.refresh(g); g.completeStep(); } },
     claim(g) {
       const f = g.flags;
-      drop(g, 'telegram'); f.claimed = true; g.save.world.claimed = (g.save.world.claimed || 0) + 1;
+      drop(g, 'telegram'); f.claimed = true; claim(g);
       g.audio.paper();
       g.mono('lodge_pinned', 4);
       g.later(4500, () => { g.mono('lodge_claimed', 5); const sn = g.world.street && g.world.street.snowU; if (sn) { sn.uWind.value *= 0.45; sn.uAlpha.value *= 0.75; } });
@@ -1207,7 +1210,7 @@
     lockedDoor(g, d) { if (d.id === 'signeDoor') { g.mono('village_locked', 4); if (!g.flags.lockedSeen) { g.flags.lockedSeen = true; this.refresh(g); } } },
     claim(g, o) {
       const f = g.flags;
-      drop(g, 'musicBox'); f.claimed = true; g.save.world.claimed = (g.save.world.claimed || 0) + 1;
+      drop(g, 'musicBox'); f.claimed = true; claim(g);
       // the box on the mantel, playing by itself
       const box = g.meshFromDef('musicBox'); box.position.set(o.pos.x, 1.38, o.pos.z); box.rotation.y = 0.6; g.world.group.add(box);
       if (g.audio.musicBox) g.audio.musicBox(o.pos, 12);
@@ -1443,7 +1446,7 @@
     },
     claim(g, o) {
       const f = g.flags;
-      drop(g, 'linaTicket'); f.claimed = true; f.ticketVoid = false; g.save.world.claimed = (g.save.world.claimed || 0) + 1;
+      drop(g, 'linaTicket'); f.claimed = true; f.ticketVoid = false; claim(g);
       g.player.frozen = true;
       g.mono('train_punchIt', 2);
       // in the dark: one click of the punch. When the lights come back he is sitting across from you
@@ -1685,7 +1688,7 @@
     },
     claim(g, o) {
       const f = g.flags;
-      drop(g, 'nose'); f.claimed = true; g.save.world.claimed = (g.save.world.claimed || 0) + 1;
+      drop(g, 'nose'); f.claimed = true; claim(g);
       const nose = g.meshFromDef('clownNose'); nose.position.set(o.pos.x, 0.79, o.pos.z + 0.05); g.world.group.add(nose);
       g.audio.pickup('item');
       g.mono('carnival_placed', 4);
@@ -1860,7 +1863,8 @@
       const w = g.wren || (g.wren = PB.wrenFigure(g));
       w.position.set(sp.wx, 0, sp.wz); w.rotation.y = Math.atan2(-1, -1); w.visible = true;
       this.end = { stage: 'meet' };
-      for (const e of g.entities) if (e.kind !== 'hush') e.update = () => {};
+      // everything stops where it is, the Hush too: it stands behind her and waits to hear what she says
+      for (const e of g.entities) e.update = () => {};
       g.mono('lake_found', 2);
       this.refresh(g);
       g.later(2200, () => this.ask(g));
@@ -1877,6 +1881,8 @@
     sayIt(g, k) {
       const back = () => { if (!g.ui.touch && !g.input.lockFailed) g.input.requestLock(); };
       const keys = ['lake_say1', 'lake_say2', 'lake_say3'];
+      // once she starts telling it, what she buried has nothing left to stand on: it goes, and the sound comes back
+      if (this.end.stage !== 'say') { const h = species(g, 'hush')[0]; if (h) { h.mesh.visible = false; if (g.audio.stopLoop) g.audio.stopLoop('cbreath:' + h.id, 1.5); } if (g.audio.hush) g.audio.hush(0); }
       this.end.stage = 'say';
       if (k < keys.length) {
         g.choice([{ label: ST.line(keys[k]), fn: () => { back(); g.ui.subtitle(ST.line(keys[k]), 4, null, 'ada'); g.later(3800, () => this.sayIt(g, k + 1)); } }], () => { back(); g.later(2500, () => this.sayIt(g, k)); });

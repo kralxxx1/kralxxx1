@@ -185,7 +185,16 @@
       // rules that switch the creature on and off
       const ticketOk = has(this, 'ticketRule') && g.inv && g.inv.ticket && !g.flags.ticketVoid;
       const musicOff = has(this, 'musicRule') && !g.flags.music;
-      const warmOff = has(this, 'warmthWake') && !this.nearHeat();
+      // warmth wakes them, but slowly: a few seconds of you by the fire before one stirs (each its own time),
+      // a breath as it does, and they set again when you have gone
+      let warmOff = false;
+      if (has(this, 'warmthWake')) {
+        const hot = this.nearHeat(), need = (sp.thawT || 3.2) + ((parseInt(String(this.id).replace(/\D/g, ''), 10) || 0) % 3) * 0.8;
+        this.thaw = U.clamp((this.thaw || 0) + (hot ? dt : -dt * 0.5), 0, need + 1);
+        warmOff = this.thaw < need;
+        if (hot && !this.thawCue && this.thaw > need * 0.6) { this.thawCue = true; if (g.audio.species) g.audio.species(this, 'spot'); }
+        if (this.thaw <= 0) this.thawCue = false;
+      }
       if (sp.preUpdate && sp.preUpdate(this, g, dt) === false) { this.pose(dt, 0); return; }
       switch (this.state) {
         case 'dormant': this.mesh.visible = !!sp.visibleDormant; this.pose(dt, 0); return;

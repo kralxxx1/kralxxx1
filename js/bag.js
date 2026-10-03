@@ -9,8 +9,9 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const MEMENTO_MODEL = { danny: 'watch', nell: 'glasses', rosie: 'walkman', toby: 'lighter' };
-  const CAST = ['sam', 'eddie', 'walt', 'danny', 'rosie', 'nell', 'toby', 'lily'];
-  const GHOSTS = ['danny', 'rosie', 'nell', 'toby'];
+  // The people of Ada's story; Otto joins the list once his voice has come through on channel nine
+  const CAST = ['ada', 'wren', 'ingrid', 'otto', 'clerk'];
+  const GHOSTS = [];
 
   class Bag {
     constructor(game) {
@@ -145,7 +146,7 @@
       const h = [];
       h.push(`<header class="bj-head"><p class="bj-name">${esc(L.name)}</p><h3 class="bj-title">${esc(L.title)}</h3><p class="bj-place">${esc(L.place)}</p></header>`);
       h.push(`<h4>${esc(t('bag.now'))}</h4><p class="bj-obj">${esc(g.objKey ? ST.obj(g.objKey, g.objVars) : '—')}</p>`);
-      // The story so far, in Sam's words
+      // The story so far, in Ada's words
       h.push(`<h4>${esc(t('bag.story'))}</h4><ol class="bj-story">`);
       for (let k = 0; k <= cur; k++) {
         const lid = order[k], LL = ST.level(lid);
@@ -161,6 +162,7 @@
       // People
       h.push(`<h4>${esc(t('bag.people'))}</h4><div class="bj-people">`);
       for (const c of CAST) {
+        if (c === 'otto' && !(save.world && save.world.radio)) continue;
         const ch = ST.char(c);
         const ghost = GHOSTS.includes(c);
         const state = ghost ? `<em class="${save.freed.includes(c) ? 'ok' : 'bad'}">${esc(t(save.freed.includes(c) ? 'bag.freed' : 'bag.hunting'))}</em>` : '';

@@ -1,6 +1,6 @@
 /* Things people hang on walls, and the things that should not be there.
    Framed oil paintings (painted in code, brush stroke by brush stroke), family photographs, calendars
-   stopped on a month that matters, cross-stitch samplers, certificates and clocks stopped at 3:17.
+   stopped on a month that matters, cross-stitch samplers, certificates and clocks stopped at 02:56.
    A few of them are wrong: a portrait with the eyes scratched out, a portrait whose sitter has left the
    chair, a family photo with one face gone. They are added to each theme's dressing set.
    After dressing, a mystery pass leaves a handful of details per chapter: writing on the walls, small
@@ -172,18 +172,23 @@
   });
 
   // ------------------------------------------------------------ calendars, samplers, certificates
-  const MONTHS = { cal87: ['APRIL', 1987, 3, 30, 16], cal83: ['OCTOBER', 1983, 6, 31, 29], cal94: ['NOVEMBER', 1994, 2, 30, 30] };
+  // keys kept from the old calendars; the months are the story's: the ice (1979), the Weisshorn (1983), tonight (1998)
+  const MONTHS = { cal87: ['JANUARY', 1979, 1, 31, 14], cal83: ['FEBRUARY', 1983, 2, 28, 28], cal94: ['JANUARY', 1998, 4, 31, 13] };
   T.wallCalendar = key => T.canvas('wallcal:' + key, 256, 384, (g, w, h) => {
     const [mon, yr, first, days, circled] = MONTHS[key] || MONTHS.cal87;
     const r = U.rng(U.hashStr(key));
     g.fillStyle = '#f4efe2'; g.fillRect(0, 0, w, h);
-    // the picture half: a promo for the arcade, the Muncher and his stars
-    g.fillStyle = grad(g, 0, h * 0.45, [[0, '#1a0a2a'], [1, '#3a1040']]); g.fillRect(8, 8, w - 16, h * 0.45);
-    g.fillStyle = '#ff8a1a'; g.beginPath(); g.arc(w * 0.35, h * 0.24, 34, 0, 6.283); g.fill();
-    g.fillStyle = '#5a1e0a'; for (const d of [-1, 1]) { g.beginPath(); g.moveTo(w * 0.35 + d * 12, h * 0.24 - 30); g.lineTo(w * 0.35 + d * 24, h * 0.24 - 50); g.lineTo(w * 0.35 + d * 28, h * 0.24 - 22); g.fill(); }
-    g.fillStyle = '#2a0808'; g.beginPath(); g.ellipse(w * 0.35, h * 0.26, 22, 8, 0, 0, 6.283); g.fill();
-    g.fillStyle = '#ffe7a0'; for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(w * 0.6 + k * 24, h * 0.24, 5, 0, 6.283); g.fill(); }
-    g.fillStyle = '#f3e6ff'; g.font = `bold 15px ${FONT_TYPE}`; g.textAlign = 'center'; g.fillText('STARLIGHT ARCADE', w / 2, h * 0.4); g.font = `11px ${FONT_TYPE}`; g.fillText('114 FRONT ST. · HARLOW', w / 2, h * 0.43);
+    // the picture half: the transit board's winter view of Lake Ostra, with the spire of the old church out on the ice
+    const top = 8, ph = h * 0.36;
+    g.fillStyle = grad(g, top, top + ph, [[0, '#9fb3c4'], [0.55, '#d9e1e6'], [1, '#eef1f2']]); g.fillRect(8, top, w - 16, ph);
+    g.fillStyle = '#6f7f8c'; g.beginPath(); g.moveTo(8, top + ph * 0.62);
+    for (let x = 8; x <= w - 8; x += 8) g.lineTo(x, top + ph * (0.5 + 0.12 * Math.sin(x * 0.031 + r.range(0, 0.3)) + 0.05 * Math.sin(x * 0.11)));
+    g.lineTo(w - 8, top + ph * 0.7); g.lineTo(8, top + ph * 0.7); g.fill();
+    g.fillStyle = '#2e3b33'; for (let k = 0; k < 26; k++) { const x = 8 + r.range(0, w - 16), y = top + ph * r.range(0.6, 0.7), s = r.range(4, 9); g.beginPath(); g.moveTo(x, y - s * 1.8); g.lineTo(x - s * 0.6, y); g.lineTo(x + s * 0.6, y); g.fill(); }
+    g.fillStyle = grad(g, top + ph * 0.7, top + ph, [[0, '#e6ecef'], [1, '#c9d4da']]); g.fillRect(8, top + ph * 0.7, w - 16, ph * 0.3);
+    g.strokeStyle = 'rgba(120,140,155,0.35)'; g.lineWidth = 1; for (let k = 0; k < 6; k++) { const y = top + ph * r.range(0.74, 0.98); g.beginPath(); g.moveTo(r.range(8, w * 0.5), y); g.lineTo(r.range(w * 0.5, w - 8), y + r.range(-2, 2)); g.stroke(); }
+    g.fillStyle = '#3a3430'; const sx = w * 0.62, sy = top + ph * 0.84; g.fillRect(sx - 2, sy - 16, 4, 16); g.beginPath(); g.moveTo(sx - 3, sy - 16); g.lineTo(sx, sy - 28); g.lineTo(sx + 3, sy - 16); g.fill();
+    g.fillStyle = '#20303c'; g.font = `bold 15px ${FONT_TYPE}`; g.textAlign = 'center'; g.fillText('HALVARD TRANSIT', w / 2, h * 0.41); g.font = `11px ${FONT_TYPE}`; g.fillText('LAKE OSTRA IN WINTER', w / 2, h * 0.44);
     g.fillStyle = '#8a1a1a'; g.font = `bold 22px ${FONT_TYPE}`; g.fillText(mon + ' ' + yr, w / 2, h * 0.52);
     const gx = 14, gy = h * 0.56, cw = (w - 28) / 7, ch = (h - gy - 14) / 6;
     g.font = `bold 11px ${FONT_TYPE}`; g.fillStyle = '#444';
@@ -275,11 +280,11 @@
   for (const k in MONTHS) D['cal_' + k] = [['box', 'wc_' + k, 0.3, 0.45, 0.004, 0, 1.55, 0.002], ['cyl', 'chrome', 0.004, 0.004, 0.02, 6, 0, 1.79, 0.01, H, 0, 0]];
   for (const k in SAMPLERS) D['sampler_' + k] = framed(0.36, 0.28, 'smp_' + k, 'walnutFrame', 1.55, 0, 0.025, 0.02);
   for (const k of ['mill', 'office', 'school', 'tv']) D['cert_' + k] = framed(0.4, 0.3, 'cert_' + k, 'blackFrame', 1.58, 0, 0.022, 0.02);
-  // A wall clock stopped at 3:17, high on the wall
+  // A wall clock stopped at 02:56, high on the wall: the minute the parcel came down the chute
   {
     const hand = (len, wd, a, z, mat) => ['box', mat, wd, len, 0.003, Math.sin(a) * len * 0.42, Math.cos(a) * len * 0.42, z, 0, 0, -a];
-    const hA = (3 + 17 / 60) / 12 * PI * 2, mA = 17 / 60 * PI * 2;
-    D.clock317 = M.place([
+    const hA = (2 + 56 / 60) / 12 * PI * 2, mA = 56 / 60 * PI * 2;
+    D.clock256 = M.place([
       ['cyl', 'blackPlastic', 0.19, 0.19, 0.05, 36, 0, 0, 0.025, H, 0, 0], ['disc', 'clockFace', 0.168, 0, 0, 0.0515, 0, 0, 0, 40],
       hand(0.11, 0.014, hA, 0.054, 'blackPlastic'), hand(0.15, 0.009, mA, 0.056, 'blackPlastic'), hand(0.14, 0.003, 4.6, 0.058, 'redPlastic'),
       ['cyl', 'blackPlastic', 0.012, 0.012, 0.012, 12, 0, 0, 0.058, H, 0, 0],
@@ -289,33 +294,26 @@
   // ------------------------------------------------------------ where they go
   const SETS = PB.Dressing.SETS;
   const add = (theme, list) => { if (SETS[theme]) SETS[theme].push(...list); };
-  add('yellow', [['paint_field', 'wall', 0.0057], ['paint_lake', 'wall', 0.0047], ['paint_portraitGone', 'wall', 0.0012], ['paint_forest', 'wall', 0.0031], ['cal_cal87', 'wall', 0.0031], ['clock317', 'wall', 0.0042], ['photo_familyX', 'wall', 0.0012]]);
-  add('dark', [['paint_portraitX', 'wall', 0.0045], ['paint_forest', 'wall', 0.0078], ['photo_familyX', 'wall', 0.0045], ['clock317', 'wall', 0.0078], ['paint_house', 'wall', 0.0052]]);
-  add('office', [['cert_office', 'wall', 0.0078], ['cal_cal87', 'wall', 0.0104], ['paint_ship', 'wall', 0.0052], ['paint_field', 'wall', 0.0052], ['photo_family', 'wall', 0.0052], ['clock317', 'wall', 0.0078], ['paint_sea', 'wall', 0.0039]]);
-  add('hospital', [['paint_flowers', 'wall', 0.0104], ['paint_sea', 'wall', 0.0078], ['paint_lake', 'wall', 0.0052], ['cal_cal83', 'wall', 0.0078], ['clock317', 'wall', 0.0078], ['paint_portraitGone', 'wall', 0.0015]]);
-  add('motel', [['paint_ship', 'wall', 0.0156], ['paint_lake', 'wall', 0.0156], ['paint_portraitX', 'wall', 0.0045], ['sampler_stay', 'wall', 0.0104], ['cal_cal94', 'wall', 0.0078], ['clock317', 'wall', 0.0078]]);
-  add('school', [['photo_team', 'wall', 0.0156], ['cert_school', 'wall', 0.0104], ['cal_cal87', 'wall', 0.0104], ['clock317', 'wall', 0.0104]]);
-  add('concrete', [['cal_cal87', 'wall', 0.0156], ['cert_mill', 'wall', 0.0078], ['clock317', 'wall', 0.013]]);
-  add('workshop', [['cal_cal87', 'wall', 0.026], ['cert_tv', 'wall', 0.0208], ['photo_couple', 'wall', 0.0156], ['clock317', 'wall', 0.0156]]);
-  add('mall', [['paint_field', 'wall', 0.0052], ['paint_sea', 'wall', 0.0052], ['clock317', 'wall', 0.0078]]);
-  add('pool', [['clock317', 'wall', 0.0156], ['cal_cal87', 'wall', 0.0052]]);
+  add('yellow', [['paint_field', 'wall', 0.0057], ['paint_lake', 'wall', 0.0047], ['paint_portraitGone', 'wall', 0.0012], ['paint_forest', 'wall', 0.0031], ['cal_cal87', 'wall', 0.0031], ['clock256', 'wall', 0.0042], ['photo_familyX', 'wall', 0.0012]]);
+  add('dark', [['paint_portraitX', 'wall', 0.0045], ['paint_forest', 'wall', 0.0078], ['photo_familyX', 'wall', 0.0045], ['clock256', 'wall', 0.0078], ['paint_house', 'wall', 0.0052]]);
+  add('office', [['cert_office', 'wall', 0.0078], ['cal_cal87', 'wall', 0.0104], ['paint_ship', 'wall', 0.0052], ['paint_field', 'wall', 0.0052], ['photo_family', 'wall', 0.0052], ['clock256', 'wall', 0.0078], ['paint_sea', 'wall', 0.0039]]);
+  add('hospital', [['paint_flowers', 'wall', 0.0104], ['paint_sea', 'wall', 0.0078], ['paint_lake', 'wall', 0.0052], ['cal_cal83', 'wall', 0.0078], ['clock256', 'wall', 0.0078], ['paint_portraitGone', 'wall', 0.0015]]);
+  add('motel', [['paint_ship', 'wall', 0.0156], ['paint_lake', 'wall', 0.0156], ['paint_portraitX', 'wall', 0.0045], ['sampler_stay', 'wall', 0.0104], ['cal_cal94', 'wall', 0.0078], ['clock256', 'wall', 0.0078]]);
+  add('school', [['photo_team', 'wall', 0.0156], ['cert_school', 'wall', 0.0104], ['cal_cal87', 'wall', 0.0104], ['clock256', 'wall', 0.0104]]);
+  add('concrete', [['cal_cal87', 'wall', 0.0156], ['cert_mill', 'wall', 0.0078], ['clock256', 'wall', 0.013]]);
+  add('workshop', [['cal_cal87', 'wall', 0.026], ['cert_tv', 'wall', 0.0208], ['photo_couple', 'wall', 0.0156], ['clock256', 'wall', 0.0156]]);
+  add('mall', [['paint_field', 'wall', 0.0052], ['paint_sea', 'wall', 0.0052], ['clock256', 'wall', 0.0078]]);
+  add('pool', [['clock256', 'wall', 0.0156], ['cal_cal87', 'wall', 0.0052]]);
 
   // ------------------------------------------------------------ mystery pass
   // A few things per chapter that nobody should have left: writing, small handprints, missing posters
+  // English fallbacks; every language's story file supplies its own under scrawl.<theme>
   const WRITING = {
-    yellow: ['WHO WENT HOME?', 'IT IS ALWAYS 3:17', 'DON\'T LET GO', 'FIVE HANDS', 'I HEAR IT CHEWING', 'COUNT THE DOORS'],
-    dark: ['KEEP THE LIGHT ON', 'SAM?', 'IT SMILES WHEN YOU BLINK', 'I\'M NOT SCARED'],
-    office: ['WHERE DID EVERYONE GO', '107.3', 'SIDE B'],
-    hospital: ['QUIET PLEASE', 'SHE DREW ON EVERYTHING', '207'],
-    motel: ['ONE IN ONE OUT', 'DON\'T ANSWER', '3:17'],
-    school: ['NOBODY LETS GO', 'D R N T S', 'SAM WAS HERE'],
-    concrete: ['YOU LET GO', 'DAN #1', '3:17'],
-    pool: ['ONE SECOND', 'I WAS WATCHING'],
-    mall: ['FRIENDS FOREVER', 'EVEN IF'],
-    tunnel: ['NOBODY GOES HOME ALONE', 'D+T+S'],
-    workshop: ['DON\'T PULL THE PLUG', '2 5 6'],
+    yellow: ['WHO CAME BACK FOR IT?', 'IT IS ALWAYS 02:56', 'CLAIM 256', 'LOOK FOR THE LIE', 'NOBODY ASKED', 'FILED UNDER: FORGOTTEN'],
+    dark: ['KEEP THE LIGHT ON', 'IT EATS WHAT YOU STOPPED LOOKING FOR', 'ADA?'],
+    concrete: ['HOLD FOR: ADA LIND', '256', 'UNCLAIMED'],
   };
-  const MYSTERY_N = { yellow: 5, dark: 4, office: 3, hospital: 3, motel: 3, school: 3, concrete: 3, pool: 2, mall: 2, tunnel: 3, workshop: 2 };
+  const MYSTERY_N = { yellow: 5, dark: 4, concrete: 3 };
   function mystery(L, seed) {
     const loc = PB.I18N && PB.I18N.get('story', 'scrawl.' + L.theme);
     const words = Array.isArray(loc) && loc.length ? loc : WRITING[L.theme];

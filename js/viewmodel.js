@@ -119,7 +119,7 @@
       this.right.position.set(0.19 + bx + this.sway.x + this.spr * 0.03 - rl * 0.08, -0.2 + by + this.sway.y + breathe - this.pull * 0.08 - this.spr * 0.05 - lower - rl * 0.1, -0.4 + this.pull * 0.14 - rk * 0.08 + rl * 0.06);
       this.right.rotation.set(-this.spr * 0.35 - this.pull * 0.3 + this.sway.y * 2 + rl * 1.1, this.sway.x * 3 + this.spr * 0.4 + rk * 0.25 + rl * 0.5, -this.spr * 0.3 + rl * 0.3);
       // Walkie comes up while Eddie is talking
-      const talking = !!(g.talkCur && g.talkCur.seq && g.talkCur.seq[Math.max(0, g.talkCur.i - 1)] && ['eddie', 'radio'].includes(g.talkCur.seq[Math.max(0, g.talkCur.i - 1)][0])) && g.save && g.save.world && g.save.world.radio;
+      const talking = !!(g.talkCur && g.talkCur.seq && g.talkCur.seq[Math.max(0, g.talkCur.i - 1)] && ['otto', 'radio'].includes(g.talkCur.seq[Math.max(0, g.talkCur.i - 1)][0])) && g.save && g.save.world && g.save.world.radio;
       this.talk = U.damp(this.talk, talking && !pl.hidden ? 1 : 0, 5, dt);
       this.left.visible = this.talk > 0.02;
       this.left.position.set(-0.16 + bx * 0.5 + this.sway.x, -0.14 - (1 - this.talk) * 0.4 + by + this.sway.y, -0.3 + (1 - this.talk) * 0.05);

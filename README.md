@@ -1,20 +1,21 @@
-# LEVEL 256 — The Starlight Arcade
+# LEVEL 256 — Lost Property
 
 A first-person story horror game. It runs in the browser with no install, and can be packaged as a
 desktop game. It is fully translated into 13 languages (Settings → Language).
 
-> Harlow, Pennsylvania. November 30, 1994, 2:11 AM, rain. You are Sam, twenty, a night driver for a
-> moving company, and you let yourself into the foreclosed Starlight Arcade four hours before the
-> auction crew. Seven years ago four kids went into this arcade after closing and never came out. You
-> were supposed to be with them. You went home at 9:40. That is what you have told everyone.
+> Halvard, the night of 13 January 1998, rain on the glass roof of the central station. Under the
+> concourse is Depot 9, the lost property office, where everything the city loses waits ninety days for
+> somebody to come back for it. Ada Lind has worked the night counter for eight years, because nobody
+> comes down after midnight.
 >
-> Cabinet #7 is still running with no plug in the wall. On its screen, a prompt that has been waiting
-> since 1987: **PLAYER 1: SAM — CONTINUE?**
+> At 02:56 a parcel comes down the chute: a child's red mitten, left hand, found on Lake Ostra on
+> 14 January 1979, the day Ada's little sister Wren vanished on the ice. The tag says **HOLD FOR: ADA
+> LIND**. The 1979 ledger says the claimant is *her sister, when she remembers*.
 
-Everything in the game is original. **Hungry House** (Brightline Amusements, 1981), the arcade game
-inside the story, is fictional: a horned little Muncher eats the stars of a haunted house while four
-hooded Haunts chase it, and four lanterns turn the tables. It is playable on the free cabinet inside
-the arcade.
+Ada takes the freight elevator that nobody has used since 1964 down to a button someone has scratched
+256, into the Underneath: shelf after shelf of everything nobody came back for. Each shelf is a place
+and a night where something was lost and somebody lied about it. Find the lie, put the lost thing back
+where it belongs, and the place lets you go.
 
 ## How to run
 
@@ -36,71 +37,66 @@ the arcade.
 | Mouse | Look (click the game to lock the pointer) |
 | `Shift` | Sprint (loud, uses breath). While hidden: **hold your breath** |
 | `C` | Crouch (almost silent; opens doors slowly and quietly) |
-| `E` | Interact: read, take, open, hide |
-| `F` | Flashlight |
-| `R` | Change the flashlight batteries |
+| `E` | Interact: read, take, open, hide; hold for long actions |
+| `F` | Torch |
+| `R` | Change the torch batteries |
 | `Z` / `X` | Lean left / right to peek around corners |
 | `V` | Look back over your shoulder |
 | `I` | Items, with a 3D inspect view |
 | `J` | Journal: objective, the story so far, papers found, people |
-| `Q` | Drink a Star Pop (calms fear, gives your breath back) |
+| `Q` | Eat a barley sugar (steadies your hands and your breath) |
 | `G` | Throw a glow stick |
 | `M` / `Tab` | Map |
 | `Esc` / `P` | Pause |
 
 With a controller (Xbox layout; Steam Input maps PlayStation, Switch and Steam Deck controls to it): left stick
-walk, right stick look, A interact, B crouch, X batteries, Y flashlight, LB/RB lean, RT or L3 run, LT glow
-stick, R3 look back, D-pad journal / Star Pop / items, View map, Menu pause. The menus work with the D-pad,
-A and B, and scares rumble.
+walk, right stick look, A interact, B crouch, X batteries, Y torch, LB/RB lean, RT or L3 run, LT glow
+stick, R3 look back, D-pad journal / barley sugar / items, View map, Menu pause. The menus work with the
+D-pad, A and B, and scares rumble.
 
 On touch screens: a move stick bottom left, drag on the right to look, and action buttons.
 
 ## Chapters
 
-Every chapter is somebody's memory, swallowed by the game and rebuilt wrong. The story bible, with
-the full timeline and the rules of the House, is in `docs/STORY.md`.
+Every chapter is a different place, built by hand, with its own creatures, its own lie and its own way
+out. The story bible, with the full timeline, is in `docs/STORY.md`.
 
-| # | Chapter | Whose memory | Threat | Goal |
+| # | Chapter | Place and night | Creatures | The lie, and the way out |
 | --- | --- | --- | --- | --- |
-| P | Starlight Arcade | Sam, 1994 | the storm | Flashlight, power, Walt's office, the gold token |
-| 0 | Attract Mode | the game, waiting | the Eater | Four lanterns for the EXIT panel; Eddie on the walkie-talkie |
-| 1 | Mill Warehouse | Danny | Danny (red), the Eater | Three fuses for the freight elevator; Danny's watch |
-| 2 | Pipe Dreams | Danny, Toby, Sam, 1985 | Crawlers | Bleed three steam valves; the fort |
-| 3 | The Pool | Nell | Nell (teal) | Drain the pool; Nell's glasses; Theo's letters |
-| 4 | Harlow Mutual | Rosie | Rosie (violet) | Security code, keycard, fire stairs; Rosie's mixtape |
-| 5 | Harlow Junior High | all five, April 16, 1987 | the Hall Monitor | Closet code, custodian's keys, the chained fire exit; the pact |
-| 6 | Lights Out | Toby | Toby (amber), Grinners | Three generators; Toby's lighter |
-| 7 | Harlow Mall | all five, December 1986 | Mannequins | Four photo-booth frames |
-| 8 | Blue Moon Motor Inn | Eddie | the Neighbor | Room 12 and Eddie's notebook; trust him or not |
-| 9 | St. Agnes | Walt, October 1983 | the Counter | Five diary pages, Room 207 |
-| 10 | Maple Street | Sam, April 16–17, 1987 | the Neighbor | Toby's house, your house, the corner |
-| 11 | The Workshop | Walt, April 1987 | Chompy | Walt's key, the Kernel's dials, the 3:17 tape |
-| 12 | LEVEL 255: The House | the game | the Eater, the Haunts | Four corner lanterns, the Haunts' house |
-| 13 | LEVEL 256: Kill Screen | everyone | the Eater, the Counter | The choice |
+| P | Night Shift | Depot 9, Halvard, 13 January 1998 | the Sorter | The parcel, the 1979 ledger, Otto Brandt's office and his freight elevator |
+| 1 | Unclaimed | Level 256, the Underneath | the Eater, the flat men in the wallpaper, the Hummer | Four lost lights for the Index Door, with the Eater awake behind you |
+| 2 | Fog Bell | MS Saint Brigid, 9 November 1987 | the Drowned, the Passengers, the Bellman | The captain's torn logbook page; lifeboat 2 by hand |
+| 3 | Double Feature | Pinewood Drive-In, 22 August 1975 | the Pines, the Stag, the Usher | A boy's ticket stub for the draw; a dead wagon brought back to life |
+| 4 | Seven Below | Hollow Creek Mine, 3 March 1956 | the Burrowers, the Lamplighters, the Timber Crawler | Seven brass tags back on the tally board; the cage up the shaft |
+| 5 | Whiteout | Berghotel Weisshorn, 28 February 1983 | the Frozen Guests, the Cook, the Whiteout | The telegram that never burned; the cable car down out of the storm |
+| 6 | Low Water | Gammel Ostra, 2 October 1964 | the Silted, the Long Ones, the Choir | A music box back on the mantel; the dam ladder as the valley floods |
+| 7 | Last Stop | The Nordlys Express, 19 December 1990 | the Conductor, the Sleepers, the Underhand | A girl's ticket, punched; the emergency brake at Kvitfjell |
+| 8 | Bright Lights | Falk's Carnival, 30 September 1984 | the Masks, the Carousel Horses, Laughing Lotte | A clown's nose back on his mirror; the ghost train out through the fence |
+| 9 | The Ice | Lake Ostra, 14 January 1979 | the Hush, the thing under the ice, the laughing kids | Ada's own lie, and what she says to Wren |
 
-The four Haunts can be freed by returning what they loved to their shrines. There are four endings:
-take the EXIT, hold the door for Eddie, pull the plug with five hands, or the true ending, which
-needs all four Haunts, all eight of Lily's drawings and Walt's memory of Room 207.
+There are three endings, decided on the ice: **Thaw**, **Snowfall** and **Morning**. Morning needs all
+eight of Wren's drawings and Otto's badge brought down from his desk to the Index Door.
 
 ## What's in it
 
-- **Story:** about 150 documents (notes, letters, diaries, tapes, phone messages, screens, photos,
-  wall writing and Lily's crayon drawings), walkie-talkie conversations and echoes of the past. The
-  truth about the night of April 16, 1987 is prepared from the first room and told in full near the
-  end. The journal (`J`) keeps the story so far.
-- **Creatures:** the Eater (fast in straight corridors, slow in turns; the lights dim when it is
-  near), four Haunts that move like the kids they were, Crawlers and Grinners that hate light, the
-  Counter that comes closer while you look away, the Hall Monitor that only sees what its flashlight
-  touches, Mannequins, the Neighbor who uses voices you know, and Chompy.
-- **Survival:** sprinting and breath, crouching, leaning, hiding under desks and in lockers (and
-  holding your breath when something comes close), quiet doors, lanterns, flashlight battery, fear,
-  glow sticks, Star Pop, tape-player saves.
+- **Story:** 94 documents (notes, letters, diaries, telegrams, transcripts, newspapers, ledgers, wall
+  writing and Wren's crayon drawings), channel nine conversations with Otto, and an ending told in your
+  own words. Each shelf is a small, complete story of its own and a piece of the one underneath them all.
+  The journal (`J`) keeps the story so far.
+- **Creatures:** 28 species, three of their own on every shelf, each with one rule to learn: some only
+  hear, some only see light, some only move while you move, some only while nobody is watching them, some
+  come up out of the ground or the water where you stand. Every one has its own model, its own sounds
+  and its own way of killing you.
+- **Survival:** sprinting and breath, crouching, leaning, hiding under beds, bunks and desks and in
+  lockers (and holding your breath when something comes close), quiet doors, the torch and its
+  batteries, fear, glow sticks, barley sugar, the cold outside the Weisshorn, rising water.
 - **Graphics:** no image files; every texture is generated in code. GPU light baking with bounce
   light, screen-space ambient occlusion and reflections, volumetric light, motion blur, bloom with
-  lens dirt, ACES tone mapping, a rainy street outside, detailed models, first-person hands.
-- **Sound:** every sound is synthesized at load time (footsteps per surface, doors, rain, room
-  tones, breathing, creatures, radio and tape voices), with 3D positioning, occlusion, per-room
-  reverb and a score that changes with each chapter.
+  lens dirt, ACES tone mapping, fog, rain and snow, sculpted creature and vehicle models, first-person
+  hands.
+- **Sound:** every sound is synthesized at load time (footsteps per surface, doors, weather, room
+  tones, breathing, creatures, the radio), with 3D positioning, occlusion, per-room reverb and a score
+  for each chapter. A creature close behind you is heard at your neck before it is seen.
 - **Settings:** graphics, display, audio (separate channels, HRTF), controls, gameplay (three
   difficulties, jump-scare intensity, hints), subtitles, optional sound captions, language.
 
@@ -109,13 +105,8 @@ needs all four Haunts, all eight of Lily's drawings and Walt's memory of Room 20
 English (the original), Turkish, German, French, Spanish, Italian, Portuguese (Brazil), Polish,
 Russian, Simplified Chinese, Japanese, Korean and Arabic. Every menu, document, objective and radio
 line is translated, and the game asks for a language on first launch. Arabic is laid out right to
-left. Terminal prompts, song titles and similar lines stay left to right inside Arabic text. Each
-language has its own typefaces for the terminal, printed and handwritten documents. Without an
-internet connection, the system fonts take over.
-
-Sam's gender is never stated in English, and the translations keep it that way. That is harder in
-languages whose grammar marks gender. Each pack uses neutral phrasing wherever Sam speaks or is
-spoken to.
+left. Each language has its own typefaces for the terminal, printed and handwritten documents; every
+writer in the story has their own hand. Without an internet connection, the system fonts take over.
 
 ## Development
 
@@ -124,18 +115,17 @@ index.html           the shell (menus, HUD, overlays)
 css/game.css         interface
 js/i18n.js           language packs; js/text/<lang> holds every string (one file per chapter)
 js/fonts.js          per-language typefaces
-js/levels.js         chapter definitions
-js/levelgen*.js      level generators (DOM-free, tested in Node)
+js/levels.js         chapter definitions; js/maps/*.js the hand-built maps
+js/authored.js       builds a level from an authored map; js/levelgen*.js the Underneath
 js/story.js          localized access to the story
-js/textures.js       procedural textures; js/art.js drawings and photos
-js/models*.js        prop models and materials; js/monsters*.js creatures
-js/world.js          geometry, baked light, fixtures, doors; js/exterior.js outside
+js/textures*.js      procedural textures; js/art.js drawings; js/decor.js things on walls
+js/models*.js        prop and vehicle models and materials
+js/creatures.js      the creature framework; js/species*.js the 28 species; js/kills.js deaths
+js/world*.js         geometry, baked light, fixtures, doors; js/exterior.js and weather.js outside
 js/post.js           post-processing
-js/sfx.js, audio.js  sound synthesis and the audio engine
-js/entities*.js      creatures and AI
-js/arcade2d.js       Hungry House, the playable arcade game
+js/sfx*.js, audio*.js  sound synthesis and the audio engine
 js/bag.js            items and journal
-js/chapters*.js      chapter scripts
+js/chapters5.js      the chapter scripts
 js/game.js           game loop, saving
 tests/               level and text tests
 desktop/             Electron wrapper for the desktop and Steam builds (docs/STEAM.md)

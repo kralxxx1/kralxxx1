@@ -189,6 +189,8 @@
     const gain = kill ? 0.75 : ev === 'toll' ? 0.6 : ev === 'alarm' ? 0.55 : ev === 'punch' ? 0.6 : name === 'cIntake' ? 0.5 : 0.45;
     const rate = name === 'cGroanDeep' && cr.kind === 'conductor' ? 1.7 : (cr.sp.height > 2.4 ? 0.85 : cr.sp.height < 1.6 ? 1.15 : 1);
     this.play(name, 2, 'ent', p, { rev: 0.35, gain, ref: kill ? 1 : 2.2, roll: 1.25, occl: true, occluded: !kill && hidden(this, p), rate, jitter: 0.05 });
+    if (ev === 'toll') this.caption('toll', PB.t('cap.toll'), p, 8);
+    else if (!kill && /Laugh/.test(name)) this.caption('laugh', PB.t('cap.laugh'), p, 8);
   };
   P.speciesStep = function (cr, d) {
     if (!this.ctx) return;
@@ -206,7 +208,7 @@
       // she is never quiet: her laugh carries a long way, nearer louder
       const d = cr.distToPlayer();
       let L = this.loops.get(key);
-      if (!L && d < 40 && cr.state !== 'dormant') L = this.bufLoop(key, 'loopLotte', headOf(cr), { bus: 'ent', gain: 0, rev: 0.4, ref: 4, roll: 0.9, max: 60 });
+      if (!L && d < 40 && cr.state !== 'dormant') { L = this.bufLoop(key, 'loopLotte', headOf(cr), { bus: 'ent', gain: 0, rev: 0.4, ref: 4, roll: 0.9, max: 60 }); if (L) this.caption('laugh', PB.t('cap.laugh'), headOf(cr), 8); }
       if (L) this.setLoop(key, cr.state === 'dormant' ? 0 : 0.5, headOf(cr), hidden(this, cr.pos));
       return;
     }
@@ -214,6 +216,7 @@
     let L = this.loops.get(key);
     if (!L && k > 0.01) { L = this.bufLoop(key, 'loopRasp', headOf(cr), { bus: 'ent', gain: 0, rev: 0.12, ref: 0.9, roll: 1.6, max: 14, rate: K.breath }); }
     if (L) this.setLoop(key, Math.pow(k, 1.6) * 0.95, headOf(cr), hidden(this, cr.pos));
+    if (k > 0.65) this.caption('breath', PB.t('cap.breath'), headOf(cr), 12);
   };
   // The Hush: near it, everything goes quiet, even you
   P.hush = function (k) {
@@ -253,7 +256,7 @@
     cageStop() { if (!this.ctx) return; this.stopLoop('cage', 0.4); this.play('sfxTwang', 1, 'sfx', null, { rev: 0.6, gain: 0.85 }); },
     winch: one('sfxRatchet', 1, 0.7),
     winchRun(sec = 8) { if (!this.ctx) return; for (let k = 0; k < sec; k++) this.play('sfxRatchet', 1, 'sfx', null, { rev: 0.3, gain: 0.45, delay: k * 0.98 }); },
-    knockSeven(pos, dd = 0) { if (!this.ctx) return; const g = U.clamp(1 - dd / 40, 0.15, 1); for (let k = 0; k < 7; k++) this.play('sfxKnockSteel', 3, 'sfx', at(pos), { rev: 0.6, gain: 0.8 * g, delay: k * 0.62 + Math.random() * 0.06, ref: 4, occl: true, occluded: dd > 6 }); },
+    knockSeven(pos, dd = 0) { if (!this.ctx) return; const g = U.clamp(1 - dd / 40, 0.15, 1); for (let k = 0; k < 7; k++) this.play('sfxKnockSteel', 3, 'sfx', at(pos), { rev: 0.6, gain: 0.8 * g, delay: k * 0.62 + Math.random() * 0.06, ref: 4, occl: true, occluded: dd > 6 }); this.caption('knocks', PB.t('cap.knocks'), pos, 8); },
     canary(alive) { if (!this.ctx) return; this.play('sfxCanary', 1, 'sfx', null, { rev: 0.2, gain: alive ? 0.35 : 0.12, rate: alive ? 1 : 0.8 }); },
     cough() { if (this.ctx) this.play('sfxCough', 1, 'sfx', null, { rev: 0.25, gain: 0.5 }); },
     pullStart: one('sfxPullCord', 1, 0.7),
@@ -269,6 +272,7 @@
       if (!on) { this.stopLoop('choir', 0.25); return; }
       const g = PB.game, c = g && g.entities && g.entities.find(e => e.kind === 'choir'), p = c ? { x: c.pos.x, y: 1.6, z: c.pos.z } : null;
       this.bufLoop('choir', 'loopChoir', p, { bus: 'amb', gain: 0.5, rev: 0.7, ref: 6, roll: 0.8, max: 90 });
+      this.caption('choir', PB.t('cap.choir'), p, 20);
     },
     musicBox(pos, sec = 6) { if (!this.ctx) return; const s = this.play('sfxMusicBox', 1, 'sfx', at(pos, 1.4), { rev: 0.45, gain: 0.55, ref: 2.5, jitter: 0 }); if (s) try { s.stop(this.t + sec); } catch (e) { /* already */ } },
     clockStrike(pos, n = 6) { if (!this.ctx) return; for (let k = 0; k < n; k++) this.play('sfxClockStrike', 1, 'sfx', at(pos, 1.8), { rev: 0.5, gain: 0.55, delay: 0.8 + k * 1.7, ref: 3, jitter: 0 }); },
@@ -279,27 +283,29 @@
       if (!this.ctx) return;
       k = U.clamp(k, 0, 1);
       let L = this.loops.get('train');
-      if (!L && k > 0.01) L = this.bufLoop('train', 'loopTrain', null, { bus: 'amb', gain: 0, rev: 0.05 });
+      if (!L && k > 0.01) { L = this.bufLoop('train', 'loopTrain', null, { bus: 'amb', gain: 0, rev: 0.05 }); this.caption('train', PB.t('cap.train'), null, 60); }
       if (L) { this.setLoop('train', 0.6 * k); if (L.nodes[0]) L.nodes[0].playbackRate.setTargetAtTime(0.7 + 0.35 * k, this.t, 0.5); }
     },
     trainClack(k = 1) { if (this.ctx) this.play('sfxClack', 3, 'sfx', null, { rev: 0.1, gain: 0.42 * k, lowpass: 1400 }); },
-    trainBrake() { if (this.ctx) this.play('sfxBrake', 1, 'sfx', null, { rev: 0.3, gain: 0.75 }); },
-    pa() { if (!this.ctx) return; this.play('sfxChime', 1, 'sfx', null, { rev: 0.25, gain: 0.45 }); this.bufLoop('pa', 'radioStatic', null, { bus: 'sfx', gain: 0.08, rev: 0.2 }); setTimeout(() => this.stopLoop('pa', 0.6), 3200); },
+    trainBrake() { if (!this.ctx) return; this.play('sfxBrake', 1, 'sfx', null, { rev: 0.3, gain: 0.75 }); this.caption('brake', PB.t('cap.brake'), null, 6); },
+    pa() { if (!this.ctx) return; this.play('sfxChime', 1, 'sfx', null, { rev: 0.25, gain: 0.45 }); this.caption('pa', PB.t('cap.pa'), null, 4); this.bufLoop('pa', 'radioStatic', null, { bus: 'sfx', gain: 0.08, rev: 0.2 }); setTimeout(() => this.stopLoop('pa', 0.6), 3200); },
     carousel(on) {
       if (!this.ctx) return;
       if (!on) {
         // the organ runs down: the music slows and sags before it stops
         const L = this.loops.get('organ'); if (L && L.nodes[0]) L.nodes[0].playbackRate.setTargetAtTime(0.55, this.t, 0.6);
         setTimeout(() => this.stopLoop('organ', 0.6), 1600);
+        if (L) this.caption('organStop', PB.t('cap.organStop'), null, 4);
         return;
       }
       const g = PB.game, sp = g && g.level && g.level.spots.carousel && g.level.spots.carousel[0], p = sp ? { x: sp.wx, y: 3, z: sp.wz } : null;
       const L = this.bufLoop('organ', 'loopOrgan', p, { bus: 'amb', gain: 0.6, rev: 0.45, ref: 9, roll: 0.7, max: 120 });
+      this.caption('organ', PB.t('cap.organ'), p, 6);
       if (L && L.nodes[0]) L.nodes[0].playbackRate.value = 1;
     },
     rideRun(on) { if (!this.ctx) return; if (on) this.bufLoop('ride', 'loopRide', null, { bus: 'sfx', gain: 0.35, rev: 0.3 }); else this.stopLoop('ride', 0.5); },
     crash() { if (this.ctx) this.play('sfxCrash', 1, 'sfx', null, { rev: 0.4, gain: 0.85 }); },
-    iceCrack(pos, k = 1) { if (this.ctx) this.play('sfxIceCrack', 1, 'amb', at(pos, 0.2), { rev: 0.6, gain: 0.7 * k, ref: 10, roll: 0.6, max: 200 }); },
+    iceCrack(pos, k = 1) { if (!this.ctx) return; this.play('sfxIceCrack', 1, 'amb', at(pos, 0.2), { rev: 0.6, gain: 0.7 * k, ref: 10, roll: 0.6, max: 200 }); this.caption('ice', PB.t('cap.ice'), pos, 10); },
     splash: one('sfxSplash', 1, 0.7),
     waterSurge(pos) { if (!this.ctx) return; this.play('sfxSplash', 1, 'sfx', at(pos), { rev: 0.5, gain: 0.9, rate: 0.5 }); },
     typewriter(sec, pos) { if (this.ctx) this.play('sfxTypewriter', 1, 'sfx', at(pos), { rev: 0.3, gain: 0.6 }); },

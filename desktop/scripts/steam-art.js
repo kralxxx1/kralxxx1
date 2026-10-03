@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* Store art for Steam, made from the game itself. Run it on a PC with a real graphics card:
      npm run steam-art                  (every chapter, Ultra preset)
-     node scripts/steam-art.js --levels prolog,pool,motel --preset high
+     node scripts/steam-art.js --levels depot,lake,train --preset high
    It starts the desktop build with a throwaway profile, renders clean frames straight from the game's
    canvas (no HUD) at 1920×1080 for screenshots and 3840×2160 for the library hero, and composes every
    capsule size Steam asks for with the game's logo. Everything lands in desktop/steam-art/.
@@ -24,7 +24,7 @@ const { app } = require('electron');
 const os = require('os');
 const opt = name => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : null; };
 const OUT = path.resolve(opt('--out') || path.join(__dirname, '..', 'steam-art'));
-const LEVELS = (opt('--levels') || 'prolog,lobby,mill,pipes,pool,office,school,dark,mall,motel,hospital,maple,workshop,maze,killscreen').split(',');
+const LEVELS = (opt('--levels') || 'depot,under,ferry,pinewood,mine,lodge,village,train,carnival,lake').split(',');
 const PRESET = opt('--preset') || 'ultra';
 fs.mkdirSync(path.join(OUT, 'screenshots'), { recursive: true });
 app.setPath('userData', fs.mkdtempSync(path.join(os.tmpdir(), 'level256-art-')));
@@ -49,7 +49,7 @@ const GRAB = `(async () => {
 
 // In the page: the capsule composer. bg: a data URL, spec: {w, h, logo: 'left'|'center'|'top'|null, dim}
 const COMPOSE = `(async (bg, spec) => {
-  await document.fonts.load('64px "Press Start 2P"', 'LEVEL 256'); await document.fonts.load('40px "VT323"', 'THE STARLIGHT ARCADE');
+  await document.fonts.load('64px "Press Start 2P"', 'LEVEL 256'); await document.fonts.load('40px "VT323"', 'LOST PROPERTY');
   const c = document.createElement('canvas'); c.width = spec.w; c.height = spec.h;
   const g = c.getContext('2d'), W = spec.w, H = spec.h;
   if (bg) {
@@ -74,7 +74,7 @@ const COMPOSE = `(async (bg, spec) => {
     g.fillStyle = 'rgba(255,40,40,0.8)'; g.fillText('LEVEL 256', cx - off, cy);
     g.fillStyle = 'rgba(57,230,255,0.75)'; g.fillText('LEVEL 256', cx + off, cy);
     g.save(); g.shadowColor = 'rgba(255,200,40,0.7)'; g.shadowBlur = size * 0.35; g.fillStyle = '#ffd23f'; g.fillText('LEVEL 256', cx, cy); g.restore();
-    const sub = 'THE STARLIGHT ARCADE';
+    const sub = 'LOST PROPERTY';
     const ss = Math.round(size * 0.52);
     g.font = ss + 'px "VT323"'; g.fillStyle = '#efe6cf';
     const track = ss * 0.32;
@@ -145,15 +145,15 @@ app.on('browser-window-created', (e, win) => {
           if (!shot) { console.log('black frame, skipped:', lvl, k ? 'creature' : 'start'); continue; }
           const name = String(n++).padStart(2, '0') + '_' + lvl + (k ? '_creature' : '');
           save('screenshots/' + name + '.png', shot);
-          if (lvl === 'pool' && !k) shots.pool = shot;
+          if (lvl === 'lake' && !k) shots.pool = shot;
           if (k && !shots.creature) shots.creature = shot;
           console.log(name);
         }
-        if (lvl === LEVELS[0] || lvl === 'lobby') {
+        if (lvl === LEVELS[0] || lvl === 'under') {
           // the library hero wants 3840 × 1240 without text: render this view at 4K
           await wc.executeJavaScript("PB.Settings.set('resolution', '3840x2160')"); await sleep(2500);
           const big = await wc.executeJavaScript(GRAB);
-          if (big && (!shots.hero || lvl === 'lobby')) shots.hero = big;
+          if (big && (!shots.hero || lvl === 'under')) shots.hero = big;
           if (!big) console.log('4K frame failed on this graphics card; the hero uses a 1920 frame instead');
           await wc.executeJavaScript("PB.Settings.set('resolution', '1920x1080')"); await sleep(1000);
         }

@@ -2,7 +2,7 @@
   "name": "level256",
   "productName": "LEVEL 256",
   "version": "1.0.0",
-  "description": "LEVEL 256: The Starlight Arcade. A first-person story horror game.",
+  "description": "LEVEL 256: Lost Property. A first-person story horror game.",
   "private": true,
   "main": "main.js",
   "scripts": {

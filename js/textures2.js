@@ -231,7 +231,9 @@
       const i = y * n + x, u = x / n, v = y / n;
       const su = Math.min(fr(u * 2), 1 - fr(u * 2)), sv = Math.min(fr(v * 1.5), 1 - fr(v * 1.5));
       const weld = 1 - sm(0.002, 0.009, Math.min(su, sv));
-      const rivet = (fr(u * 24) < 0.5 && sv < 0.02) ? (1 - sm(0.12, 0.3, Math.hypot(fr(u * 24) - 0.25, sv * 12))) : 0;
+      // round-headed rivets along the seams: a low dome, not a flat-topped disc (which lights up as a ring)
+      const rd = (fr(u * 24) < 0.5 && sv < 0.02) ? Math.hypot(fr(u * 24) - 0.25, sv * 12) / 0.24 : 1;
+      const rivet = rd < 1 ? Math.sqrt(1 - rd * rd) * 0.7 : 0;
       // rust weeps downward from seams
       const below = Math.min(1, Math.max(0, fr(v * 1.5)));
       const weep = sm(0.55, 0.8, rust[i]) * (1 - sm(0.0, 0.25, below)) * sm(0.4, 0.7, drip[i]);

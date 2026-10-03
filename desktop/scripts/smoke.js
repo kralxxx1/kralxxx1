@@ -87,11 +87,11 @@ app.on('browser-window-created', (e, win) => {
       await wc.executeJavaScript("PB.Settings.set('lang', 'en')");
       // a chapter: everything else in the game builds on the same files
       const t1 = Date.now();
-      await wc.executeJavaScript("(() => { const g = PB.game; g.newSave(); g.loadLevel('prolog', { skipCard: true }); })()");
-      const play = await waitFor(wc, "PB.game.levelDef && PB.game.levelDef.id === 'prolog' && PB.game.state === 'play'", 600000);
+      await wc.executeJavaScript("(() => { const g = PB.game; g.newSave(); g.loadLevel('depot', { skipCard: true }); })()");
+      const play = await waitFor(wc, "PB.game.levelDef && PB.game.levelDef.id === 'depot' && PB.game.state === 'play'", 600000);
       check('first chapter loads and plays', play, ((Date.now() - t1) / 1000).toFixed(1) + ' s');
       await sleep(3000);
-      await shot(win, 'prolog');
+      await shot(win, 'depot');
       const bad = errors.filter(x => !/GPU stall|willReadFrequently|Automatic fallback to software WebGL|swiftshader/i.test(x));
       check('no errors in the console', bad.length === 0, bad.slice(0, 5));
     } catch (err) {
