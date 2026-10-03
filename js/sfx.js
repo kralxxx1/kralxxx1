@@ -988,7 +988,7 @@
   const SR = 44100;
   // How many takes of each effect are used (footsteps and doors vary the most)
   const TAKES = { whisper: 4, childHum: 2, floorCreak: 3, farScream: 2, buildingGroan: 2, musicBoxDown: 1, paper: 6, cloth: 4, chew: 4, plasticTap: 4, flashClick: 3, doorLocked: 3, squelch: 3, thunder: 3, stingSpot: 3, rustle: 6, breathIn: 4, breathOut: 4, breathInHeavy: 4, breathOutHeavy: 4, breathCalmIn: 3, breathCalmOut: 3, breathFearIn: 4, breathFearOut: 4, gasp: 2, dropMetal: 2, dropWood: 2, dropDebris: 2, farSteps: 3, roarEater: 3, screechGhost: 3, hissCrawler: 3, groanCounter: 2, moanNeighbor: 2, laughChompy: 2, whistle: 1, impactCardboard: 3, impactBottle: 3, impactSoft: 3, drawerWoodOpen: 3, drawerWoodShut: 3, drawerMetalOpen: 3, drawerMetalShut: 3 };
-  const LOOPS = /^(rain|gutter|fluorescent|hvac|poolRoom|warehouse|darkRoom|tunnel|schoolHall|mallAtrium|motelHall|hospitalHall|workshop|carPass|radioStatic)/;
+  const LOOPS = /^(rain|gutter|fluorescent|hvac|poolRoom|warehouse|darkRoom|tunnel|schoolHall|mallAtrium|motelHall|hospitalHall|workshop|carPass|radioStatic|loop[A-Z])/;
   class Sfx {
     constructor(ctx) { this.ctx = ctx || null; this.cache = new Map(); this.voices = new Map(); this.rng = U.rng(1234); this.sr = SR; }
     attach(ctx) { this.ctx = ctx; }
@@ -1074,6 +1074,9 @@
     // Kept for callers that only warm a few names
     warm(names) { this.prerender(names); }
   }
+  // the building blocks, for the recipes in sfx2.js
+  PB.SfxDSP = { biquad, sweep, white, pink, brown, decay, add, normalize, modes, hit, crackle, loopify, softclip, pulse, ringNoise, scuff, grit, throat, step, creakPlank, breath, S, TAU };
+  PB.SfxTakes = TAKES;
   PB.sfxLib = new Sfx(null);
   PB.Sfx = Sfx;
   PB.SfxRecipes = R;

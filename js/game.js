@@ -410,7 +410,7 @@
       if (opts.restore) this.applySnapshot(opts.restore);
       if (!opts.menu) {
         this.ui.loading(0.975, t('boot.sounds'));
-        await PB.sfxLib.prerender(PB.sfxLib.loops());
+        await PB.sfxLib.prerender(PB.Audio.loopsFor ? PB.Audio.loopsFor(L.theme, def) : PB.sfxLib.loops());
         await this.audio.warmMusic(def.music || 'default');
       }
       this.ui.loading(0.98, t('load.shaders'));

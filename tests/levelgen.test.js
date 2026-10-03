@@ -9,14 +9,15 @@ const check = (cond, msg) => { if (!cond) { failures++; console.log('  FAIL:', m
 
 // Items every chapter must contain (type → minimum count)
 const REQUIRED = {
-  prolog: { flashlight: 1, fuseBox: 1, register: 1, token: 1, specialCabinet: 1, freeCabinet: 1, tape: 1, drawing: 1 },
-  lobby: { powerPellet: 4, exitPanel: 1, tape: 1, radio: 1, drawing: 1 },
-  mill: { fuse: 3, fusePanel: 1, memento: 1, shrine: 1, tape: 1 },
-  pool: { valve: 4, drain: 1, memento: 1, shrine: 1, tape: 1 },
-  office: { codeClue: 3, phone: 3, keypad: 1, keycard: 1, cardReader: 1, memento: 1, shrine: 1 },
-  dark: { generator: 3, fuelCan: 3, memento: 1, shrine: 1, tape: 1 },
-  maze: { powerPellet: 4, portal: 1 },
-  killscreen: { plug: 1, powerPellet: 2 },
+  depot: { flashlight: 1, key: 1 },
+  under: { powerPellet: 4, exitPanel: 1, radio: 1, drawing: 1 },
+  ferry: { key: 3, drawing: 1 },
+  pinewood: { key: 3, drawing: 1 },
+  mine: { drawing: 1 },
+  lodge: { key: 1 },
+  village: { drawing: 1 },
+  train: { drawing: 1 },
+  carnival: { drawing: 1 },
 };
 const TEXT_TYPES = ['note', 'tape', 'codeClue', 'computer', 'phone', 'drawing'];
 
@@ -65,13 +66,15 @@ for (const D of S.LEVELS) {
 }
 
 // Every document must be placed somewhere (except ones spawned by scripts)
-const SCRIPTED = ['maze_fruit'];
+// Shown by the chapter scripts (in a parcel, a drawer, a stove, a book) rather than lying about
+const SCRIPTED = ['depot_tag', 'wren1', 'depot_ledger', 'ferry_logpage', 'ferry_logbook', 'ferry_logbookFull', 'mine_confession', 'lodge_guestBook', 'lodge_telegram', 'lake_radio', 'lake_tape'];
 const placed = new Set(S.placedNoteIds());
 const unused = S.noteIds().filter(id => !placed.has(id) && !SCRIPTED.includes(id));
 check(!unused.length, 'Documents never placed: ' + unused.join(', '));
-// Lily's drawings: numbers must be unique
+// Wren's drawings: numbers must be unique
 const nums = S.noteIds().map(id => S.note(id)).filter(n => n.kind === 'drawing' && n.drawing).map(n => n.drawing);
-check(new Set(nums).size === nums.length, "Lily's drawing numbers repeat: " + nums.join(','));
+check(new Set(nums).size === nums.length, "Wren's drawing numbers repeat: " + nums.join(','));
+check(nums.length === 8, `Wren left eight drawings, found ${nums.length}`);
 console.log(`Documents: ${S.noteIds().length} (placed ${placed.size}), drawings so far: ${nums.length}/8`);
 console.log(failures ? `\n${failures} FAILURES` : '\nAll level tests passed.');
 process.exit(failures ? 1 : 0);

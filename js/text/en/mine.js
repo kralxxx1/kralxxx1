@@ -174,7 +174,7 @@ Underneath, very carefully:
     radio: {
       mine_otto1: [
         ['radio', '[static, and very faint under it, a hammer on steel]'],
-        ['otto', 'Nine to Ada. Snow? Headframe? Hollow Creek, then. I have a shelf of it. Seven lamps, all still lit, which they should not be after forty years.'],
+        ['otto', 'Nine to Ada. Snow? Headframe? Hollow Creek, then. I have a shelf of it. Seven lamps, all still lit, which they should not be, after all this time.'],
         ['ada', 'Someone\'s knocking. Down there.'],
         ['otto', 'Yes. They have been knocking on my shelf since 1956. Take the bird. It will tell you what the air will not.'],
       ],

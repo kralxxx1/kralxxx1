@@ -267,6 +267,27 @@
       ],
       objectives: ['carnival_start', 'carnival_power', 'carnival_fuse', 'carnival_fit', 'carnival_why', 'carnival_mirror', 'carnival_ride'],
     },
+    // ------------------------------------------------------------ 9. Lake Ostra (14 January 1979)
+    {
+      id: 'lake', authored: MAP('lake'), seed: 1979, theme: 'lake', music: 'lake', ambience: 'lake',
+      fog: [0x5a6068, 0.028], fogIn: 0.012, grade: { tint: [0.96, 0.99, 1.05], sat: 0.55 }, exposure: 1.0, noDressing: true,
+      items: [
+        { type: 'thing', id: 'radio', place: 'spot', spot: 'radio', fixed: true, reach: 2.0, prompt: 'lake_radioPrompt' },
+        { type: 'thing', id: 'tape', model: 'cassette', place: 'spot', spot: 'tape', fixed: true, reach: 2.0, prompt: 'lake_tapePrompt' },
+        { type: 'thing', id: 'hole', place: 'spot', spot: 'hutHole', fixed: true, reach: 2.2, prompt: 'lake_holePrompt' },
+        doc('lake_granNote', 'granNote'),
+        doc('lake_wrenNote', 'wrenNote', { wall: true }),
+        doc('lake_diary', 'diary'),
+        doc('lake_search', 'search'),
+        doc('lake_hutNote', 'hutNote'),
+      ].concat(supplies(3, 2, 2, 'sup')),
+      entities: [
+        { type: 'hush', spot: 'lair:hush', dormant: true },
+        { type: 'underice', count: 4, spot: 'lair:underice' },
+        { type: 'laugher', count: 3, spot: 'lair:laugher' },
+      ],
+      objectives: ['lake_start', 'lake_trail', 'lake_huts', 'lake_remember', 'lake_thin', 'lake_say'],
+    },
   ].filter(L => L.layout || L.authored);
   LEVELS.forEach((L, i) => {
     L.index = i; L.chapter = i;

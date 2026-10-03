@@ -41,8 +41,8 @@ The dining car closes at 23.00. After 23.00, passengers from the sleeping cars a
        Going home to Nordvik for Christmas. First time on the train by herself.
        Put the ticket back in her coat pocket. Told her mind she doesn't lose it.
 
-00.30  Mr Saether through on his round. Forty minutes late at Brenna for
-       snow on the line, and he's taking it out on everybody.` },
+00.30  Mr Saether through on his round. Snow on the line all the way
+       from Ostra, and he's taking it out on everybody.` },
       train_paper: { kind: 'clipping', title: 'A newspaper left on a table', from: 'Nordvik Times', date: 'Saturday 22 December 1990', body:
 `GIRL, 15, MISSING SINCE WEDNESDAY
 
@@ -82,7 +82,7 @@ I have been with the railway twenty-six years.
 
 E. Saether` },
       train_docket: { kind: 'note', title: 'A lost property docket tied to a mail sack', from: 'Depot 9, Halvard Central — Lost Property', date: 'January 1991', body:
-`ITEM 3,118
+`No. 97 / 1991
 One rail ticket, single, Halvard–Nordvik, sleeper, car 2 berth 24, 19.12.90. Not punched.
 Found: Nordlys Express, car 2, under the lower berth, by cleaners at Nordvik, 20.12.90.
 Received at Depot 9: 7.1.91.
@@ -156,7 +156,7 @@ SHE HAD ONE` },
         ['otto', 'Then find one before the conductor finds you. On my shelf the conductors are the worst. They are very polite and they do not stop.'],
       ],
       train_otto2: [
-        ['otto', 'Ada. A docket has just come up the tube by itself. One rail ticket, unclaimed. In your handwriting. I did not know you worked here. I suppose you do.'],
+        ['otto', 'Ada. A docket has just come up the tube by itself. One rail ticket, unclaimed. In your handwriting. So you were filing my shelves long before you came down to them.'],
       ],
       train_otto3: [
         ['otto', 'It has gone quiet down your end. That is either very good or very bad. If the train is still moving, stop it. Trains like that do not arrive. They only go round.'],

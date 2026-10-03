@@ -809,4 +809,8 @@
   }
   PB.Audio = Audio;
   PB.Audio.VOICE = VOICE;
+  PB.Audio.REVERBS = REVERBS;
+  PB.Audio.MUSIC = MUSIC;
+  PB.Audio.RADIO_PITCH = RADIO_PITCH;
+  PB.Audio.ECHO_PITCH = ECHO_PITCH;
 })(typeof window !== 'undefined' ? window : globalThis);

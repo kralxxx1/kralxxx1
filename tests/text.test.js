@@ -68,7 +68,7 @@ function pairs(a, b, p, lang, fn) {
   }
 }
 // Strings that may legitimately stay the same in another language: names, numbers, codes, songs
-const SAME_OK = s => !/[a-z]/.test(s.replace(/\{\w+\}/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')) || /^Terminal: [A-Z.]+$|^Harlow Mutual$|^Harlow Junior High$|^Blue Moon Motor Inn$|^Ultra\+? \(\d+\)$|^Sam\. Sam Keller\.$/.test(s);
+const SAME_OK = s => !/[a-z]/.test(s.replace(/\{\w+\}/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')) || /^Terminal: [A-Z.]+$|^Ultra\+? \(\d+\)$/.test(s);
 for (const L of LANGS) if (L !== 'en') {
   const same = [];
   pairs(en.story, I.section('story', L), '', L, (pk, va, vb) => {
@@ -94,8 +94,8 @@ for (const L of LANGS) if (L !== 'en') {
 }
 
 // 3) Story keys referenced by the chapter scripts exist
-const chapters = fs.readFileSync(path.join(ROOT, 'js', 'chapters.js'), 'utf8') + fs.readFileSync(path.join(ROOT, 'js', 'game.js'), 'utf8');
-const refs = { mono: /(?:mono)\('([a-zA-Z0-9_]+)'/g, radio: /radio\('([a-zA-Z0-9_]+)'/g, lines: /ST\.line\('([a-zA-Z0-9_]+)'/g, obj: /setObj\('([a-zA-Z0-9_]+)'/g };
+const chapters = ['chapters5.js', 'game.js', 'species7.js'].map(f => fs.readFileSync(path.join(ROOT, 'js', f), 'utf8')).join('\n');
+const refs = { mono: /(?:mono)\('([a-zA-Z0-9_]+)'/g, radio: /radio\('([a-zA-Z0-9_]+)'/g, lines: /(?:ST\.line|line)\('([a-zA-Z0-9_]+)'/g, obj: /(?:setObj|obj)\('([a-zA-Z0-9_]+)'/g };
 for (const [sec, re] of Object.entries(refs)) for (const m of chapters.matchAll(re)) {
   for (const L of LANGS) check(I.raw('story', sec + '.' + m[1], L) !== undefined, `story[${L}] ${sec}.${m[1]} referenced in code but missing`);
 }

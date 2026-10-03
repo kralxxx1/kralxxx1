@@ -52,7 +52,7 @@ K.
 
 (On the envelope: "Pipo". No address. On the back, in the same hand: "where do I send it")` },
       carnival_ledger: { kind: 'report', title: 'The proprietor\'s ledger in the wheel booth', from: 'E. Falk', date: 'September 1984', body:
-`29.9 Takings, all rides — 14,220. Ghost train — 0 (closed from 01.40, fire).
+`29.9 Takings, all rides — 14,220. Ghost train: fire after closing (01.40). Out of service.
 30.9 Brecht, H. ("Pipo"). 21 seasons. Paid off: two weeks' money, cash. Not to be rehired.
      Insurance claim, ghost train: fire caused by employee smoking in rear cabin (Brecht). Statement signed E.F.
      K. — to drive the lorry to Ostra Tuesday. Keep him busy.` },

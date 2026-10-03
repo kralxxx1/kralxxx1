@@ -119,11 +119,13 @@
       // ------------------------------------------- the midway: stalls either side, festoons overhead
       P('candyStall', 17.4, 27, H, { col: [1.05, 1.55] }); P('hotdogStall', 17.4, 30.2, H, { col: [1.05, 1.55] }); P('duckStall', 17.4, 33.4, H, { col: [1.05, 1.55] });
       P('shootingStall', 27.6, 27, -H, { col: [1.05, 1.55] }); P('ringStall', 27.6, 30.2, -H, { col: [1.05, 1.55] }); P('highStriker', 27.4, 33.6, -H, { col: [0.6, 0.6] });
+      // a bulb left burning in most of the stalls
+      for (const [x, y, c] of [[17.6, 27, [1, 0.7, 0.85]], [17.6, 30.2, [1, 0.75, 0.5]], [27.4, 27, [0.8, 1, 0.7]], [27.4, 30.2, [1, 0.8, 0.5]], [17.6, 33.4, [0.7, 0.85, 1]]]) K.light(x, y, { kind: 'none', y: 2.3, color: c, intensity: 0.2, range: 6, flicker: x > 20 && y > 29 ? 0.4 : 0.05 });
       P('balloonBunch', 18.1, 25.9, 0, {}); P('prizeBear', 27.0, 26.6, 0.4, { y: 1.06 });
       for (const y of [22, 25.5, 29, 32.5]) {
         P('lightPole', 19.4, y, 0, { col: [0.15, 0.15], fixed: true }); P('lightPole', 25.6, y, PI, { col: [0.15, 0.15], fixed: true });
         P('festoon6', 22.5, y, 0, { y: 5.75, fixed: true });
-        K.light(22.5, y, { kind: 'none', y: 5.0, color: [1, 0.78, 0.48], intensity: 0.16, range: 8, flicker: y === 29 ? 0.5 : 0.04 });
+        K.light(22.5, y, { kind: 'none', y: 5.0, color: [1, 0.78, 0.48], intensity: 0.34, range: 11, flicker: y === 29 ? 0.5 : 0.04 });
       }
       for (const [x, y] of [[20.5, 24], [24.3, 28.6], [21.2, 31], [23.8, 34], [18.8, 21.6], [26.2, 22.4]]) P(r() < 0.5 ? 'popcornBox' : 'litterCup', x, y, r.range(0, 6), {});
       P('stationBench', 21.0, 23.7, 0, { col: [0.8, 0.3] });
@@ -134,13 +136,15 @@
       K.prop('collider', 22.5, 18.5, 0, { col: [6.2, 2.6] }); K.prop('collider', 22.5, 18.5, 0, { col: [2.6, 6.2] }); K.prop('collider', 22.5, 18.5, 0, { col: [4.6, 4.6] });
       P('bandOrgan', 27.3, 15.6, -H + 0.3, { col: [0.6, 1.25] });
       P('carouselLever', 26.4, 20.6, -H, { col: [0.3, 0.3] });
-      K.light(22.5, 18.5, { kind: 'none', y: 4.3, color: [1, 0.8, 0.5], intensity: 0.32, range: 13, zone: 2 });
+      K.light(22.5, 18.5, { kind: 'none', y: 4.3, color: [1, 0.8, 0.5], intensity: 0.42, range: 14, zone: 2 });
+      K.light(22.5, 18.5, { kind: 'none', y: 3.6, color: [1, 0.75, 0.45], intensity: 0.14, range: 10 });
       // ------------------------------------------- the big wheel by the quay fence
       P('ferrisWheel', 22.5, 5.4, 0, { fixed: true });
       K.prop('collider', 22.5, 5.4, 0, { col: [2.1, 1.9] });
       for (const sx of [-1, 1]) K.prop('collider', 22.5 + sx * 2.05, 5.4, 0, { col: [0.3, 0.75] });
       P('wheelBooth', 26.6, 6.4, -H, { col: [0.7, 0.65] });
-      K.light(22.5, 5.4, { kind: 'none', y: 12, color: [1, 0.85, 0.6], intensity: 0.18, range: 18, flicker: 0.1 });
+      K.light(22.5, 5.4, { kind: 'none', y: 12, color: [1, 0.85, 0.6], intensity: 0.26, range: 20, flicker: 0.1 });
+      K.light(22.5, 6.6, { kind: 'none', y: 2.5, color: [1, 0.8, 0.55], intensity: 0.16, range: 8 });
       // ------------------------------------------- the funhouse: its face and the empty booth
       P('funFacade', 12.07, 9.5, H, { fixed: true });
       P('lotteBooth', 13.4, 12.6, H, { col: [0.75, 0.95] });

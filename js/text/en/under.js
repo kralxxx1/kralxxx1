@@ -23,12 +23,12 @@ Left with regrets.
 Item 41,208.
 One glove, left. Belonging to nobody yet.
 — O.B.` },
-      under_suitcase: { kind: 'letter', title: 'A letter in a girl\'s suitcase', from: 'Mamma', date: '19 December 1990', body:
+      under_suitcase: { kind: 'letter', title: 'A letter in a girl\'s suitcase', from: 'Mamma', date: '12 December 1990', body:
 `Lina —
 
-Your ticket is in the INSIDE pocket of your coat. Not the outside one. Don't take it out to look at it on the train, you know what you're like.
+When you have bought your ticket, keep it in the INSIDE pocket of your coat. Not the outside one. Don't take it out to look at it on the train, you know what you're like.
 
-Kvitfjell is the stop after the long tunnel. Aunt Sigrid will be on the platform with the sledge.
+Nordvik is the last stop, quarter past six. Pappa will be on the platform with the car, whatever you say about the dark. Don't get off anywhere before that.
 
 Don't let anybody tell you that you don't belong on that train.
 
@@ -133,6 +133,12 @@ THE BIRD IS FASTER` },
         ['ada', 'Come with me.'],
         ['otto', 'I cannot. I do not know why. I think I am filed on this floor. Go on. I will be on nine.'],
         ['otto', 'Every shelf below has a lie at the bottom of it, Ada. Look for the lie.'],
+      ],
+      under_badge: [
+        ['ada', 'Otto. I brought something of yours. From your desk. I\'m leaving it in the door.'],
+        ['otto', '[a long silence]'],
+        ['otto', 'O. Brandt. Otto. That was the name. I had put it down somewhere and forgotten where.'],
+        ['otto', 'Thank you, Ada. Leave it there. I shall know where it is now.'],
       ],
     },
     recap: {

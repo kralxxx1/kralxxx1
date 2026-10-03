@@ -192,7 +192,7 @@
       P('marineEngine', 7.5, 41.5, 0, { col: [3.1, 0.8] }); P('marineEngine', 7.5, 43.5, 0, { col: [3.1, 0.8] });
       P('workbench', 13.3, 40.6, PI, { col: [1.1, 0.4] });
       P('wallPipes', 8, 40.07, 0, { wall: true, y: 2.6 });
-      P('toolLockers', 13.8, 43.5, -H, { col: [0.3, 0.6] });
+      P('staffLockers', 13.8, 43.5, -H, { col: [0.3, 0.6] });
       P('stairsUpShip', 2.5, 41.6, PI, { col: [0.6, 1.2] });
       for (const [x, y] of [[4, 42.5], [11, 42.5]]) K.light(x, y, { kind: 'cage', y: 4.4, color: [1, 0.4, 0.2], intensity: 0.4, range: 8, flicker: 0.3 });
       // ------------------------------------------- stairs between decks

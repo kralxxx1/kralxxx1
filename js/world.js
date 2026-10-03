@@ -2,6 +2,8 @@
    dinamik ışık havuzu, kapılar, dekorlar, çıkartmalar, tema ekstraları ve çarpışma. */
 (function (root) {
   'use strict';
+  // what a floor sounds like underfoot, when the style does not say
+  const FLOOR_STEP = { boards: 'wood', parquet: 'wood', planks: 'wood', wood: 'wood', tile: 'tile', subway: 'tile', hexTile: 'tile', terrazzo: 'tile', linoleum: 'lino', vinyl: 'lino', concreteFloor: 'concrete', asphalt: 'concrete', flagstone: 'concrete', cobbles: 'concrete', steelDeck: 'metal', rustSteel: 'metal', grating: 'grating', carpet: 'carpet', trainCarpet: 'carpet', officeCarpet: 'carpet', motelCarpet: 'carpet', arcadeCarpet: 'carpet', snow: 'snow', ice: 'ice', mud: 'mud', grass: 'grass', forestFloor: 'grass', gravel: 'gravel', ballast: 'gravel', rock: 'concrete' };
   const PB = root.PB;
   const THREE = root.THREE;
   const U = PB.U, T = PB.Tex, P = PB.Props, G = PB.LevelGen;
@@ -1717,7 +1719,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
     // Footstep surface of a finished room (tiles, planks...), or null
     finishAt(x, z) {
       const L = this.L, fl = L.meta.finishes;
-      if (L.styleOf) { const c = L.cellOf(x, z), st = L.styleAt(c.x, c.y); if (st) return (L.meta.stepAt && L.meta.stepAt(c.x, c.y, x, z)) || st.step; }
+      if (L.styleOf) { const c = L.cellOf(x, z), st = L.styleAt(c.x, c.y); if (st) return (L.meta.stepAt && L.meta.stepAt(c.x, c.y, x, z)) || st.step || FLOOR_STEP[st.floor] || null; }
       if (!fl) return null;
       const cx = Math.floor(x / this.C), cy = Math.floor(z / this.C);
       for (const f of fl) if (cx >= f.x0 && cx <= f.x1 && cy >= f.y0 && cy <= f.y1) return { floorTile: 'tile', floorWood: 'wood', floorLino: 'lino', floorConcrete: 'concrete' }[f.floor] || null;

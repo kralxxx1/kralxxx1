@@ -25,7 +25,7 @@ Coffee's off. Sorry.
 `DEPOT 9 — NIGHT LOG — A. LIND
 
 23:10  Ticket 4471: glove, ladies', grey. Claimed.
-00:40  Platform 2 cleaners: suitcase, tan, no tag. Logged as 41,883.
+00:40  Platform 2 cleaners: suitcase, tan, no tag. Logged as no. 241.
 01:15  Telephone. Nobody there. (Third night.)
 02:30  Rain heavy. Chute quiet.
 02:56  Nothing further to report.` },
@@ -52,7 +52,7 @@ No. 255 — 14.01.79 — Book, "The Snow Queen", child's — Platform 4 — uncl
 No. 256 — 14.01.79 — Mitten, red, child's, left hand — found: Lake Ostra — Claimant: her sister, when she remembers.
 
 (The last entry is in a shaking hand you almost know. The ink is wet. Taped inside the lid: a brass key stamped SUPT.)` },
-      depot_ottoNotes: { kind: 'diary', title: 'Notes in the superintendent\'s desk', from: 'Otto Brandt', date: '12 February 1964', body:
+      depot_ottoNotes: { kind: 'diary', title: 'Notes in the superintendent\'s desk', from: 'Otto Brandt', date: '14 February 1964', body:
 `Forty-one thousand items since 1906. Every one of them was somebody's.
 
 I have started to hear the old tube at night. Memos, signed "A." She knows our ledger better than I do.
@@ -77,7 +77,7 @@ Otto will be on channel nine. Tell him the umbrellas are in the cage.
       depot_calendar: { kind: 'notice', title: 'Halvard Transit calendar, 1964', body:
 `FEBRUARY 1964
 
-(Days crossed off up to the 13th. On the 14th, in pencil: "Night shift. Last one?" Under the picture of the new dam at Ostra, the same pencil: "They flood the valley in the autumn. Signe H. will not leave." Nobody has turned the page since.)` },
+(Days crossed off up to the 13th. On the 14th, in pencil: "Night shift. Last one?" Under the picture of the new dam at Ostra, the same pencil: "They flood the valley in the autumn. The paper says one old woman up there will not leave." Nobody has turned the page since.)` },
       depot_poster: { kind: 'notice', title: 'Notice in the public hall', from: 'Halvard Transit', body:
 `LOST PROPERTY — DEPOT 9
 

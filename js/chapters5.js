@@ -278,7 +278,10 @@
         if (g.inv.pellets < 4) { g.mono('under_indexSeen', 4); f.exitSeen = true; g.radio('under_index'); return true; }
         f.exitOpen = true;
         o.sockets.forEach((s, k) => g.later(k * 350, () => { s.material.color.setRGB(5, 3.4, 3); g.audio.beep(); }));
-        g.later(1600, () => { const d = g.level.meta.exit ? g.level.meta.exit.door : null; if (d) exitThrough(g, d, 'ferry'); g.setObj('under_leave'); g.completeStep(); g.radio('under_open'); });
+        // Otto's badge, if you brought it from his desk, goes back to him here
+        const badge = !!g.save.world.badge && !g.save.world.badgeReturned;
+        if (badge) { if (has(g, 'badge')) drop(g, 'badge'); g.save.world.badgeReturned = true; g.writeSave(); }
+        g.later(1600, () => { const d = g.level.meta.exit ? g.level.meta.exit.door : null; if (d) exitThrough(g, d, 'ferry'); g.setObj('under_leave'); g.completeStep(); g.radio('under_open'); if (badge) g.radio('under_badge', { delay: 16 }); });
         g.updateInventoryUI();
         return true;
       }
@@ -1763,6 +1766,184 @@
       if (!f.funIn && inTrigger(g, 'funhouse')) { f.funIn = true; this.wakeMasks(g, 'funhouse'); }
       if (!f.mazeIn && inTrigger(g, 'maze')) { f.mazeIn = true; g.mono('carnival_maze', 5); }
       if (!f.trailerIn && inTrigger(g, 'trailer')) { f.trailerIn = true; g.mono('carnival_trailer', 3); }
+    },
+  };
+
+  // ============================================================ 9. LAKE OSTRA
+  // Follow her footprints out to the huts; look down the hole and remember; the storm comes, the trail
+  // goes on the wrong way, out over the old river; at the end of it, Wren, with her back to you. Then
+  // what you say decides the ending.
+  const TRAIL_A = [[9.5, 38.3], [10.2, 36.6], [12, 33.5], [15.5, 29], [20, 24.5], [25, 20], [28.6, 16.8], [30.5, 15.3]];
+  const TRAIL_B = [[34.0, 16.6], [32.5, 17.8], [29, 19.5], [25, 20.6], [21, 21.3], [17.5, 21.6], [15.2, 21.6], [13.8, 21.4]];
+  C.lake = {
+    start(g) {
+      const f = g.flags;
+      this.end = null; this.memory = null; this.storm = 0;
+      give(g, 'mitten');
+      g.setObj('lake_start');
+      // her footprints: small, a child's boots, a stride apart
+      this.prints = { A: this.lay(g, TRAIL_A), B: this.lay(g, TRAIL_B) };
+      for (const m of this.prints.B) m.visible = false;
+      this.fog0 = g.scene.fog ? g.scene.fog.density : 0.028;
+      void f;
+    },
+    lay(g, path) {
+      const mat = new THREE.MeshBasicMaterial({ color: 0x5a6878, transparent: true, opacity: 0.5, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+      const geo = new THREE.CircleGeometry(0.075, 10); geo.scale(0.7, 1.5, 1); geo.rotateX(-H);
+      const out = []; let side = 1;
+      for (let k = 1; k < path.length; k++) {
+        const ax = path[k - 1][0] * 3, az = path[k - 1][1] * 3, bx = path[k][0] * 3, bz = path[k][1] * 3, len = Math.hypot(bx - ax, bz - az), n = Math.floor(len / 0.5);
+        const yaw = Math.atan2(bx - ax, bz - az), px = Math.cos(yaw), pz = -Math.sin(yaw);
+        for (let i = 0; i < n; i++) {
+          const t = i / n, m = new THREE.Mesh(geo, mat); side = -side;
+          m.position.set(U.lerp(ax, bx, t) + px * 0.08 * side, 0.015, U.lerp(az, bz, t) + pz * 0.08 * side); m.rotation.y = yaw + (Math.random() - 0.5) * 0.3; m.renderOrder = 2;
+          g.world.group.add(m); out.push(m);
+        }
+      }
+      return out;
+    },
+    afterCard(g) { g.mono('lake_start', 5); g.later(6000, () => g.mono('lake_empty', 5)); g.radio('lake_otto1', { delay: 14 }); },
+    restore(g) {
+      const f = g.flags;
+      if (f.remembered) { for (const m of this.prints.B) m.visible = true; this.storm = 1; wake(g, 'hush'); }
+      this.refresh(g);
+    },
+    refresh(g) {
+      const f = g.flags;
+      if (this.end) return g.setObj('lake_say');
+      if (f.remembered) return g.setObj('lake_thin');
+      if (f.atHuts) return g.setObj('lake_remember');
+      if (f.onIce) return g.setObj('lake_huts');
+      if (f.outside) return g.setObj('lake_trail');
+      g.setObj('lake_start');
+    },
+    use(g, o) {
+      const f = g.flags;
+      switch (o.id) {
+        case 'radio': g.readNote('lake_radio'); return true;
+        case 'tape': g.readNote('lake_tape', () => g.mono('lake_tape', 5)); return true;
+        case 'hole':
+          if (f.remembered || this.memory) return true;
+          this.remember(g); return true;
+      }
+      return false;
+    },
+    noteRead(g, id) {
+      if (id === 'lake_granNote' && !g.flags.noteSeen) { g.flags.noteSeen = true; g.later(400, () => g.mono('lake_note', 4)); }
+      if (id === 'lake_wrenNote' && !g.flags.wrenNoteSeen) { g.flags.wrenNoteSeen = true; g.later(400, () => g.mono('lake_wrenNote', 3)); }
+    },
+    // the hole in the ice in the second hut: looking down it, it all comes back
+    remember(g) {
+      const f = g.flags, pl = g.player;
+      this.memory = { t: 0 };
+      pl.frozen = true; pl.freeLook = true;
+      g.mono('lake_hole', 3);
+      const lines = ['lake_remember1', 'lake_remember2', 'lake_remember3', 'lake_remember4'];
+      lines.forEach((k, i) => g.later(3500 + i * 6500, () => { g.mono(k, 6); if (i === 1) { pl.addTrauma(0.15); g.fearAdd(10); } if (i === 3) { if (g.audio.iceCrack) g.audio.iceCrack(new THREE.Vector3(13.6 * 3, 0, 21.6 * 3), 1); pl.addTrauma(0.3); } }));
+      g.later(3500 + 4 * 6500, () => {
+        pl.frozen = false; pl.freeLook = false; this.memory = null;
+        f.remembered = true;
+        for (const m of this.prints.B) m.visible = true;
+        this.storm = 0.001;
+        g.mono('lake_storm', 4);
+        g.later(4500, () => g.mono('lake_gone', 4));
+        // the trail goes on the wrong way; she is out there, ahead, for a second
+        g.later(7000, () => glimpseWren(g, 25 * 3, 20.6 * 3, Math.atan2(-1, 0), 1600));
+        // and what she buried gets up and follows her
+        g.later(12000, () => { wake(g, 'hush', 'investigate'); const h = species(g, 'hush')[0]; if (h) h.lastKnown = { x: pl.pos.x, z: pl.pos.z }; g.radio('lake_otto2', { delay: 6 }); });
+        this.refresh(g); g.completeStep(); g.checkpoint(true);
+      });
+    },
+    // the end of the trail: Wren on the thin ice, her back to you
+    meet(g) {
+      const sp = g.level.spots.wrenStand[0];
+      const w = g.wren || (g.wren = PB.wrenFigure(g));
+      w.position.set(sp.wx, 0, sp.wz); w.rotation.y = Math.atan2(-1, -1); w.visible = true;
+      this.end = { stage: 'meet' };
+      for (const e of g.entities) if (e.kind !== 'hush') e.update = () => {};
+      g.mono('lake_found', 2);
+      this.refresh(g);
+      g.later(2200, () => this.ask(g));
+    },
+    ask(g) {
+      const back = () => { if (!g.ui.touch && !g.input.lockFailed) g.input.requestLock(); };
+      g.ui.subtitle(ST.line('lake_choiceTitle'), 4);
+      g.choice([
+        { label: ST.line('lake_sayIt'), fn: () => { back(); this.sayIt(g, 0); } },
+        { label: ST.line('lake_vanished'), fn: () => { back(); this.vanished(g); } },
+      ], () => { back(); g.later(4000, () => { if (this.end && this.end.stage === 'meet') this.ask(g); }); });
+    },
+    // say it, one thing at a time
+    sayIt(g, k) {
+      const back = () => { if (!g.ui.touch && !g.input.lockFailed) g.input.requestLock(); };
+      const keys = ['lake_say1', 'lake_say2', 'lake_say3'];
+      this.end.stage = 'say';
+      if (k < keys.length) {
+        g.choice([{ label: ST.line(keys[k]), fn: () => { back(); g.ui.subtitle(ST.line(keys[k]), 4, null, 'ada'); g.later(3800, () => this.sayIt(g, k + 1)); } }], () => { back(); g.later(2500, () => this.sayIt(g, k)); });
+        return;
+      }
+      // she turns round
+      const w = g.wren, pl = g.player.pos;
+      this.end.turn = { t: 0, from: w.rotation.y, to: Math.atan2(pl.x - w.position.x, pl.z - w.position.z) };
+      g.later(3000, () => g.choice([{ label: ST.line('lake_give'), fn: () => { back(); this.giveMitten(g); } }], () => { back(); g.later(2000, () => this.sayIt(g, 3)); }));
+    },
+    giveMitten(g) {
+      drop(g, 'mitten');
+      g.audio.pickup('item');
+      this.end.stage = 'home';
+      this.end.walk = { t: 0 };
+      const ending = g.save.drawings.length >= 8 && g.save.world.badgeReturned ? 'morning' : 'thaw';
+      g.later(9000, () => g.whenPlaying(() => g.exitLevel('ending-' + ending)));
+    },
+    vanished(g) {
+      this.end.stage = 'snow';
+      const h = species(g, 'hush')[0], pl = g.player;
+      if (h) {
+        const fw = pl.forward();
+        h.pos.set(pl.pos.x - fw.x * 1.6, 0, pl.pos.z - fw.z * 1.6); h.mesh.visible = true; h.setState('patrol'); h.update = () => {};
+        h.heading = Math.atan2(pl.pos.x - h.pos.x, pl.pos.z - h.pos.z); h.unwind = 0;
+        this.end.hush = h;
+      }
+      g.later(9000, () => g.whenPlaying(() => g.exitLevel('ending-snowfall')));
+    },
+    updateEnd(g, dt) {
+      const E = this.end, w = g.wren;
+      if (E.turn && w) { E.turn.t = Math.min(1, E.turn.t + dt / 2.5); w.rotation.y = E.turn.from + U.angleWrap(E.turn.to - E.turn.from) * U.smoothstep(0, 1, E.turn.t); }
+      if (E.walk && w) {
+        // home, across the ice, toward the lights; she does not look back
+        E.walk.t += dt;
+        const hx = 9.5 * 3, hz = 38 * 3, d = Math.hypot(hx - w.position.x, hz - w.position.z);
+        if (E.walk.t > 1.5 && d > 1) { const yaw = Math.atan2(hx - w.position.x, hz - w.position.z); w.rotation.y = U.angleDamp(w.rotation.y, yaw, 3, dt); w.position.x += Math.sin(yaw) * dt * 0.9; w.position.z += Math.cos(yaw) * dt * 0.9; w.position.y = Math.abs(Math.sin(E.walk.t * 5)) * 0.02; }
+        this.storm = Math.max(0, this.storm - dt * 0.15);
+      }
+      if (E.hush) {
+        const h = E.hush; h.unwind = Math.min(1, (h.unwind || 0) + dt / 4.5); h.anim.t += dt; h.vis.animate(h, dt); h.mesh.position.set(h.pos.x, 0, h.pos.z); h.mesh.rotation.y = h.heading;
+        this.storm = Math.min(1.6, this.storm + dt * 0.25);
+      }
+    },
+    respawned(g) { if (this.end) this.end = null; },
+    onSpotted(g, ent) {
+      const f = g.flags;
+      if (ent.kind === 'laugher' && !f.laughSeen) { f.laughSeen = true; g.later(400, () => g.mono('lake_laughers', 4)); }
+      if (ent.kind === 'hush' && !f.hushSeen) { f.hushSeen = true; g.later(400, () => g.mono('lake_hush', 4)); }
+    },
+    update(g, dt) {
+      const f = g.flags, pl = g.player, L = g.level;
+      // where you are: the thin ice is a few cells wide over the old river
+      const c = L.cellOf(pl.pos.x, pl.pos.z);
+      f.thinIce = (PB.Maps.lakeChannel || []).some(([x0, y, x1]) => c.y === y && c.x >= x0 && c.x <= x1);
+      if (!f.outside && !inTrigger(g, 'house')) { f.outside = true; g.mono('lake_out', 4); this.refresh(g); }
+      if (!f.onIce && inTrigger(g, 'ice')) { f.onIce = true; g.mono('lake_ice', 3); this.refresh(g); g.later(3000, () => glimpseWren(g, 25 * 3, 20 * 3, Math.atan2(1, -0.8), 1400)); g.later(4800, () => g.mono('lake_wren', 3)); }
+      if (!f.atHuts && inTrigger(g, 'huts')) { f.atHuts = true; g.mono('lake_huts', 3); this.refresh(g); g.checkpoint(true); }
+      if (f.remembered && !f.thinSeen && f.thinIce) { f.thinSeen = true; g.mono('lake_thin', 4); }
+      if (f.remembered && !this.end && inTrigger(g, 'thinEnd')) { const sp = L.spots.wrenStand[0]; if (Math.hypot(sp.wx - pl.pos.x, sp.wz - pl.pos.z) < 7) this.meet(g); }
+      // the storm: the snow thickens, the far shore goes, then the near one
+      if (this.storm > 0 && !this.end) this.storm = Math.min(1, this.storm + dt / 40);
+      const fog = g.scene.fog;
+      if (fog) fog.density = this.fog0 * (1 + this.storm * 2.4);
+      const sn = g.world.street && g.world.street.snowU;
+      if (sn) { sn.uWind.value = U.lerp(0.8, 6.5, Math.min(1, this.storm)); sn.uFall.value = U.lerp(0.9, 2.0, Math.min(1, this.storm)); sn.uAlpha.value = U.lerp(0.6, 0.8, Math.min(1, this.storm)); }
+      if (this.end) this.updateEnd(g, dt);
     },
   };
 })(typeof window !== 'undefined' ? window : globalThis);

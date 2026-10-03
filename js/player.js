@@ -600,9 +600,10 @@
       const exert = (100 - this.stamina) / 100, fear = this.fear / 100;
       this.breathIn = !this.breathIn;
       let kind, gain, pause;
-      if (exert > 0.55 || this.exhausted) { kind = this.breathIn ? 'heavyIn' : 'heavyOut'; gain = 0.25 + 0.3 * exert; pause = 0.05; }
-      else if (fear > 0.55) { kind = this.breathIn ? 'fearIn' : 'fearOut'; gain = 0.18 + 0.2 * fear; pause = 0.1; }
-      else if (exert > 0.25 || this.sprinting) { kind = this.breathIn ? 'in' : 'out'; gain = 0.12 + 0.2 * exert; pause = 0.25; }
+      // out of breath you pant, but quietly: it is your own breathing, not a sound effect
+      if (exert > 0.55 || this.exhausted) { kind = this.breathIn ? 'heavyIn' : 'heavyOut'; gain = 0.1 + 0.12 * exert; pause = this.breathIn ? 0.06 : 0.16; }
+      else if (fear > 0.55) { kind = this.breathIn ? 'fearIn' : 'fearOut'; gain = 0.09 + 0.1 * fear; pause = 0.14; }
+      else if (exert > 0.25 || this.sprinting) { kind = this.breathIn ? 'in' : 'out'; gain = 0.07 + 0.1 * exert; pause = 0.28; }
       else { kind = this.breathIn ? 'calmIn' : 'calmOut'; gain = 0.06; pause = this.breathIn ? 0.2 : 1.1; }
       const dur = g.audio.breathe(kind, gain * (this.crouching ? 0.8 : 1));
       this.breathT = Math.max(0.25, dur * 0.95 + pause * (0.8 + Math.random() * 0.4));
