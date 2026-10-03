@@ -214,7 +214,8 @@
         if (this.postDirty) this.configurePost();
         const hidden = [];
         this.scene.traverse(o => { if (!o.visible && !o.userData.noWarm) { hidden.push(o); o.visible = true; } });
-        try { await this.post.warmAsync(this.scene, this.camera); } finally { for (const o of hidden) o.visible = false; }
+        // (never wait for ever: a driver that never reports a program ready must not freeze the screen)
+        try { await Promise.race([this.post.warmAsync(this.scene, this.camera), new Promise(r => setTimeout(r, 8000))]); } finally { for (const o of hidden) o.visible = false; }
       } catch (e) { console.warn(e); }
       this.rewarming = false;
       document.body.classList.remove('gfx-busy');
@@ -483,7 +484,8 @@
     unloadLevel() {
       for (const e of this.entities) e.remove();
       this.entities = []; this.eater = null;
-      for (const it of this.items) if (it.mesh) { this.scene.remove(it.mesh); it.mesh.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
+      // (papers carry their own textures and materials: free those too)
+      for (const it of this.items) if (it.mesh) { this.scene.remove(it.mesh); it.mesh.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) for (const m of [].concat(o.material)) { if (m.map && m.map.isTexture) m.map.dispose(); m.dispose(); } }); }
       for (const gs of this.glowsticks || []) this.scene.remove(gs.mesh);
       this.items = []; this.interactables = [];
       if (this.world) { this.scene.remove(this.world.group); this.world.dispose(); this.world = null; }
@@ -904,7 +906,7 @@
             const watching = this.entities.filter(e => e.hostile && e.state === 'chase' && e.losToPlayer() && e.distToPlayer() < 14);
             for (const e of this.entities) e.sawHide = watching.includes(e);
             this.player.hide({ x: hx, z: hz, yaw: faceYaw, eye: p.hideEye || 0.62, kind: p.hideKind, ref: p });
-            this.audio.play && this.audio.play(p.hideKind === 'locker' ? 'doorLocked' : 'cloth', 2, 'sfx', null, { rev: 0.2, gain: 0.5 });
+            this.audio.play && this.audio.play(p.hideKind === 'locker' ? 'lockerDoor' : 'cloth', 2, 'sfx', null, { rev: 0.2, gain: 0.5 });
             this.ui.subtitle(ST.mono(p.hideKind === 'locker' ? 'hideLocker' : 'hide'), 2.5);
           },
         });

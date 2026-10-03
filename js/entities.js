@@ -343,7 +343,15 @@
       if (d < this.catchR && this.losToPlayer()) { g.killPlayer(this); return true; }
       return false;
     }
-    remove() { this.g.scene.remove(this.mesh); this.mesh.traverse(o => { if (o.geometry) o.geometry.dispose(); }); if (this.g.audio) for (const k of this.loopKeys || []) this.g.audio.stopLoop(k); }
+    // (materials too: a creature's are its own; a shared one is simply uploaded again when next drawn)
+    remove() {
+      this.g.scene.remove(this.mesh);
+      this.mesh.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) for (const m of [].concat(o.material)) { for (const k of ['map', 'normalMap', 'bumpMap', 'roughnessMap', 'emissiveMap', 'alphaMap']) if (m[k] && m[k].isTexture) m[k].dispose(); m.dispose(); }
+      });
+      if (this.g.audio) for (const k of this.loopKeys || []) this.g.audio.stopLoop(k);
+    }
   }
 
   // ------------------------------------------------------------ Yutucu

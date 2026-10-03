@@ -1635,6 +1635,8 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       this.envRT = pm.fromScene(sc, 0.02);
       pm.dispose();
       this.envMap = this.envRT.texture;
+      // the little scene was only needed to render the map from
+      sc.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
     }
 
     // ------------------------------------------------------------ GÜNCELLEME
@@ -1769,7 +1771,13 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
       this.group.traverse(o => {
         if (o.geometry) o.geometry.dispose();
       });
-      for (const m of this.mats.values()) m.dispose();
+      // Free the GPU copies of this place's textures too (a cached texture the next place uses again is
+      // simply uploaded again), or every chapter played stays resident on the card
+      const MAPS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'bumpMap', 'alphaMap', 'lightMap', 'displacementMap'];
+      const seen = new Set();
+      const freeTex = m => { for (const k of MAPS) { const t = m && m[k]; if (t && t.isTexture && !seen.has(t)) { seen.add(t); t.dispose(); } } };
+      this.group.traverse(o => { if (o.material) for (const m of [].concat(o.material)) freeTex(m); });
+      for (const m of this.mats.values()) { freeTex(m); m.dispose(); }
       this.disposeBake();
       if (this.envRT) this.envRT.dispose();
       P.clearCache();

@@ -714,7 +714,8 @@
     grp.add(bunt);
     const cage = g.meshFromDef('mineCage', name => plain(name)); grp.add(cage);
     const lamp = new THREE.PointLight(0xffc880, 1.6, 7, 1.6); lamp.position.set(0.3, 2.25, 0); grp.add(lamp);
-    g.scene.add(grp);
+    // (with the level's own objects, so it goes when the level does)
+    g.world.group.add(grp);
     const sh = {
       grp, walls, bunt, lamp, SX, SZ, off: 0,
       place(off) {

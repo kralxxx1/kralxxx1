@@ -89,7 +89,9 @@
     const fpMat = new THREE.MeshBasicMaterial({ color: 0x3a4250, transparent: true, opacity: 0.55, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
     const fpGeo = new THREE.CircleGeometry(0.13, 10); fpGeo.scale(0.75, 1.6, 1); fpGeo.rotateX(-H);
     const prints = [];
-    for (let k = 0; k < 28; k++) { const m = new THREE.Mesh(fpGeo, fpMat.clone()); m.visible = false; m.renderOrder = 2; game.scene.add(m); prints.push({ m, t: 0 }); }
+    // (laid in the world, which is cleared with the level; the scene itself would keep them for ever)
+    const holder = (game.world && game.world.group) || game.scene;
+    for (let k = 0; k < 28; k++) { const m = new THREE.Mesh(fpGeo, fpMat.clone()); m.visible = false; m.renderOrder = 2; holder.add(m); prints.push({ m, t: 0 }); }
     let pk = 0, side = 1;
     return {
       group: g, mats: [],

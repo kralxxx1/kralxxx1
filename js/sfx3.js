@@ -239,6 +239,20 @@
     R['door' + k + 'Locked'] = lockedDoor(k);
     TAKES['door' + k + 'Open'] = 3; TAKES['door' + k + 'OpenCreak'] = 2; TAKES['door' + k + 'Close'] = 3; TAKES['door' + k + 'CloseCreak'] = 2; TAKES['door' + k + 'Locked'] = 2;
   }
+  // A steel locker: the latch flicks up, the thin door booms and rattles on its little hinges, pulled to
+  R.lockerDoor = (sr, r) => {
+    const n = S(sr * 0.9), out = new Float32Array(n), L = detune(LATCH, r, 0.1);
+    const sheet = detune([[180, 0.05, 1], [410, 0.04, 0.8], [760, 0.03, 0.6], [1320, 0.02, 0.45], [2240, 0.014, 0.3], [3400, 0.01, 0.2]], r, 0.08);
+    rub(out, sr, r, 0, 0.03, 2000, 7000, 0.1);
+    knock(out, sr, r, 0.025, 0.0006, L, 0.4);
+    hinge(out, sr, r, 0.06, 0.25, 1200, [[1500, 30, 1], [3000, 22, 0.3]], 0.6, k => Math.sin(Math.PI * k));
+    const t = 0.38 + r() * 0.06;
+    knock(out, sr, r, t, 0.0015, sheet, 0.9);
+    knock(out, sr, r, t + 0.004, 0.0005, L, 0.45);
+    for (let k = 0; k < 3; k++) knock(out, sr, r, t + 0.025 + k * 0.018, 0.001, sheet.slice(2), 0.18 * Math.pow(0.5, k));
+    return normalize(out, 0.7);
+  };
+  TAKES.lockerDoor = 3;
   // The old generic names, for anything that still asks for them
   R.doorWoodOpen = R.doorPanelOpen; R.doorWoodClose = R.doorPanelClose;
   R.doorMetalOpen = R.doorSteelOpen; R.doorMetalClose = R.doorSteelClose;
