@@ -1178,10 +1178,12 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         }
         if (p.type === 'collider') continue;
         if (p.type === 'cabinet') { add('cabinet:' + p.game, p); continue; }
-        add(p.type, p);
+        // (a variant of the piece, made from this place's woods and paints: PB.Variety)
+        const V = PB.Variety;
+        add(V ? V.key(p, L.theme) : p.type, p);
         // Drawer fronts and doors of furniture that opens: one instanced model per slot
         const furn = PB.Containers && PB.Containers.FURN[p.type];
-        if (furn && !p.noDrawers) for (const sl of furn.slots) add(sl.def, p);
+        if (furn && !p.noDrawers) for (const sl of furn.slots) add(V ? V.key(p, L.theme, sl.def) : sl.def, p);
         if (p.type === 'desk' && p.lamp) add('deskLamp', { x: p.x - 0.6, z: p.z - 0.1, rot: 0 });
         if ((p.type === 'cubicleDesk' || p.type === 'desk') && p.monitor) {
           if (p.type === 'desk') add('cubicleMonitor', { x: p.x, z: p.z, rot: p.rot });

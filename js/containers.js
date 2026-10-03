@@ -400,7 +400,9 @@
     // Swap the instanced front for a moving copy with the drawer's box and contents
     makeDynamic(sl) {
       const g = this.g, w = g.world, s = sl.s, c = sl.c;
-      const rec = this.inst.get(s.def);
+      // a varied piece's fronts are its own variant (PB.Variety)
+      const def = c.p.vk && PB.Variety ? PB.Variety.sub(s.def, c.p.type, g.level.theme, c.p.vk) : s.def;
+      const rec = this.inst.get(def);
       if (rec) {
         const idx = rec.list.indexOf(c.p);
         if (idx >= 0) for (const im of rec.meshes) { im.setMatrixAt(idx, new THREE.Matrix4().makeScale(0, 0, 0)); im.instanceMatrix.needsUpdate = true; }
@@ -411,7 +413,7 @@
       root.add(mover);
       const inner = new THREE.Group();   // front parts in furniture space (moved by the mover)
       mover.add(inner);
-      for (const part of P.build(s.def, s.front)) {
+      for (const part of P.build(def, P.DEFS[def] || s.front)) {
         const mesh = new THREE.Mesh(part.geo, w.mat(part.mat));
         mesh.castShadow = true; mesh.receiveShadow = true;
         inner.add(mesh);

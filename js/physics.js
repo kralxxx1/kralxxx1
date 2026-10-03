@@ -56,15 +56,16 @@
         if (!k || p.wall || ((p.y || 0) > 0.05 && !p.stacked) || p.noPhysics) continue;
         // something is lying on it (an item was set on top): it stays where it is
         if (g.items.some(o => !o.taken && o.pos.y > 0.05 && Math.abs(o.pos.x - p.x) < 0.45 && Math.abs(o.pos.z - p.z) < 0.45)) continue;
-        const rec = w.instMap.get(p.type);
+        const vt = p.vtype || p.type;
+        const rec = w.instMap.get(vt);
         if (!rec) continue;
         const idx = rec.list.indexOf(p);
         if (idx < 0) continue;
-        let box = fp.get(p.type);
+        let box = fp.get(vt);
         if (!box) {
           const b = new THREE.Box3();
-          for (const part of P.build(p.type, P.DEFS[p.type])) { if (!part.geo.boundingBox) part.geo.computeBoundingBox(); b.union(part.geo.boundingBox); }
-          fp.set(p.type, box = b);
+          for (const part of P.build(vt, P.DEFS[vt])) { if (!part.geo.boundingBox) part.geo.computeBoundingBox(); b.union(part.geo.boundingBox); }
+          fp.set(vt, box = b);
         }
         const sx = p.sx || 1, sy = p.sy || 1, sz = p.sz || 1;
         const hx = (box.max.x - box.min.x) / 2 * sx, hy = Math.max(0.01, (box.max.y - box.min.y) / 2 * sy), hz = (box.max.z - box.min.z) / 2 * sz;
