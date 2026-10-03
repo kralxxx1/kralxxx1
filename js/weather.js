@@ -185,8 +185,11 @@
       }
       // plus trees inside the map where the map marks them (outdoor cells listed in L.meta.trees)
       for (const t of L.meta.trees || []) list.push(t);
-      const def = kind === 'snowPines' ? 'pineSnow' : kind === 'birches' ? 'birch' : 'pine';
-      this.w.instanced(def, P.DEFS[def], list, { cast: false });
+      // several tree shapes (models5.js adds them), each instanced once
+      const defs = (kind === 'snowPines' ? ['pineSnowFar', 'pineSnow'] : kind === 'birches' ? ['birch'] : ['pineFar', 'pineFar2']).filter(d => P.DEFS[d]);
+      const lists = defs.map(() => []);
+      list.forEach((t, k) => lists[k % defs.length].push(t));
+      defs.forEach((d, k) => { if (lists[k].length) this.w.instanced(d, P.DEFS[d], lists[k], { cast: false }); });
       void od;
     }
     buildSnow(mask, W, D, blizzard) {

@@ -134,7 +134,7 @@
     fitProps(L, footprint) {
       const pad = WALL_HALF + 0.03, placed = [], log = { moved: 0, dropped: 0, stuck: [] };
       const drop = new Set();
-      const fp = p => !p.wall && !FIXED.test(p.type) && !(p.y > 0.05) ? footprint(p.type === 'cabinet' ? 'cabinetBody' : p.type) : null;
+      const fp = p => !p.wall && !p.fixed && !FIXED.test(p.type) && !(p.y > 0.05) ? footprint(p.type === 'cabinet' ? 'cabinetBody' : p.type) : null;
       // Furniture first, clutter after, so clutter gives way
       const isDecor = p => DECOR.test(p.type) || !!p.dressing;
       const order = L.props.filter(p => !isDecor(p)).concat(L.props.filter(isDecor));

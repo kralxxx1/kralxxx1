@@ -53,7 +53,7 @@
 
   // Speaker voices: pitch and style. Kids get smaller formants.
   // Otto is an old man on a walkie-talkie; the voices in the places are the people who were lost there
-  const RADIO_PITCH = { otto: 96, radio: 110, clerk: 180 };
+  const RADIO_PITCH = { otto: 96, radio: 110, clerk: 180, lyle: 84 };
   const ECHO_PITCH = { wren: 300, ingrid: 190, pim: 165, mikkel: 280, lina: 230, pipo: 120, signe: 185, voice: 140, ada: 205, clerk: 175 };
   const VOICE = {
     radio: who => { const pitch = RADIO_PITCH[who] || 115; return ['radio:' + pitch, { pitch, radio: true }]; },

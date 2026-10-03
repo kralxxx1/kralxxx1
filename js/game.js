@@ -463,7 +463,7 @@
       if (this.world) { this.scene.remove(this.world.group); this.world.dispose(); this.world = null; }
       this.audio.stopAllLoops();
       this.player.hidden = null;
-      this.player.frozen = false;
+      this.player.frozen = false; this.player.freeLook = false; this.player.camLift = 0; this.player.camRoll = 0;
     }
     applySnapshot(s) {
       for (const id of s.taken || []) { const it = this.items.find(i => i.id === id); if (it) this.takeItem(it, true); }
@@ -671,6 +671,8 @@
         case 'specialCabinet': case 'freeCabinet': o.mesh = null; o.marker = ty === 'specialCabinet' ? MARK.obj : null; o.pos.y = 1.2; o.reach = 2.2; break;
         default: break;
       }
+      // anything can wait for a flag before it appears (a drawing pushed out under a door...)
+      if (it.hiddenUntil) o.hiddenUntil = it.hiddenUntil;
     }
     itemPrompt(o) {
       const ty = o.type, it = o.item;
@@ -1260,6 +1262,7 @@
       this.fadeTo(0, 1.5);
       this.audio.setMusic('explore');
       if (!this.ui.touch && !this.input.lockFailed) this.input.requestLock();
+      if (this.script.respawned) this.script.respawned(this);
     }
     pause() {
       if (this.state !== 'play') return;
@@ -1421,7 +1424,7 @@
       this.ui.setObjective(ST.obj(this.objKey, this.objVars));
     }
     // ---------------------------------------------------------------- speech
-    mono(key, dur) { const s = ST.mono(key); if (s) this.ui.subtitle(s, dur || Math.min(7, 2 + s.length * 0.045)); }
+    mono(key, dur, vars) { let s = ST.mono(key); if (s && vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? vars[k] : m)); if (s) this.ui.subtitle(s, dur || Math.min(7, 2 + s.length * 0.045)); }
     // Radio / dialogue sequence. Eddie only reaches you once you have the walkie-talkie.
     radio(key, opts = {}) {
       const seq = ST.radio(key);
@@ -1444,7 +1447,7 @@
       const dur = U.clamp(1.4 + text.length * 0.052, 2.2, 9);
       c.t = dur + 0.25;
       this.ui.subtitle(text, dur, who === 'ada' ? null : ST.speaker(who), who);
-      if (who === 'otto' || who === 'radio') this.audio.radioVoice(dur, who);
+      if (who === 'otto' || who === 'radio' || who === 'lyle') this.audio.radioVoice(dur, who);
       else if (who !== 'ada') this.audio.echoVoice(dur, who);
     }
     // Modal choice (e.g. at the final door)

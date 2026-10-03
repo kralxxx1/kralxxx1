@@ -78,34 +78,42 @@ chase that starts when the thing you need is taken.
   seats.
 
 ### 3 Pinewood — drive-in and forest
-- **Map:** forest ring, drive-in field with car rows, the screen, projection booth, snack bar, ticket
-  kiosk, toilets block, forest paths, the exit road (gate).
-- **Objectives:** ticket stub (toilets) → reel can (booth) → battery (booth) → keys (kiosk) → fuel
-  (snack bar) → start the sedan in row 5.
-- **Chase:** turning the key the first time (the engine fails) brings everything.
-- **Creatures:** the Pines ×6 (`moveWhenMoving`); the Stag ×1 (`hearing`, `charger`); Ushers ×2
-  (`sight` by their red torch, `alarm`).
+- **Map:** forest ring, drive-in field with five rows of cars and speaker posts, the screen with a
+  playground under it, the concession building (snack bar, projection booth, store room with the
+  generator, office), the toilets block at the trees, the entrance road with the ticket kiosk, the
+  marquee and the chained gate, a forest path to the hunters' tree stand.
+- **Objectives:** the wagon (battery from the booth, petrol from the generator's drain tap, keys from the
+  kiosk's lost box) → first start fails → stub (toilets) → the draw can (booth) → start → drive out.
+- **Chase:** the first turn of the key (the engine dies) wakes everything; filling the can is loud too.
+- **Creatures:** the Pines ×6 (`moveWhenMoving`); the Stag ×1 (`hearing`, `charger`, stunned by trees and
+  cars); Ushers ×2 (see only down their red torch beam; call the others, then come for you).
 - **Kills:** Pines lift you into the branches; the Stag pins and drags; the Usher leads you to a seat in
   a car and the doors lock.
 
 ### 4 Hollow Creek — mine
-- **Map:** surface headframe yard (snow), cage station, 400-foot level: main haulage way with rails,
-  side drifts, the sealed fire door, the underground lake, the tally board, generator room.
-- **Objectives:** canary → seven tally tags → tally board → generator fuel → hoist switch → ride the cage.
-- **Chase:** the cage ride: things climb the shaft; the cage stops once and must be restarted.
-- **Creatures:** Burrowers ×8 (`vibration`, `ambush:floor`); Lamplighters ×4 (`lightSeeker`);
-  Timber Crawlers ×3 (`ambush:ceiling`).
-- **Kills:** dragged into the earth; lamp in the eyes, hand over the mouth; dropped on from above and
-  pulled up into the dark.
+- **Map:** surface yard in snow (headframe, winding house, lamp room, the dry, foreman's office), the
+  cage, the 400-foot level: cage station with the tally board, shift boss's cabin, lunch room, generator
+  room, main haulage with rails and tubs, timbered dirt drifts, the gas drift, the old stope, a flooded
+  working, fuel store, powder magazine, the fire door at the bottom of the east drift.
+- **Objectives:** canary → cage down → the tin (4 tags) + 3 tags by the fire door → tally board → diesel
+  → generator (loud) → cage up.
+- **Set pieces:** gas (keep low or cough, and coughing is heard); the knocking; the cage stops halfway up
+  and must be restarted with the lever while a Timber Crawler comes down the wall.
+- **Creatures:** Burrowers ×7 (`vibration`, `ambush:floor`, dirt only); Lamplighters ×3 (`lightSeeker`, their
+  own cap lamps); Timber Crawlers ×3 (`ambush:ceiling`, visible in the timbers if you look up).
+- **Kills:** dragged into the earth; lamp in the eyes, hand over the mouth; dropped on from above.
 
-### 5 Weisshorn — ski lodge in a blizzard
-- **Map:** lodge (fireplace hall, reception, dining room, kitchen + cold room, guest corridor, Greta's
-  office), outside in the storm: terrace, the cable car station.
-- **Objectives:** telegram (Greta's office) → reception board → master key → cable car power → board.
-- **Chase:** the Whiteout comes across the terrace while the car is boarding.
-- **Creatures:** the Frozen ×6 (`warmthWake`); the Whiteout ×1 (outdoors, invisible, footprints,
-  `hearing`); the Cook ×1 (`confined:kitchen+service`, `hearing`).
-- **Kills:** frost closes over the eyes; the snow swallows; the hook drags you to the cold room.
+### 5 Weisshorn — mountain hotel in a blizzard
+- **Map:** the hotel (fireplace hall, bar, reception, Greta's office, dining room, kitchen + cold room,
+  service corridor, guest corridor and rooms, ski room), outside in the storm the terrace, the snowfield
+  and the cable car station (platform, gondola, machine room).
+- **Objectives:** guest book / telegram board → the telegram in the office stove → pin it → master key
+  (kitchen, the Cook) → start the cable car → board.
+- **Set pieces:** cold (outside it builds fast; a fire takes it away but wakes the Frozen); boarding the
+  gondola while footprints come across the snow and something hits the glass as the doors close.
+- **Creatures:** the Frozen ×6 (`warmthWake`); the Whiteout ×1 (outdoors, seen only as footprints and,
+  close, a shape in the snow; `hearing`); the Cook ×1 (`confined:kitchen`, `hearing`).
+- **Kills:** frost closes over the eyes (the Frozen, and the cold itself); the snow swallows; the hook.
 
 ### 6 Gammel Ostra — drained village
 - **Map:** mud streets, a bridge over the old river channel, the church, Signe's house, the school,

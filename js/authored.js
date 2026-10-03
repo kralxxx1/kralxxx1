@@ -188,7 +188,6 @@
       if (ca && cb) { link.set(L.i(ca.x, ca.y), L.i(cb.x, cb.y)); link.set(L.i(cb.x, cb.y), L.i(ca.x, ca.y)); }
     }
     for (const st of L.meta.stairs || []) { link.set(L.i(st.a.x, st.a.y), L.i(st.b.x, st.b.y)); link.set(L.i(st.b.x, st.b.y), L.i(st.a.x, st.a.y)); }
-    void dist;
     reach[stack[0]] = 1;
     while (stack.length) {
       const c = stack.pop(), x = c % L.w, y = (c / L.w) | 0;
@@ -201,7 +200,7 @@
       if (l != null && !reach[l]) { reach[l] = 1; stack.push(l); }
     }
     const out = [];
-    for (let i = 0; i < reach.length; i++) if (L.solid[i] === 0 && !reach[i]) { lost++; if (out.length < 6) out.push((i % L.w) + ',' + ((i / L.w) | 0)); }
+    for (let i = 0; i < reach.length; i++) if (L.solid[i] === 0 && !reach[i] && dist[i] < 0) { lost++; if (out.length < 6) out.push((i % L.w) + ',' + ((i / L.w) | 0)); }
     L.meta.unreachable = lost;
     if (lost && !(def.authored.allowIslands)) throw err(def, lost + ' cells cannot be reached from the spawn: ' + out.join(' '));
   }
@@ -267,6 +266,9 @@
         (L.meta.stairs || (L.meta.stairs = [])).push(link);
         return link;
       },
+      // two places joined by something scripted (a cage, a ride): one cell each, for reachability and
+      // creatures' paths only, with no interaction of its own
+      link(ax, ay, bx, by) { const a = L.i(ax, ay), b = L.i(bx, by); L.portalMap.set(a, b); L.portalMap.set(b, a); (L.meta.links || (L.meta.links = [])).push([ax, ay, bx, by]); },
       // a car (PB.Vehicles): type sedan/wagon/pickup/van, colour, plate, rot
       vehicle(x, y, rot, o = {}) { const v = Object.assign({ type: 'sedan', color: 0x5a5a5a, key: 'v' + ((L.meta.vehicles || []).length), x: x * C, z: y * C, rot }, o); (L.meta.vehicles || (L.meta.vehicles = [])).push(v); return v; },
       rng: PB.U.rng(def.seed || 1),

@@ -98,6 +98,93 @@
       ],
       objectives: ['ferry_start', 'ferry_bridge', 'ferry_captain', 'ferry_logbook', 'ferry_key', 'ferry_crank', 'ferry_lower'],
     },
+    // ------------------------------------------------------------ 3. Pinewood (drive-in in the forest)
+    {
+      id: 'pinewood', authored: MAP('pinewood'), seed: 1975, theme: 'pinewood', music: 'pinewood', ambience: 'pinewood',
+      fog: [0x07090b, 0.026], fogIn: 0.03, grade: { tint: [0.95, 1.0, 1.04], sat: 0.7 }, exposure: 0.9, noDressing: true, drawing: 4,
+      items: [
+        { type: 'thing', id: 'stub', model: 'ticketStub', place: 'spot', spot: 'stub', prompt: 'pine_stubPrompt' },
+        { type: 'thing', id: 'reelCan', model: 'reelCanOpen', place: 'spot', spot: 'reelCan', fixed: true },
+        { type: 'key', id: 'carBattery', data: 'carBattery', model: 'carBattery', place: 'spot', spot: 'battery' },
+        { type: 'key', id: 'carKeys', data: 'carKeys', model: 'carKeys', place: 'spot', spot: 'keys' },
+        { type: 'key', id: 'jerrycan', data: 'jerrycan', model: 'fuelCan', place: 'spot', spot: 'jerrycan' },
+        { type: 'thing', id: 'tank', place: 'spot', spot: 'tank', fixed: true, hold: 4.5, reach: 2.0 },
+        { type: 'thing', id: 'wagon', place: 'spot', spot: 'wagon', fixed: true, hold: 2.2, reach: 2.4 },
+        doc('pine_program', 'counter'),
+        doc('pine_missing', 'missing', { wall: true }),
+        doc('pine_statement', 'statement'),
+        doc('pine_letter', 'letter'),
+        doc('pine_kiosk', 'kioskLog'),
+        doc('pine_wiper', 'wiper'),
+        doc('pine_staff', 'snackNote', { wall: true }),
+        doc('pine_search', 'search'),
+        { type: 'drawing', id: 'd_wren4', data: 'wren4', place: 'spot', spot: 'drawing' },
+      ].concat(supplies(5, 2, 3)),
+      entities: [
+        { type: 'pines', count: 6, spot: 'lair:pines' },
+        { type: 'stag', spot: 'lair:stag' },
+        { type: 'usher', count: 2, spot: 'lair:usher' },
+      ],
+      objectives: ['pine_start', 'pine_parts', 'pine_startCar', 'pine_stubFind', 'pine_claim', 'pine_leave'],
+    },
+    // ------------------------------------------------------------ 4. Hollow Creek (copper mine)
+    {
+      id: 'mine', authored: MAP('mine'), seed: 1956, theme: 'mine', music: 'mine', ambience: 'mine',
+      fog: [0x0a0b0d, 0.034], fogIn: 0.055, grade: { tint: [1.03, 0.99, 0.92], sat: 0.68 }, exposure: 0.85, noDressing: true, drawing: 5,
+      items: [
+        { type: 'thing', id: 'canary', model: 'canaryCage', place: 'spot', spot: 'canary' },
+        { type: 'thing', id: 'cageTop', place: 'spot', spot: 'cageTop', fixed: true, reach: 2.4 },
+        { type: 'thing', id: 'cageBottom', place: 'spot', spot: 'cageBottom', fixed: true, reach: 2.4 },
+        { type: 'thing', id: 'tin', model: 'tobaccoTin', place: 'spot', spot: 'tin', prompt: 'mine_tinPrompt' },
+        ...['tagA', 'tagB', 'tagC'].map(id => ({ type: 'thing', id, model: 'tallyTag', place: 'spot', spot: id, prompt: 'mine_tagPrompt' })),
+        { type: 'thing', id: 'board', place: 'spot', spot: 'board', fixed: true, reach: 2.2 },
+        { type: 'key', id: 'diesel', data: 'diesel', model: 'fuelCan', place: 'spot', spot: 'diesel' },
+        { type: 'thing', id: 'gen', place: 'spot', spot: 'gen', fixed: true, hold: 3.0, reach: 2.2 },
+        { type: 'thing', id: 'hoist', place: 'spot', spot: 'hoist', fixed: true, reach: 2.0 },
+        { type: 'thing', id: 'fireDoorX', place: 'spot', spot: 'fireDoorSpot', fixed: true, marker: false, reach: 2.4 },
+        doc('mine_rules', 'rules', { wall: true }),
+        doc('mine_lampBook', 'lampBook'),
+        doc('mine_statement', 'statement'),
+        doc('mine_phoneLog', 'phoneLog'),
+        doc('mine_rescue', 'rescue'),
+        doc('mine_widow', 'widow'),
+        doc('mine_lunch', 'lunchNote'),
+        doc('mine_genNote', 'genNote', { wall: true }),
+        { type: 'drawing', id: 'd_wren5', data: 'wren5', place: 'spot', spot: 'fireGap', hiddenUntil: 'drawingOut' },
+      ].concat(supplies(5, 2, 4)),
+      entities: [
+        { type: 'burrower', count: 7, spot: 'lair:burrower' },
+        { type: 'lamplighter', count: 3, spot: 'lair:lamplighter' },
+        { type: 'crawler', count: 3, spot: 'lair:crawler' },
+      ],
+      objectives: ['mine_start', 'mine_canary', 'mine_down', 'mine_tags', 'mine_board', 'mine_power', 'mine_gen', 'mine_ride'],
+    },
+    // ------------------------------------------------------------ 5. Weisshorn (mountain hotel in a blizzard)
+    {
+      id: 'lodge', authored: MAP('lodge'), seed: 1983, theme: 'lodge', music: 'lodge', ambience: 'lodge',
+      fog: [0x1a1e22, 0.06], fogIn: 0.02, grade: { tint: [0.95, 1.0, 1.07], sat: 0.66 }, exposure: 0.9, noDressing: true,
+      items: [
+        { type: 'thing', id: 'guestBook', place: 'spot', spot: 'guestBook', fixed: true },
+        { type: 'thing', id: 'tboard', place: 'spot', spot: 'board', fixed: true, reach: 2.0 },
+        { type: 'thing', id: 'telegram', place: 'spot', spot: 'telegram', fixed: true, hold: 2.0, reach: 1.8 },
+        { type: 'key', id: 'masterKey', data: 'masterKey', place: 'spot', spot: 'key' },
+        { type: 'thing', id: 'control', place: 'spot', spot: 'control', fixed: true, hold: 3.0, reach: 2.2 },
+        { type: 'thing', id: 'gondola', place: 'spot', spot: 'gondola', fixed: true, reach: 2.6 },
+        doc('lodge_weather', 'weather'),
+        doc('lodge_menu', 'menu'),
+        doc('lodge_postcard', 'postcard'),
+        doc('lodge_roomNote', 'roomNote'),
+        doc('lodge_school', 'school'),
+        doc('lodge_kitchenNote', 'kitchenNote', { wall: true }),
+        doc('lodge_inquiry', 'bar'),
+      ].concat(supplies(4, 3, 2)),
+      entities: [
+        { type: 'frozen', count: 6, spot: 'lair:frozen' },
+        { type: 'cook', spot: 'lair:cook' },
+        { type: 'whiteout', spot: 'lair:whiteout' },
+      ],
+      objectives: ['lodge_start', 'lodge_find', 'lodge_telegram', 'lodge_pin', 'lodge_key', 'lodge_power', 'lodge_board'],
+    },
   ].filter(L => L.layout || L.authored);
   LEVELS.forEach((L, i) => {
     L.index = i; L.chapter = i;
@@ -107,7 +194,7 @@
 
   // Kept for the old ghost companions, which this story does not have
   const GHOSTS = {};
-  const CHAR_COLOR = { ada: '#6fa86a', wren: '#d8282c', otto: '#d8b060', clerk: '#a8a8c0' };
+  const CHAR_COLOR = { ada: '#6fa86a', wren: '#d8282c', otto: '#d8b060', clerk: '#a8a8c0', lyle: '#b8a890' };
 
   PB.Levels = { LEVELS, GHOSTS, CHAR_COLOR, byId: id => LEVELS.find(l => l.id === id), supplies, doc };
 })(typeof window !== 'undefined' ? window : globalThis);

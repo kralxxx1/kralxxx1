@@ -94,9 +94,9 @@ go, and each one brings her closer to the forty minutes of her own life she cann
 | Depot 9 | Halvard Central, 13 Jan 1998 | — | — | (the door) |
 | The Underneath | Level 256 | everything put down and never picked up | — | four lost lights open the Index Door |
 | Saint Brigid | ferry, Halvard Sound, 9 Nov 1987 | deckhand Pim Rask, 16 | Captain Aal left the bridge drunk; testified Pim abandoned his post | the torn log page back in the bridge logbook, the boy's bell rung |
-| Pinewood | drive-in in the forest, 22 Aug 1975 | Mikkel Strand, 8 | projectionist Lyle Hardy saw the boy walk into the trees and said he saw nothing | Mikkel's ticket stub back in the projector booth's reel can |
-| Hollow Creek | mine, 3 Mar 1956 | seven miners | foreman Arvid Lund shut the fire door on men who were still knocking | seven brass tally tags back on the board |
-| Weisshorn | ski lodge, 28 Feb 1983 | five skiers and their instructor | hotelier Greta Imhof burned the avalanche telegram and ran the lift | the telegram pinned at reception |
+| Pinewood | drive-in in the forest, 22 Aug 1975 | Mikkel Strand, 8 | projectionist Lyle Hardy sent the boy away from the booth, saw him follow a red light into the trees, and said children never came to the booth and he saw nothing | Mikkel's stub dropped in the draw can on the booth's rewind bench |
+| Hollow Creek | mine, 3 Mar 1956 | seven miners | foreman Arvid Lund wedged the fire door on men who were still knocking and took their tags off the tally board so the rescue went elsewhere | seven brass tally tags back on the board |
+| Weisshorn | ski lodge, 28 Feb 1983 | five skiers and their instructor | hotelier Greta Imhof put the avalanche telegram in her stove, sent the ski school up, and told the inquiry no warning came | the telegram pinned at reception |
 | Gammel Ostra | drowned village, 2 Oct 1964 | Signe Holm, 71 | her son Tor told her the flooding was a week later than it was | her music box back on her mantel |
 | Nordlys Express | night train, 19 Dec 1990 | Lina Berg, 15 | conductor Edvin Saether put her off at a snowed-in halt for having no ticket; she had bought one and lost it | her ticket, found and punched |
 | Falk's Carnival | fairground, 30 Sep 1984 | Hugo Brecht, "Pipo" the clown | Kasper Falk started the ghost-train fire and let Hugo take the blame | Pipo's red nose back on his trailer mirror |
@@ -131,29 +131,60 @@ everything under the water. When she puts the page back and the boat touches the
 in the fog a bell rings by itself, steadily, the way a boy rang it until the end.
 
 ### Chapter 3 — Pinewood ("Double Feature")
-A drive-in cinema in a pine forest, the last night of the season. The film on the screen has no
-sound and never ends. Cars in rows, a snack bar, a projection booth, and the forest. Mikkel Strand
-went to the toilets during the second feature and never came back. Lyle Hardy, in the booth, saw him
-walk into the trees after the light of a torch, and told the police he had seen nothing, because he
-had been drinking and his licence was all he had. Ada must put the boy's ticket stub back with the
-reel, then get the old sedan in row five running: battery from the booth, keys from the ticket kiosk's
-lost box, fuel from the snack bar generator. The engine will not start the first time.
+A drive-in cinema in a pine forest north of Nordvik, Friday 22 August 1975, the last night of the
+season. The film on the screen has no sound and never ends. Cars in rows, speaker posts, a snack bar,
+a projection booth, the toilets at the edge of the trees, and the forest. The flyer promised a **lucky
+stub draw**: bring your ticket stub to the booth window at the intermission and drop it in the can;
+the projectionist, Lyle Hardy, draws the winner at the end of the second feature. Eight-year-old
+Mikkel Strand (stub No. 1147) came to the window at 10:50; Lyle, a bottle open, told him to come back
+after the reel change. At 11:05 Lyle, out behind the snack bar for air, saw the boy's torch go into the
+trees behind the toilets after a **red light** deeper in. He did nothing, and told the police children
+never came to the booth and he had seen nothing, because his licence and the booth were all he had.
+He never drew the winner; he wrote to the mother nine times and never posted it. The search lost the
+trail at the old hunting stand; a red boot was found north of it.
+Mikkel's father turned the family wagon out of row five to point its headlights at the trees and left
+them on all night, with a note under the wiper ("Stay where you can see the car lights"); the battery
+died at four and he dropped his keys in the search (handed in to the kiosk's lost property book).
+Ada finds the stub in the toilets and drops it in the can on the rewind bench: every speaker on the
+field crackles and reads out number 1147. To leave she gets the wagon running: Lyle's booth battery,
+petrol from the generator's drain tap (loud), the keys from the kiosk. The engine dies the first time
+and everything hears it. The second time it catches, the chained gate has opened, and in the mirror
+the screen goes white, then dark. The red lights are the Ushers'.
 
 ### Chapter 4 — Hollow Creek ("Seven Below")
-Timbered tunnels, rails, the cage shaft, an underground lake, the canary. On 3 March 1956 the
-400-foot level collapsed. Seven men were cut off beyond the fire door. Foreman Arvid Lund heard them
-knocking and shut the door to keep the gas from the main shaft, then told their families they died at
-once. He kept their seven brass tally tags in a tobacco tin for twenty years. The tags must go back on
-the tally board by the cage. The hoist needs power, then the cage rises through a shaft full of things
-that climb.
+A copper mine on the night of Saturday 3 March 1956, snow on the headframe. At 5:40 that morning the
+roof came down in the east section of the 400-foot level; burning timber filled the east drift with
+smoke. Seven men were beyond the fall: E. Nygaard, J. Vik, the brothers Tore and Karl Holmberg, A. Skog,
+P. Moen, B. Ulstein. At 6:02 foreman **Arvid Lund** heard them knocking behind the fire door, seven and
+seven and seven, counting off. He wedged the door against the smoke, then took their seven brass tags off
+the station's **tally board** (a tag on the board means a man below), so the board showed the section
+clear and the rescue went to the north fall instead. He went back once to listen, dropped the tin in the
+dirt by the door, ran, and picked up only four tags. The station man's telephone book records all of it
+("06.40 Still knocking"). Lund told the families they died at once, and kept the four tags in a tobacco
+tin for twenty years; Ruth Holmberg asked him for her sons' tags and never got them.
+In the sunken mine Ada needs a **canary** to go down (the foreman's own rule), rides the cage to the
+station, finds the tin in the shift boss's cabin and the other three tags in the dirt by the fire door
+where the knocking still comes from, and hangs all seven back on their hooks: the knocking stops, and
+Wren's fifth drawing slides out under the door. The cage motor needs the emergency generator (diesel
+from the fuel store at the bottom of the gas-filled south drift; firedamp lies under the roof, so you
+keep low). The cage stops once halfway up the shaft and must be restarted by hand while something comes
+down the wall toward its roof.
 
 ### Chapter 5 — Weisshorn ("Whiteout")
-A ski lodge in a blizzard: fireplace hall, dining room, kitchen, guest corridor, and outside, the
-cable car station. On 28 February 1983 the valley sent a telegram: avalanche danger, close the upper
-runs. Greta Imhof burned it, because a cancelled week would have closed the lodge, and ran the lift.
-Five guests and the instructor, Leo Brunner, were buried at the upper station. The telegram's ashes
-were never quite ash. Pinned back on the reception board, it lets the lodge go; the cable car takes
-Ada down through the whiteout.
+Berghotel Weisshorn, 2 914 m, at the top station of a cable car, Monday 28 February 1983, in a
+blizzard: fireplace hall, bar, reception, Greta Imhof's office, dining room, kitchen and cold room, the
+guest corridor, the ski room, and across the terrace and sixty metres of blowing snow the cable car
+station. The telephone line was down from seven. At 8:15 the post sledge brought the avalanche service's
+telegram: danger 5, close the upper runs and the upper station. Greta Imhof, 52, signed for it, put it
+in her office stove, and wrote nothing about it in her weather book; it was the hotel's first full week
+since 1979 ("We need this week" — her note to the cook, Anton). At 9:30 the ski school went up: the
+Aebi family (Peter, Ursula and Lisa, 10), J. Coulter, Ruth Fankhauser, and the instructor Leo Brunner,
+29. The upper slopes released at 2:40 p.m. Mrs Coulter, who stayed in, left on 2 March. At the inquiry
+Greta said no warning had reached the hotel. The telegram never burned. Ada lifts it out of the ash and
+pins it back on the reception board; the wind drops for a breath, the station's lights come on, and with
+the cable car's master key (on its hook by the cold room) she starts the car and boards as something
+comes across the snow after the sound of the motor. The cold outside is its own danger; the Frozen move
+only while she is warm.
 
 ### Chapter 6 — Gammel Ostra ("Low Water")
 The drowned village under the reservoir, drained: mud streets, a church, houses with the waterline

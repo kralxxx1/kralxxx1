@@ -310,12 +310,14 @@
       geo.translate(0, 0.5, 0);
       const m = new THREE.ShaderMaterial({
         uniforms: { uCol: { value: new THREE.Color(1, 0.93, 0.82) }, uK: { value: 0 }, uTime: { value: 0 } },
-        vertexShader: `varying float vT; varying vec3 vW;
-          void main(){ vT = position.y; vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
-        fragmentShader: `uniform vec3 uCol; uniform float uK; uniform float uTime; varying float vT; varying vec3 vW;
+        vertexShader: `varying float vT; varying vec3 vW; varying vec3 vN;
+          void main(){ vT = position.y; vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; vN = normalize(mat3(modelMatrix) * normal); gl_Position = projectionMatrix * viewMatrix * w; }`,
+        fragmentShader: `uniform vec3 uCol; uniform float uK; uniform float uTime; varying float vT; varying vec3 vW; varying vec3 vN;
           void main(){
             float dust = 0.75 + 0.25 * sin(vW.x * 3.1 + uTime * 0.4) * sin(vW.z * 2.7 - uTime * 0.3) * sin(vW.y * 3.7 + uTime * 0.2);
-            float a = uK * pow(vT, 0.75) * pow(1.0 - vT, 1.7) * smoothstep(0.0, 0.06, vT) * dust;
+            // soft silhouette: where the cone's wall is seen edge-on it would read as a hard sheet
+            float face = smoothstep(0.05, 0.55, abs(dot(normalize(vN), normalize(cameraPosition - vW))));
+            float a = uK * pow(vT, 0.75) * pow(1.0 - vT, 1.7) * smoothstep(0.0, 0.12, vT) * dust * face;
             gl_FragColor = vec4(uCol * a, 1.0);
           }`,
         transparent: true, depthWrite: false, side: THREE.BackSide, blending: THREE.AdditiveBlending, fog: false,
@@ -385,7 +387,8 @@
     update(dt) {
       const g = this.game, inp = g.input, S = PB.Settings.data;
       const look = inp.consumeLook();
-      if (!this.frozen) {
+      // freeLook: held in place by a scene (a lifeboat, a car, a cage) but free to turn the head
+      if (!this.frozen || this.freeLook) {
         const sens = 0.0021 * S.mouseSens;
         this.yaw -= look.dx * sens;
         this.pitch -= look.dy * sens * (S.invertY ? -1 : 1);
@@ -523,7 +526,7 @@
       b.quaternion.setFromUnitVectors(this._up || (this._up = new THREE.Vector3(0, 1, 0)), d);
       b.scale.set(r, this.beamLen, r);
       const haze = g.levelDef && g.levelDef.haze != null ? g.levelDef.haze : 1;
-      b.material.uniforms.uK.value = 0.16 * k * haze;
+      b.material.uniforms.uK.value = 0.13 * k * haze;
       b.material.uniforms.uTime.value = g.time;
     }
     updateCamera(dt, speed) {

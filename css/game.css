@@ -250,6 +250,8 @@ body.vhs #objective { top: calc(18px + var(--safe-t)); }
 .paper.kind-printout .nb { font: 21px/1.72 "VT323", var(--type); letter-spacing: 0.04em; color: #2a2a3a; }
 .paper.kind-notice { border-top: 10px solid #7a1a14; }
 .paper.kind-notice h2 { text-transform: uppercase; letter-spacing: 0.06em; }
+.paper.kind-telegram { --paper: #eee4c0; border-top: 14px solid #c8a848; }
+.paper.kind-telegram .nb { font: 18px/1.6 var(--type); color: #1e1a12; white-space: pre-wrap; letter-spacing: 0.06em; }
 .paper.kind-report { border: 1px solid #b8b0a0; background: var(--grain), linear-gradient(#e8e2d0, #e8e2d0) 0 0 / 100% 88px no-repeat, var(--paper); }
 .paper.kind-card { width: min(520px, 100%); --paper: #fbf8ee; background: var(--grain), linear-gradient(transparent 0 58px, #d65a5a 58px 60px, transparent 60px) 0 0 / 100% 100% no-repeat, repeating-linear-gradient(transparent 0 33px, #a9c1dc 33px 34px) 0 60px / 100% auto, var(--paper); border-radius: 4px; }
 .paper.kind-flyer { --paper: #f4e46a; background: var(--grain), radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.35), transparent 60%), var(--paper); }
