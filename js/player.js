@@ -430,6 +430,13 @@
       // Koşma / eğilme
       if (S.toggleCrouch) { if (inp.pressed('crouch')) this.crouchToggle = !this.crouchToggle; this.crouching = this.crouchToggle || inp.touchCrouch; }
       else this.crouching = inp.down('crouch') || inp.touchCrouch;
+      // Headroom: under a low roof you stoop, under a lower one you go on hands and knees
+      const LL = g.level;
+      let room = 9;
+      if (LL && LL.ceilH) for (const [ox, oz] of [[0, 0], [0.3, 0], [-0.3, 0], [0, 0.3], [0, -0.3]]) room = Math.min(room, LL.ceilAtW(this.pos.x + ox, this.pos.z + oz));
+      this.headroom = room;
+      this.crawling = room < 1.45;
+      if (room < 1.85) this.crouching = true;
       let wantSprint;
       if (S.toggleSprint) { if (inp.pressed('sprint')) this.sprintToggle = !this.sprintToggle; wantSprint = this.sprintToggle; }
       else wantSprint = inp.down('sprint');
@@ -438,7 +445,7 @@
       if (this.exhausted && this.stamina > 30) this.exhausted = false;
       this.sprinting = wantSprint && !this.exhausted && this.moving;
       const water = this.surface() === 'water';
-      let speed = this.crouching ? 1.35 : this.sprinting ? 4.35 : 2.4;
+      let speed = this.crawling ? 0.9 : this.crouching ? 1.35 : this.sprinting ? 4.35 : 2.4;
       if (water) speed *= 0.62;
       // a scene can slow you down (rising water, deep snow)
       if (this.speedMul != null) speed *= this.speedMul;
@@ -498,6 +505,13 @@
       let k = this.flashOn ? 1 : 0;
       if (this.flashOn && this.battery < 15) k *= Math.random() < 0.08 ? 0.15 : 0.75;
       if (this.flashOn && g.flashInterference > 0) k *= Math.random() < g.flashInterference * 0.5 ? 0.05 : 1;
+      // Some places swallow light: in them the lamp gutters and dies, and it comes back when you leave
+      const Lv = g.level;
+      let dark = 0;
+      if (Lv && Lv.styleOf) { const c = Lv.cellOf(this.pos.x, this.pos.z); if (Lv.inb(c.x, c.y)) { const st = Lv.styles[Lv.styleOf[Lv.i(c.x, c.y)]]; dark = st && st.dark ? 1 : 0; } }
+      this.dark = U.damp(this.dark || 0, dark, dark ? 1.6 : 3, dt);
+      if (this.dark > 0.02 && this.flashOn) { const d = this.dark; k *= d > 0.85 ? 0 : (1 - d) * (Math.random() < d * 0.7 ? 0.08 : 1); }
+      if (this.dark > 0.5 && g.fearAdd && g.state === 'play') g.fearAdd(dt * 5 * this.dark);
       // Eyes adapt: a wall right in front of the lens would blow out, so the beam backs off up close
       if (this.flashOn) {
         const L = g.level, cam = this.cam, d0 = this.flashDir, ceil = (L && L.ceil) || 3;
@@ -568,7 +582,8 @@
     }
     updateCamera(dt, speed) {
       const S = PB.Settings.data, cam = this.cam;
-      const targetEye = this.hidden ? this.hidden.eye : this.crouching ? 0.98 : 1.62;
+      const room = this.headroom || 9;
+      const targetEye = this.hidden ? this.hidden.eye : this.crawling ? U.clamp(room - 0.42, 0.42, 0.75) : this.crouching ? Math.min(0.98, room - 0.3) : 1.62;
       this.eyeCur = U.damp(this.eyeCur, targetEye, 10, dt || 1);
       const bobK = S.headBob * U.clamp(speed / 4, 0, 1);
       const by = Math.sin(this.bob * 2) * 0.045 * bobK, bx = Math.cos(this.bob) * 0.03 * bobK;
@@ -601,7 +616,8 @@
       const lv = this.game.levelDef, list = lv && lv.list ? lv.list * (1 + Math.sin(t * 0.31) * 0.25) + Math.sin(t * 0.73) * lv.list * 0.15 : 0;
       cam.rotation.set(this.pitch * (1 - this.lookBack * 0.7) + shy, this.yaw + shx + this.lookBack * 2.75, (Math.sin(this.bob) * 0.006 * bobK) + sh * 0.02 * Math.sin(t * 13) - this.lean * 0.13 + this.lookBack * 0.06 + list + (this.camRoll || 0));
       // Koşarken hafif FOV artışı
-      const fovT = S.fov + (this.sprinting ? 6 : 0) - (this.fear > 70 ? (this.fear - 70) * 0.15 : 0);
+      // (and narrower on hands and knees in a crawlway, and in the dark)
+      const fovT = S.fov + (this.sprinting ? 6 : 0) - (this.fear > 70 ? (this.fear - 70) * 0.15 : 0) - (this.crawling ? 7 : 0) - (this.dark || 0) * 3;
       if (Math.abs(cam.fov - fovT) > 0.05) { cam.fov = U.damp(cam.fov, fovT, 6, dt || 1); cam.updateProjectionMatrix(); }
       if (this.vm) this.vm.update(dt || 0, this);
     }
@@ -640,7 +656,9 @@
       else if (fear > 0.55) { kind = this.breathIn ? 'fearIn' : 'fearOut'; gain = 0.09 + 0.1 * fear; pause = 0.14; }
       else if (exert > 0.25 || this.sprinting) { kind = this.breathIn ? 'in' : 'out'; gain = 0.07 + 0.1 * exert; pause = 0.28; }
       else { kind = this.breathIn ? 'calmIn' : 'calmOut'; gain = 0.06; pause = this.breathIn ? 0.2 : 1.1; }
-      const dur = g.audio.breathe(kind, gain * (this.crouching ? 0.8 : 1));
+      // in a crawlway every breath is effort, and close in your ears
+      if (this.crawling && kind.startsWith('calm')) { kind = this.breathIn ? 'in' : 'out'; gain = 0.085; pause = 0.32; }
+      const dur = g.audio.breathe(kind, gain * (this.crawling ? 1.25 : this.crouching ? 0.8 : 1));
       this.breathT = Math.max(0.25, dur * 0.95 + pause * (0.8 + Math.random() * 0.4));
     }
     updateHidden(dt) {

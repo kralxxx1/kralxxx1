@@ -300,4 +300,44 @@
     ...[-0.045, -0.015, 0.015, 0.045].map(x => ['box', 'archHole', 0.012, 0.004, 0.11 - Math.abs(x) * 0.9, x, 0.0085, 0]),
     ['rcyl', 'castIronPaint', 0.13, 0.003, 0.0015, 24, 0, 0.0015, 0],
   ];
+
+  // ------------------------------------------------------------ phosphorescent marks (escape-route paint, 1950s)
+  M.tex.lumArrow = () => T.canvas('m12:lumArrow', 256, 128, (g, w, h) => {
+    g.clearRect(0, 0, w, h);
+    const r = U.rng(9);
+    g.strokeStyle = 'rgba(200,255,210,0.95)'; g.lineCap = 'round'; g.lineJoin = 'round';
+    // brushed by hand: a shaft and a head, a little uneven
+    g.lineWidth = 13; g.beginPath(); g.moveTo(24, h / 2 + 3); g.lineTo(w - 70, h / 2 - 2); g.stroke();
+    g.lineWidth = 12; g.beginPath(); g.moveTo(w - 110, h / 2 - 38); g.lineTo(w - 34, h / 2); g.lineTo(w - 108, h / 2 + 36); g.stroke();
+    // flaked paint
+    g.globalCompositeOperation = 'destination-out';
+    for (let k = 0; k < 40; k++) { g.beginPath(); g.arc(r() * w, r() * h, 1 + r() * 3, 0, 6.283); g.fill(); }
+    g.globalCompositeOperation = 'source-over';
+  });
+  Object.assign(M.MATS, { lumPaint: { tex: 'lumArrow', color: 0x6a8a70, emissive: 0x58ff88, ei: 0.55, alpha: 0.35, rough: 0.9 } });
+  // on a wall (model space: the wall at z = 0) and on the ground
+  D.lumArrow = [['plane', 'lumPaint', 0.46, 0.23, 0, 0, 0.012, 0, 0, 0]];
+  D.lumArrowFloor = [['plane', 'lumPaint', 0.5, 0.25, 0, 0.012, 0, -H, 0, 0]];
+  // A crawlway's dressing: a low crib of squared timbers holding the roof up, and a heap of fallen rock
+  // and broken lagging along one side
+  D.cribLow = (() => {
+    const s = [];
+    for (let k = 0; k < 5; k++) {
+      const y = 0.08 + k * 0.17;
+      for (const o of [-0.32, 0.32]) s.push(k % 2 ? ['box', 'mineTimber', 0.86, 0.16, 0.16, 0, y, o, 0, 0.02 * (k - 2), 0] : ['box', 'mineTimber', 0.16, 0.16, 0.86, o, y, 0, 0, 0.02 * (k - 2), 0]);
+    }
+    return s;
+  })();
+  D.crawlRubble = (() => {
+    const s = [], r = U.rng(77);
+    for (let k = 0; k < 14; k++) s.push(['rock', 'rockGrey', r.range(0.12, 0.3), 300 + k, r.range(0.9, 1.3), r.range(0.6, 0.9), r.range(0.8, 1.2), r.range(-0.9, 0.9), r.range(0.05, 0.35), r.range(-0.3, 0.3), r() * 6]);
+    for (let k = 0; k < 3; k++) s.push(['box', 'mineTimber', 1.2, 0.04, 0.18, r.range(-0.6, 0.6), 0.25 + k * 0.08, r.range(-0.3, 0.3), r.range(-0.3, 0.3), r() * 3, r.range(-0.4, 0.4)]);
+    return s;
+  })();
+  // A miner's cap lamp lost in the mud: the headpiece on its side, the cable, the battery
+  D.lostCapLamp = [
+    ['cyl', 'capLamp', 0.04, 0.046, 0.065, 14, 0, 0.042, 0, H, 0, 0], ['disc', 'lampGlass', 0.034, 0, 0.042, 0.034],
+    ['tube', 'black', [[0, 0.03, -0.034], [0.08, 0.012, -0.14], [0.24, 0.01, -0.21], [0.38, 0.02, -0.19]], 0.006, 5, 24],
+    ['rbox', 'capLamp', 0.15, 0.1, 0.055, 0.012, 0.45, 0.05, -0.2, 0, 0.4, 0],
+  ];
 })(typeof window !== 'undefined' ? window : globalThis);

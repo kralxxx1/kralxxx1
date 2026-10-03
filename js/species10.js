@@ -160,6 +160,8 @@
         sp.gait = (sp.gait || 1.8) / g;
         sp.giant = g;
       }
+      // a giant cannot follow you into a crawlway
+      if (g > 1.05) { const allow = sp.allowCell; sp.allowCell = (cr, x, y) => (allow ? allow(cr, x, y) : true) && !(cr.L.ceilAt(x, y) < sp.height * 0.62); }
       const make = sp.model;
       sp.model = function (game, o) {
         const m = make.call(this, game, o);

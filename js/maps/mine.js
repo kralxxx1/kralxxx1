@@ -46,10 +46,10 @@
     D.fill(7, 19, 12, 24, 'P');                              // the old stope
     D.fill(17, 17, 17, 26, 'x');                             // the gas drift, south
     D.fill(16, 27, 18, 28, 'F');                             // fuel store
-    D.fill(18, 24, 26, 24, 'd');                             // cross-cut joining the gas drift to the east drift
+    D.fill(18, 24, 26, 24, 'z');                             // the squeeze: a fallen cross-cut, crawl height, joining the gas drift to the east drift
     D.fill(27, 17, 27, 30, 'e');                             // east drift
     D.fill(26, 30, 28, 30, 'e').fill(27, 31, 27, 31, 'e');   // the bottom of the east drift; the fire door in its alcove
-    D.join('h', 'k', 'd', 'x', 'e', 'n', 'W');
+    D.join('h', 'k', 'd', 'x', 'e', 'n', 'W', 'z');
     D.join('d', 'P');
     // doors
     D.edge(13, 12, 2, 'C');                                  // cage gate, underground
@@ -78,7 +78,10 @@
       haulage: { wall: 'rock', wallTint: 0x8a7e70, floor: 'ballast', floorTint: 0x6a6258, ceil: 'rock', ceilTint: 0x5a544a, h: 3.0, step: 'ballast' },
       drift: { wall: 'rock', wallTint: 0x7a6e60, floor: 'mud', floorTint: 0x6a5a48, ceil: 'rock', ceilTint: 0x4a443a, h: 2.9, step: 'mud' },
       gas: { wall: 'rock', wallTint: 0x7a7660, floor: 'mud', floorTint: 0x5a5a40, ceil: 'rock', ceilTint: 0x4a4a3a, h: 2.8, step: 'mud' },
-      stope: { wall: 'rock', wallTint: 0x8a7a6a, floor: 'gravel', floorTint: 0x6a6258, ceil: 'rock', ceilTint: 0x4a443a, h: 8.0, step: 'gravel' },
+      // the old stope swallows light: no lamp works in it (only the paint the miners left glows)
+      stope: { wall: 'rock', wallTint: 0x8a7a6a, floor: 'gravel', floorTint: 0x6a6258, ceil: 'rock', ceilTint: 0x4a443a, h: 8.0, step: 'gravel', dark: true },
+      // the squeeze: the roof came down to a metre and a bit; you go through on your hands and knees
+      squeeze: { wall: 'rock', wallTint: 0x6a5e50, floor: 'mud', floorTint: 0x5a4a38, ceil: 'rock', ceilTint: 0x3a342c, h: 1.2, step: 'mud' },
       lake: { wall: 'rock', wallTint: 0x6a6a62, floor: 'mud', ceil: 'rock', ceilTint: 0x3a3a34, h: 5.0, bed: 'mud', murky: true, depth: 1.4 },
       planks: { wall: 'rock', wallTint: 0x6a6a62, floor: 'boards', floorTint: 0x5a4a3a, ceil: 'rock', ceilTint: 0x3a3a34, h: 5.0, step: 'wood' },
       genroom: { wall: 'concreteWall', wallTint: 0x7a7a72, floor: 'concreteFloor', ceil: 'concreteWall', ceilTint: 0x6a6a64, h: 3.0 },
@@ -90,7 +93,7 @@
       S: { style: 'station', tag: 'station', zone: 1 }, q: { style: 'shaft', solid: 'rack' }, B: { style: 'cabin', tag: 'cabin', zone: 1 }, L: { style: 'cabin', tag: 'lunch' },
       h: { style: 'haulage', tag: 'haulage', zone: 2 }, G: { style: 'genroom', tag: 'genroom', zone: 2 }, n: { style: 'drift', tag: 'northDrift' }, M: { style: 'magazine', tag: 'magazine' },
       W: { style: 'lake', tag: 'lake', water: true }, k: { style: 'planks', tag: 'walk' }, d: { style: 'drift', tag: 'drift' }, P: { style: 'stope', tag: 'stope' },
-      x: { style: 'gas', tag: 'gasDrift' }, F: { style: 'magazine', tag: 'fuelStore' }, e: { style: 'firedoor', tag: 'eastDrift' },
+      x: { style: 'gas', tag: 'gasDrift' }, F: { style: 'magazine', tag: 'fuelStore' }, e: { style: 'firedoor', tag: 'eastDrift' }, z: { style: 'squeeze', tag: 'squeeze' },
     },
     doors: {
       C: { id: 'cageBottom', kind: 'bars', locked: true, nameKey: 'door.cage', lockKey: 'lock.cage' },
@@ -175,11 +178,22 @@
       setsAlong(21.5, 13.4, 21.5, 15.6);
       setsAlong(8.5, 17.2, 8.5, 18.6);
       setsAlong(17.5, 17.2, 17.5, 26.6);
-      setsAlong(18.3, 24.5, 26.6, 24.5);
+      // the squeeze: cribs and fallen rock along its sides leave a channel a metre wide under a roof a
+      // metre up; lagging hanging down; somebody's lamp left in the mud
+      for (let x = 18.4; x <= 26.6; x += 1.15) {
+        const side = Math.round(x * 7) % 2 ? 1 : -1;
+        P('cribLow', x, 24.5 + side * 0.33, r.range(-0.2, 0.2), { col: [0.42, 0.42] });
+        P('crawlRubble', x + 0.5, 24.5 - side * 0.34, r.range(0, 6), { col: [0.8, 0.32] });
+      }
+      P('lostCapLamp', 22.3, 24.45, 1.2, {});
+      for (const [x, d] of [[18.6, 1], [22.0, 1], [25.6, 1], [26.3, -1]]) P('lumArrowFloor', x, 24.5, d > 0 ? 0 : PI, {});
       setsAlong(27.5, 17.2, 27.5, 29.8);
       // the old stope: cribs holding the roof, an ore chute, a ladderway
       for (const [x, y] of [[8.2, 20.2], [11.2, 20.6], [9.6, 22.4], [8.0, 23.8], [11.6, 23.6]]) P('timberCrib', x, y, r.range(-0.2, 0.2), { col: [0.85, 0.85] });
       P('ladder', 12.85, 21.5, -H, { wall: true });
+      // in the dark: escape-route paint on the cribs and the rock, pointing back to the drift
+      for (const [x, y, rot] of [[8.2, 20.62, PI], [9.6, 22.82, PI], [11.62, 23.6, -H], [8.42, 23.8, -H], [11.2, 20.18, 0]]) P('lumArrow', x, y, rot, { y: 1.1, wall: true });
+      for (const [x, y, rot] of [[8.5, 19.4, PI], [9.0, 21.2, PI + 0.4], [10.4, 23.0, H + 2.2]]) P('lumArrowFloor', x, y, rot, {});
       P('rubble', 10.4, 19.6, 0.4, { col: [1.0, 0.8] });
       P('mineTub', 9.8, 24.4, 0.2, { col: [0.55, 0.7] });
       // the flooded working: the plank walk on trestles, an old punt
@@ -220,7 +234,7 @@
       // ------------------------------------------- creatures
       // Burrowers lie in the dirt of the drifts; Timber Crawlers between the sets overhead; Lamplighters walk
       for (const [x, y] of [[17.5, 19.5], [17.5, 22.5], [17.5, 25.5], [21.5, 24.5], [24.5, 24.5], [27.5, 20.5], [27.5, 26.5], [8.5, 18.0], [21.5, 14.0], [27.0, 29.5]]) K.lair('burrower', x, y);
-      for (const [x, y] of [[17.5, 21.0], [27.5, 23.0], [20.0, 24.5], [27.5, 18.4]]) K.lair('crawler', x, y, { h: 2.6 });
+      for (const [x, y, h] of [[17.5, 21.0, 2.6], [27.5, 23.0, 2.6], [20.0, 24.5, 1.15], [27.5, 18.4, 2.6]]) K.lair('crawler', x, y, { h });
       for (const [x, y] of [[26.0, 16.5], [3.5, 16.5], [10.0, 22.0], [27.5, 28.0]]) K.lair('lamplighter', x, y);
       // the cage joins the yard to the station (a scripted ride, not a walk)
       K.link(14, 5, 13, 13);
