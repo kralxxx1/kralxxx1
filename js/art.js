@@ -79,15 +79,6 @@
         L.font = handFont(size); L.textBaseline = 'alphabetic'; L.fillStyle = col;
         const lines = wrapLines(L, str, maxW);
         lines.forEach((ln, li) => {
-          // joined scripts (Arabic) are written a whole line at a time, right to left, with the same wobble
-          if (F && F.joined(ln)) {
-            const rtl = F.isRTL(ln);
-            L.save(); L.translate(rtl ? x + (maxW || 0) : x, y + li * size * 1.12 + r.range(-2, 2)); L.rotate(r.range(-0.03, 0.03));
-            L.direction = rtl ? 'rtl' : 'ltr'; L.textAlign = rtl ? 'right' : 'left';
-            for (let p = 0; p < 2; p++) { L.globalAlpha = 0.55 + r() * 0.3; L.fillText(ln, r.range(-0.8, 0.8), r.range(-0.8, 0.8)); }
-            L.restore();
-            return;
-          }
           let cx = x;
           for (const ch of ln) {
             const cw = L.measureText(ch).width;

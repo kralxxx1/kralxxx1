@@ -1,7 +1,7 @@
 # LEVEL 256 — Lost Property
 
 A first-person story horror game. It runs in the browser with no install, and can be packaged as a
-desktop game. It is fully translated into 13 languages (Settings → Language).
+desktop game. It is in English and Turkish (Settings → Language).
 
 > Halvard, the night of 13 January 1998, rain on the glass roof of the central station. Under the
 > concourse is Depot 9, the lost property office, where everything the city loses waits ninety days for
@@ -87,8 +87,7 @@ eight of Wren's drawings and Otto's badge brought down from his desk to the Inde
   hear, some only see light, some only move while you move, some only while nobody is watching them, some
   come up out of the ground or the water where you stand. Every one has its own model, its own sounds
   and its own way of killing you. The ones that were people stand 2.2–2.9 m tall, stoop under low
-  ceilings and through doorways, and never show a face (wet hair, a shroud, a veil, a sack, a hood with
-  nothing in it).
+  ceilings and through doorways, and have no face: where it was there is only a hollow, black inside.
 - **Places that work on fears:** a crawlway in the mine with the roof a metre up (you go through on your
   hands and knees, and the big ones cannot follow), and the old stope, where no lamp works and only the
   miners' phosphorescent arrows glow; flooded decks, thin ice, a dam ladder in the rain.
@@ -112,11 +111,10 @@ eight of Wren's drawings and Otto's badge brought down from his desk to the Inde
 
 ## Languages
 
-English (the original), Turkish, German, French, Spanish, Italian, Portuguese (Brazil), Polish,
-Russian, Simplified Chinese, Japanese, Korean and Arabic. Every menu, document, objective and radio
-line is translated, and the game asks for a language on first launch. Arabic is laid out right to
-left. Each language has its own typefaces for the terminal, printed and handwritten documents; every
-writer in the story has their own hand. Without an internet connection, the system fonts take over.
+English (the original) and Turkish. Every menu, document, objective and radio line is translated, and the
+game asks for a language on first launch. The game's own typefaces (a pixel face for the terminal, a
+printed face and several hands for letters and diaries) cover both; every writer in the story has their
+own hand. Without an internet connection, the system fonts take over.
 
 ## Development
 

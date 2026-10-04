@@ -1,5 +1,5 @@
-/* Language core. English is the main language, Turkish is the second. Text packs register
-   themselves per language and section ('ui', 'story'). Missing keys fall back to English. */
+/* Language core. The game ships in two languages: English (the main one) and Turkish. Text packs
+   register themselves per language and section ('ui', 'story'). Missing keys fall back to English. */
 (function (root) {
   'use strict';
   const PB = root.PB || (root.PB = {});
@@ -10,14 +10,9 @@
   const I18N = PB.I18N = {
     // Every language the game ships with, by its own name. Packs register themselves; a language with no
     // pack loaded is left out of the menus (see available()).
-    LANGS: [['en', 'English'], ['de', 'Deutsch'], ['fr', 'Français'], ['es', 'Español'], ['it', 'Italiano'], ['pt-BR', 'Português (Brasil)'],
-      ['pl', 'Polski'], ['tr', 'Türkçe'], ['ru', 'Русский'], ['zh-CN', '简体中文'], ['ja', '日本語'], ['ko', '한국어'], ['ar', 'العربية']],
-    RTL: { ar: true },
-    // Scripts written without spaces between words: lines may break between any two characters
-    CJK: { 'zh-CN': true, ja: true, ko: false },
+    LANGS: [['en', 'English'], ['tr', 'Türkçe']],
     lang: 'en',
     available() { return this.LANGS.filter(l => PACKS[l[0]]); },
-    rtl(lang) { return !!this.RTL[lang || this.lang]; },
     // The player's own language, the first time the game starts
     detect() {
       const want = (root.navigator && (root.navigator.languages || [root.navigator.language])) || [];
@@ -34,7 +29,7 @@
     },
     register(lang, section, obj) {
       const p = PACKS[lang] || (PACKS[lang] = {});
-      p[section] = merge(p[section] || {}, TYPO[lang] ? deep(obj, TYPO[lang]) : obj);
+      p[section] = merge(p[section] || {}, obj);
     },
     section(section, lang) { return (PACKS[lang || this.lang] || {})[section] || {}; },
     // Nested lookup: 'story.docs.p_note.title' style paths inside a section
@@ -63,7 +58,7 @@
       if (persist) { try { root.localStorage && root.localStorage.setItem(STORE, lang); } catch (e) { /* storage optional */ } }
       if (root.document) {
         const html = root.document.documentElement;
-        html.lang = lang; html.dir = this.rtl(lang) ? 'rtl' : 'ltr';
+        html.lang = lang; html.dir = 'ltr';
         if (PB.Fonts) PB.Fonts.use(lang);
         this.apply(root.document);
       }
@@ -79,17 +74,6 @@
       for (const el of scope.querySelectorAll('[data-t-title]')) el.setAttribute('title', this.t(el.dataset.tTitle));
     },
   };
-  // Typography applied as packs register: French keeps ? ! : ; and » on the line of the word before them
-  // (a narrow no-break space), so a line never starts with punctuation
-  const TYPO = {
-    fr: str => str.replace(/ ([?!:;»])/g, '\u202F$1').replace(/« /g, '«\u202F'),
-  };
-  function deep(v, fn) {
-    if (typeof v === 'string') return fn(v);
-    if (Array.isArray(v)) return v.map(x => deep(x, fn));
-    if (v && typeof v === 'object') { const o = {}; for (const k of Object.keys(v)) o[k] = deep(v[k], fn); return o; }
-    return v;
-  }
   // Plain objects merge recursively; arrays and strings replace
   function merge(dst, src) {
     for (const k of Object.keys(src)) {

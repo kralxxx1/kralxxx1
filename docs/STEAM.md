@@ -106,8 +106,7 @@ These can be set as Steam launch options:
 **Genres and tags:** Horror, Psychological Horror, Adventure, Story Rich, First-Person, Exploration,
 Atmospheric, Walking Simulator, Survival Horror, 1990s, Retro, Multiple Endings, Singleplayer.
 
-**Languages (interface and subtitles; there is no voice acting):** English, Turkish, German, French, Spanish
-(Spain), Italian, Portuguese (Brazil), Polish, Russian, Simplified Chinese, Japanese, Korean, Arabic.
+**Languages (interface and subtitles; there is no voice acting):** English, Turkish.
 
 **Content survey (Mature Content):** Tick *General Mature Content*. Suggested description:
 > Horror themes, jump scares, frightening creatures, and themes of missing children, grief and death.

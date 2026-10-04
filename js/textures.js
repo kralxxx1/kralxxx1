@@ -754,10 +754,7 @@
       }
       lines.push(line);
     }
-    const rtl = F && F.isRTL(text) && (g.textAlign === 'left' || g.textAlign === 'start');
-    if (rtl) { g.save(); g.direction = 'rtl'; g.textAlign = 'right'; }
-    lines.forEach((l, k) => g.fillText(l, rtl ? x + maxW : x, y + k * lh));
-    if (rtl) g.restore();
+    lines.forEach((l, k) => g.fillText(l, x, y + k * lh));
     return lines.length;
   }
   T.wrapText = wrapText;

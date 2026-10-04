@@ -503,39 +503,3 @@ body.in-locker #crosshair, body.in-locker #marks { display: none; }
 #perf.pf-fps .pf-rows, #perf.pf-fps .pf-graph { display: none; }
 #perf.pf-detailed .pf-graph { display: block; }
 
-/* ------------------------------------------------ right-to-left (Arabic) */
-[dir="rtl"] #scr-menu { padding-left: 0; padding-right: clamp(20px, 7vw, 110px); background: linear-gradient(270deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0) 70%); }
-[dir="rtl"] #scr-menu .menu button, [dir="rtl"] .pause .menu button { text-align: right; padding: 3px 30px 3px 0; }
-[dir="rtl"] #scr-menu .menu button::before, [dir="rtl"] .pause .menu button::before { left: auto; right: 4px; }
-[dir="rtl"] #scr-menu .menu button small, [dir="rtl"] .pause .menu button small { margin-left: 0; margin-right: 12px; }
-/* Each line of a document picks its own direction: DOS prompts and song titles stay left-to-right */
-[dir="rtl"] .paper .nb, [dir="rtl"] .paper .nb p { unicode-bidi: plaintext; }
-[dir="rtl"] .menu-credit { right: auto; left: 18px; }
-[dir="rtl"] .diff-grid button, [dir="rtl"] .level-row, [dir="rtl"] .arch-row, [dir="rtl"] .choice button, [dir="rtl"] .bag-cell { text-align: right; }
-[dir="rtl"] .arch-row { border-left: 0; border-right: 2px solid transparent; }
-[dir="rtl"] .arch-row:not(:disabled):hover, [dir="rtl"] .arch-row:focus-visible { border-right-color: var(--yellow); }
-[dir="rtl"] .set-row { border-left: 0; border-right: 3px solid transparent; }
-[dir="rtl"] .set-row:focus-visible, [dir="rtl"] .set-row.sel:focus { border-right-color: var(--yellow); }
-[dir="rtl"] .set-row output { text-align: left; }
-[dir="rtl"] .set-body { padding-right: 0; padding-left: 6px; }
-[dir="rtl"] .set-foot .keys { float: left; }
-[dir="rtl"] .panel h2 small { margin-left: 0; margin-right: 10px; }
-[dir="rtl"] .tips { padding-left: 0; padding-right: 20px; }
-[dir="rtl"] .notif { border-left: 0; border-right: 2px solid var(--yellow); }
-[dir="rtl"] .notif.key { border-right-color: var(--pink); } [dir="rtl"] .notif.hint { border-right-color: var(--cyan); }
-[dir="rtl"] .notif.save { border-right-color: var(--red); } [dir="rtl"] .notif.note { border-right-color: var(--pellet); }
-[dir="rtl"] #subtitle .spk { margin-right: 0; margin-left: 8px; }
-[dir="rtl"] kbd { margin-right: 0; margin-left: 3px; }
-/* keys, numbers and the settings sliders keep their left-to-right order */
-[dir="rtl"] kbd, [dir="rtl"] input[type="range"], [dir="rtl"] #perf, [dir="rtl"] .lcd { direction: ltr; }
-/* joined letters must not be pulled apart; small caps and letter spacing are Latin habits */
-html[lang="ar"] body * { letter-spacing: 0 !important; }
-/* the tiny pixel-font labels are sized for Latin capitals; other scripts need a few more pixels to stay legible */
-html:is([lang="zh-CN"], [lang="ja"], [lang="ko"], [lang="ar"]) :is(.paper .nk, .obj-label, .kp-label, .end-sub) { font-size: 12px; }
-html:is([lang="zh-CN"], [lang="ja"], [lang="ko"], [lang="ar"]) .meter span { font-size: 11px; }
-/* CJK faces have no italic; a slanted fake reads as a rendering fault */
-html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) :is(.paper .nb p.narr, .paper.kind-memory .nb) { font-style: normal !important; }
-html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) .subtitle, html:is([lang="zh-CN"], [lang="ja"], [lang="ko"]) .boot-title span { letter-spacing: 0.12em; }
-[dir="rtl"] .set-row .ctl { direction: ltr; } [dir="rtl"] .set-row .ctl .cyc-val, [dir="rtl"] .set-row .ctl output { direction: rtl; unicode-bidi: plaintext; }
-/* playing with a controller: no mouse cursor over the game */
-body.pad-mode #game, body.pad-mode canvas { cursor: none; }
