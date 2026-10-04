@@ -5,7 +5,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { load, ROOT } = require('./load');
+const { load, ROOT } = require('./load.cjs');
 const PB = load();
 const I = PB.I18N, S = PB.Story;
 
@@ -18,7 +18,7 @@ for (const [id] of I.LANGS) if (!LANGS.includes(id)) { if (process.env.STRICT) c
 const en = { ui: I.section('ui', 'en'), story: I.section('story', 'en') };
 
 // 1) UI: every key used in code exists in every language
-const code = fs.readdirSync(path.join(ROOT, 'js')).filter(f => f.endsWith('.js')).map(f => fs.readFileSync(path.join(ROOT, 'js', f), 'utf8')).join('\n');
+const code = fs.readdirSync(path.join(ROOT, 'src', 'legacy')).filter(f => /\.(js|ts)$/.test(f)).map(f => fs.readFileSync(path.join(ROOT, 'src', 'legacy', f), 'utf8')).join('\n');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const uiKeys = new Set();
 for (const m of code.matchAll(/\bt\('([a-zA-Z0-9_.]+)'/g)) uiKeys.add(m[1]);
@@ -94,7 +94,7 @@ for (const L of LANGS) if (L !== 'en') {
 }
 
 // 3) Story keys referenced by the chapter scripts exist
-const chapters = ['chapters5.js', 'game.js', 'species7.js'].map(f => fs.readFileSync(path.join(ROOT, 'js', f), 'utf8')).join('\n');
+const chapters = ['chapters5.js', 'game.js', 'species7.js'].map(f => fs.readFileSync(path.join(ROOT, 'src', 'legacy', f), 'utf8')).join('\n');
 const refs = { mono: /(?:mono)\('([a-zA-Z0-9_]+)'/g, radio: /radio\('([a-zA-Z0-9_]+)'/g, lines: /(?:ST\.line|line)\('([a-zA-Z0-9_]+)'/g, obj: /(?:setObj|obj)\('([a-zA-Z0-9_]+)'/g };
 for (const [sec, re] of Object.entries(refs)) for (const m of chapters.matchAll(re)) {
   for (const L of LANGS) check(I.raw('story', sec + '.' + m[1], L) !== undefined, `story[${L}] ${sec}.${m[1]} referenced in code but missing`);

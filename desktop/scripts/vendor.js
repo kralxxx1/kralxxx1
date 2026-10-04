@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-/* Builds desktop/app: the game (index.html, css, js from the repository root) plus local copies of
-   everything the web version fetches from the internet, so the desktop build runs fully offline:
-     vendor/three       three.js r170 (MIT)
-     vendor/cannon-es   cannon-es 0.20.0 (MIT)
+/* Builds desktop/app: the game as Vite built it (dist/web at the repository root: three.js and cannon-es
+   are bundled into it) plus local copies of the web fonts the page asks Google Fonts for, so the desktop
+   build runs fully offline:
      vendor/fonts       every web font the game asks Google Fonts for (SIL Open Font License 1.1),
                         from the @fontsource packages, woff2 only, with a manifest the main process
                         uses to answer the game's Google Fonts requests
@@ -32,25 +31,23 @@ const pkgVersion = name => JSON.parse(read(path.join(NM, name, 'package.json')))
 rm(APP);
 mkdir(APP);
 
-// ---- the game
-copy(path.join(ROOT, 'index.html'), path.join(APP, 'index.html'));
-copyDir(path.join(ROOT, 'css'), path.join(APP, 'css'));
-copyDir(path.join(ROOT, 'js'), path.join(APP, 'js'));
+// ---- the game (npm run build at the repository root writes dist/web)
+const WEB = path.join(ROOT, 'dist', 'web');
+if (!fs.existsSync(path.join(WEB, 'index.html'))) throw new Error('dist/web is missing: run "npm run build" in the repository root first');
+copyDir(WEB, APP);
 
 const notices = [];
 const notice = (name, version, url, licence, text) => notices.push({ name, version, url, licence, text: text.trim() });
 
-// ---- libraries
-copy(path.join(NM, 'three/build/three.module.min.js'), path.join(APP, 'vendor/three/three.module.min.js'));
-copy(path.join(NM, 'three/LICENSE'), path.join(APP, 'vendor/three/LICENSE'));
-notice('three.js', pkgVersion('three'), 'https://threejs.org', 'MIT', read(path.join(NM, 'three/LICENSE')));
-copy(path.join(NM, 'cannon-es/dist/cannon-es.js'), path.join(APP, 'vendor/cannon-es/cannon-es.js'));
-copy(path.join(NM, 'cannon-es/LICENSE'), path.join(APP, 'vendor/cannon-es/LICENSE'));
-notice('cannon-es', pkgVersion('cannon-es'), 'https://github.com/pmndrs/cannon-es', 'MIT', read(path.join(NM, 'cannon-es/LICENSE')));
+// ---- libraries (bundled into the game by Vite; their licences travel with it)
+const RNM = path.join(ROOT, 'node_modules');
+const rootVersion = name => JSON.parse(read(path.join(RNM, name, 'package.json'))).version;
+notice('three.js', rootVersion('three'), 'https://threejs.org', 'MIT', read(path.join(RNM, 'three/LICENSE')));
+notice('cannon-es', rootVersion('cannon-es'), 'https://github.com/pmndrs/cannon-es', 'MIT', read(path.join(RNM, 'cannon-es/LICENSE')));
 
-// ---- fonts: every Google Fonts request in the game (the page's stylesheet link and the per-language
-// requests in js/fonts.js), resolved to the matching @fontsource package
-const sources = read(path.join(ROOT, 'index.html')) + '\n' + read(path.join(ROOT, 'js/fonts.js'));
+// ---- fonts: every Google Fonts request in the game (the page's stylesheet link), resolved to the
+// matching @fontsource package
+const sources = read(path.join(ROOT, 'index.html'));
 const wanted = new Map(); // family -> Set(weights)
 for (const m of sources.matchAll(/family=([^&'"\s]+)/g)) {
   const [fam, spec] = decodeURIComponent(m[1]).split(':');
@@ -92,4 +89,4 @@ const txt = ['LEVEL 256 uses the following third-party software and fonts. Every
 for (const n of notices) txt.push('='.repeat(78), `${n.name} ${n.version}`, n.url, `Licence: ${n.licence}`, '', n.text, '');
 fs.writeFileSync(path.join(APP, 'THIRD_PARTY_NOTICES.txt'), txt.join('\n'));
 
-console.log(`app/ ready: game, three ${pkgVersion('three')}, cannon-es ${pkgVersion('cannon-es')}, ${wanted.size} font families (${(fontBytes / 1048576).toFixed(1)} MB woff2), ${notices.length} notices`);
+console.log(`app/ ready: game (three ${rootVersion('three')}, cannon-es ${rootVersion('cannon-es')} bundled), ${wanted.size} font families (${(fontBytes / 1048576).toFixed(1)} MB woff2), ${notices.length} notices`);

@@ -1,6 +1,7 @@
 /* LEVEL 256 — desktop build (Electron). The game is the same HTML5 game as the web version, served from
-   the app folder under app://level256/. Everything it would fetch from the internet (three.js,
-   cannon-es, Google Fonts) is answered from local copies (see scripts/vendor.js), and every other
+   the app folder under app://level256/. three.js and cannon-es are bundled into the game by Vite; the one
+   thing it would fetch from the internet (Google Fonts) is answered from local copies (see
+   scripts/vendor.js), and every other
    request is refused, so the game runs offline and nothing leaves the machine.
    The page gets a small native API (preload.js → window.LEVEL256_NATIVE): quit, native fullscreen,
    the V-Sync preference (applied at the next start: Chromium's refresh cap can only be removed by
@@ -60,11 +61,11 @@ async function fileResponse(rel, extraHeaders) {
     return new Response('Not found', { status: 404 });
   }
 }
-// The page may only run its own code: the CDN and font addresses below never reach the network (see
-// installProtocols), and inline code is limited to the page's own module loader and style attributes
+// The page may only run its own code: the font addresses below never reach the network (see
+// installProtocols), and inline code is limited to style attributes
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+  "script-src 'self'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self'",
   "img-src 'self' data: blob:",
@@ -73,11 +74,6 @@ const CSP = [
   "worker-src 'self' blob:",
   "object-src 'none'", "base-uri 'none'", "form-action 'none'", "frame-src 'none'",
 ].join('; ');
-// The web version's CDN files, answered from the local copies
-const CDN = {
-  'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js': 'vendor/three/three.module.min.js',
-  'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js': 'vendor/cannon-es/cannon-es.js',
-};
 // Google Fonts css2 requests (family=Name:wght@400;700&...) → the matching local @font-face rules
 let fontManifest = null;
 async function fontCss(url) {
@@ -105,7 +101,6 @@ function installProtocols() {
   });
   const outside = req => {
     const u = new URL(req.url);
-    if (CDN[req.url]) return fileResponse(CDN[req.url], { 'access-control-allow-origin': '*' });
     if (u.host === 'fonts.googleapis.com' && u.pathname === '/css2') return fontCss(u);
     return new Response('', { status: 404 }); // offline game: nothing else is fetched
   };

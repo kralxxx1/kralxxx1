@@ -19,15 +19,17 @@ where it belongs, and the place lets you go.
 
 ## How to run
 
-- **Local server (recommended):** run `python3 -m http.server` in the repository folder and open
-  `http://localhost:8000`.
-- **Directly:** open `index.html` in a browser. three.js and the fonts come from a CDN, so an
-  internet connection is needed.
-- **Single file:** `python3 tools/build_single.py` bundles everything into `dist/level256.html`.
-- **Desktop (Windows, Linux, macOS):** `cd desktop && npm ci && npm start`. The Electron build carries
-  local copies of three.js, the physics engine and every font, so it runs fully offline. `npm run dist:win`
-  and `npm run dist:linux` make the folders for Steam. See `docs/STEAM.md` for building, uploading and the
-  store page.
+The game is a Vite + TypeScript project (three.js and cannon-es come from npm, nothing is fetched from a CDN).
+
+- **Development:** `npm install`, then `npm run dev` and open the address it prints.
+- **Production build:** `npm run build` writes the multi-file game to `dist/web` (`npm run preview` serves it).
+- **Single file:** `npm run build:single` makes `dist/level256.html`, the whole game in one HTML file
+  (`node tools/finish-single.mjs --fragment OUT.html` also writes it without the html/head/body tags, for
+  pages that embed it).
+- **Checks:** `npm run typecheck` (strict TypeScript) and `npm test` (levels, text packs).
+- **Desktop (Windows, Linux, macOS):** `cd desktop && npm ci && npm start`. The Electron build carries local
+  copies of every font, so it runs fully offline. `npm run dist:win` and `npm run dist:linux` make the
+  folders for Steam. See `docs/STEAM.md` for building, uploading and the store page.
 
 ## Controls
 
@@ -119,27 +121,28 @@ own hand. Without an internet connection, the system fonts take over.
 ## Development
 
 ```
-index.html           the shell (menus, HUD, overlays)
-css/game.css         interface
-js/i18n.js           language packs; js/text/<lang> holds every string (one file per chapter)
-js/fonts.js          per-language typefaces
-js/levels.js         chapter definitions; js/maps/*.js the hand-built maps
-js/authored.js       builds a level from an authored map; js/levelgen*.js the Underneath
-js/story.js          localized access to the story
-js/textures*.js      procedural textures; js/art.js drawings; js/decor.js things on walls
-js/models*.js        prop and vehicle models and materials (models12.js: the depot's archive, the elevator corner's
-                     hand truck and trolley, Ada's name plate)
-js/doors.js          doors as joinery, and the freight elevator's steel doors and frame
-js/creatures.js      the creature framework; js/species*.js the 28 species; js/kills.js deaths
-js/world*.js         geometry, baked light, fixtures, doors; js/exterior.js and weather.js outside
-js/post.js           post-processing
-js/sfx*.js, audio*.js  sound synthesis and the audio engine
-js/bag.js            items and journal
-js/chapters5.js      the chapter scripts
-js/game.js           game loop, saving
-tests/               level and text tests
-desktop/             Electron wrapper for the desktop and Steam builds (docs/STEAM.md)
+index.html             the page (menus, HUD, overlays); Vite's entry
+vite.config.ts         the multi-file build (dist/web); vite.single.config.ts the single-file build
+tsconfig.json          strict TypeScript for src/*.ts; the older modules are JavaScript (allowJs)
+src/main.ts            entry: globals, styles, then the game's modules
+src/globals.ts         puts three.js and cannon-es on window (the modules read THREE and CANNON)
+src/types/             types of the game's namespace (window.PB)
+src/styles/game.css    interface
+src/legacy/index.ts    the modules in load order; each registers itself on window.PB
+src/legacy/util.ts, i18n.ts, fonts.ts, settings.ts   the typed core
+src/legacy/text/<lang> every string, English and Turkish, one file per chapter
+src/legacy/levels.js   chapter definitions; maps/*.js the hand-built maps
+src/legacy/authored.js builds a level from an authored map; levelgen*.js the Underneath
+src/legacy/textures*.js procedural textures; art.js drawings; decor.js things on walls
+src/legacy/models*.js  prop and vehicle models and materials; doors.js doors as joinery
+src/legacy/creatures.js the creature framework; species*.js the species; kills.js deaths
+src/legacy/world*.js   geometry, baked light, fixtures; exterior.js and weather.js outside
+src/legacy/post.js     post-processing
+src/legacy/sfx*.js, audio*.js  sound synthesis and the audio engine
+src/legacy/chapters5.js the chapter scripts; game.js the game loop and saving
+tests/                 level and text tests (Node; TypeScript stripped with esbuild)
+tools/finish-single.mjs folds the single-chunk build into one HTML file
+desktop/               Electron wrapper for the desktop and Steam builds (docs/STEAM.md)
 ```
 
-Tests: `node tests/levelgen.test.js` and `node tests/text.test.js`. The desktop build has an automated
-check: `cd desktop && npm run smoke`.
+Tests: `npm test`. The desktop build has an automated check: `cd desktop && npm run smoke`.

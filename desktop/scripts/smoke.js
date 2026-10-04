@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /* Automated check of the desktop build: starts the real Electron app (windowed, with a throwaway
    profile), waits for the main menu and checks that three.js, the physics engine and the fonts all came
-   from the local copies. Then it switches to Japanese and Arabic (their own fonts), loads the first
-   chapter, reads the native API and saves screenshots. Exit code 0 means every check passed.
+   from the local copies. Then it switches to Turkish, loads the first chapter, reads the native API and
+   saves screenshots. Exit code 0 means every check passed.
      node scripts/smoke.js [outDir]
    On a machine without a display or graphics card: xvfb-run node scripts/smoke.js --software */
 'use strict';
@@ -78,12 +78,10 @@ app.on('browser-window-created', (e, win) => {
       await sleep(2500);
       const m = await wc.executeJavaScript('LEVEL256_NATIVE.metrics()');
       check('process metrics', m && m.mem > 0 && m.cpu != null, m && { cpu: Math.round(m.cpu), appCpu: Math.round(m.appCpu), mem: Math.round(m.mem) });
-      // other scripts: the language switch loads their fonts through the same local path
-      for (const [lang, fam, sample] of [['ja', 'DotGothic16', 'ゲーム'], ['ar', 'Noto Kufi Arabic', 'صالة'], ['zh-CN', 'Noto Sans SC', '游戏'], ['ko', 'Nanum Gothic Coding', '오락']]) {
-        const ok = await wc.executeJavaScript(`(async () => { PB.Settings.set('lang', '${lang}'); await PB.Fonts.ready('${lang}', 20000); return (await document.fonts.load('24px "${fam}"', '${sample}')).length > 0 && document.documentElement.lang === '${lang}'; })()`);
-        check(`${lang} fonts from the local copies`, ok, fam);
-        if (lang === 'ja' || lang === 'ar') { await sleep(800); await shot(win, 'menu_' + lang); }
-      }
+      // the second language: the same faces, nothing more to load
+      await wc.executeJavaScript("PB.Settings.set('lang', 'tr')");
+      check('Turkish selected', await wc.executeJavaScript("document.documentElement.lang === 'tr'"));
+      await sleep(600); await shot(win, 'menu_tr');
       await wc.executeJavaScript("PB.Settings.set('lang', 'en')");
       // a chapter: everything else in the game builds on the same files
       const t1 = Date.now();

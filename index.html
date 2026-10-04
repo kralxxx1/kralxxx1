@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Caveat:wght@500;700&family=Courier+Prime:wght@400;700&family=Kalam:wght@400;700&family=Patrick+Hand&family=Mali:wght@500;600&family=Sriracha&display=swap">
-<link rel="stylesheet" href="css/game.css">
 </head>
 <body>
 <div id="app">
@@ -292,118 +291,6 @@
 
 <noscript><p class="noscript">This game needs JavaScript. / Bu oyun için JavaScript gerekiyor.</p></noscript>
 
-<!-- 3D engine: three.js r170 (module). The deferred scripts below run after it, in order. -->
-<script type="module">
-  import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js';
-  window.THREE = THREE;
-</script>
-<script defer src="js/util.js"></script>
-<script defer src="js/i18n.js"></script>
-<script defer src="js/fonts.js"></script>
-<script defer src="js/text/en/ui.js"></script>
-<script defer src="js/text/en/ui5.js"></script>
-<script defer src="js/text/en/core.js"></script>
-<script defer src="js/text/en/depot.js"></script>
-<script defer src="js/text/en/under.js"></script>
-<script defer src="js/text/en/ferry.js"></script>
-<script defer src="js/text/en/pinewood.js"></script>
-<script defer src="js/text/en/mine.js"></script>
-<script defer src="js/text/en/lodge.js"></script>
-<script defer src="js/text/en/village.js"></script>
-<script defer src="js/text/en/train.js"></script>
-<script defer src="js/text/en/carnival.js"></script>
-<script defer src="js/text/en/lake.js"></script>
-<script defer src="js/text/tr/ui.js"></script>
-<script defer src="js/text/tr/ui5.js"></script>
-<script defer src="js/text/tr/core.js"></script>
-<script defer src="js/text/tr/depot.js"></script>
-<script defer src="js/text/tr/under.js"></script>
-<script defer src="js/text/tr/ferry.js"></script>
-<script defer src="js/text/tr/pinewood.js"></script>
-<script defer src="js/text/tr/mine.js"></script>
-<script defer src="js/text/tr/lodge.js"></script>
-<script defer src="js/text/tr/village.js"></script>
-<script defer src="js/text/tr/train.js"></script>
-<script defer src="js/text/tr/carnival.js"></script>
-<script defer src="js/text/tr/lake.js"></script>
-<script defer src="js/settings.js"></script>
-<script defer src="js/maps/depot.js"></script>
-  <script defer src="js/maps/ferry.js"></script>
-  <script defer src="js/maps/pinewood.js"></script>
-  <script defer src="js/maps/mine.js"></script>
-  <script defer src="js/maps/lodge.js"></script>
-  <script defer src="js/maps/village.js"></script>
-  <script defer src="js/maps/train.js"></script>
-  <script defer src="js/maps/carnival.js"></script>
-  <script defer src="js/maps/lake.js"></script>
-  <script defer src="js/levels.js"></script>
-<script defer src="js/levelgen.js"></script>
-<script defer src="js/levelgen2.js"></script>
-  <script defer src="js/authored.js"></script>
-<script defer src="js/story.js"></script>
-<script defer src="js/textures.js"></script>
-  <script defer src="js/textures2.js"></script>
-<script defer src="js/art.js"></script>
-<script defer src="js/post.js"></script>
-<script defer src="js/perf.js"></script>
-<script defer src="js/lights.js"></script>
-<script defer src="js/props.js"></script>
-<script defer src="js/models.js"></script>
-<script defer src="js/models2.js"></script>
-  <script defer src="js/models3.js"></script>
-  <script defer src="js/models4.js"></script>
-<script defer src="js/containers.js"></script>
-<script defer src="js/dressing.js"></script>
-<script defer src="js/decor.js"></script>
-<script defer src="js/sdf.js"></script>
-<script defer src="js/hands.js"></script>
-<script defer src="js/monsters.js"></script>
-<script defer src="js/monsters2.js"></script>
-<script defer src="js/photos.js"></script>
-<script defer src="js/vehicles.js"></script>
-<script defer src="js/exterior.js"></script>
-  <script defer src="js/weather.js"></script>
-  <script defer src="js/models5.js"></script>
-  <script defer src="js/models6.js"></script>
-  <script defer src="js/models7.js"></script>
-  <script defer src="js/models8.js"></script>
-  <script defer src="js/models9.js"></script>
-  <script defer src="js/models10.js"></script>
-  <script defer src="js/models11.js"></script>
-  <script defer src="js/models12.js"></script>
-  <script defer src="js/variety.js"></script>
-<script defer src="js/lightbake.js"></script>
-<script defer src="js/world.js"></script>
-  <script defer src="js/world2.js"></script>
-<script defer src="js/doors.js"></script>
-  <script defer src="js/wallart.js"></script>
-<script defer src="js/placement.js"></script>
-<script defer src="js/physics.js"></script>
-<script defer src="js/sfx.js"></script>
-<script defer src="js/sfx2.js"></script>
-  <script defer src="js/sfx3.js"></script>
-<script defer src="js/audio.js"></script>
-<script defer src="js/audio2.js"></script>
-<script defer src="js/viewmodel.js"></script>
-<script defer src="js/player.js"></script>
-<script defer src="js/entities.js"></script>
-<script defer src="js/entities2.js"></script>
-  <script defer src="js/creatures.js"></script>
-  <script defer src="js/kills.js"></script>
-  <script defer src="js/species1.js"></script>
-  <script defer src="js/species2.js"></script>
-  <script defer src="js/species3.js"></script>
-  <script defer src="js/species4.js"></script>
-  <script defer src="js/species5.js"></script>
-  <script defer src="js/species6.js"></script>
-  <script defer src="js/species7.js"></script>
-  <script defer src="js/species8.js"></script>
-  <script defer src="js/species9.js"></script>
-  <script defer src="js/species10.js"></script>
-<script defer src="js/arcade2d.js"></script>
-<script defer src="js/ui.js"></script>
-<script defer src="js/bag.js"></script>
-<script defer src="js/chapters5.js"></script>
-<script defer src="js/game.js"></script>
+                                                                            <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

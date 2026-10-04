@@ -1,5 +1,5 @@
-/* Rigid-body physics for the loose things in a level (cannon-es, loaded from the CDN at boot; without it
-   everything simply stays put).
+/* Rigid-body physics for the loose things in a level (cannon-es, bundled by Vite; without it everything
+   simply stays put).
    Light clutter (cardboard boxes, bottles, cones, bags, wet-floor signs, trash cans, buckets, cables,
    fallen ceiling tiles, the odd chair) becomes a body. You shove it by walking into it, kick it by running
    into it, pick it up with E and throw it with G or the left mouse button. Monsters plough through it:
@@ -13,11 +13,12 @@
   const PB = root.PB;
   const THREE = root.THREE;
   const U = PB.U, P = PB.Props;
-  const URL = 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
   let C = null, loading = null;
   function load() {
     if (C || loading) return loading || Promise.resolve(C);
-    loading = import(URL).then(m => { C = m; return C; }).catch(e => { console.warn('physics unavailable', e && e.message); C = null; return null; });
+    // cannon-es comes from npm (src/globals.ts puts it on window.CANNON)
+    C = root.CANNON || null;
+    loading = Promise.resolve(C);
     return loading;
   }
 

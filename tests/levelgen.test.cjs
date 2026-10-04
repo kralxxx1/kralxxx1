@@ -1,7 +1,7 @@
 /* Level generator tests: node tests/levelgen.test.js
    Generates every chapter and checks that it is playable. */
 'use strict';
-const { load } = require('./load');
+const { load } = require('./load.cjs');
 const { LevelGen: G, Story: S } = load();
 
 let failures = 0;

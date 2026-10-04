@@ -1,0 +1,24 @@
+{
+  "name": "level256",
+  "version": "2.0.0",
+  "private": true,
+  "description": "LEVEL 256: Lost Property. A first-person story horror game (Three.js, Vite, TypeScript).",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "build:single": "vite build --config vite.single.config.ts && node tools/finish-single.mjs",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "node tests/levelgen.test.cjs && node tests/text.test.cjs"
+  },
+  "dependencies": {
+    "cannon-es": "0.20.0",
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.170.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.5"
+  }
+}

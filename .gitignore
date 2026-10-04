@@ -1,1 +1,4 @@
+node_modules/
+dist/web/
+dist/single/
 __pycache__/
