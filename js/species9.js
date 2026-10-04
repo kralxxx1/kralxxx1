@@ -26,22 +26,15 @@
       // jeans below the anorak, white moon boots
       clothVC: p => (p[1] < -0.02 ? [0.55, 0.62, 0.85] : [1, 1, 1]), shoeVC: [0.9, 0.9, 0.88],
     });
-    // the scarf: wound round and round the head, ends hanging down the back to the knees
+    // the scarf: wound round the neck, the ends hanging down the back to the knees (the head is bare)
     const wool = K.cloth('hush:scarf', '#2a5a2e', { stains: 20, rough: 1, rep: 4, paint: (g, w, h) => { for (let y = 0; y < h; y += 8) { g.fillStyle = `rgba(0,0,0,${y % 16 ? 0.12 : 0.04})`; g.fillRect(0, y, w, 4); } } });
-    const wrapFn = p => {
-      let d = S.ellipsoid(p, [0, 0.11, 0.005], [0.105, 0.135, 0.115]);
-      d += Math.abs(Math.sin(p[1] * 58 + Math.atan2(p[0], p[2]) * 0.6)) * 0.008;
-      return d + S.fbm(p[0] * 30, p[1] * 30, p[2] * 30, 2) * 0.004;
-    };
-    const wrap = K.meshOf('hush:wrap', wrapFn, [[-0.15, -0.06, -0.15], [0.15, 0.3, 0.16]], 0.006, wool, { color: () => [1, 1, 1] });
-    wrap.scale.setScalar(r.s); r.neck.add(wrap);
+    const wrap = new THREE.Mesh(new THREE.TorusGeometry(0.078 * r.s, 0.036 * r.s, 8, 22), wool); wrap.rotation.x = H; wrap.position.set(0, 0.0, 0.012); wrap.castShadow = true; r.neck.add(wrap);
     const ends = [];
     for (const sx of [-1, 1]) {
       const pts = [new THREE.Vector3(sx * 0.04, 0.02, -0.1)];
       for (let k = 1; k < 7; k++) pts.push(new THREE.Vector3(sx * (0.05 + k * 0.004), 0.02 - k * 0.12, -0.12 - Math.sin(k * 0.5) * 0.03));
       const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 16, 0.035, 5), wool); m.scale.set(1, 1, 0.45); r.neck.add(m); ends.push(m);
     }
-    r.head.visible = false;
     r.mats.push(wool);
     return {
       group: r.group, rig: r, mats: r.mats, wrap, ends,
@@ -54,7 +47,7 @@
         r.neck.rotation.z = 0.3 + Math.sin(an.t * 0.4) * 0.05; r.neck.rotation.x = 0.1;
         for (const [k, e] of ends.entries()) { e.rotation.x = Math.sin(an.t * 1.3 + k) * 0.08 + U.clamp(an.speed / 2, 0, 1) * 0.35; }
         // unwinding, at the end of Snowfall
-        if (cr.unwind != null) { wrap.scale.setScalar(r.s * (1 + cr.unwind * 0.25)); wrap.visible = cr.unwind < 0.98; r.head.visible = cr.unwind > 0.6; }
+        if (cr.unwind != null) { wrap.scale.setScalar(1 + cr.unwind * 0.25); wrap.visible = cr.unwind < 0.98; }
       },
     };
   }
@@ -127,13 +120,6 @@
       skin: { base: '#2a2422', mottle: ['30,26,24', '20,18,16'], veins: '10,10,10', veinCount: 2 }, head: { eyes: 'none', mouth: 0, swell: 0 }, skinVC: [0.3, 0.3, 0.3],
       clothVC: p => (p[1] < -0.05 ? [0.35, 0.38, 0.5] : [1, 1, 1]), shoeVC: [0.85, 0.85, 0.8],
     });
-    r.head.visible = false;
-    // the hood up, the fur trim round an opening with only dark inside it
-    const fur = new THREE.MeshStandardMaterial({ color: 0x8a7a62, roughness: 1 });
-    const hood = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 12, 0, PI * 2, 0, PI * 0.8), parka); hood.position.set(0, 0.12, -0.02); hood.rotation.x = -0.3; r.neck.add(hood);
-    const trim = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.035, 8, 20), fur); trim.position.set(0, 0.1, 0.1); trim.rotation.x = -0.2; r.neck.add(trim);
-    const dark = new THREE.Mesh(new THREE.CircleGeometry(0.1, 16), new THREE.MeshBasicMaterial({ color: 0x000000 })); dark.position.set(0, 0.1, 0.095); dark.rotation.x = -0.2; r.neck.add(dark);
-    r.mats.push(fur);
     return {
       group: r.group, rig: r, mats: r.mats,
       animate(cr, dt) {

@@ -79,14 +79,17 @@
     d = S.smin(d, S.capsule(p, [0, 2.25, 0.08], [0, 2.38, 0.26], 0.05, 0.04), 0.05);
     return d;
   }
+  // small, bald, bowed; where the face was there is a hollow, black inside
+  const SORTER_VOID = { c: [0, 0.075, 0.1], r: [0.052, 0.062, 0.06] };
+  const sorterVoidE = p => Math.hypot((p[0] - SORTER_VOID.c[0]) / SORTER_VOID.r[0], (p[1] - SORTER_VOID.c[1]) / SORTER_VOID.r[1], (p[2] - SORTER_VOID.c[2]) / SORTER_VOID.r[2]);
   function sorterHead(p) {
-    // small, bald, bowed; the face turned down and away
     let d = S.ellipsoid(p, [0, 0.09, 0.03], [0.085, 0.11, 0.1]);
     d = S.smin(d, S.ellipsoid(p, [0, 0.0, 0.08], [0.05, 0.05, 0.05]), 0.04);
-    for (const sx of [-1, 1]) d = S.smax(d, -S.sphere(p, [sx * 0.033, 0.07, 0.115], 0.022), 0.008);
+    d = S.smax(d, -S.ellipsoid(p, SORTER_VOID.c, SORTER_VOID.r), 0.012);
     d += S.fbm(p[0] * 30, p[1] * 30, p[2] * 30, 2) * 0.003;
     return d;
   }
+  const sorterHeadCol = (() => { const ao = aoColor(sorterHead, [1, 1, 1]); return (p, n) => { const c = ao(p, n), m = 1 - U.clamp((1.35 - sorterVoidE(p)) / 0.3, 0, 1) * (p[2] > 0.02 ? 1 : 0) * 0.985; return [c[0] * m, c[1] * m, c[2] * m]; }; })();
   function sorterArm(p) {
     // sleeve from the shoulder to the elbow, forearm, a hand with long fingers (origin: shoulder, hangs -y)
     let d = S.capsule(p, [0, 0, 0], [0.02, -0.55, 0.06], 0.065, 0.06);
@@ -101,13 +104,8 @@
     const g = new THREE.Group();
     const body = meshOf('sorter:body', sorterBody, [[-0.36, -0.02, -0.3], [0.36, 2.45, 0.42]], 0.016, coatM);
     g.add(body);
-    const head = meshOf('sorter:head', sorterHead, [[-0.11, -0.06, -0.09], [0.11, 0.22, 0.17]], 0.007, skinM);
+    const head = meshOf('sorter:head', sorterHead, [[-0.11, -0.06, -0.09], [0.11, 0.22, 0.17]], 0.007, skinM, { color: sorterHeadCol });
     head.position.set(0, 2.36, 0.25); head.rotation.x = 0.9; g.add(head);
-    // a mail sack drawn down over the head and tied at the neck: whatever it has for a face, nobody sees it
-    const sackM = new THREE.MeshStandardMaterial({ color: 0x6b5f46, roughness: 1 });
-    const sack = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), sackM); sack.scale.set(0.112, 0.138, 0.124); sack.position.set(0, 0.095, 0.035); sack.castShadow = true; head.add(sack);
-    const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.125, 0.07, 16, 1, true), sackM); skirt.material.side = THREE.DoubleSide; skirt.position.set(0, -0.045, 0.04); head.add(skirt);
-    const rope = new THREE.Mesh(new THREE.TorusGeometry(0.085, 0.008, 6, 16), new THREE.MeshStandardMaterial({ color: 0x3a3226, roughness: 1 })); rope.rotation.x = Math.PI / 2; rope.position.set(0, -0.012, 0.04); head.add(rope);
     const arms = [];
     const ag = S.mesh('sorter:arm', sorterArm, [[-0.1, -1.3, -0.1], [0.1, 0.08, 0.32]], 0.012, { color: aoColor(sorterArm, [1, 1, 1]), smooth: 2 });
     for (const sx of [-1, 1]) {
@@ -167,7 +165,8 @@
     // the outline extruded as a sheet of wet paper, bent and crumpled
     const bend = S.fbm(p[0] * 3, p[1] * 2.2, 0.5, 3) * 0.11 + S.fbm(p[0] * 9, p[1] * 7, 2.5, 2) * 0.025 + Math.sin(p[1] * 3.2) * 0.02;
     let d = S.smax(paperSil(p), Math.abs(p[2] - bend) - 0.014, 0.008);
-    // no face: the sheet's head is blank wet paper, the pattern running straight over it
+    // the face is a hole: an oval torn right through the sheet
+    d = S.smax(d, -S.ellipsoid([p[0], p[1], 0], [0, 1.84, 0], [0.058, 0.082, 1]), 0.006);
     return d;
   }
   function paperArm(p) {

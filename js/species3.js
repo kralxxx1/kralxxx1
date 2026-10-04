@@ -27,7 +27,7 @@
     const trunk = p => S.smin(S.capsule(p, [0, 0, 0], [0.02, 1.95, 0.06], 0.25, 0.15), S.ellipsoid(p, [0, 1.7, 0.03], [0.3, 0.22, 0.2]), 0.12) + ridges(p);
     const head = p => {
       let d = S.ellipsoid(p, [0, 0.2, 0.02], [0.1, 0.24, 0.11]);
-      d = S.smax(d, -S.capsule(p, [0, 0.08, 0.11], [0, 0.3, 0.11], 0.012, 0.006), 0.01);     // one long split down the face
+      d = S.smax(d, -S.ellipsoid(p, [0, 0.2, 0.12], [0.06, 0.12, 0.075]), 0.016);           // the face is a hollow
       return d + ridges(p) * 0.6;
     };
     const twigs = (p, L, n, r0) => {
@@ -208,12 +208,11 @@
       clothVC: p => (Math.abs(p[0]) < 0.012 && p[2] > 0.08 && p[1] > 0.1 && p[1] < 0.5 ? [1.6, 1.25, 0.5] : [1, 1, 1]),
     });
     const gold = new THREE.MeshStandardMaterial({ color: 0xb08a3a, roughness: 0.35, metalness: 0.9 });
-    // brass buttons, the pillbox cap with its band, a painted line where a mouth would be
+    // brass buttons, the pillbox cap with its band
     for (let k = 0; k < 5; k++) { const b = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 6), gold); b.position.set(0.04, 0.12 + k * 0.075, 0.125); r.hips.add(b); const b2 = b.clone(); b2.position.x = -0.04; r.hips.add(b2); }
     const capM = new THREE.MeshStandardMaterial({ color: 0x4a1014, roughness: 0.6 });
     const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.09, 0.08, 20), capM); cap.position.set(0, 0.25, -0.005); cap.rotation.x = -0.12; r.head.add(cap);
     const band = new THREE.Mesh(new THREE.CylinderGeometry(0.092, 0.092, 0.02, 20, 1, true), gold); band.position.set(0, 0.23, -0.003); band.rotation.x = -0.12; r.head.add(band);
-    const smile = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.0025, 4, 16, 2.2), new THREE.MeshBasicMaterial({ color: 0x2a1010 })); smile.position.set(0, 0.06, 0.104); smile.rotation.set(0, 0, PI + (PI - 2.2) / 2); r.head.add(smile);
     // the torch with the red lens, in the right hand, and its light
     const hand = r.arms.find(a => a.sx > 0).el;
     // the torch lies along the forearm (the forearm hangs along -y), so its beam follows the arm

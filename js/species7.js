@@ -262,12 +262,6 @@
       // old striped pyjamas, the stripes running down
       clothVC: p => ((Math.floor((p[0] + 0.5) * 22 + (p[2] > 0 ? 0 : 0.5)) % 2) ? [0.55, 0.6, 0.78] : [1.05, 1.05, 1.05]),
     });
-    // the black sleep mask over the eyes, its elastic round the head
-    const maskM = new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: 0.85 });
-    const mask = new THREE.Mesh(new THREE.CylinderGeometry(0.093 * r.s, 0.09 * r.s, 0.045 * r.s, 24, 1, true, -1.3, 2.6), maskM);
-    mask.position.set(0, 0.115 * r.s, 0.0); mask.scale.set(1, 1, 1.12); maskM.side = THREE.DoubleSide; r.head.add(mask);
-    const band = new THREE.Mesh(new THREE.TorusGeometry(0.092 * r.s, 0.004, 4, 28), maskM); band.rotation.x = H; band.position.set(0, 0.115 * r.s, -0.005); band.scale.set(1, 1.1, 1); r.head.add(band);
-    r.mats.push(maskM);
     const ROOT = { x: 0.92, y: 0.78, zUp: 0.75 };
     return {
       group: r.group, rig: r, mats: r.mats,

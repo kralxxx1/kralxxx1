@@ -29,10 +29,9 @@
       d = S.smin(d, S.ellipsoid(p, [0, 0.66, 0.32], [0.3, 0.24, 0.3]), 0.1);                 // hunched shoulders
       d = S.smin(d, S.ellipsoid(p, [0, 0.52, -0.5], [0.22, 0.2, 0.25]), 0.1);                // haunch
       d = S.smin(d, S.capsule(p, [0, 0.6, 0.45], [0, 0.48, 0.75], 0.12, 0.1), 0.08);          // neck, thrust forward
-      // the head: smooth, eyeless, a mouth too wide
+      // the head: smooth, a hollow where the face was
       d = S.smin(d, S.ellipsoid(p, [0, 0.47, 0.86], [0.13, 0.12, 0.17]), 0.06);
-      d = S.smax(d, -S.ellipsoid(p, [0, 0.42, 0.98], [0.11, 0.012, 0.08]), 0.012);
-      for (const sx of [-1, 1]) d = S.smax(d, -S.sphere(p, [sx * 0.02, 0.5, 1.02], 0.008), 0.004);
+      d = S.smax(d, -S.ellipsoid(p, [0, 0.47, 1.0], [0.075, 0.075, 0.085]), 0.014);          // the face is a hollow
       d += Math.max(0, Math.sin(p[2] * 26)) * 0.008 * (ax > 0.12 ? 1 : 0) * (p[2] > -0.3 && p[2] < 0.3 ? 1 : 0);   // ribs under the clay
       return d + grain(p);
     };

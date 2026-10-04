@@ -41,20 +41,23 @@
       if (o.torsoExtra) d = o.torsoExtra(p, d, s);
       return d + S.fbm(p[0] * 14, p[1] * 10, p[2] * 14, 2) * 0.006;
     };
+    // The face is a void: no nose, brow, eyes or mouth, nothing laid over it; an oval hollow goes into the
+    // head where the face was, and the inside of it is black (the same oval is painted black below)
+    const VOID = { c: [0, 0.088 * s, 0.1 * s], r: [0.064 * s, 0.082 * s, 0.075 * s] };
+    const voidE = (p, k) => Math.hypot((p[0] - VOID.c[0]) / (VOID.r[0] * k), (p[1] - VOID.c[1]) / (VOID.r[1] * k), (p[2] - VOID.c[2]) / (VOID.r[2] * k));
     const head = p => {
-      const hd = o.head || {}, sw = hd.swell || 0, ax = Math.abs(p[0]), q = [ax, p[1], p[2]];
+      const hd = o.head || {}, sw = hd.swell || 0, ax = Math.abs(p[0]);
       let d = S.ellipsoid(p, [0, 0.11 * s, 0.0], [(0.082 + sw * 0.02) * s, 0.108 * s, (0.098 + sw * 0.01) * s]);
       d = S.smin(d, S.ellipsoid(p, [0, 0.03 * s, 0.045 * s], [(0.062 + sw * 0.025) * s, 0.055 * s, 0.062 * s]), 0.04);   // jaw and cheeks
-      d = S.smin(d, S.capsule(p, [0, 0.115 * s, 0.098 * s], [0, 0.075 * s, 0.112 * s], 0.012 * s, 0.018 * s), 0.015);   // nose
-      d = S.smin(d, S.capsule(p, [-0.05 * s, 0.14 * s, 0.085 * s], [0.05 * s, 0.14 * s, 0.085 * s], 0.016 * s), 0.025);   // brow
       for (const sx of [-1, 1]) d = S.smin(d, S.ellipsoid(p, [sx * 0.083 * s, 0.1 * s, 0.0], [0.012 * s, 0.03 * s, 0.022 * s]), 0.012); // ears
-      const eyes = hd.eyes || 'hollow';
-      for (const sx of [-1, 1]) d = S.smax(d, -S.sphere(p, [sx * 0.034 * s, 0.112 * s, 0.09 * s], (eyes === 'none' ? 0.012 : 0.022) * s), 0.008);
-      if (hd.mouth) d = S.smax(d, -S.ellipsoid(p, [0, 0.04 * s, 0.1 * s], [0.026 * s, 0.012 * s + hd.mouth * 0.03 * s, 0.04 * s]), 0.01);
-      if (hd.hair) d = S.smin(d, S.ellipsoid(p, [0, 0.14 * s, -0.012 * s], [0.088 * s, 0.1 * s, 0.1 * s]) + Math.max(0, p[2] - 0.05 * s) * 2 - Math.max(0, -p[1] + 0.06 * s) * (hd.hairLong || 0), 0.01);
+      // hair, only where a head has it: the crown and the back, never over the face
+      if (hd.hair) d = S.smin(d, S.smax(S.ellipsoid(p, [0, 0.14 * s, -0.02 * s], [0.088 * s, 0.1 * s, 0.1 * s]) - Math.max(0, -p[1] + 0.06 * s) * (hd.hairLong || 0), p[2] - 0.02 * s, 0.01), 0.01);
       if (hd.extra) d = hd.extra(p, d, s);
+      d = S.smax(d, -S.ellipsoid(p, VOID.c, VOID.r), 0.016);                                                          // the hollow
       return d + S.fbm(p[0] * 40, p[1] * 40, p[2] * 40, 2) * 0.0025 * (1 + sw * 3);
     };
+    // black inside and round the hollow, fading out into the skin over a finger's width
+    const headCol = (fn, base) => { const ao = K.aoColor(fn, base, 1.3); return (p, n) => { const c = ao(p, n), k = U.clamp((1.35 - voidE(p, 1)) / 0.3, 0, 1) * (p[2] > 0.02 * s ? 1 : 0), m = 1 - k * 0.985; return [c[0] * m, c[1] * m, c[2] * m]; }; };
     const upper = p => S.capsule(p, [0, 0, 0], [0, -0.3 * s * (o.long || 1), 0], 0.052 * b * s, 0.043 * b * s);
     const fore = p => {
       const L = 0.27 * s * (o.long || 1), lf = o.hands === 'long' ? 1.6 : 1;
@@ -82,7 +85,7 @@
     const hips = K.pivot(root, 0, hipY, 0);
     const tor = mk('torso', torso, [[-0.36 * s, -(o.coat || 0.2) - 0.1, -0.3 * s], [0.36 * s, 0.72 * s, 0.32 * s]], 0.014 * s, body); hips.add(tor);
     const neck = K.pivot(hips, 0, neckTop - 0.02 * s, 0.015);
-    const headM = K.meshOf(key + ':head', head, [[-0.13 * s, -0.04 * s, -0.14 * s], [0.13 * s, 0.27 * s, 0.17 * s]], 0.0065 * s, skinM, { color: K.aoColor(head, skinC, 1.3) }); neck.add(headM);
+    const headM = K.meshOf(key + ':head', head, [[-0.13 * s, -0.04 * s, -0.14 * s], [0.13 * s, 0.27 * s, 0.17 * s]], 0.0065 * s, skinM, { color: headCol(head, skinC) }); neck.add(headM);
     const arms = [], legs = [];
     const armVC = p => { const L = 0.27 * s * (o.long || 1); return p[1] < -L + 0.01 ? skinC : cloth(p); };
     for (const sx of [-1, 1]) {
@@ -133,10 +136,6 @@
     // the life jacket's orange showing through the slime: a second, thin shell
     const lj = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.06, 8, 20, PI * 1.5), new THREE.MeshStandardMaterial({ color: 0x8a4a1a, roughness: 0.8 }));
     lj.rotation.set(H, 0, -PI * 0.25); lj.position.set(0, 0.5, 0.02); r.hips.add(lj);
-    // milky eyes in the sockets
-    const eyeM = new THREE.MeshStandardMaterial({ color: 0xc8d0c8, roughness: 0.2, emissive: 0x202820 });
-    for (const sx of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.019, 12, 10), eyeM); e.position.set(sx * 0.034, 0.112, 0.082); r.head.add(e); }
-    r.mats.push(eyeM);
     for (const m of r.mats) { m.roughness = Math.min(m.roughness, 0.35); }   // wet
     return {
       group: r.group, rig: r, mats: r.mats,
@@ -208,10 +207,9 @@
       head: { eyes: 'none', mouth: 0, swell: 0.4 }, skinVC: [0.3, 0.32, 0.33], skinMat: new THREE.MeshStandardMaterial({ color: 0x0b0c0d, roughness: 0.55, vertexColors: true }),
       clothVC: () => [0.95, 0.95, 0.95], shoeVC: [0.1, 0.1, 0.1],
     });
-    // sou'wester: wide brim, long back flap, the face lost under it
+    // sou'wester: wide brim, long back flap
     const hat = new THREE.Mesh(new THREE.LatheGeometry([[0.001, 0.22], [0.1, 0.21], [0.12, 0.13], [0.24, 0.06], [0.27, 0.03], [0.001, 0.02]].map(([x, y]) => new THREE.Vector2(x, y)), 24), new THREE.MeshPhysicalMaterial({ color: 0x1a1608, roughness: 0.3, clearcoat: 0.8 }));
     hat.scale.set(1, 1, 1.2); hat.position.set(0, 0.12, -0.02); hat.rotation.x = 0.25; r.head.add(hat);
-    const shade = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 12), new THREE.MeshBasicMaterial({ color: 0x000000 })); shade.position.set(0, 0.08, 0.03); shade.scale.set(1, 1.2, 0.9); r.head.add(shade);
     // the bell, held in both hands at the chest
     const bronze = new THREE.MeshStandardMaterial({ color: 0x8a5e24, roughness: 0.3, metalness: 1 });
     const bell = new THREE.Mesh(new THREE.LatheGeometry([[0.001, 0.42], [0.09, 0.4], [0.13, 0.32], [0.15, 0.15], [0.19, 0.04], [0.23, 0.0], [0.2, -0.015], [0.15, 0.02], [0.001, 0.02]].map(([x, y]) => new THREE.Vector2(x, y)), 32), bronze);

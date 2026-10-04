@@ -17,57 +17,16 @@
   const K = PB.SpeciesKit, Sp = PB.Species;
   const PI = Math.PI, H = PI / 2;
 
-  // ============================================================ MASKS
-  // Six masks, each its own shape; painted by vertex colour
-  const MASKS = {
-    moon: {
-      fn: p => { let d = S.ellipsoid(p, [0, 0, 0], [0.17, 0.21, 0.12]); d = S.smax(d, -S.sphere(p, [0.12, 0.05, 0.12], 0.14), 0.03); return d; },
-      col: p => (p[2] > 0.05 && Math.abs(p[1] - 0.04) < 0.012 && Math.abs(Math.abs(p[0] + 0.03) - 0.06) < 0.03 ? [0.1, 0.1, 0.1] : [0.92, 0.88, 0.7]),
-    },
-    cat: {
-      fn: p => { const ax = Math.abs(p[0]); let d = S.ellipsoid(p, [0, 0, 0], [0.16, 0.15, 0.11]); d = S.smin(d, S.capsule([ax, p[1], p[2]], [0.09, 0.12, 0], [0.13, 0.25, -0.01], 0.04, 0.01), 0.03); d = S.smin(d, S.sphere(p, [0, -0.04, 0.09], 0.05), 0.03); return d; },
-      col: p => { const ax = Math.abs(p[0]); if (p[2] > 0.06 && Math.abs(p[1] - 0.04) < 0.035 && Math.abs(ax - 0.06) < 0.012) return [0.05, 0.05, 0.05]; if (p[2] > 0.1 && p[1] < -0.02 && p[1] > -0.06 && ax < 0.02) return [0.6, 0.2, 0.25]; return [0.3, 0.3, 0.32]; },
-    },
-    pig: {
-      fn: p => { const ax = Math.abs(p[0]); let d = S.ellipsoid(p, [0, 0, 0], [0.17, 0.16, 0.13]); d = S.smin(d, S.capsule(p, [0, -0.02, 0.1], [0, -0.03, 0.17], 0.06, 0.055), 0.02); d = S.smin(d, S.ellipsoid([ax, p[1], p[2]], [0.13, 0.14, -0.01], [0.05, 0.06, 0.02]), 0.02); for (const sx of [-1, 1]) d = S.smax(d, -S.sphere(p, [sx * 0.022, -0.03, 0.225], 0.014), 0.004); return d; },
-      col: p => (Math.abs(p[1] - 0.06) < 0.02 && p[2] > 0.08 && Math.abs(Math.abs(p[0]) - 0.07) < 0.02 ? [0.08, 0.06, 0.06] : [0.88, 0.62, 0.62]),
-    },
-    sadClown: {
-      fn: p => S.ellipsoid(p, [0, 0, 0], [0.15, 0.2, 0.12]),
-      col: p => {
-        const ax = Math.abs(p[0]), y = p[1];
-        if (p[2] > 0.05 && Math.abs(ax - 0.06) + Math.abs(y - 0.05) * 0.6 < 0.04) return [0.05, 0.05, 0.1];
-        if (p[2] > 0.05 && Math.abs(ax - 0.06) < 0.006 && y < 0.02 && y > -0.06) return [0.1, 0.1, 0.25];   // the painted tear
-        if (p[2] > 0.06 && y < -0.08 && y > -0.12 && ax < 0.05 + (y + 0.1) * 0.6) return [0.7, 0.08, 0.1];
-        if (p[2] > 0.09 && Math.hypot(p[0], y + 0.01) < 0.025) return [0.8, 0.1, 0.1];
-        return [0.95, 0.94, 0.92];
-      },
-    },
-    sun: {
-      fn: p => { let d = S.ellipsoid(p, [0, 0, 0], [0.15, 0.15, 0.1]); const a = Math.atan2(p[1], p[0]), rr = Math.hypot(p[0], p[1]); const ray = Math.max(rr - 0.27, Math.abs(p[2]) - 0.02, (Math.abs(Math.sin(a * 6)) - 0.35) * rr); d = S.smin(d, ray, 0.02); return d; },
-      col: p => (p[2] > 0.06 && Math.abs(p[1] - 0.03) < 0.012 && Math.abs(Math.abs(p[0]) - 0.05) < 0.025 ? [0.15, 0.08, 0.02] : [0.95, 0.72, 0.2]),
-    },
-    crow: {
-      fn: p => { let d = S.ellipsoid(p, [0, 0.02, 0], [0.14, 0.17, 0.12]); d = S.smin(d, S.capsule(p, [0, -0.0, 0.08], [0, -0.1, 0.36], 0.05, 0.006), 0.04); return d; },
-      col: p => (p[2] > 0.06 && p[1] > 0.02 && p[1] < 0.08 && Math.abs(Math.abs(p[0]) - 0.06) < 0.02 ? [0.7, 0.62, 0.2] : [0.08, 0.08, 0.09]),
-    },
-  };
-  const MASK_ORDER = ['moon', 'cat', 'pig', 'sadClown', 'sun', 'crow'];
+  // ============================================================ THE MASKS (no longer a mask on the face: a hollow)
   let mIdx = 0;
   function maskModel() {
-    const k = mIdx++, kind = MASK_ORDER[k % MASK_ORDER.length], m = MASKS[kind];
+    const k = mIdx++;
     const coat = K.cloth('mask:coat' + (k % 3), ['#1e1c1a', '#2a2622', '#1a1e22'][k % 3], { stains: 50, rough: 0.9, rep: 2 });
     const r = K.humanoid({
       key: 'mask' + (k % 3), h: 1.82 + (k % 3) * 0.07, build: 0.78, coat: 0.85, long: 1.06, bodyMat: coat,
       skin: { base: '#8a8478', mottle: ['120,112,104', '150,140,130'], veins: '90,90,100', veinCount: 6 }, head: { eyes: 'hollow', mouth: 0, swell: 0 },
       skinVC: [0.8, 0.78, 0.76], clothVC: p => (p[1] > 0.55 && Math.abs(p[0]) < 0.12 && p[2] > 0.03 ? [0.6, 0.6, 0.62] : [1, 1, 1]),
     });
-    // the mask itself: papier-mâché, a little too big for the head, its string round the back
-    const paint = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.75, vertexColors: true });
-    const mesh = K.meshOf('mask:' + kind, m.fn, [[-0.3, -0.3, -0.2], [0.3, 0.32, 0.42]], 0.008, paint, { color: (p, n) => { const a = K.aoColor(m.fn, [1, 1, 1], 1)(p, n), c = m.col(p); return [a[0] * c[0], a[1] * c[1], a[2] * c[2]]; } });
-    mesh.position.set(0, 0.11 * r.s, 0.07); mesh.scale.setScalar(1.08); r.head.add(mesh);
-    const str = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.003, 4, 24), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 })); str.rotation.x = H; str.position.set(0, 0.12 * r.s, -0.01); r.head.add(str);
-    r.mats.push(paint);
     return {
       group: r.group, rig: r, mats: r.mats,
       animate(cr, dt) {
@@ -169,19 +128,25 @@
   });
 
   // ============================================================ LAUGHING LOTTE
-  // Lotte laughs with no face: a smooth cracked papier-mâché head under a mop of red curls (the laugh is
-  // all there is of her mouth)
+  // Lotte laughs with no face: a smooth cracked papier-mâché head under a mop of red curls, a hollow
+  // where the face was (the laugh is all there is of her mouth)
+  const LOTTE_VOID = { c: [0, 0.02, 0.2], r: [0.13, 0.17, 0.14] };
+  const lotteVoidE = p => Math.hypot((p[0] - LOTTE_VOID.c[0]) / LOTTE_VOID.r[0], (p[1] - LOTTE_VOID.c[1]) / LOTTE_VOID.r[1], (p[2] - LOTTE_VOID.c[2]) / LOTTE_VOID.r[2]);
   const lotteHead = p => {
     let d = S.ellipsoid(p, [0, 0, 0], [0.26, 0.3, 0.25]);
-    // hair: a mop of red curls
-    for (let k = 0; k < 18; k++) { const a = k / 18 * PI * 2, b = (k % 3) * 0.12; d = S.smin(d, S.sphere(p, [Math.cos(a) * 0.22, 0.18 + b * 0.3 + Math.sin(k * 1.7) * 0.03, Math.sin(a) * 0.2 - 0.04], 0.09), 0.03); }
+    // hair: a mop of red curls, round the crown and the back
+    for (let k = 0; k < 18; k++) { const a = k / 18 * PI * 2, b = (k % 3) * 0.12; if (Math.sin(a) < -0.2) continue; d = S.smin(d, S.sphere(p, [Math.cos(a) * 0.22, 0.18 + b * 0.3 + Math.sin(k * 1.7) * 0.03, -Math.abs(Math.sin(a)) * 0.2 - 0.04], 0.09), 0.03); }
+    d = S.smax(d, -S.ellipsoid(p, LOTTE_VOID.c, LOTTE_VOID.r), 0.03);
     return d + S.fbm(p[0] * 30, p[1] * 30, p[2] * 30, 2) * 0.004;
   };
   const lotteHeadCol = p => {
-    const y = p[1];
-    if (y > 0.12 && (p[2] < 0.18 || y > 0.2)) return [0.75, 0.2, 0.08];                                            // hair
-    if (S.fbm(p[0] * 7, y * 7, p[2] * 7, 2) > 0.38) return [0.62, 0.55, 0.45];                                       // cracked papier-mâché
-    return [0.9, 0.85, 0.76];
+    const y = p[1], k = U.clamp((1.35 - lotteVoidE(p)) / 0.3, 0, 1) * (p[2] > 0.05 ? 1 : 0);
+    let c;
+    if (y > 0.12 && p[2] < 0.1) c = [0.75, 0.2, 0.08];                                                              // hair
+    else if (S.fbm(p[0] * 7, y * 7, p[2] * 7, 2) > 0.38) c = [0.62, 0.55, 0.45];                                       // cracked papier-mâché
+    else c = [0.9, 0.85, 0.76];
+    const m = 1 - k * 0.985;
+    return [c[0] * m, c[1] * m, c[2] * m];
   };
   function lotteModel() {
     const dress = K.cloth('lotte:dress', '#a81a2a', { stains: 70, rough: 0.85, rep: 3, paint: (g, w, h) => { g.fillStyle = '#f0e8d8'; for (let y = 10; y < h; y += 46) for (let x = (y / 46 % 2) * 23 + 10; x < w; x += 46) { g.beginPath(); g.arc(x, y, 9, 0, PI * 2); g.fill(); } } });
