@@ -41,21 +41,40 @@
   PB.ChapterKit = { itemOf, doorOf, doorPos, unlock, exitThrough, inRoom, inTrigger, has, give, drop, giveDrawing, step, species, wake };
   PB.ChapterUtil = { mementoRadio: {} };
 
-  // A small red figure, there for a second: Wren (never a creature, never close)
+  // A small red figure, there for a second: Wren (never a creature, never close). Seven years old in a
+  // quilted red snowsuit: padded arms and legs, mittens, rubber boots, a blue wool scarf, a hood with a
+  // fur trim and a pompom, two short braids at the back; the hood's opening is nothing but dark.
   PB.wrenFigure = function (g) {
-    const S = PB.SDF, K = PB.SpeciesKit;
+    const S = PB.SDF, K = PB.SpeciesKit, PI2 = Math.PI / 2;
     const fn = p => {
-      const ax = Math.abs(p[0]);
-      let d = S.ellipsoid(p, [0, 0.78, 0], [0.17, 0.3, 0.13]);                       // padded snowsuit
-      d = S.smin(d, S.capsule([ax, p[1], p[2]], [0.08, 0.5, 0], [0.09, 0.08, 0.01], 0.07, 0.06), 0.05);
-      d = S.smin(d, S.capsule([ax, p[1], p[2]], [0.16, 0.98, 0], [0.2, 0.62, 0.04], 0.055, 0.05), 0.04);
-      d = S.smin(d, S.sphere(p, [0, 1.16, 0.0], 0.115), 0.05);                         // hood
-      d = S.smin(d, S.sphere(p, [0, 1.27, -0.02], 0.045), 0.03);                       // pompom
+      const ax = Math.abs(p[0]), q = [ax, p[1], p[2]];
+      const quilt = Math.sin(p[1] * 40) * 0.0045;                                        // the padded rows
+      let d = S.ellipsoid(p, [0, 0.78, 0], [0.17, 0.3, 0.13]) + quilt;                  // padded body
+      d = S.smin(d, S.capsule(q, [0.08, 0.5, 0], [0.085, 0.13, 0.01], 0.072, 0.062), 0.05) + quilt * 0.4;   // legs
+      d = S.smin(d, S.capsule(q, [0.17, 0.96, 0], [0.215, 0.6, 0.05], 0.058, 0.052), 0.04);               // arms, hanging a little out
+      d = S.smin(d, S.ellipsoid(q, [0.222, 0.545, 0.062], [0.05, 0.062, 0.045]), 0.02);                    // the mitten
+      d = S.smin(d, S.sphere(q, [0.262, 0.555, 0.06], 0.02), 0.015);                                       // its thumb
+      d = S.smin(d, S.sphere(p, [0, 1.16, 0.0], 0.118), 0.05);                           // hood
+      d = S.smax(d, -S.ellipsoid(p, [0, 1.15, 0.105], [0.068, 0.082, 0.07]), 0.012);   // the opening
       return d;
     };
     const m = new THREE.MeshStandardMaterial({ color: 0xa8141a, roughness: 0.85, vertexColors: true });
-    const mesh = K.meshOf('wren:fig', fn, [[-0.3, -0.02, -0.2], [0.3, 1.35, 0.2]], 0.012, m);
+    const mesh = K.meshOf('wren:fig', fn, [[-0.3, -0.02, -0.2], [0.3, 1.32, 0.2]], 0.01, m);
     const grp = new THREE.Group(); grp.add(mesh); grp.visible = false;
+    const mat = (c, r) => { const x = new THREE.MeshStandardMaterial({ color: c, roughness: r }); g.world.patch(x); return x; };
+    const add = (geo, material, x, y, z, rx = 0, ry = 0, rz = 0) => { const o = new THREE.Mesh(geo, material); o.position.set(x, y, z); o.rotation.set(rx, ry, rz); o.castShadow = true; grp.add(o); return o; };
+    const rubber = mat(0x151515, 0.6), fur = mat(0xb4aa96, 1), wool = mat(0x28486e, 1), hair = mat(0x4a3220, 0.9), white = mat(0xc6bfae, 1);
+    for (const sx of [-1, 1]) {
+      add(new THREE.CylinderGeometry(0.068, 0.074, 0.11, 12), rubber, sx * 0.085, 0.055, 0.0);                    // boots
+      const toe = add(new THREE.SphereGeometry(0.07, 12, 8), rubber, sx * 0.085, 0.04, 0.035); toe.scale.set(1, 0.6, 1.1);
+      add(new THREE.CylinderGeometry(0.052, 0.052, 0.04, 12), fur, sx * 0.222, 0.62, 0.052, 0.12, 0, sx * 0.1);   // the sleeve's cuff
+    }
+    add(new THREE.TorusGeometry(0.082, 0.024, 8, 22), fur, 0, 1.15, 0.082);                                          // fur trim round the opening
+    add(new THREE.CircleGeometry(0.066, 16), new THREE.MeshBasicMaterial({ color: 0x000000 }), 0, 1.15, 0.083);      // the dark in the hood
+    const sc = add(new THREE.TorusGeometry(0.1, 0.03, 8, 22), wool, 0, 1.04, 0.0, PI2, 0, 0); sc.scale.set(1, 1, 1.3); // the scarf, wound twice
+    add(new THREE.CapsuleGeometry(0.026, 0.2, 4, 8), wool, 0.03, 0.88, -0.12, 0.1, 0, 0.1);                         // its tail down the back
+    add(new THREE.SphereGeometry(0.05, 10, 8), white, 0, 1.275, -0.02);                                              // pompom
+    for (const sx of [-1, 1]) add(new THREE.CapsuleGeometry(0.016, 0.13, 4, 6), hair, sx * 0.07, 1.03, -0.085, 0.25, 0, sx * 0.18);   // braids
     g.world.patch(m);
     g.world.group.add(grp);
     return grp;

@@ -12,6 +12,7 @@
   const THREE = root.THREE;
   const U = PB.U, T = PB.Tex;
   const P = PB.Props, MATS = PB.Models.MATS, TEX = PB.Models.tex;
+  const H2 = Math.PI / 2;
   const W = PB.World.prototype;
 
   // ------------------------------------------------------------ materials
@@ -335,4 +336,125 @@
       grp.add(m);
     }
   };
+
+  // ------------------------------------------------------------ the freight elevator
+  // Two painted steel leaves that part sideways, in a bolted steel frame with a header carrying the floor
+  // indicator, the load plate and the hazard chevrons; a grooved sill, conduit up the wall to the ceiling
+  Object.assign(MATS, {
+    elevPaint: { color: 0x3b463f, rough: 0.7, metal: 0.2 },
+    elevPaintDark: { color: 0x2b332e, rough: 0.78, metal: 0.15 },
+    elevFrame: { color: 0x4a4e4a, rough: 0.62, metal: 0.3 },
+    hazardBand: { tex: 'hazardBand', rough: 0.75 },
+    treadPlate: { tex: 'treadPlate', color: 0x9a9a94, rough: 0.5, metal: 0.55 },
+  });
+  TEX.hazardBand = () => T.canvas('m:hazardBand', 512, 128, (g, w, h) => {
+    g.fillStyle = '#c9a21c'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#1d1c18';
+    for (let k = -h; k < w + h; k += 64) { g.beginPath(); g.moveTo(k, h); g.lineTo(k + 32, h); g.lineTo(k + 32 + h, 0); g.lineTo(k + h, 0); g.closePath(); g.fill(); }
+    const r = U.rng(41);
+    for (let k = 0; k < 520; k++) { g.fillStyle = r() < 0.5 ? 'rgba(20,16,10,0.22)' : 'rgba(150,130,90,0.14)'; g.fillRect(r() * w, r() * h, 1 + r() * 7, 1 + r() * 2); }
+    g.fillStyle = 'rgba(30,24,16,0.35)'; g.fillRect(0, 0, w, 3); g.fillRect(0, h - 3, w, 3);
+  }, { repeat: true });
+  TEX.treadPlate = () => T.canvas('m:treadPlate', 512, 512, (g, w, h) => {
+    g.fillStyle = '#8c8c86'; g.fillRect(0, 0, w, h);
+    const n = 24, step = w / n;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+      const x = i * step + step / 2, y = j * step + step / 2, a = (i + j) % 2 ? 0.78 : -0.78;
+      g.save(); g.translate(x, y); g.rotate(a); g.fillStyle = 'rgba(40,40,38,0.55)'; g.fillRect(-step * 0.34, -step * 0.09, step * 0.68, step * 0.18);
+      g.fillStyle = 'rgba(200,200,190,0.55)'; g.fillRect(-step * 0.34, -step * 0.09, step * 0.68, step * 0.07); g.restore();
+    }
+    const r = U.rng(53);
+    for (let k = 0; k < 900; k++) { g.fillStyle = r() < 0.6 ? 'rgba(20,18,14,0.2)' : 'rgba(210,200,170,0.12)'; g.fillRect(r() * w, r() * h, 1 + r() * 9, 1 + r() * 3); }
+  }, { repeat: true });
+  const loadPlate = () => T.canvas('m:elevLoad', 256, 112, (g, w, h) => {
+    g.fillStyle = '#b9b194'; g.fillRect(0, 0, w, h); g.strokeStyle = '#5a5238'; g.lineWidth = 4; g.strokeRect(5, 5, w - 10, h - 10);
+    g.fillStyle = '#26221a'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '700 30px "Courier New", monospace'; g.fillText('CAPACITY', w / 2, 30); g.font = '700 34px "Courier New", monospace'; g.fillText('2500 KG', w / 2, 62);
+    g.font = '700 17px "Courier New", monospace'; g.fillText('NO PASSENGERS', w / 2, 92);
+    const r = U.rng(77); for (let k = 0; k < 120; k++) { g.fillStyle = 'rgba(40,30,16,0.16)'; g.fillRect(r() * w, r() * h, 1 + r() * 5, 1 + r() * 2); }
+  });
+  const stencil = () => T.canvas('m:elevStencil', 512, 96, (g, w, h) => {
+    g.fillStyle = '#3b463f'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#cbc29c'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '700 40px "Courier New", monospace';
+    g.fillText('FREIGHT  ·  DEPOT 9', w / 2, h / 2 + 3);
+    g.globalCompositeOperation = 'destination-out'; const r = U.rng(19);
+    for (let k = 0; k < 120; k++) { g.beginPath(); g.arc(r() * w, r() * h, 0.6 + r() * 2.4, 0, 6.283); g.fill(); }
+    g.globalCompositeOperation = 'source-over';
+  });
+
+  W.elevatorDoor = function (door, g, w, h, grp, obj) {
+    const s = this.nInSign(g), L = this.L;
+    const top = Math.min(L.ceilAtW ? L.ceilAtW(g.cx, g.cz) : 5.6, 6) - 0.05;
+    obj.slides = [];
+    const lw = w / 2 - 0.004, lh = h - 0.04;
+    for (const sgn of [-1, 1]) {
+      const ie = -sgn * (lw / 2);             // the edge that meets the other leaf
+      const specs = [
+        ['box', 'elevPaint', lw, lh, 0.055, 0, h / 2, 0],
+        ['rbox', 'elevPaintDark', lw - 0.2, 0.95, 0.014, 0.004, 0, 1.62, s * 0.03],
+        ['rbox', 'elevPaintDark', lw - 0.2, 0.62, 0.014, 0.004, 0, 0.74, s * 0.03],
+        ['box', 'hazardBand', lw - 0.04, 0.24, 0.012, 0, 0.17, s * 0.031],
+        ['box', 'elevFrame', 0.03, lh - 0.1, 0.02, -lw * 0.17, h / 2, s * 0.04],
+        ['box', 'elevFrame', 0.03, lh - 0.1, 0.02, lw * 0.17, h / 2, s * 0.04],
+        ['box', 'rubberSeal', 0.03, lh, 0.07, ie + sgn * 0.015, h / 2, 0],
+        ['rbox', 'elevFrame', 0.03, 0.55, 0.035, 0.008, ie + sgn * 0.09, 1.05, s * 0.05],
+      ];
+      // hanger rollers on the top edge, rolling in the header's track
+      for (const x of [-lw * 0.32, lw * 0.32]) specs.push(['cyl', 'ironBlack', 0.032, 0.032, 0.03, 12, x, h + 0.02, 0, H2, 0, 0]);
+      // rivets round the pressed panels
+      for (let k = 0; k < 6; k++) for (const x of [-(lw / 2 - 0.1), lw / 2 - 0.1]) specs.push(['cyl', 'ironBlack', 0.009, 0.009, 0.008, 6, x, 0.55 + k * 0.33, s * 0.035, H2, 0, 0]);
+      const key = 'elevLeaf:' + sgn + ':' + s + ':' + w.toFixed(2) + 'x' + h.toFixed(2);
+      const leaf = new THREE.Group();
+      for (const part of P.build(key, specs)) {
+        const m = new THREE.Mesh(part.geo, matFor(this, part.mat));
+        m.castShadow = true; m.receiveShadow = true;
+        leaf.add(m);
+      }
+      leaf.position.set(sgn * w / 4, 0, 0);
+      grp.add(leaf);
+      obj.slides.push({ leaf, sgn });
+    }
+    // the frame, the header, the sill, the conduit
+    const f = [], fz = s * (0.1 + 0.06), jw = 0.17, hh = 0.42;
+    for (const sg of [-1, 1]) {
+      f.push(['box', 'elevFrame', jw, h + 0.12, 0.12, sg * (w / 2 + jw / 2 - 0.01), (h + 0.12) / 2, fz]);
+      f.push(['box', 'elevFrame', 0.03, h + 0.12, 0.16, sg * (w / 2 + jw - 0.01), (h + 0.12) / 2, fz]);
+      f.push(['box', 'hazardBand', jw, 0.5, 0.125, sg * (w / 2 + jw / 2 - 0.01), 0.25, fz]);
+      for (let k = 0; k < 8; k++) f.push(['cyl', 'ironBlack', 0.012, 0.012, 0.012, 8, sg * (w / 2 + jw / 2 - 0.01), 0.7 + k * 0.23, s * (0.1 + 0.121), H2, 0, 0]);
+    }
+    const hw = w + 2 * jw + 0.5;
+    f.push(['box', 'elevFrame', hw, hh, 0.2, 0, h + 0.12 + hh / 2, s * (0.1 + 0.1)]);
+    f.push(['box', 'ironBlack', w, 0.05, 0.11, 0, h + 0.03, s * 0.03]);                       // the track the leaves hang from
+    f.push(['box', 'elevFrame', hw + 0.08, 0.04, 0.26, 0, h + 0.12 + hh + 0.02, s * (0.1 + 0.12)]);   // header cap
+    f.push(['box', 'hazardBand', 0.5, 0.09, 0.012, -0.78, h + 0.12 + hh * 0.5, s * 0.3015]);
+    f.push(['box', 'hazardBand', 0.42, 0.09, 0.012, 0.8, h + 0.12 + hh * 0.22, s * 0.3015]);
+    // sill: a steel plate with two grooves for the leaves, and a lip of tread plate in front
+    f.push(['box', 'steelBrushed', w + 0.04, 0.02, 0.3, 0, 0.01, s * 0.15], ['box', 'ironBlack', w, 0.012, 0.03, 0, 0.022, s * 0.015], ['box', 'ironBlack', w, 0.012, 0.03, 0, 0.022, -s * 0.03]);
+    // the car's guide rails run out across the floor from the sill
+    for (const sg of [-1, 1]) f.push(['box', 'ironBlack', 0.045, 0.012, 3.2, sg * 0.62, 0.006, s * (0.1 + 1.6)]);
+    for (let k = 0; k < 9; k++) f.push(['box', 'ironBlack', 1.5, 0.008, 0.06, 0, 0.004, s * (0.35 + k * 0.33)]);
+    // conduit and a junction box beside the frame, running to the ceiling
+    const cx = hw / 2 + 0.12;
+    f.push(['cyl', 'ironBlack', 0.022, 0.022, top - h - 0.2, 8, cx, (top + h + 0.2) / 2, s * 0.126], ['box', 'elevFrame', 0.16, 0.2, 0.09, cx, h + 0.55, s * 0.145], ['cyl', 'ironBlack', 0.022, 0.022, 0.4, 8, cx - 0.2, h + 0.55, s * 0.145, 0, 0, H2]);
+    for (let y = h + 0.9; y < top - 0.1; y += 0.8) f.push(['box', 'ironBlack', 0.05, 0.05, 0.05, cx, y, s * 0.125]);
+    const key = 'elevFrame:' + s + ':' + w.toFixed(2) + 'x' + h.toFixed(2) + ':' + top.toFixed(1);
+    for (const part of P.build(key, f)) {
+      const m = new THREE.Mesh(part.geo, matFor(this, part.mat));
+      m.castShadow = true; m.receiveShadow = true;
+      grp.add(m);
+    }
+    // floor indicator and the load plate / stencil on the header, read from the aisle
+    const front = s * (0.1 + 0.2 + 0.004);
+    const face = (map, bw, bh, x, y, basic) => {
+      const mt = basic ? new THREE.MeshBasicMaterial({ map, color: new THREE.Color(1.5, 1.5, 1.5) }) : new THREE.MeshStandardMaterial({ map, roughness: 0.6, metalness: 0.2 });
+      if (!basic) this.patch(mt);
+      const pl = new THREE.Mesh(new THREE.PlaneGeometry(bw, bh), mt);
+      pl.position.set(x, y, front); if (s < 0) pl.rotation.y = Math.PI;
+      grp.add(pl); return pl;
+    };
+    obj.indicator = face(T.label('elev-ind', '▼ 0', { w: 256, h: 72, bg: '#140800', color: '#ff9a20', glow: true }), 0.5, 0.14, 0, h + 0.12 + hh * 0.62, true);
+    face(stencil(), 0.62, 0.115, 0, h + 0.12 + hh * 0.22, false);
+    face(loadPlate(), 0.3, 0.131, 0.8, h + 0.12 + hh * 0.66, false);
+  };
+
 })(typeof window !== 'undefined' ? window : globalThis);

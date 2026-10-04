@@ -359,6 +359,9 @@
     constructor(game, o) {
       super(game, 'eater', o);
       const m = eaterMesh(game);
+      // no eyes: nobody sees a face on anything here (the jaws and the arms are all there is of it)
+      if (m.eyeHolder) m.eyeHolder.visible = false;
+      if (m.eyeHolder2) m.eyeHolder2.visible = false;
       this.vis = m; this.mesh.add(m.group); lit(game, m.group);
       this.catchR = 1.55; this.radius = 0.55;
       this.turnSlow = 0; this.chomp = 0; this.chompRate = 2; this.lastChompSide = 0;

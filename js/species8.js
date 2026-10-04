@@ -169,27 +169,19 @@
   });
 
   // ============================================================ LAUGHING LOTTE
+  // Lotte laughs with no face: a smooth cracked papier-mâché head under a mop of red curls (the laugh is
+  // all there is of her mouth)
   const lotteHead = p => {
-    const ax = Math.abs(p[0]), q = [ax, p[1], p[2]];
     let d = S.ellipsoid(p, [0, 0, 0], [0.26, 0.3, 0.25]);
-    d = S.smin(d, S.ellipsoid(q, [0.16, -0.06, 0.13], [0.09, 0.08, 0.08]), 0.05);                                   // round cheeks
-    d = S.smin(d, S.sphere(p, [0, 0.0, 0.25], 0.05), 0.04);                                                          // nose
-    d = S.smax(d, -S.ellipsoid(p, [0, -0.14, 0.22], [0.15, 0.08, 0.1]), 0.02);                                      // the laughing mouth
-    for (let k = -2; k <= 2; k++) if (k !== 0) d = S.smin(d, S.ellipsoid(p, [k * 0.045, -0.085, 0.2], [0.018, 0.022, 0.02]), 0.004);   // teeth, a gap in the middle
-    for (const sx of [-1, 1]) d = S.smax(d, -S.ellipsoid(p, [sx * 0.09, 0.08, 0.22], [0.035, 0.022, 0.03]), 0.01);   // eyes squeezed shut with laughing
     // hair: a mop of red curls
     for (let k = 0; k < 18; k++) { const a = k / 18 * PI * 2, b = (k % 3) * 0.12; d = S.smin(d, S.sphere(p, [Math.cos(a) * 0.22, 0.18 + b * 0.3 + Math.sin(k * 1.7) * 0.03, Math.sin(a) * 0.2 - 0.04], 0.09), 0.03); }
     return d + S.fbm(p[0] * 30, p[1] * 30, p[2] * 30, 2) * 0.004;
   };
   const lotteHeadCol = p => {
-    const ax = Math.abs(p[0]), y = p[1];
+    const y = p[1];
     if (y > 0.12 && (p[2] < 0.18 || y > 0.2)) return [0.75, 0.2, 0.08];                                            // hair
-    if (p[2] > 0.15 && y < -0.08 && y > -0.2 && ax < 0.14) return ax < 0.11 && y > -0.12 ? [0.92, 0.9, 0.82] : [0.4, 0.04, 0.05];   // teeth / mouth
-    if (p[2] > 0.18 && Math.abs(y - 0.08) < 0.02 && Math.abs(ax - 0.09) < 0.04) return [0.05, 0.03, 0.03];
-    if (p[2] > 0.15 && Math.abs(y + 0.03) < 0.05 && Math.abs(ax - 0.15) < 0.05) return [0.95, 0.5, 0.45];          // rouge
-    if (S.fbm(p[0] * 40, y * 40, p[2] * 40, 1) > 0.42 && p[2] > 0.1) return [0.7, 0.42, 0.25];                       // freckles
     if (S.fbm(p[0] * 7, y * 7, p[2] * 7, 2) > 0.38) return [0.62, 0.55, 0.45];                                       // cracked papier-mâché
-    return [0.96, 0.8, 0.68];
+    return [0.9, 0.85, 0.76];
   };
   function lotteModel() {
     const dress = K.cloth('lotte:dress', '#a81a2a', { stains: 70, rough: 0.85, rep: 3, paint: (g, w, h) => { g.fillStyle = '#f0e8d8'; for (let y = 10; y < h; y += 46) for (let x = (y / 46 % 2) * 23 + 10; x < w; x += 46) { g.beginPath(); g.arc(x, y, 9, 0, PI * 2); g.fill(); } } });
@@ -201,11 +193,11 @@
     r.head.visible = false;
     const paint = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55, vertexColors: true });
     const head = K.meshOf('lotte:head', lotteHead, [[-0.36, -0.34, -0.34], [0.36, 0.44, 0.34]], 0.011, paint, { color: (p, n) => { const a = K.aoColor(lotteHead, [1, 1, 1], 1.2)(p, n), c = lotteHeadCol(p); return [a[0] * c[0], a[1] * c[1], a[2] * c[2]]; } });
-    head.position.set(0, 0.32, 0.02); r.neck.add(head);
+    head.position.set(0, 0.17, 0.02); r.neck.add(head);
     // a little straw hat with a flower, a white lace collar
-    const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.2, 0.08, 18), new THREE.MeshStandardMaterial({ color: 0xd8c070, roughness: 0.9 })); hat.position.set(0.06, 0.66, -0.02); hat.rotation.z = -0.25; r.neck.add(hat);
-    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.012, 22), hat.material); brim.position.set(0.05, 0.62, -0.02); brim.rotation.z = -0.25; r.neck.add(brim);
-    const flower = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), new THREE.MeshStandardMaterial({ color: 0xc81a4a, roughness: 0.7 })); flower.position.set(-0.12, 0.68, 0.06); r.neck.add(flower);
+    const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.2, 0.08, 18), new THREE.MeshStandardMaterial({ color: 0xd8c070, roughness: 0.9 })); hat.position.set(0.06, 0.51, -0.02); hat.rotation.z = -0.25; r.neck.add(hat);
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.012, 22), hat.material); brim.position.set(0.05, 0.47, -0.02); brim.rotation.z = -0.25; r.neck.add(brim);
+    const flower = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), new THREE.MeshStandardMaterial({ color: 0xc81a4a, roughness: 0.7 })); flower.position.set(-0.12, 0.53, 0.06); r.neck.add(flower);
     const collar = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.05, 6, 24), new THREE.MeshStandardMaterial({ color: 0xf0ece0, roughness: 0.9 })); collar.rotation.x = H; collar.position.set(0, 0.04, 0.02); r.neck.add(collar);
     r.mats.push(paint);
     return {

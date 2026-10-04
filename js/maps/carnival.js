@@ -107,7 +107,7 @@
         sea: { y: -1.6, color: [0.008, 0.014, 0.02] },
       };
       // ------------------------------------------- the harbour beyond the north fence
-      for (let x = 2; x < 44; x += 4.5) P('bollard', x, 0.25, 0, { fixed: true });
+      for (let x = 2; x < 44; x += 4.5) if (x < 25.5 || x > 34.5) P('bollard', x, 0.25, 0, { fixed: true });   // (none under the crane)
       P('container', 6, 1.2, 0, { fixed: true }); P('containerB', 6, 1.2, 0, { y: 2.6, fixed: true }); P('containerB', 12.5, 1.3, 0.04, { fixed: true });
       P('container', 37, 1.1, 0, { fixed: true }); P('containerB', 39.2, 1.2, 0, { fixed: true }); P('container', 39.2, 1.2, 0, { y: 2.6, fixed: true });
       P('dockCrane', 28, 0.6, 0.2, { fixed: true });

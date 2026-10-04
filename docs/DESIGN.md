@@ -1,4 +1,4 @@
-# LEVEL 256 — Game Design (V6)
+# LEVEL 256 — Game Design (V7)
 
 Gameplay companion to `STORY.md`. Every chapter is a hand-authored map (`js/maps/*.js`, ASCII grid
 compiled by `js/authored.js`), with its own creatures (`js/species/*.js`), its own way out, and one
@@ -67,8 +67,17 @@ chase that starts when the thing you need is taken.
   office, the freight elevator.
 - **Objectives:** open the parcel → restore power → find the 1979 ledger → open Otto's office → take the
   elevator key → ride down.
-- **Creatures:** the Sorter (non-hostile, vanishes in light), Wren glimpse.
+- **Creatures:** the Sorter (non-hostile, vanishes in light; a mail sack over its head), Wren glimpse
+  (a quilted red snowsuit, mittens, boots, scarf, a fur-trimmed hood with nothing but dark in it).
 - **Collectibles:** drawing 1, Otto's badge.
+- **The elevator corner (V7):** the far north-east corner of the archive is one scene: the freight
+  elevator (painted steel doors that part sideways, bolted frame, header with the floor indicator, load
+  plate and hazard chevrons, guide rails across the floor, a scissor gate in front, conduit to the
+  ceiling; behind the doors a car with a tread-plate floor, timber bump rails and a caged lamp), the
+  clerk's desk and the records cupboard (its three drawers open; glazed doors above hold binders), a
+  hand truck against the wall and a platform trolley loaded with archive boxes. Ada's own desk in the
+  staff room carries her brass name plate ("A. LIND, NIGHT CLERK"), a tea cup and a calendar open at
+  January 1998 with the 13th ringed.
 
 ### 1 The Underneath — backrooms
 - **Map:** the only procedural map left: yellow rooms, wet carpet, piles of lost things.

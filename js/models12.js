@@ -340,4 +340,61 @@
     ['tube', 'black', [[0, 0.03, -0.034], [0.08, 0.012, -0.14], [0.24, 0.01, -0.21], [0.38, 0.02, -0.19]], 0.006, 5, 24],
     ['rbox', 'capLamp', 0.15, 0.1, 0.055, 0.012, 0.45, 0.05, -0.2, 0, 0.4, 0],
   ];
+
+  // ------------------------------------------------------------ Ada's desk: the name plate and her tea
+  M.tex.adaPlate = () => T.canvas('m12:adaPlate', 512, 128, (g, w, h) => {
+    const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#c9a85a'); gr.addColorStop(0.5, '#b8964a'); gr.addColorStop(1, '#9a7a38');
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    g.strokeStyle = '#6a5018'; g.lineWidth = 5; g.strokeRect(7, 7, w - 14, h - 14);
+    g.fillStyle = '#2c2010'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '700 50px Georgia, "Times New Roman", serif';
+    g.fillText('A. LIND', w / 2, h * 0.36); g.font = '600 24px "Courier New", monospace'; g.fillText('NIGHT CLERK', w / 2, h * 0.74);
+    const r = U.rng(31); for (let k = 0; k < 140; k++) { g.fillStyle = r() < 0.5 ? 'rgba(70,50,15,0.18)' : 'rgba(240,215,150,0.14)'; g.fillRect(r() * w, r() * h, 1 + r() * 6, 1 + r() * 2); }
+  });
+  Object.assign(M.MATS, { adaPlate: { tex: 'adaPlate', rough: 0.4, metal: 0.45 }, teaCup: { color: 0xd8d2c0, rough: 0.35, refl: 0.1 }, tea: { color: 0x3a2412, rough: 0.2 } });
+  // a wedge of walnut with the brass plate set into its slope
+  D.namePlate = [
+    ['ext', 'woodVarnish', [[-0.035, 0], [0.035, 0], [0.035, 0.055], [-0.035, 0.02]], 0.22, 0.003, 0, 0, 0, 0, H, 0],
+    ['box', 'adaPlate', 0.2, 0.07, 0.003, 0, 0.0385, 0.002, -0.4636, 0, 0],
+  ];
+  // a cup of tea gone cold on its saucer, the spoon in it
+  D.teaCup = [
+    ['lathe', 'teaCup', [[0.055, 0], [0.065, 0.008], [0.064, 0.012], [0.02, 0.012], [0.001, 0.012]], 20, 0, 0, 0],
+    ['lathe', 'teaCup', [[0.03, 0.012], [0.042, 0.016], [0.046, 0.065], [0.043, 0.066], [0.04, 0.02], [0.001, 0.02]], 20, 0, 0, 0],
+    ['disc', 'tea', 0.04, 0, 0.055, 0, -H],
+    ['torus', 'teaCup', 0.018, 0.005, 10, PI, 0.05, 0.04, 0, 0, 0, -H],
+    ['cyl', 'chrome', 0.003, 0.002, 0.11, 6, 0.012, 0.065, 0.03, 0.3, 0, 0.6],
+  ];
+
+  // ------------------------------------------------------------ freight handling by the elevator
+  // A two-wheeled hand truck standing back on its wheels and nose plate, a crate strapped to it
+  D.handTruck = (() => {
+    const f = 0.22, c = Math.cos(f), sn = Math.sin(f), s = [];
+    const at = (u, x, z0 = -0.04) => [x, 0.05 + u * c, z0 - u * sn];
+    for (const x of [-0.2, 0.2]) {
+      const m = at(0.575, x);
+      s.push(['cyl', 'doorPaintRed', 0.012, 0.012, 1.15, 8, m[0], m[1], m[2], -f, 0, 0]);
+      const h = at(1.15, x); s.push(['sph', 'doorPaintRed', 0.014, h[0], h[1], h[2], 8, 6]);
+      const w = [x * 1.3, 0.1, -0.06];
+      s.push(['cyl', 'rubber', 0.1, 0.1, 0.04, 20, w[0], w[1], w[2], 0, 0, H], ['cyl', 'chrome', 0.045, 0.045, 0.046, 14, w[0], w[1], w[2], 0, 0, H]);
+    }
+    for (const u of [0.35, 0.72, 1.12]) { const m = at(u, 0); s.push(['cyl', 'doorPaintRed', 0.011, 0.011, 0.4, 8, m[0], m[1], m[2], 0, 0, H]); }
+    s.push(['cyl', 'darkMetal', 0.01, 0.01, 0.6, 8, 0, 0.1, -0.06, 0, 0, H]);
+    s.push(['rbox', 'darkMetal', 0.36, 0.012, 0.22, 0.004, 0, 0.026, 0.08]);
+    // a lidded archive box strapped on, leaning back on the rails
+    s.push(['rbox', 'cardboard', 0.38, 0.3, 0.3, 0.008, 0, 0.19, 0.12, -0.1, 0, 0], ['box', 'labelCard', 0.14, 0.06, 0.002, 0, 0.2, 0.275, -0.1, 0, 0],
+      ['box', 'rubber', 0.4, 0.02, 0.32, 0, 0.22, 0.12, -0.1, 0, 0]);
+    return s;
+  })();
+  // A four-wheeled platform trolley with a tube push handle and three archive boxes on the deck
+  D.archiveTrolley = [
+    ['rbox', 'woodVarnish', 0.92, 0.04, 0.6, 0.008, 0, 0.17, 0],
+    ...[[-0.4, -0.25], [0.4, -0.25], [-0.4, 0.25], [0.4, 0.25]].flatMap(([x, z]) => [
+      ['cyl', 'darkMetal', 0.012, 0.012, 0.06, 8, x, 0.14, z], ['cyl', 'rubber', 0.055, 0.055, 0.035, 16, x, 0.055, z, 0, 0, H], ['cyl', 'chrome', 0.022, 0.022, 0.04, 10, x, 0.055, z, 0, 0, H],
+    ]),
+    ['tube', 'chrome', [[-0.42, 0.19, -0.26], [-0.44, 0.7, -0.26], [-0.44, 0.92, -0.2], [-0.44, 0.92, 0.2], [-0.44, 0.7, 0.26], [-0.42, 0.19, 0.26]], 0.011, 8, 40],
+    ['rbox', 'cardboard', 0.4, 0.24, 0.3, 0.008, 0.18, 0.31, -0.12], ['box', 'labelCard', 0.12, 0.05, 0.002, 0.18, 0.32, 0.031],
+    ['rbox', 'cardboard', 0.36, 0.22, 0.28, 0.008, 0.2, 0.54, -0.1, 0, 0.12, 0], ['box', 'labelCard', 0.11, 0.045, 0.002, 0.2, 0.55, 0.04, 0, 0.12, 0],
+    ['rbox', 'manila', 0.34, 0.26, 0.26, 0.008, -0.12, 0.32, 0.12, 0, -0.2, 0],
+    ['rbox', 'leather', 0.26, 0.05, 0.2, 0.004, -0.13, 0.475, 0.12, 0, -0.25, 0],
+  ];
 })(typeof window !== 'undefined' ? window : globalThis);

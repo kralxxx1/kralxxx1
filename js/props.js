@@ -269,9 +269,17 @@
   D.codeClue = D.note;
   D.memento = D.watch;
   D.elevatorCar = [
-    ['box', 'metal', 2.4, 0.05, 2.4, 0, 0, 0], ['box', 'metal', 2.4, 0.05, 2.4, 0, 2.7, 0],
-    ['box', 'metal', 0.05, 2.7, 2.4, -1.2, 1.35, 0], ['box', 'metal', 0.05, 2.7, 2.4, 1.2, 1.35, 0], ['box', 'metal', 2.4, 2.7, 0.05, 0, 1.35, 1.2],
-    ['box', 'chrome', 2.3, 0.04, 0.04, 0, 1.0, 1.15], ['box', 'elevatorPanel', 0.25, 0.5, 0.02, 0.9, 1.3, 1.17],
+    ['box', 'treadPlate', 2.4, 0.05, 2.4, 0, 0, 0], ['box', 'elevPaintDark', 2.4, 0.05, 2.4, 0, 2.7, 0],
+    ['box', 'elevPaint', 0.05, 2.7, 2.4, -1.2, 1.35, 0], ['box', 'elevPaint', 0.05, 2.7, 2.4, 1.2, 1.35, 0], ['box', 'elevPaint', 2.4, 2.7, 0.05, 0, 1.35, 1.2],
+    // timber bump rails round the three walls, ribbed corner posts, the grab rail
+    ['box', 'darkWood', 0.04, 0.14, 2.3, -1.155, 0.9, 0], ['box', 'darkWood', 0.04, 0.14, 2.3, 1.155, 0.9, 0], ['box', 'darkWood', 2.3, 0.14, 0.04, 0, 0.9, 1.155],
+    ['box', 'darkWood', 0.04, 0.14, 2.3, -1.155, 0.35, 0], ['box', 'darkWood', 0.04, 0.14, 2.3, 1.155, 0.35, 0], ['box', 'darkWood', 2.3, 0.14, 0.04, 0, 0.35, 1.155],
+    ['box', 'elevFrame', 0.1, 2.65, 0.1, -1.15, 1.35, 1.15], ['box', 'elevFrame', 0.1, 2.65, 0.1, 1.15, 1.35, 1.15],
+    ['box', 'steelBrushed', 2.0, 0.035, 0.035, 0, 1.25, 1.12], ['box', 'steelBrushed', 0.03, 0.03, 0.08, -0.9, 1.25, 1.14], ['box', 'steelBrushed', 0.03, 0.03, 0.08, 0.9, 1.25, 1.14],
+    ['box', 'elevatorPanel', 0.25, 0.5, 0.02, 0.9, 1.65, 1.17],
+    ['box', 'hazardBand', 2.3, 0.006, 0.16, 0, 0.028, -1.1],
+    // the caged lamp
+    ['sph', 'whiteLight', 0.09, 0, 2.57, 0, 10, 8], ['box', 'ironBlack', 0.34, 0.015, 0.02, 0, 2.62, 0], ['box', 'ironBlack', 0.02, 0.015, 0.34, 0, 2.62, 0], ['box', 'ironBlack', 0.34, 0.015, 0.02, 0, 2.52, 0], ['box', 'ironBlack', 0.02, 0.015, 0.34, 0, 2.52, 0],
   ];
   D.stairsDown = (() => {
     const s = [['box', 'concrete', 2.4, 3.2, 0.1, 0, 1.6, 3.4], ['box', 'concrete', 0.1, 3.2, 3.4, -1.2, 1.6, 1.7], ['box', 'concrete', 0.1, 3.2, 3.4, 1.2, 1.6, 1.7]];

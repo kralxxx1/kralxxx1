@@ -1310,20 +1310,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
           grp.add(plane);
           obj.curtain = plane;
         } else if (door.kind === 'elevator') {
-          const pm = this.mat('chrome');
-          obj.slides = [];
-          for (const sgn of [-1, 1]) {
-            const leaf = new THREE.Mesh(new THREE.BoxGeometry(w / 2, h, 0.05), pm);
-            leaf.position.set(sgn * w / 4, h / 2, 0);
-            leaf.castShadow = true;
-            grp.add(leaf);
-            obj.slides.push({ leaf, sgn });
-          }
-          const ind = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.14), new THREE.MeshBasicMaterial({ map: T.label('elev-ind', '▼ 0', { w: 256, h: 72, bg: '#140800', color: '#ff9a20', glow: true }), color: new THREE.Color(1.5, 1.5, 1.5) }));
-          ind.position.set(0, h + 0.2, 0.13 * this.nInSign(g));
-          ind.rotation.y = this.nInSign(g) > 0 ? 0 : Math.PI;
-          grp.add(ind);
-          obj.indicator = ind;
+          this.elevatorDoor(door, g, w, h, grp, obj);
         } else {
           const pivot = new THREE.Group();
           pivot.position.set(-w / 2, 0, 0);
@@ -1343,7 +1330,7 @@ roughnessFactor = mix(roughnessFactor, 0.95, pbDust);
         }
         // Kasa
         if (door.kind !== 'house' && obj.style && this.doorFrame) this.doorFrame(door, g, w, h, grp, obj.style);
-        else if (door.kind !== 'house') {
+        else if (door.kind !== 'house' && door.kind !== 'elevator') {
           const fm = door.kind === 'glass' ? this.mat('chrome') : this.mat(door.kind === 'wood' ? 'darkWood' : 'darkMetal');
           for (const sgn of [-1, 1]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.07, h, 0.24), fm); post.position.set(sgn * (w / 2 + 0.035), h / 2, 0); grp.add(post); }
           const top = new THREE.Mesh(new THREE.BoxGeometry(w + 0.14, 0.07, 0.24), fm); top.position.set(0, h + 0.035, 0); grp.add(top);

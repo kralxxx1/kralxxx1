@@ -66,11 +66,13 @@
     build(L, K) {
       const P = (t, x, y, r, o) => K.prop(t, x, y, r, o);
       // ---------------- staff room (behind the counter)
-      P('desk', 6.55, 10.35, -H, { col: [0.9, 0.43] });
+      P('desk', 6.55, 10.35, -H, { col: [0.9, 0.43], exact: true });
       P('chair', 6.0, 10.3, H, { col: [0.25, 0.25] });
       // on the desk: the typewriter on the blotter, the lamp at the back corner (its flex runs down behind
       // the desk), the phone at the front corner, clear of the desk's own clutter
       P('typewriter', 6.523, 10.35, -H, { y: 0.785 });
+      P('namePlate', 6.43, 10.57, -H, { y: 0.7825 });
+      P('teaCup', 6.535, 10.07, 0.4, { y: 0.7825 });
       P('deskLamp', 6.65, 10.61, -H, { y: 0 });
       K.light(6.63, 10.61, { kind: 'lamp', y: 1.04, color: [1, 0.8, 0.5], intensity: 0.5, range: 4.5, zone: 0 });
       // the chute's bin stands in front of the south wall, its duct against it
@@ -150,6 +152,14 @@
       P('rollingLadder', 12.997, 3.4, -H);
       P('scissorGate', 14.5, 0.12, 0);
       P('callPanel', 15.85, 0.5, -H, { wall: true, y: 1.3 });
+      // the corner by the elevator: the clerk's desk against the east wall with its lamp, and the records cupboard
+      P('desk', 15.6, 1.9, -H, { col: [0.9, 0.43] });
+      P('chair', 15.27, 1.9, H, { col: [0.25, 0.25] });
+      P('deskLamp', 15.7, 2.16, -H, { y: 0 });
+      K.light(15.7, 2.16, { kind: 'lamp', y: 1.04, color: [1, 0.78, 0.48], intensity: 0.42, range: 4.5, zone: 2, flicker: 0.18 });
+      P('recordsCupboard', 15.86, 3.05, -H, { col: [0.52, 0.23] });
+      P('handTruck', 13.3, 0.15, 0.05, { col: [0.3, 0.3] });
+      P('archiveTrolley', 15.15, 0.85, 0.35, { col: [0.5, 0.33] });
       P('suitcasePile', 4.6, 5.2, 0.6, { col: [0.6, 0.45] });
       P('bicycle', 15.5, 4.6, -H + 0.2, { col: [0.2, 0.75] });
       P('mailSack', 4.5, 0.6, 0.3, { col: [0.25, 0.22] });

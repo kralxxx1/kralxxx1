@@ -103,6 +103,11 @@
     g.add(body);
     const head = meshOf('sorter:head', sorterHead, [[-0.11, -0.06, -0.09], [0.11, 0.22, 0.17]], 0.007, skinM);
     head.position.set(0, 2.36, 0.25); head.rotation.x = 0.9; g.add(head);
+    // a mail sack drawn down over the head and tied at the neck: whatever it has for a face, nobody sees it
+    const sackM = new THREE.MeshStandardMaterial({ color: 0x6b5f46, roughness: 1 });
+    const sack = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), sackM); sack.scale.set(0.112, 0.138, 0.124); sack.position.set(0, 0.095, 0.035); sack.castShadow = true; head.add(sack);
+    const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.125, 0.07, 16, 1, true), sackM); skirt.material.side = THREE.DoubleSide; skirt.position.set(0, -0.045, 0.04); head.add(skirt);
+    const rope = new THREE.Mesh(new THREE.TorusGeometry(0.085, 0.008, 6, 16), new THREE.MeshStandardMaterial({ color: 0x3a3226, roughness: 1 })); rope.rotation.x = Math.PI / 2; rope.position.set(0, -0.012, 0.04); head.add(rope);
     const arms = [];
     const ag = S.mesh('sorter:arm', sorterArm, [[-0.1, -1.3, -0.1], [0.1, 0.08, 0.32]], 0.012, { color: aoColor(sorterArm, [1, 1, 1]), smooth: 2 });
     for (const sx of [-1, 1]) {
@@ -162,9 +167,7 @@
     // the outline extruded as a sheet of wet paper, bent and crumpled
     const bend = S.fbm(p[0] * 3, p[1] * 2.2, 0.5, 3) * 0.11 + S.fbm(p[0] * 9, p[1] * 7, 2.5, 2) * 0.025 + Math.sin(p[1] * 3.2) * 0.02;
     let d = S.smax(paperSil(p), Math.abs(p[2] - bend) - 0.014, 0.008);
-    // the face: three torn holes right through it
-    for (const sx of [-1, 1]) d = S.smax(d, -S.ellipsoid([p[0], p[1], 0], [sx * 0.04, 1.86, 0], [0.024, 0.016 + Math.abs(sx) * 0.004, 1]), 0.004);
-    d = S.smax(d, -S.ellipsoid([p[0], p[1], 0], [0.004, 1.76, 0], [0.03, 0.045, 1]), 0.004);
+    // no face: the sheet's head is blank wet paper, the pattern running straight over it
     return d;
   }
   function paperArm(p) {

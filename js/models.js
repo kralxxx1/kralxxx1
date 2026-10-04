@@ -265,10 +265,13 @@
     calendar: () => T.canvas('m:cal', 256, 320, (g, w, h) => {
       g.fillStyle = '#f1ecdc'; g.fillRect(0, 0, w, h);
       g.fillStyle = '#9c1c1c'; g.fillRect(0, 0, w, 60);
-      g.fillStyle = '#fff'; g.font = `bold 34px ${T.FONTS.FONT_TYPE}`; g.textAlign = 'center'; g.fillText('OCTOBER 1994', w / 2, 42);
+      g.fillStyle = '#fff'; g.font = `bold 34px ${T.FONTS.FONT_TYPE}`; g.textAlign = 'center'; g.fillText('JANUARY 1998', w / 2, 42);
+      // the month as it fell: the 1st on a Thursday, the 13th ringed (the night shift)
+      g.fillStyle = '#7a1a1a'; g.font = `bold 13px ${T.FONTS.FONT_TYPE}`;
+      ['M', 'T', 'W', 'T', 'F', 'S', 'S'].forEach((c, col) => g.fillText(c, 22 + col * 35, 78));
       g.fillStyle = '#222'; g.font = `18px ${T.FONTS.FONT_TYPE}`;
       let d = 1;
-      for (let row = 0; row < 5; row++) for (let col = 0; col < 7; col++) { if (row === 0 && col < 6) continue; if (d > 31) break; g.fillText(String(d), 22 + col * 35, 100 + row * 44); if (d === 21) { g.strokeStyle = '#c01818'; g.lineWidth = 3; g.beginPath(); g.arc(22 + col * 35, 94 + row * 44, 16, 0, PI * 2); g.stroke(); } d++; }
+      for (let row = 0; row < 5; row++) for (let col = 0; col < 7; col++) { if (row === 0 && col < 3) continue; if (d > 31) break; g.fillStyle = col > 4 ? '#8a2020' : '#222'; g.fillText(String(d), 22 + col * 35, 110 + row * 40); if (d === 13) { g.strokeStyle = '#c01818'; g.lineWidth = 3; g.beginPath(); g.arc(22 + col * 35, 104 + row * 40, 16, 0, PI * 2); g.stroke(); } d++; }
     }),
     perforated: () => T.canvas('m:perf', 64, 512, (g, w, h) => {
       g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h);

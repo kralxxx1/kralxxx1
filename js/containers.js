@@ -183,6 +183,63 @@
     define('filing', body, slots);
   }
 
+  // Records cupboard: three deep drawers under a counter ledge, glazed doors above with ledgers and binders
+  // on three shelves, a cornice on top. Only the drawers open.
+  {
+    const r = U.rng(2718), W = 1.04, Hh = 2.05, Dp = 0.46, z0 = Dp / 2;
+    const body = [
+      ['box', 'kick', 0.98, 0.1, 0.4, 0, 0.05, -0.01],
+      ['rbox', 'drawerWood', W, 0.9, Dp, 0.01, 0, 0.55, 0],
+      ['rbox', 'woodVarnish', W + 0.07, 0.03, Dp + 0.05, 0.008, 0, 1.015, 0.02],
+      // the glazed upper part: sides, top, back, shelves
+      ['box', 'drawerWood', 0.025, 0.99, Dp - 0.02, -W / 2 + 0.0125, 1.525, -0.01], ['box', 'drawerWood', 0.025, 0.99, Dp - 0.02, W / 2 - 0.0125, 1.525, -0.01],
+      ['box', 'drawerWood', W, 0.03, Dp - 0.02, 0, 2.005, -0.01],
+      ['box', 'cavity', W - 0.05, 0.96, 0.012, 0, 1.525, -Dp / 2 + 0.03],
+      ['rbox', 'woodVarnish', W + 0.08, 0.05, Dp + 0.06, 0.01, 0, 2.05, 0.01], ['rbox', 'woodVarnish', W + 0.03, 0.03, Dp + 0.025, 0.006, 0, 2.085, 0.005],
+    ];
+    const SPINE = ['leather', 'folderBrown', 'suitGreen', 'suitBlue', 'suitBrown', 'manila', 'leather'];
+    for (const ys of [1.3, 1.6]) body.push(['box', 'drawerWood', W - 0.05, 0.018, Dp - 0.06, 0, ys, -0.02]);
+    // what stands on each shelf (the floor of the upper part is the ledge's top at 1.03)
+    for (const ys of [1.03, 1.309, 1.609]) {
+      let x = -W / 2 + 0.05;
+      while (x < W / 2 - 0.06) {
+        if (r() < 0.12) { x += r.range(0.03, 0.09); continue; }       // a gap where one was borrowed
+        const t = r();
+        if (t < 0.18) {   // a flat box file lying on its side
+          const w = r.range(0.2, 0.3), h = r.range(0.04, 0.07);
+          if (x + w > W / 2 - 0.05) break;
+          body.push(['rbox', r.pick(['cardboard', 'manila']), w, h, 0.28, 0.004, x + w / 2, ys + 0.009 + h / 2, -0.02], ['box', 'labelCard', 0.07, 0.03, 0.002, x + w / 2, ys + 0.009 + h / 2, 0.1205]);
+          x += w + 0.01;
+        } else {          // a binder or a ledger standing upright
+          const w = r.range(0.028, 0.06), h = r.range(0.2, 0.25), lean = r() < 0.1 ? r.range(-0.12, 0.12) : 0;
+          if (x + w > W / 2 - 0.05) break;
+          body.push(['rbox', r.pick(SPINE), w, h, 0.26, 0.003, x + w / 2, ys + 0.009 + h / 2, -0.03, 0, 0, lean], ['box', 'labelCard', w * 0.7, 0.04, 0.002, x + w / 2, ys + 0.009 + h * 0.7, 0.1015]);
+          x += w + 0.002 + Math.abs(lean) * 0.5;
+        }
+      }
+    }
+    // doors: a frame of stiles and rails round a pane, a brass pull and the lock
+    for (const sg of [-1, 1]) {
+      const cx = sg * (W / 4 - 0.002), zf = z0 + 0.012, dw = W / 2 - 0.02, dh = 0.96, cy = 1.525;
+      body.push(['rbox', 'glass', dw - 0.1, dh - 0.1, 0.004, 0.001, cx, cy, zf]);
+      for (const x of [cx - dw / 2 + 0.025, cx + dw / 2 - 0.025]) body.push(['box', 'woodVarnish', 0.05, dh, 0.024, x, cy, zf]);
+      for (const y of [cy - dh / 2 + 0.025, cy + dh / 2 - 0.025]) body.push(['box', 'woodVarnish', dw, 0.05, 0.024, cx, y, zf]);
+      body.push(['box', 'woodVarnish', dw - 0.1, 0.022, 0.016, cx, cy + 0.12, zf]);       // the glazing bar
+      body.push(['cyl', 'brass', 0.007, 0.007, 0.034, 8, cx - sg * (dw / 2 - 0.025), cy, zf + 0.02, H, 0, 0], ['sph', 'brass', 0.014, cx - sg * (dw / 2 - 0.025), cy, zf + 0.042, 10, 8]);
+      for (const y of [cy - 0.38, cy + 0.38]) body.push(['cyl', 'brass', 0.006, 0.006, 0.05, 6, cx + sg * (dw / 2 - 0.002), y, zf - 0.006]);   // hinge barrels
+    }
+    body.push(['rbox', 'brass', 0.02, 0.04, 0.006, 0.002, 0.012, 1.4, z0 + 0.026]);      // the escutcheon on the right door's stile
+    // on top: a stack of ledgers and a lidded box under the ceiling
+    body.push(['rbox', 'cardboard', 0.42, 0.26, 0.3, 0.006, -0.22, 2.23, 0], ['box', 'labelCard', 0.12, 0.05, 0.002, -0.22, 2.25, 0.151],
+      ['rbox', 'leather', 0.3, 0.05, 0.22, 0.004, 0.22, 2.135, 0, 0, 0.1], ['rbox', 'suitGreen', 0.28, 0.05, 0.2, 0.004, 0.22, 2.185, 0, 0, -0.12]);
+    const slots = [];
+    for (const y of [0.245, 0.52, 0.795]) {
+      body.push(cav(0.96, 0.265, 0, y, z0));
+      slots.push({ c: [0, y, z0], w: 0.96, h: 0.265, depth: 0.38, kind: 'wood', box: 'drawerBox', junk: 'file', front: front('drawerWood', 0.96, 0.258, 0, y, z0, 'bail', { pairs: [-0.22, 0.22] }) });
+    }
+    define('recordsCupboard', body, slots);
+  }
+
   // Floor safe: thick walls, a shelf inside, a door hung on the right with the dial and handle
   {
     const body = [

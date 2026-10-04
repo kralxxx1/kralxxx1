@@ -129,7 +129,9 @@ js/levels.js         chapter definitions; js/maps/*.js the hand-built maps
 js/authored.js       builds a level from an authored map; js/levelgen*.js the Underneath
 js/story.js          localized access to the story
 js/textures*.js      procedural textures; js/art.js drawings; js/decor.js things on walls
-js/models*.js        prop and vehicle models and materials
+js/models*.js        prop and vehicle models and materials (models12.js: the depot's archive, the elevator corner's
+                     hand truck and trolley, Ada's name plate)
+js/doors.js          doors as joinery, and the freight elevator's steel doors and frame
 js/creatures.js      the creature framework; js/species*.js the 28 species; js/kills.js deaths
 js/world*.js         geometry, baked light, fixtures, doors; js/exterior.js and weather.js outside
 js/post.js           post-processing
